@@ -12,7 +12,8 @@
         <image class="listData__img" :src="imgUrl(item.fileName)" alt="" />
         <div class="listData__dec">
           <div>
-            <div class="listData__dec--fileName">{{ item.fileName }}</div>
+            <!-- 节点类型（1目录 2文档 3图片 4视频 5 音频 6 其他） -->
+            <div class="listData__dec--fileName">{{ item.sysKlTree.name }}</div>
             <div class="listData__dec--userName">{{ item.state }}</div>
             <div class="listData__dec--url">
               <div>{{ item.url }}</div>

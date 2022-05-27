@@ -1,4 +1,5 @@
 import docTypeUrl from '@/static/img/fileType/DOC.svg';
+import fileTypeUrl from '@/static/img/fileType/FILE.svg';
 import imgTypeUrl from '@/static/img/fileType/IMAG.svg';
 import mp3TypeUrl from '@/static/img/fileType/MP3.svg';
 import mp4TypeUrl from '@/static/img/fileType/MP4.svg';
@@ -431,6 +432,29 @@ export const fileType = (name) => {
       return imgTypeUrl;
     }
     return otyerTypeUrl;
+  }
+  return otyerTypeUrl;
+};
+
+// 节点类型（1目录 2文档 3图片 4视频 5 音频 6 其他）
+export const fileTypeImg = (value) => {
+  if (value === 1) {
+    return fileTypeUrl;
+  }
+  if (value === 2) {
+    return txtTypeUrl;
+  }
+  if (value === 3) {
+    return pptTypeUrl;
+  }
+  if (value === 4) {
+    return pdfTypeUrl;
+  }
+  if (value === 5) {
+    return docTypeUrl;
+  }
+  if (value === 6) {
+    return mp3TypeUrl;
   }
   return otyerTypeUrl;
 };
