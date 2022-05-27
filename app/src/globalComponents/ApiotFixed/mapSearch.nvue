@@ -1,0 +1,259 @@
+<template>
+  <view class="mapSearch">
+    <!-- #ifndef MP-ALIPAY -->
+    <apiot-navbar title="map"></apiot-navbar>
+    <!-- #endif -->
+    <map
+      class="mapSearch__map"
+      :markers="marks"
+      :longitude="currentLongitude || location.longitude"
+      :latitude="currentLatitude || location.latitude"
+    ></map>
+    <view class="mapSearch__div" :class="[isFocus ? 'focus' : '']">
+      <div v-if="isFocus" class="statusBar"></div>
+      <view class="mapSearch__div--search">
+        <input
+          placeholder="输入地址"
+          @focus="searchFocus"
+          @blur="searchBlur"
+          @input="mapSearchByKey"
+        />
+        <!-- <image src="~@/static/img/map/location.png" mode="heightFix" /> -->
+      </view>
+      <view class="mapSearch__div--tips">
+        <view v-for="(item, index) in tips" @tap="clickTip(item)">
+          <text>{{ item.name }}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import { geoMapKey } from '@/config/index.js';
+import { throttle } from '@/utils/index.js';
+import { getInputtips } from '@/api/map.js';
+
+export default {
+  components: {},
+
+  props: {},
+
+  data() {
+    return {
+      isFocus: false,
+      tips: [],
+      marks: [],
+      currentLongitude: '',
+      currentLatitude: ''
+    };
+  },
+
+  computed: {
+    location() {
+      return this.$store.state.map.location;
+    },
+    currentMark() {
+      const { latitude, longitude, name } = this.location;
+      return {
+        latitude,
+        longitude,
+        iconPath: '/static/img/map/location.png',
+        width: 25,
+        height: 25,
+        callout: {
+          content: name,
+          display: 'ALWAYS',
+          padding: 10,
+          borderRadius: 5
+        },
+        // #ifdef MP-ALIPAY
+        label: {
+          content: name,
+          padding: 10,
+          borderRadius: 5,
+          color: '#000000'
+        }
+        // #endif
+      };
+    },
+    markers() {
+      console.log([this.currentMark, ...this.marks]);
+      return [this.currentMark, ...this.marks];
+    }
+  },
+
+  methods: {
+    // 点击
+    clickTip(tip) {
+      console.log(tip);
+      const { location, name, id } = tip;
+      const index = this.marks.findIndex((item) => item.id === id);
+      if (index !== -1) return false;
+      const locationArry = location.split(',');
+      const longitude = Number(locationArry[0]);
+      const latitude = Number(locationArry[1]);
+      this.marks = [
+        {
+          id,
+          latitude,
+          longitude,
+          iconPath: '/static/img/map/location.png',
+          width: 25,
+          height: 25,
+          callout: {
+            content: name,
+            display: 'ALWAYS',
+            padding: 10,
+            borderRadius: 5
+          },
+          // #ifdef MP-ALIPAY
+          label: {
+            content: name,
+            padding: 10,
+            borderRadius: 5,
+            color: '#000000'
+          }
+          // #endif
+        }
+      ];
+      console.log(this.marks);
+      this.currentLongitude = longitude;
+      this.currentLatitude = latitude;
+    },
+    // 聚焦
+    searchFocus() {
+      this.isFocus = true;
+    },
+    // 失焦
+    searchBlur() {
+      this.isFocus = false;
+    },
+    // 获取搜索提示
+    async getInputTips() {
+      const { keywords, location } = this;
+      console.log();
+      if (!keywords) return;
+      try {
+        const locationStr = `${location.longitude},${location.latitude}`;
+        const res = await getInputtips({
+          key: geoMapKey.H5_KEY,
+          keywords,
+          location: locationStr,
+          city: location.regeocodes.addressComponent.citycode,
+          datatype: 'poi'
+        });
+        this.tips = [...res.tips];
+        console.log(res);
+      } catch (error) {}
+    },
+    // 根据关键字进行搜索
+    mapSearchByKey(e) {
+      console.log(e.detail);
+      this.keywords = e.detail.value;
+      this.getInputTipsThrottle();
+    }
+  },
+
+  mounted() {},
+
+  created() {
+    this.getInputTipsThrottle = throttle(this.getInputTips, 500);
+  },
+
+  onReady() {
+    // #ifdef APP-PLUS
+    plus.navigator.setStatusBarStyle('dark');
+    // #endif
+    // #ifdef MP
+    uni.setNavigationBarTitle({
+      title: '地图'
+    });
+    // #endif
+    this.marks = [this.currentMark];
+  }
+};
+</script>
+<style lang='scss' scoped>
+page {
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 0px;
+  --safe-area-inset-left: 0px;
+}
+
+@supports (top: constant(safe-area-inset-top)) {
+  page {
+    --safe-area-inset-top: constant(safe-area-inset-top);
+    --safe-area-inset-right: constant(safe-area-inset-right);
+    --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+    --safe-area-inset-left: constant(safe-area-inset-left);
+  }
+}
+
+@supports (top: env(safe-area-inset-top)) {
+  page {
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-right: env(safe-area-inset-right);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+    --safe-area-inset-left: env(safe-area-inset-left);
+  }
+}
+/* #ifndef APP-PLUS-NVUE */
+page {
+  min-height: 100%;
+}
+/* #endif */
+.mapSearch {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  &__map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* #ifdef MP-WEIXIN */
+    width: 100%;
+    height: 100%;
+    /* #endif */
+  }
+  &__div {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20rpx var(--safe-area-inset-right) var(--safe-area-inset-bottom)
+      var(--safe-area-inset-left);
+    background: #ffffff;
+    display: flex;
+    &.focus {
+      top: 88rpx;
+    }
+    &--search {
+      display: flex;
+      flex-direction: row;
+      padding: 8rpx;
+    }
+
+    input {
+      flex: 1;
+      height: 60rpx;
+      line-height: 60rpx;
+    }
+    image {
+      flex-shrink: 0;
+      height: 60rpx;
+    }
+
+    .statusBar {
+      height: var(--status-bar-height);
+      padding: var(--safe-area-inset-top) var(--safe-area-inset-right)
+        var(--safe-area-inset-bottom) var(--safe-area-inset-left);
+    }
+  }
+}
+</style>

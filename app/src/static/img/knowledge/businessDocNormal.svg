@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60px" height="60px" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>知识库(60)/业务文件 (常态)</title>
+    <desc>Created with Sketch.</desc>
+    <g id="知识库(60)/业务文件-(常态)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组">
+            <rect id="Rectangle-26-Copy" x="0" y="0" width="60" height="60"></rect>
+            <path d="M25.0472467,12 L31.4593539,18 L48,18 C49.6568542,18 51,19.3431458 51,21 L51,45 C51,46.6568542 49.6568542,48 48,48 L12,48 C10.3431458,48 9,46.6568542 9,45 L9,15 C9,13.3431458 10.3431458,12 12,12 L25.0472467,12 Z M23.467,15.999 L13,15.999 L13,43.999 L47,43.999 L47,21.999 L29.8797445,22 L23.467,15.999 Z" id="矩形备份-5" fill="#BBC3CD" fill-rule="nonzero"></path>
+            <rect id="矩形备份-6" fill="#BBC3CD" x="9" y="29" width="40" height="4" rx="2"></rect>
+            <rect id="矩形备份-6" fill="#BBC3CD" transform="translate(23.000000, 31.000000) rotate(-90.000000) translate(-23.000000, -31.000000) " x="17" y="29" width="12" height="4" rx="2"></rect>
+            <rect id="矩形备份-7" fill="#BBC3CD" transform="translate(37.000000, 31.000000) rotate(-90.000000) translate(-37.000000, -31.000000) " x="31" y="29" width="12" height="4" rx="2"></rect>
+        </g>
+    </g>
+</svg>

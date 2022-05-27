@@ -1,0 +1,163 @@
+{
+  "easycom": {
+    "^uni-(.*)": "@/components/uni-$1/uni-$1.vue",
+    "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+  },
+  "pages": [
+    // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/index/index"
+    },
+    {
+      "path": "pages/Login/index"
+    },
+    {
+      "path": "pages/MenuHome/index"
+    },
+    {
+      "path": "pages/MenuMine/index",
+      "style": {
+        "backgroundColor": "#F6F6F8"
+      }
+    },
+    {
+      "path": "pages/Login/loginForgot"
+    },
+    {
+      "path": "pages/MenuHome/applicationTab"
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "menuConfigure", // 配置界面
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "highSearch", // 筛选
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "interfaceCommon", // 通用功能，例如搜索界面
+      "pages": [
+        {
+          "path": "search",
+          "style": {
+            "backgroundColor": "#FFFFFF"
+          }
+        }
+      ]
+    },
+    {
+      "root": "inspection",
+      "pages": [
+        {
+          "path": "inspection/route",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "inspection/inspectionDevice",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "inspection/inspectionPoint",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "inspection/inspectionUpload",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "knowledgeBase",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "components/SearchPage/index"
+        }
+      ]
+    },
+    {
+      "root": "MinePages",
+      "pages": [
+        {
+          "path": "BasicInfo/index"
+        },
+        {
+          "path": "ChangePassword/index"
+        },
+        {
+          "path": "ChangeTelephone/index"
+        },
+        {
+          "path": "MyCode/index"
+        },
+        {
+          "path": "ChangeEmail/index"
+        },
+        {
+          "path": "ChangeUsername/index"
+        },
+        {
+          "path": "ChangeSign/index"
+        }
+      ]
+    },
+    {
+      "root": "PagesServer",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/MenuHome/index": {
+      "network": "all",
+      "packages": ["menuConfigure", "knowledgeBase"]
+    },
+    "menuConfigure/index": {
+      "network": "all",
+      "packages": ["interfaceCommon"]
+    }
+  },
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F6F6F8",
+    "scrollIndicator": "none",
+    "softinputNavBar": "none"
+  }
+}

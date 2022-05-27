@@ -1,0 +1,316 @@
+/*
+* @Description: 基础样式
+* @Author: sss
+* @Date: 2021-04-26 17:23:05
+ * @Last Modified by: sss 
+ * @Last Modified time: 2022-04-25 15:14:48
+*/
+@import './animation.scss';
+
+$__font-color: #333333;
+
+$--font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
+  Helvetica, Arial, sans-serif;
+
+// 全面屏、刘海屏适配（iphoneX适配）及安全区设置
+page {
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 0px;
+  --safe-area-inset-left: 0px;
+}
+
+// #ifndef APP-PLUS-NVUE
+
+@supports (top: constant(safe-area-inset-top)) {
+  page {
+    --safe-area-inset-top: constant(safe-area-inset-top);
+    --safe-area-inset-right: constant(safe-area-inset-right);
+    --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+    --safe-area-inset-left: constant(safe-area-inset-left);
+  }
+}
+
+@supports (top: env(safe-area-inset-top)) {
+  page {
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-right: env(safe-area-inset-right);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+    --safe-area-inset-left: env(safe-area-inset-left);
+  }
+}
+// #endif
+// 全局css
+body,
+html {
+  width: 100%;
+  background: #f6f6f8;
+  font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
+    Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+textarea,
+button {
+  font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
+    Helvetica, Arial, sans-serif !important;
+}
+
+$directions: (
+  't': 'top',
+  'b': 'bottom',
+  'l': 'left',
+  'r': 'right',
+);
+$dimensions: (
+  'p': 'padding',
+  'm': 'margin',
+);
+// 获取padding margin间隔 设置对应全局class
+@each $dim in $dimensions {
+  //循环四个方向
+  @each $dir in $directions {
+    @for $i from 1 through 20 {
+      $size: $i;
+      .#{nth($dim,1)}-#{nth($dir,1)}-#{$size} {
+        #{nth($dim,2)}-#{nth($dir,2)}: #{$size}px;
+      }
+    }
+  }
+}
+
+// 生成 p-l-5 p-l-10 m-l-5 m-l-10 等class
+
+/* 字体溢出隐藏 */
+.font__ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.apiotNoData.apiotHiddenNoData {
+  opacity: 0;
+}
+// 所有图标向上对其
+.appIcon {
+  vertical-align: top;
+  font-weight: 400;
+}
+.iconfont {
+  vertical-align: top;
+  font-weight: 400;
+}
+
+/*
+  自定义按钮颜色
+*/
+.u-btn {
+  background-color: #ffffff;
+  border-radius: 6px;
+  color: #333333;
+  width: 100% !important;
+  line-height: normal;
+}
+.apiot__button {
+  display: inline-block !important;
+  margin-left: 10px !important;
+  border: 0 !important;
+  color: #ffffff !important;
+}
+
+.triangle {
+  position: relative;
+  user-select: none;
+  &:after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 12px;
+    border-width: 4px;
+    border-style: solid;
+    border-color: transparent transparent transparent #333333;
+  }
+  &.open:after {
+    border-width: 3px;
+    left: 10px;
+    border-color: transparent #333333 #333333 transparent;
+  }
+}
+
+// 状态栏
+.status__bar {
+  height: var(--status-bar-height);
+}
+
+// 表单 为了兼容钉钉小程序，一定要注意要在u-form外面包一层<div class="form hasBorder"></div>
+.form {
+  .required {
+    ::v-deep {
+      .u-form-item__body__left__content {
+        &::after {
+          content: '*';
+          color: #e02020;
+          margin-left: 1px;
+        }
+      }
+    }
+  }
+  &.hasBorder {
+    ::v-deep {
+      .u-form-item {
+        &::after {
+          content: '';
+          display: block;
+          width: 100%;
+          height: 1px;
+          background: #e9e9e9;
+        }
+      }
+    }
+  }
+}
+.noLeftForm {
+  ::v-deep {
+    .u-form-item {
+      margin-top: 0 !important;
+    }
+    .u-form-item__body {
+      &__left {
+        width: 100% !important;
+        &__content__label {
+          font-size: 14px !important;
+          font-family: PingFangSC-Regular, PingFang SC;
+          color: #555555 !important;
+          flex: 0 1 auto !important;
+        }
+      }
+      &__right {
+        &__message {
+          margin-left: 14px !important;
+        }
+      }
+    }
+  }
+}
+::v-deep {
+  .u-form {
+    &-item {
+      margin-top: 26rpx;
+      padding: 0 !important;
+      position: relative;
+    }
+  }
+  .u-form-item__body {
+    padding: 0 !important;
+    &__right {
+      overflow: hidden;
+      &__content__slot {
+        overflow: hidden;
+      }
+    }
+    &__right__message {
+      position: absolute;
+      bottom: -10rpx;
+    }
+    &__left {
+      height: 64rpx;
+      margin: 0 !important;
+      &____content {
+        &__required {
+          position: absolute;
+        }
+      }
+    }
+  }
+
+  .u-wrap {
+    background-color: transparent !important;
+  }
+
+  // 输入框
+  .u-input__input,
+  .u-input {
+    box-sizing: border-box;
+    height: 100%;
+    font-size: 16px !important;
+    font-family: $--font-family !important;
+    color: $form-el-valueColor !important;
+  }
+  .u-input--square {
+    border-radius: 12rpx !important;
+  }
+  .disabled {
+    input {
+      color: $form-el-disabled-valueColor !important;
+    }
+  }
+
+  // 多行文本框
+  textarea {
+    width: 100%;
+    height: 128rpx;
+    font-size: 16px !important;
+    font-family: $--font-family !important;
+  }
+  // 操作菜单文字样式
+  .u-action-sheet__item-wrap__item__name {
+    color: #333333 !important;
+  }
+}
+// 为了解决遮罩层后底部滑动问题
+.maskOverhidden {
+  width: 100% !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+// 日期控件样式
+.datePicker {
+  ::v-deep {
+    .u-toolbar__wrapper__cancel,
+    .u-toolbar__wrapper__confirm,
+    .u-toolbar__title {
+      font-size: 17px !important;
+    }
+    .u-toolbar__title {
+      color: #333333 !important;
+    }
+    .u-picker__view__column__item {
+      font-weight: 400 !important;
+      color: #333333 !important;
+    }
+  }
+}
+
+// Collapse 折叠面板
+.u-collapse {
+  .u-cell__body,
+  .u-collapse-content {
+    height: 110rpx;
+    line-height: 110rpx;
+  }
+  .u-collapse-content {
+    box-shadow: inset 0px -1px 0px 0px #e9e9e9;
+  }
+  .u-collapse-content:last-child {
+    box-shadow: none;
+  }
+  .u-line {
+    margin: 0 30rpx !important;
+    width: calc(100% - 60rpx) !important;
+  }
+  .u-collapse-item__content__text {
+    padding: 0 15px !important;
+  }
+}
+.uni-modal {
+  border-radius: 18rpx !important;
+  -webkit-border-radius: 18rpx !important;
+  -moz-border-radius: 18rpx !important;
+  -ms-border-radius: 18rpx !important;
+  -o-border-radius: 18rpx !important;
+  .uni-modal__btn_primary {
+    color: #4689f5 !important;
+  }
+}
