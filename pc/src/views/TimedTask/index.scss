@@ -1,0 +1,32 @@
+@mixin setListLayout($--name, $--headerHeight, $--footerHeight) {
+  .#{$--name} {
+    &__content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    &__header {
+      &--haspadding {
+        padding: 0 10px;
+      }
+      flex: 0 0 $--headerHeight;
+      line-height: $--headerHeight;
+      .icon-shanchu,
+      .isTheme {
+        color: $--color-primary;
+      }
+    }
+    &__main {
+      &--haspadding {
+        padding: 0 10px;
+      }
+      flex: 1;
+      overflow: hidden;
+    }
+    &__footer {
+      height: $--footerHeight;
+      line-height: $--footerHeight;
+    }
+  }
+}

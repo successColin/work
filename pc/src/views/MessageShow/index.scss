@@ -1,0 +1,24 @@
+.messageShow {
+  height: calc(100% + 40px);
+  transform: translateY(-56px);
+  ::v-deep{
+    .el-drawer__body, .drawer__content{
+      overflow: initial;
+    }
+    .el-tabs{
+      background: transparent;
+    }
+    .el-tabs__nav-scroll{
+      display: flex;
+      justify-content: center;
+    }
+    .el-tabs__item{
+      line-height: 56px;
+      height: 56px;
+      padding: 0 28px;
+    }
+    .el-tabs__content{
+      padding-left: 36px;
+    }
+  }
+}

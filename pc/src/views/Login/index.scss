@@ -1,0 +1,93 @@
+// 登录的css
+.loginModule {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  font-family: PingFangSC-Regular, PingFang SC;
+  ::v-deep {
+    .content__sidebar {
+      border-right: none;
+    }
+    .el-input__inner {
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+  .content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #333333;
+    text-align: left;
+    font-size: 13px;
+    box-shadow: none;
+    &__lang,
+    &__loginIn,
+    &__reference {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      & > a {
+        color: #6b798d;
+        text-decoration: none;
+      }
+    }
+    // 语言
+    &__lang {
+      flex-direction: row-reverse;
+      margin-right: 50px;
+    }
+    // 登录
+    &__loginIn {
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+      user-select: none;
+      // 容器
+      .vessel {
+        min-width: 330px;
+        min-height: 450px;
+        width: 30%;
+        // 标题
+        &__title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 33px;
+          // 登录名称
+          &--name {
+            font-size: 24px;
+            color: #111111;
+          }
+          // 扫码登录图片
+          &--scan_login {
+            float: right;
+            cursor: pointer;
+          }
+        }
+        // 欢迎登录APIoT平台！
+        &__info {
+          margin-top: 6px;
+          text-align: left;
+          font-size: 13px;
+          color: #6b798d;
+        }
+      }
+    }
+    // 备案
+    &__reference {
+      justify-content: center;
+      font-size: 12px;
+      color: #6b798d;
+      cursor: pointer;
+      a {
+        height: 100%;
+        display: flex;
+        flex-direction: column-reverse;
+        margin-bottom: 60px;
+      }
+    }
+  }
+}

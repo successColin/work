@@ -1,0 +1,80 @@
+{
+  "iconSet": [
+    {
+      "id": 1,
+      "name": "菜单图标",
+      "groupArr": []
+    },
+    {
+      "id": 2,
+      "name": "报表汇总",
+      "groupArr": []
+    },
+    {
+      "id": 3,
+      "name": "其他图标",
+      "groupArr": []
+    },
+    {
+      "id": 7,
+      "name": "菜单图标",
+      "groupArr": []
+    },
+    {
+      "id": 8,
+      "name": "报表汇总",
+      "groupArr": []
+    },
+    {
+      "id": 4,
+      "name": "状态图标",
+      "groupArr": [
+        {
+          "iconName": "单据",
+          "value": "iconfont-danju",
+          "id": 1,
+          "iconType": 1
+        },
+        {
+          "iconName": "工单",
+          "value": "iconfont-gongdan",
+          "id": 2,
+          "iconType": 1
+        },
+        {
+          "iconName": "故障",
+          "value": "iconfont-guzhang",
+          "id": 3,
+          "iconType": 1
+        },
+        {
+          "iconName": "统计",
+          "value": "iconfont-tongji",
+          "id": 4,
+          "iconType": 1
+        },
+        {
+          "iconName": "数据",
+          "value": "iconfont-shuju",
+          "id": 5,
+          "iconType": 2
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "优先级图标",
+      "groupArr": []
+    },
+    {
+      "id": 6,
+      "name": "类型图标",
+      "groupArr": []
+    },
+    {
+      "id": 9,
+      "name": "其他图标",
+      "groupArr": []
+    }
+  ]
+}

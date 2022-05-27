@@ -1,0 +1,47 @@
+// 该文件打包时 引入
+/* 改变主题色变量 */
+$--color-primary: #4689f5;
+$--hover-fontColor: #2b71e0;
+$--hover-iconColor: #4689f5;
+$--hover-bgColor: #6ba1f7;
+// hover 的主题色
+$--hover-color: #edf3fe;
+/* 登录模块 */
+$--button-height: 40px;
+/* 分页高度 */
+$--pagination--height: 42px;
+/* 流程中顶部操作栏高度 */
+$--actionBar--height: 46px;
+$component-borderFocus-color: #4689f5;
+$component-border-color: #2b71e0;
+$component-background-color: #FFFFFF;
+
+// 之后张哥估计会涉及到风格
+$layoutHeader: 50px; // 50px
+$iconFontSizeHeadr: 22px; // 22px
+$userImageHeader: 34px; // 34px
+$tabsHeaderToHeader: 250px; // 250px
+
+@mixin leftTriangle($w, $h,$color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to bottom right,$color  49.9%, $color1 50%,$color2 100%);
+}
+
+@mixin rightTriangle($w, $h,$color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to bottom left, $color 49.9%, $color1 50%,$color2 100%);
+}
+
+@mixin topTriangle($w, $h, $color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to bottom left, $color 49.9%, $color1 50%,$color2 100%);
+}
+
+@mixin bottomTriangle($w, $h,$color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to top left, $color 49.9%, $color1 50%,$color2 100%);
+}

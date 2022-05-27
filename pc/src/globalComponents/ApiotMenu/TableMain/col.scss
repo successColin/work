@@ -1,0 +1,78 @@
+.column {
+  &__editable {
+    position: relative;
+    ::v-deep {
+      & > .el-select {
+        width: 100%;
+      }
+    }
+    &--iconBox {
+      position: absolute;
+      right: 1px;
+      top: 4px;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      background-color: #fff;
+      border-radius: 8px;
+      .iconfont {
+        font-size: 16px;
+        color: #d9d9d9;
+      }
+    }
+  }
+  &__notEditable {
+    height: 36px;
+    line-height: 36px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.columnHeader__box {
+  display: inline-flex;
+  align-items: center;
+  line-height: 18px;
+  height: 18px;
+  .icon-bangzhu {
+    margin-left: 5px;
+    color: #aaaaaa;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+  }
+  .is-required {
+    &:after {
+      content: '*';
+      color: #f56c6c;
+      margin-left: 4px;
+    }
+  }
+}
+.option {
+  &__bg {
+    max-width: 100%;
+    box-sizing: border-box;
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 24px;
+    background: $--color-primary;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 4px;
+    color: #fff;
+  }
+  &__self {
+    display: flex;
+    align-items: center;
+    img {
+      width: 24px;
+    }
+    i {
+      font-size: 24px;
+      margin-right: 4px;
+    }
+  }
+}
