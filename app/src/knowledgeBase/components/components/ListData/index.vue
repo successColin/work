@@ -9,15 +9,24 @@
   <u-list @scrolltolower="scrolltolower">
     <u-list-item v-for="(item, index) in dataArr" :key="index">
       <section class="listData">
-        <image class="listData__img" :src="imgUrl(item.fileName)" alt="" />
+        <image class="listData__img" :src="imgUrl(item)" alt="" />
         <div class="listData__dec">
-          <div>
-            <!-- 节点类型（1目录 2文档 3图片 4视频 5 音频 6 其他） -->
-            <div class="listData__dec--fileName">{{ item.sysKlTree.name }}</div>
-            <div class="listData__dec--userName">{{ item.state }}</div>
-            <div class="listData__dec--url">
-              <div>{{ item.url }}</div>
+          <div class="listData__dec--right">
+            <!-- 文件名 -->
+            <div class="listData__dec--fileName font__ellipsis">
+              {{ item.sysKlTree.name }}
             </div>
+            <!-- 时间 -->
+            <div class="listData__dec--userName font__ellipsis">
+              {{
+                item.sysKlTree.modifyTime
+                  ? `${item.sysKlTree.modifyTime} 更新`
+                  : item.sysKlTree.createTime
+              }}
+            </div>
+            <!-- <div class="listData__dec--url">
+              <div>{{ item.url }}</div>
+            </div> -->
           </div>
           <i class="appIcon appIcon-gengduo" @click="handleMoreOper"></i>
         </div>
@@ -27,7 +36,7 @@
 </template>
 
 <script>
-import { fileType } from '@/utils/index';
+import { fileTypeImg } from '@/utils/index';
 
 export default {
   props: {
@@ -46,9 +55,9 @@ export default {
   components: {},
   computed: {
     imgUrl() {
-      return function(name) {
-        console.log(fileType(name));
-        return fileType(name);
+      return function (name) {
+        // console.log(fileTypeImg(name));
+        return fileTypeImg(name);
       };
     }
   },
@@ -59,23 +68,23 @@ export default {
       this.$emit('update:isShowMoreOper', true);
     },
     // 底部多少时候出发事件
-    scrolltolower() {}
+    scrolltolower() {
+      this.$emit('scrolltolower');
+    }
   }
 };
 </script>
 <style lang='scss' scoped>
-$listHeight: 180rpx;
+$listHeight: 140rpx;
 .listData {
   display: flex;
   justify-content: space-between;
-  // width: 100%;
   height: $listHeight;
   padding: 0 30rpx;
   background: #fff;
   &__img {
-    width: 60rpx;
+    width: 68rpx;
     height: auto;
-    margin: 0 36rpx 30rpx 3px;
   }
   &__dec {
     display: flex;
@@ -83,15 +92,23 @@ $listHeight: 180rpx;
     flex: 1;
     border-bottom: 1px solid #e9e9e9;
     justify-content: space-between;
+    margin-left: 36rpx;
+    &--right {
+      width: 20px;
+      flex: 1;
+    }
     &--fileName {
       font-size: 32rpx;
+      line-height: 32rpx;
       color: #333333;
     }
     &--url,
     &--userName {
       font-size: 24rpx;
+      line-height: 24rpx;
       color: #808080;
-      margin-top: 16rpx;
+      margin-top: 20rpx;
+      flex: 1;
     }
     i {
       color: #bbc3cd;

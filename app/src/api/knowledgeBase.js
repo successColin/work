@@ -8,7 +8,7 @@
 import FetchData from './axiosConfig';
 
 // 分页查询列表
-export function pageFiles(params) {
+export function listFiles(params) {
   return FetchData.request({
     url: '/system/knowledge/listFiles',
     method: 'GET',
@@ -16,10 +16,10 @@ export function pageFiles(params) {
   });
 }
 
-// 忘记密码，第二步：获取验证码
-export function getSendMessageVerifyCode(params) {
+// 类型分页查询
+export function pageFiles(params) {
   return FetchData.request({
-    url: '/messageVerify/sendMessageVerifyCode',
+    url: '/system/knowledge/pageFiles',
     method: 'get',
     params,
   });

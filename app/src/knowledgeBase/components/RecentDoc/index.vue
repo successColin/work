@@ -71,7 +71,6 @@
 </template>
 
 <script>
-import { dataArrList } from '../../index.js';
 import PopupLine from '../components/PopupLine';
 import ListData from '../components/ListData';
 import MoreOper from '../components/MoreOper';
@@ -94,7 +93,7 @@ export default {
     return {
       isShowPopup: false, // 筛选
       isShowMoreOper: false, // 更多操作
-      dataArr: dataArrList,
+      dataArr: [],
       screenArr1: [
         {
           name: '全部类型',

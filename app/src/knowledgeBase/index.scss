@@ -6,22 +6,6 @@
       background: #fff;
       position: relative;
     }
-    &__mask {
-      width: 100%;
-      height: 90rpx;
-      position: absolute;
-      top: 0;
-      left: 0;
-      background-color: transparent;
-      z-index: 1;
-    }
-    &__search {
-      ::v-deep {
-        .u-input__icon--prefix {
-          padding: 0 21rpx 0 34rpx;
-        }
-      }
-    }
     &__nav {
       border-top: 1px solid #e9e9e9;
       padding: 26rpx 30rpx;
@@ -36,17 +20,34 @@
         font-size: 38rpx;
         color: #bbc3cd;
       }
+      &--left {
+        display: flex;
+        align-items: end;
+        position: relative;
+      }
       &--title {
         display: flex;
         flex-direction: column;
         align-items: center;
-        div {
-          margin-top: 10rpx;
-          width: 60rpx;
-          height: 5rpx;
-          background: linear-gradient(270deg, rgba(70, 137, 245, 0) 0%, #4689F5 100%);
-          border-radius: 1px;
-        }
+        font-size: 36rpx;
+        font-weight: 500;
+        color: #333333;
+      }
+      &--noClickTitle {
+        font-size: 28rpx;
+        color: #808080;
+      }
+      &--marginLeft:not(:nth-child(1)) {
+        margin-left: 40rpx;
+      }
+      &--selected {
+        position: absolute;
+        width: 60rpx;
+        height: 5rpx;
+        background: linear-gradient(270deg, rgba(70, 137, 245, 0) 0%, #4689F5 100%);
+        border-radius: 1px;
+        bottom: -18rpx;
+        transition: all 100ms linear 0s !important;
       }
     }
     &__popup {
@@ -75,6 +76,11 @@
       &--ok {
         font-size: 30px;
         color: #ffffff;
+      }
+    }
+    ::v-deep {
+      .u-input__icon--prefix {
+        padding: 0 21rpx 0 34rpx;
       }
     }
   }

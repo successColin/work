@@ -81,7 +81,6 @@
 
 <script>
 import ListData from '../components/ListData';
-import { dataArrList } from '../../index';
 
 export default {
   data() {
@@ -145,11 +144,6 @@ export default {
       return this.$store.getters.getThemeColorFont;
     }
   },
-  watch: {
-    keyword(v) {
-      console.log(v);
-    }
-  },
   mounted() {},
   methods: {
     // 筛选
@@ -171,12 +165,11 @@ export default {
     },
     // 获取数据
     getList() {
-      console.log('获取数据', this.keyword);
       this.keywordVal = this.keyword;
       if (!this.keyword) {
         this.dataArr = [];
       } else {
-        this.dataArr = dataArrList;
+        this.dataArr = [];
       }
     }
   }
