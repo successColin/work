@@ -2,21 +2,21 @@
  * @Author: ytx
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: ytx
- * @Last Modified time: 2022-05-27 17:01:59
+ * @Last Modified time: 2022-05-30 15:22:09
  * 知识库管理
  */
 import FetchData from './axiosConfig';
 
-// 分页查询列表
+// 查询__全部列表
 export function listFiles(params) {
   return FetchData.request({
     url: '/system/knowledge/listFiles',
-    method: 'GET',
+    method: 'get',
     params,
   });
 }
 
-// 类型分页查询
+// 查询__筛选类型分页
 export function pageFiles(params) {
   return FetchData.request({
     url: '/system/knowledge/pageFiles',
@@ -25,28 +25,37 @@ export function pageFiles(params) {
   });
 }
 
-// // 忘记密码，第二步：校验验证码
-// export function postDoMessageVerify(data) {
-//   return FetchData.request({
-//     url: '/messageVerify/doMessageVerify',
-//     method: 'post',
-//     data,
-//   });
-// }
+// 查询__他人分享
+export function listOtherShare(params) {
+  return FetchData.request({
+    url: '/system/knowledge/listOtherShare',
+    method: 'get',
+    params,
+  });
+}
 
-// // 忘记密码，第三步：重置密码
-// export function postResetPassword(data) {
-//   return FetchData.request({
-//     url: '/register/resetPassword',
-//     method: 'post',
-//     data,
-//   });
-// }
+// 查询__我的分享
+export function listShare(params) {
+  return FetchData.request({
+    url: '/system/knowledge/listShare',
+    method: 'get',
+    params,
+  });
+}
 
-// // 获取登录页配置
-// export function getLoginConfig() {
-//   return FetchData.request({
-//     url: '/system/global/getGlobalLogin',
-//     method: 'get',
-//   });
-// }
+// 查询__我的收藏
+export function listCollection(params) {
+  return FetchData.request({
+    url: '/system/knowledge/listCollection',
+    method: 'get',
+    params,
+  });
+}
+// 访问文件
+export function visitRecord(data) {
+  return FetchData.request({
+    url: '/system/knowledge/visitRecord',
+    method: 'post',
+    data,
+  });
+}

@@ -52,7 +52,7 @@ export function formatDate(time, format) {
   if (/(y+)/i.test(format)) {
     format = format.replace(
       RegExp.$1,
-      `${time.getFullYear()}`.substr(4 - RegExp.$1.length)
+      `${time.getFullYear()}`.substr(4 - RegExp.$1.length),
     );
   }
   Object.keys(date).forEach((k) => {
@@ -61,7 +61,7 @@ export function formatDate(time, format) {
         RegExp.$1,
         RegExp.$1.length === 1
           ? date[k]
-          : `00${date[k]}`.substr(`${date[k]}`.length)
+          : `00${date[k]}`.substr(`${date[k]}`.length),
       );
     }
   });
@@ -94,7 +94,9 @@ export function randint(n, m) {
   const c = m - n + 1;
   const num = Math.random() * c + Number(n);
   if (typeof n === 'string') {
-    return Math.floor(num).toString().padStart(2, '0');
+    return Math.floor(num)
+      .toString()
+      .padStart(2, '0');
   }
   return Math.floor(num);
 }
@@ -125,7 +127,7 @@ export function getQueryString(name, str) {
 // 防抖函数
 export function debounce(fn, delay = 200) {
   let timer = null;
-  return function (...args) {
+  return function(...args) {
     if (timer) {
       clearTimeout(timer);
     }
@@ -141,7 +143,7 @@ export function debounce(fn, delay = 200) {
 // 节流函数
 export function throttle(fn, delay = 200) {
   let timer = null;
-  return function (...args) {
+  return function(...args) {
     if (timer) {
       return;
     }
@@ -262,7 +264,7 @@ export function getBlob({ url, token, method = 'get', contentType }, cb) {
   if (contentType) {
     xhr.setRequestHeader('content-type', contentType);
   }
-  xhr.onload = function () {
+  xhr.onload = function() {
     if (xhr.status === 200) {
       console.log(xhr.response);
       cb(xhr.response);
@@ -321,7 +323,7 @@ export function makeUrlToBase64(url, callback) {
   const ctx = canvas.getContext('2d');
   const img = new Image();
   img.crossOrigin = 'Anonymous';
-  img.onload = function () {
+  img.onload = function() {
     canvas.height = img.height;
     canvas.width = img.width;
     ctx.drawImage(img, 0, 0);
@@ -460,12 +462,12 @@ export const fileTypeImg = (obj) => {
     }
     const suffixArr = url.split('.');
     const suffix = suffixArr[suffixArr.length - 1];
-    if (suffix === 'txt') return txtTypeUrl;
-    if (suffix === 'xls') return xlsTypeUrl;
-    if (suffix === 'ppt') return pptTypeUrl;
-    if (suffix === 'pdf') return pdfTypeUrl;
-    if (suffix === 'doc') return docTypeUrl;
-    if (suffix === 'zip' || suffix === 'rar') return zipTypeUrl;
+    if ('txt'.indexOf(suffix) !== -1) return txtTypeUrl;
+    if (['xls', 'xlsx'].indexOf(suffix) !== -1) return xlsTypeUrl;
+    if (['ppt', 'pptx'].indexOf(suffix) !== -1) return pptTypeUrl;
+    if ('pdf'.indexOf(suffix) !== -1) return pdfTypeUrl;
+    if (['doc', 'docx'].indexOf(suffix) !== -1) return docTypeUrl;
+    if (['zip', 'rar'].indexOf(suffix) !== -1) return zipTypeUrl;
   }
   return otyerTypeUrl;
 };

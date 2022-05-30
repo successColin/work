@@ -35,12 +35,27 @@
           </div>
           <i class="appIcon appIcon-shaixuan" @click="isShowPopup = true"></i>
         </section>
+        <div
+          class="recentDoc__select"
+          v-if="tabValue === 2"
+          @click="isToggleSharing = true"
+        >
+          {{ selectTitle }}
+          <i class="appIcon appIcon-xialasanjiao"></i>
+        </div>
       </div>
     </u-sticky>
+    <!-- loading -->
+    <u-loading-page
+      :loading="loading"
+      bgColor="rgba(0, 0, 0, 0.1)"
+      style="z-index: 1"
+    ></u-loading-page>
     <list-data
       class="recentDoc__list"
       :dataArr="dataArr"
       :isShowMoreOper.sync="isShowMoreOper"
+      @handleJumpIn="handleJumpIn"
     ></list-data>
 
     <!-- 上传 -->
@@ -81,6 +96,13 @@
 
     <!-- 更多操作弹窗 -->
     <more-oper :isShowMoreOper.sync="isShowMoreOper"></more-oper>
+
+    <!-- 更多操作弹窗 -->
+    <toggle-sharing
+      :isToggleSharing.sync="isToggleSharing"
+      @handleOthersShare="handleOthersShare"
+      @handleMyShare="handleMyShare"
+    ></toggle-sharing>
   </div>
 </template>
 
@@ -88,6 +110,9 @@
 import PopupLine from '../components/PopupLine';
 import ListData from '../components/ListData';
 import MoreOper from '../components/MoreOper';
+import ToggleSharing from '../components/ToggleSharing';
+import dataListMixin from '../../dataListMixin';
+
 import SearchButton from '../components/SearchButton';
 // import UploadFile from '../components/UploadFile';
 // 图片
@@ -96,10 +121,9 @@ import imgTypeUrl from '@/static/img/fileType/IMAG.svg';
 import mp4TypeUrl from '@/static/img/fileType/MP4.svg';
 import mp3TypeUrl from '@/static/img/fileType/MP3.svg';
 import otyerTypeUrl from '@/static/img/fileType/OTHER.svg';
-// 接口
-import { listFiles, pageFiles } from '@/api/knowledgeBase';
 
 export default {
+  mixins: [dataListMixin],
   props: {
     title: {
       type: String,
@@ -110,21 +134,10 @@ export default {
     return {
       isShowPopup: false, // 筛选
       isShowMoreOper: false, // 更多操作
-      dataArr: [],
+      isToggleSharing: false,
       selectTypeLeft: 40,
-      paramsAll: {
-        classId: 1, // 节点分类（1 我的 2 企业 3业务)
-        isFolder: 0, // 是否只显示文件夹(1是 0否)
-        keywords: '',
-        parentId: 0
-      },
-      paramsType: {
-        classId: 1, // 节点分类（1 我的 2 企业 3业务)
-        fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
-        current: 1,
-        keywords: '',
-        size: 10
-      },
+      tabValue: 1,
+      selectTitle: '他人共享',
       typeTabs: [
         {
           name: '我的文件',
@@ -212,7 +225,8 @@ export default {
     ListData,
     PopupLine,
     MoreOper,
-    SearchButton
+    SearchButton,
+    ToggleSharing
     // UploadFile
   },
   computed: {
@@ -228,6 +242,9 @@ export default {
       height = this.systemInfo.customBar || 0;
       // #endif
       return height;
+    },
+    getUserId() {
+      return this.$store.state.userCenter.userInfo.id;
     }
   },
   watch: {
@@ -235,6 +252,9 @@ export default {
       this.$store.commit('setIsMask', v);
     },
     isShowMoreOper(v) {
+      this.$store.commit('setIsMask', v);
+    },
+    isToggleSharing(v) {
       this.$store.commit('setIsMask', v);
     }
   },
@@ -244,11 +264,10 @@ export default {
       title: this.title
     });
     // #endif
-    this.getList(this.paramsAll);
+    this.getList();
   },
   methods: {
     handleSwitchTabs(v) {
-      console.log(1);
       this.typeTabs.forEach((item) => {
         item.state = false;
         if (v.id === item.id) {
@@ -257,24 +276,39 @@ export default {
       });
       if (v.id === 1) {
         this.selectTypeLeft = 40;
+        this.tabValue = 1;
+        this.getList();
       }
       if (v.id === 2) {
         this.selectTypeLeft = 150;
+        this.tabValue = 2;
+        this.getOtherShareList();
       }
       if (v.id === 3) {
         this.selectTypeLeft = 245;
+        this.tabValue = 3;
+        this.getCollectionList();
       }
     },
-    // 查询全部接口
-    async getList(params) {
-      const res = await listFiles(params);
-      this.dataArr = res;
+
+    // 跳转下一层
+    handleJumpIn(v) {
+      console.log(v);
+      if (v.sysKlTree.treeType === 1) {
+        this.getList({
+          parentId: v.sysKlTree.id
+        });
+      } else {
+        this.visitRecordFun();
+      }
     },
-    // 查询部分
-    async getTypeList(params) {
-      const res = await pageFiles(params);
-      console.log(res);
-      this.dataArr = res.records;
+    handleOthersShare() {
+      this.getOtherShareList();
+      this.selectTitle = '他人共享';
+    },
+    handleMyShare() {
+      this.getlistShareList();
+      this.selectTitle = '我的共享';
     },
     // 筛选__重置
     handleReset() {
@@ -292,7 +326,7 @@ export default {
       //   item.state = false;
       // });
       this.isShowPopup = false;
-      this.getList(this.paramsAll);
+      this.getList();
     },
     // 筛选__确定
     handleOk() {
@@ -301,7 +335,6 @@ export default {
       if (obj.id) {
         // fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
         this.getTypeList({
-          ...this.paramsType,
           fileType: obj.id
         });
       }

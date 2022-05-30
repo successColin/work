@@ -15,14 +15,18 @@
     <!-- 最近文件 -->
     <!-- <recent-doc v-if="currentNav === 0" :title="title"></recent-doc> -->
     <!-- 我的文件 -->
-    <my-doc v-if="currentNav === 0" :title="title"></my-doc>
+    <my-doc v-if="currentNav === 0" :title="title" :classId="1"></my-doc>
     <!-- 企业文件 -->
     <!-- <enterprise-doc
       v-else-if="currentNav === 1"
       :title="title"
     ></enterprise-doc> -->
     <!-- 占用 -->
-    <recent-doc v-if="currentNav === 1" :title="title"></recent-doc>
+    <recent-doc
+      v-if="currentNav === 1"
+      :title="title"
+      :classId="2"
+    ></recent-doc>
 
     <!-- 业务文件 -->
     <!-- <business-doc v-else-if="currentNav === 3" :title="title"></business-doc> -->

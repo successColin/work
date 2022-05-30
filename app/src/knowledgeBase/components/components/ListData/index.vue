@@ -6,37 +6,45 @@
  * @Last Modified time: 2022-01-06 11:35:03
 -->
 <template>
-  <u-list @scrolltolower="scrolltolower">
-    <u-list-item v-for="(item, index) in dataArr" :key="index">
-      <section class="listData">
-        <image class="listData__img" :src="imgUrl(item)" alt="" />
-        <div class="listData__dec">
-          <div class="listData__dec--right">
-            <!-- 文件名 -->
-            <div class="listData__dec--fileName font__ellipsis">
-              {{ item.sysKlTree.name }}
-            </div>
-            <!-- 时间 -->
-            <div class="listData__dec--userName font__ellipsis">
-              {{
-                item.sysKlTree.modifyTime
-                  ? `${item.sysKlTree.modifyTime} 更新`
-                  : item.sysKlTree.createTime
-              }}
-            </div>
-            <!-- <div class="listData__dec--url">
+  <div>
+    <u-list
+      @scrolltolower="scrolltolower"
+      v-if="dataArr.length !== 0"
+      :height="computedHeight"
+    >
+      <u-list-item v-for="(item, index) in dataArr" :key="index">
+        <section class="listData" @click="handleJumpIn(item)">
+          <image class="listData__img" :src="imgUrl(item)" alt="" />
+          <div class="listData__dec">
+            <div class="listData__dec--right">
+              <!-- 文件名 -->
+              <div class="listData__dec--fileName font__ellipsis">
+                {{ item.sysKlTree.name }}
+              </div>
+              <!-- 时间 -->
+              <div class="listData__dec--userName font__ellipsis">
+                {{
+                  item.sysKlTree.modifyTime
+                    ? `${item.sysKlTree.modifyTime} 更新`
+                    : item.sysKlTree.createTime
+                }}
+              </div>
+              <!-- <div class="listData__dec--url">
               <div>{{ item.url }}</div>
             </div> -->
+            </div>
+            <i class="appIcon appIcon-gengduo" @click.stop="handleMoreOper"></i>
           </div>
-          <i class="appIcon appIcon-gengduo" @click="handleMoreOper"></i>
-        </div>
-      </section>
-    </u-list-item>
-  </u-list>
+        </section>
+      </u-list-item>
+    </u-list>
+    <nodata v-else style="min-height: 70vh"></nodata>
+  </div>
 </template>
 
 <script>
 import { fileTypeImg } from '@/utils/index';
+import nodata from '@/globalComponents/ApiotMenu/Common/nodata';
 
 export default {
   props: {
@@ -52,13 +60,15 @@ export default {
   data() {
     return {};
   },
-  components: {},
+  components: { nodata },
   computed: {
     imgUrl() {
-      return function (name) {
-        // console.log(fileTypeImg(name));
+      return function(name) {
         return fileTypeImg(name);
       };
+    },
+    computedHeight() {
+      return '100%';
     }
   },
   watch: {},
@@ -70,6 +80,9 @@ export default {
     // 底部多少时候出发事件
     scrolltolower() {
       this.$emit('scrolltolower');
+    },
+    handleJumpIn(v) {
+      this.$emit('handleJumpIn', v);
     }
   }
 };
@@ -99,7 +112,7 @@ $listHeight: 140rpx;
     }
     &--fileName {
       font-size: 32rpx;
-      line-height: 32rpx;
+      line-height: 40rpx;
       color: #333333;
     }
     &--url,
@@ -107,12 +120,16 @@ $listHeight: 140rpx;
       font-size: 24rpx;
       line-height: 24rpx;
       color: #808080;
-      margin-top: 20rpx;
+      margin-top: 15rpx;
       flex: 1;
     }
     i {
       color: #bbc3cd;
       font-size: 36rpx;
+      height: 100%;
+      padding: 0 20rpx;
+      display: flex;
+      align-items: center;
     }
   }
 }

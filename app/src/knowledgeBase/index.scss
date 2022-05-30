@@ -50,6 +50,12 @@
         transition: all 100ms linear 0s !important;
       }
     }
+    &__select {
+      font-size: 28rpx;
+      color: #808080;
+      line-height: 36rpx;
+      padding: 20rpx 30rpx;
+    }
     &__popup {
       margin: 0 30rpx;
       .margTop {
