@@ -31,12 +31,12 @@
             <span :class="getThemeColorFont">{{ keywordValue }} </span>
             ”相关的同名文件
           </div>
-          <section class="searchPage__nav--section">
+          <section class="searchPage__nav--section" v-if="isShow">
             <div
               v-for="(item, index) in screenArr"
               :class="[
                 'searchPage__screen',
-                item.state ? 'searchPage__nav--selected' : '',
+                item.state ? 'searchPage__nav--selectValue' : '',
               ]"
               :key="index"
               @click="handleClickScreen(item)"
@@ -121,6 +121,9 @@ export default {
     isGetData() {
       return this.dataArr.length !== 0 || this.keywordValue;
     },
+    isShow() {
+      return this.dataArr.length !== 0 && this.keywordValue;
+    },
     getThemeColorFont() {
       return this.$store.getters.getThemeColorFont;
     }
@@ -133,7 +136,6 @@ export default {
         item.state = false;
       });
       v.state = true;
-      console.log(111111);
     },
     // 删除历史
     handleDelete() {
@@ -172,7 +174,7 @@ $--name: 'searchPage';
     &--section {
       width: 100%;
     }
-    &--selected {
+    &--selectValue {
       background: #f1f7ff !important;
       color: #4689f5 !important;
     }
