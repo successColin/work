@@ -300,7 +300,7 @@ export default {
   methods: {
     // 初始化字典值
     initDefault() {
-      if (this.activeObj.dataSource.dictObj.dictKey) {
+      if (this.activeObj.dataSource.dictObj && this.activeObj.dataSource.dictObj.dictKey) {
         const a = this.$store.getters.getCurDict(this.activeObj.dataSource.dictObj.dictKey);
         if (a) {
           this.activeObj.dataSource.dictObj.dictValue = a;

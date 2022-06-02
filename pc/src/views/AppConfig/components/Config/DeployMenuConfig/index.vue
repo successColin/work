@@ -327,9 +327,11 @@ export default {
     async enterConfig() {
       // await this.$emit('saveFunctionInterface');
       sessionStorage.menuBackPath = this.$route.path;
-      this.$router.push(
-        `/menuRole/${this.activeObj.id}?menuName=${this.activeObj.menuName}&isApp=1`
-      );
+      let str = `/menuRole/${this.activeObj.id}?menuName=${this.activeObj.menuName}&isApp=1`;
+      if (this.activeObj.menuDesignId) {
+        str = `/menuConfig/${this.activeObj.id}?menuName=${this.activeObj.menuName}&id=${this.activeObj.menuDesignId}&isApp=1`;
+      }
+      this.$router.push(str);
     },
     // 进入功能界面
     enterFuncPage() {

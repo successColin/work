@@ -329,8 +329,9 @@ export default {
       this.initScaling();
     },
     initScaling(callback) { // 初始化缩放比例
-      if (this.autoScale) {
-        const { width, height } = document.body.querySelector('.homePageContent__main--content').getBoundingClientRect();
+      const dom = document.body.querySelector('.homePageContent__main--content');
+      if (this.autoScale && dom) {
+        const { width, height } = dom.getBoundingClientRect();
         const rWidth = width;
         const rHeight = height;
         const widthScale = rWidth / (this.menuProperties.width || 1920);

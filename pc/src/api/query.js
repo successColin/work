@@ -128,6 +128,7 @@ export default {
   GET_TABLE_FIELDS: '/system/column/listSysEntityColumns', // 获取表字段
   GET_FLOW_LIST: '/workflow/list', // 获取流程列表
   ADD_FLOW: '/workflow/add', // 新增流程
+  EDIT_FLOW: '/workflow/edit', // 编辑流程
   ADD_FLOW_VERSION: '/workflow/addVersion', // 新增流程版本
   DELETE_FLOW: '/workflow/deleteById', // 删除工作流
   GET_FLOW_VERSION_LIST: '/workflow/version/list', // 查询流程的版本列表
@@ -153,6 +154,12 @@ export default {
   DO_RESET_LAUNCH: '/workflowTask/relaunch', // 重新发起流程
   DO_REVOKE_FLOW: '/workflowTask/revoke', // 流程撤回
   GET_BEFORE_FLOW_NODE: '/workflowNode/getNodeListBeforeThis', // 获取当前节点的前面节点
+  GET_FLOW_GROUP_LIST: '/workflowGroup/list', // 流程分组列表
+  ADD_FLOW_GROUP: '/workflowGroup/add', // 新增流程分组
+  DELETE_FLOW_GROUP: '/workflowGroup/logicDel', // 新增流程分组
+  UPDATE_FLOW_GROUP: '/workflowGroup/edit', // 修改流程分组属性
+  SWITCH_FLOW_GROUP: '/system/sysMenu/switchLocation', // 修改流程分组排序
+
   // 主页配置
   GET_HOME_PAGE_LIST: '/system/homepage/listSysHomepageConfig', // 主页列表
   SAVE_HOME_PAGE: '/system/homepage/insertSysHomepageConfig', // 新增主页

@@ -45,7 +45,7 @@
             <div class="listInfoWrap">
               <p
                 class="listTitle"
-                :title="`${item.instanceName}}【${item.menuName}】`"
+                :title="`${item.instanceName}}`"
                 style="height: 24px; line-height: 24px"
               >
                 <span
@@ -59,7 +59,7 @@
                 >
                   {{ getStatus(item).name }}</span
                 >
-                {{ item.instanceName }}【{{ item.menuName }}】
+                {{ item.instanceName }}
               </p>
               <div class="listDes" style="color: #333333">
                 <div v-if="item.timeLeft >= 0">
@@ -354,6 +354,7 @@ export default {
       return '';
     },
     handleClick(item) {
+      console.log(item);
       this.approvalInfo = item; // 流程信息
       const { taskType, nodeId } = this.approvalInfo;
       if (taskType === 3 || taskType === 5) {

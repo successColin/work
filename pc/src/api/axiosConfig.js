@@ -141,7 +141,7 @@ class FetchData {
       str = `(${data.logData.name}:${data.logData.switchName}),`;
     }
     const result = `${userInfo.username}(${userInfo.account})${operateStr}:${str}`;
-    console.log(result);
+    // console.log(result);
     data.logData = {
       content: Encrypt(result.slice(0, -1)),
       clientType: 'PC',

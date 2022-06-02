@@ -95,7 +95,7 @@ export function getDataFilterList(params) {
   return fetch.request({
     url: query.GET_HOME_FILTER,
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -164,6 +164,5 @@ export function switchMenu(data) {
 }
 
 export function getInfoById() {
-  console.log(3332222222222);
   return fetch.request({});
 }

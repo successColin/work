@@ -61,6 +61,7 @@ export default {
       isConfig: false,
       resolveFormula: this.resolveFormula,
       getAllForm: this.getAllForm,
+      findForm: this.findForm,
       getPanel: this.getPanel,
       getMenu: this.getMenu,
       getFatherPanel: this.getFatherPanel,
@@ -451,15 +452,21 @@ export default {
     // 获取所有设计
     async getDesignMenu(menuId) {
       let data = null;
+      const isTrue =
+        this.showType && JSON.stringify(this.showType) !== '{}' && this.showType.type === 'flow';
       if (this.panelObj && this.panelObj.id) {
         if (this.panelObj.pageConfig) {
           data = this.panelObj.pageConfig;
         } else {
           data = await getDesignMenu({ panelId: this.panelObj.id });
+          if (isTrue && data.length && data[0].designOverallLayout) {
+            const { children } = data[0].designOverallLayout[0];
+            if (children && Array.isArray(children)) {
+              this.reduceData(children, data[0].designOverallLayout[0]);
+            }
+          }
         }
       } else {
-        const isTrue =
-          this.showType && JSON.stringify(this.showType) !== '{}' && this.showType.type === 'flow';
         data = await getDesignMenu({ sysMenuId: isTrue ? this.menuId : menuId });
         if (isTrue && data.length && data[0].designOverallLayout) {
           const { children } = data[0].designOverallLayout[0];
@@ -655,6 +662,7 @@ export default {
                   beforeValue = beforeValue.split(',');
                 }
                 const indexIn = beforeValue.findIndex((v) => {
+                  console.log(contentArr, v);
                   if (!contentArr.includes(v)) {
                     return true;
                   }
@@ -870,6 +878,7 @@ export default {
         }
         return '""';
       });
+      console.log(str);
       let res = parser.parse(str);
       if (res.error) {
         str = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');

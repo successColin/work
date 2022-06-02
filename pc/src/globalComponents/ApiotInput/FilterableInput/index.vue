@@ -55,7 +55,12 @@
           <i
             class="el-input__icon el-icon-circle-close"
             @click.stop="deletePanel"
-            v-if="dialogType === 4 && currentRadioObj && currentRadioObj.id"
+            v-if="
+              dialogType === 4 &&
+              currentRadioObj &&
+              currentRadioObj.id &&
+              !disabled
+            "
             v-show="showClose"
           ></i>
         </div>
@@ -76,6 +81,7 @@
         :isTree="isTree"
         :title="title"
         :isSelPanel="isSelPanel"
+        :otherParams="otherParams"
         :tableArr="tableArr"
         @sure-click="handleSubmit"
       ></table-or-field-dialog>
@@ -143,6 +149,12 @@ export default {
     isSelPanel: {
       type: Boolean,
       default: false
+    },
+    otherParams: { // 额外参数，用于接口的其他参数
+      type: Object,
+      default() {
+        return {};
+      }
     },
     tableArr: {
       type: Array,
@@ -291,7 +303,8 @@ export default {
           relationMenuDesignId: this.$route.query.id,
           unDesign: 1,
           panelClassify: this.isSelPanel ? 2 : 1,
-          clientType: this.$route.query.isApp === '1' ? 2 : 1
+          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          ...this.otherParams
         };
         const res = await listPanel(params);
         // 面板名称重置

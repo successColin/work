@@ -25,7 +25,7 @@
               <div class="listData__dec--userName font__ellipsis">
                 {{
                   item.sysKlTree.modifyTime
-                    ? `${item.sysKlTree.modifyTime} 更新`
+                    ? `${item.sysKlTree.modifyTime}`
                     : item.sysKlTree.createTime
                 }}
               </div>
@@ -33,7 +33,10 @@
               <div>{{ item.url }}</div>
             </div> -->
             </div>
-            <i class="appIcon appIcon-gengduo" @click.stop="handleMoreOper"></i>
+            <i
+              class="appIcon appIcon-gengduo"
+              @click.stop="handleMoreOper(item)"
+            ></i>
           </div>
         </section>
       </u-list-item>
@@ -44,6 +47,7 @@
 
 <script>
 import { fileTypeImg } from '@/utils/index';
+import { PREVIEW_FILE } from '@/utils/preview.js';
 import nodata from '@/globalComponents/ApiotMenu/Common/nodata';
 
 export default {
@@ -55,8 +59,21 @@ export default {
     isShowMoreOper: {
       type: Boolean,
       default: false
+    },
+    currentObj: {
+      type: Object,
+      default: () => {}
+    },
+    pathArr: {
+      type: Array,
+      default: () => []
+    },
+    videoPreviewUrl: {
+      type: String,
+      default: ''
     }
   },
+  inject: ['getList', 'visitRecordFun'],
   data() {
     return {};
   },
@@ -74,15 +91,50 @@ export default {
   watch: {},
   mounted() {},
   methods: {
-    handleMoreOper() {
+    handleMoreOper(v) {
       this.$emit('update:isShowMoreOper', true);
+      this.$emit('update:currentObj', v);
     },
     // 底部多少时候出发事件
     scrolltolower() {
       this.$emit('scrolltolower');
     },
+    // 跳转子目录 和 预览
     handleJumpIn(v) {
-      this.$emit('handleJumpIn', v);
+      if (v.sysKlTree.treeType === 1) {
+        this.getList({
+          parentId: v.sysKlTree.id
+        });
+        console.log(v);
+        const arr = [
+          ...this.pathArr,
+          {
+            name: v.sysKlTree.name,
+            id: v.sysKlTree.id
+          }
+        ];
+        console.log(arr);
+        this.$emit('update:pathArr', arr);
+      } else {
+        // 记录访问次
+        this.visitRecordFun(v);
+        // 预览
+        const { id, name, url } = v.sysKlTree; // fileLength
+        const video = PREVIEW_FILE(
+          {
+            id,
+            name,
+            // fileLength,
+            url,
+            apiUrl: `${this.baseUrl || this.defaultUrl}file/fileDownload`,
+            token: uni.getStorageSync('token')
+          },
+          this
+        );
+        if (video.type === 'video') {
+          this.$emit('update:videoPreviewUrl', video.url);
+        }
+      }
     }
   }
 };

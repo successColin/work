@@ -130,8 +130,7 @@ export default {
 
   watch: {
     showRuleDialog(v) {
-      if (!v) {
-        console.log(this.activeObj.hiddenRules);
+      if (!v && this.activeObj.hiddenRules) {
         const { length } = this.activeObj.hiddenRules;
         for (let i = length - 1; i >= 0; i -= 1) {
           if (

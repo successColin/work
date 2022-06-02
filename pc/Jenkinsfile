@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+
+    options {
+        // 表示保留3次构建历史
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+        // 不允许同时执行流水线
+        disableConcurrentBuilds()
+        // 执行超过10分钟将中止
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('通知开始') { 
+            steps{
+                dingtalk (
+                    robot: 'jizhi-dingtalk',
+                    type: 'TEXT',
+                    atAll: false,
+                    text: ['EAM10前端','分支：dev','开始构建！！！'],
+                )
+            }
+        }
+        stage("更新依赖") {
+            agent {
+                    docker { 
+                        image 'node:14.16.0-alpine3.13' 
+                        args "-v ${env.WORKSPACE}:/usr/src/app"
+                    }
+                }
+            steps {
+                sh "npm install "
+            }
+        }
+
+        stage("打包") {
+            agent {
+                docker { 
+                    image 'node:14.16.0-alpine3.13' 
+                    args "-v ${env.WORKSPACE}:/usr/src/app"
+                }
+            }
+            steps {
+                sh "npm run build"
+            }
+        }
+
+        stage("部署到47.118.76.70环境") {
+            steps {
+                sh "scp -r ${env.WORKSPACE}@2/dist/** v10_dev:/data/wwwroot/default/v10/"
+            }
+            post {
+                success {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','已成功部署到47.118.76.70环境！！！'],
+                    )
+                }
+                failure {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','47.118.76.70环境部署失败！！！'],
+                    )
+                }
+            }
+        }
+        
+        stage("部署到泰州石化（UAT）环境") {
+            steps {
+                sh "scp -r ${env.WORKSPACE}@2/dist/** UAT:/var/lib/docker/volumes/tzsh-84_web-home/_data/dist/"
+            }
+            post {
+                success {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','已成功部署到泰州石化（UAT）环境！！！'],
+                    )
+                }
+                failure {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','泰州石化（UAT）环境部署失败！！！'],
+                    )
+                }
+            }
+        }
+    }
+
+}

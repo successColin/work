@@ -116,7 +116,6 @@ export default {
           }
         ];
       }
-      console.log(tempData);
       return [];
     }
   },

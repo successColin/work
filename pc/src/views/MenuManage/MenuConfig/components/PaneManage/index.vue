@@ -146,6 +146,14 @@ export default {
           typesPropName: 'PANEL_TYPE',
           compName: 'TypesColumn'
         },
+        // 是否必填
+        {
+          label: 'menuConfig.paneTable.enableWorkflow',
+          prop: 'enableWorkflow',
+          typesPropName: 'REQUISITE_TYPE',
+          colorIndex: 103,
+          compName: 'TypesColumn'
+        },
         // 备注
         {
           label: 'menuConfig.paneTable.memo',
@@ -292,6 +300,7 @@ export default {
     editRes(rowInfo) {
       this.row.panelName = rowInfo.panelName;
       this.row.memo = rowInfo.memo;
+      this.row.enableWorkflow = rowInfo.enableWorkflow;
       this.row = null;
     },
     // 编辑设计
@@ -360,6 +369,13 @@ export default {
             prop: 'panelType',
             colorIndex: [1, 2],
             typesPropName: 'PANEL_TYPE',
+            compName: 'TypesColumn'
+          },
+          {
+            label: 'menuConfig.paneTable.enableWorkflow',
+            prop: 'enableWorkflow',
+            typesPropName: 'REQUISITE_TYPE',
+            colorIndex: 103,
             compName: 'TypesColumn'
           },
           // 备注

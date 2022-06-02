@@ -266,6 +266,7 @@ export default {
             }
           } catch (error) {
             console.log(error);
+            this.resolveError(error);
             // res = false;
             if (error && typeof error !== 'object') {
               // this.$message.close();
@@ -278,6 +279,24 @@ export default {
           }
         });
       });
+    },
+    // 处理错误，校验错误跳转到相应的表单
+    resolveError(error) {
+      const keys = Object.keys(error);
+      // 取第一条
+      const ele = document.getElementById(keys[0]);
+      // 需要跳转
+      if (ele) {
+        let tab = this.$parent;
+        while (!tab.specialParent) {
+          tab = tab.$parent;
+        }
+        const tabEle = document.getElementById(tab.getCurTab);
+        if (tabEle) {
+          const scrollTop = ele.offsetTop;
+          tabEle.scrollTop = scrollTop;
+        }
+      }
     },
     async btnClick() {
       // console.log('点击');
@@ -292,7 +311,7 @@ export default {
         }
         const index = this.configData.ruleArr.findIndex((rule) => {
           const res = this.resolveFormula(true, rule.content);
-          if (!res) {
+          if (res) {
             return true;
           }
           return false;
@@ -1545,10 +1564,9 @@ export default {
     margin-left: 10px;
   }
   &.notShow {
-    transition: all 0.2s linear;
+    // transition: all 0.1s linear;
     opacity: 0;
     width: 0 !important;
-    height: 0 !important;
     margin-left: 0;
     margin-top: 0;
   }

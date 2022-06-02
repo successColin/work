@@ -23,6 +23,12 @@
 // 例如：import 《组件名称》 from '《组件路径》';
 
 export default {
+  props: {
+    classId: {
+      type: Number,
+      default: 1
+    }
+  },
   data() {
     return {};
   },
@@ -35,7 +41,7 @@ export default {
     handleJump() {
       uni.navigateTo({
         animationType: 'pop-in',
-        url: 'components/SearchPage/index'
+        url: `components/SearchPage/index?classId=${this.classId}`
       });
     }
   }

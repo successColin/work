@@ -67,7 +67,6 @@
     "video.js": "^7.12.3",
     "vue": "^2.6.11",
     "vue-codemirror": "^4.0.6",
-    "vue-drag-resize": "^1.5.4",
     "vue-element-resize-detector": "^1.0.6",
     "vue-i18n": "^8.24.2",
     "vue-img-cutter": "^2.2.3",

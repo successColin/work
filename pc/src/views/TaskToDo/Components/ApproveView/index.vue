@@ -69,6 +69,7 @@
         <!--        <img :src="require('./text.png')" alt="">-->
         <Menu
           :showType="showType"
+          :panelObj="getPanelObj"
           :nodeConfig="nodeConfig"
           :menuId="approvalInfo.menuId"
           ref="menu"
@@ -231,6 +232,13 @@ export default {
   },
 
   computed: {
+    getPanelObj() {
+      return {
+        id: this.approvalInfo.pcPanelId,
+        panelFixData: {},
+        panelVarObj: {}
+      };
+    },
     showType() {
       const { dataId, menuId, taskType, instanceStatus } = this.approvalInfo;
       const params = {
@@ -607,7 +615,7 @@ export default {
           top: unset;
           bottom: unset;
           background: #ffffff;
-          height: 100% !important;
+          height: calc(100% - 10px) !important;
           box-shadow: unset;
         }
 

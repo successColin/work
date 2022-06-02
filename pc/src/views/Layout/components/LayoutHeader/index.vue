@@ -378,6 +378,8 @@ export default {
       isShowUserInfo: true,
       isHover: false,
       showMessage: false,
+      timer2: null,
+      timer1: null
     };
   },
 
@@ -417,19 +419,48 @@ export default {
       return [];
     }
   },
+  watch: {
+    '$store.state.globalConfig.themeConfig.enableApprovalProcess': {
+      handler(v) {
+        if (v === '1') {
+          this.initTask();
+          if (this.timer2) {
+            clearInterval(this.timer2);
+          }
+          this.timer2 = setInterval(() => {
+            this.initTask();
+          }, 60 * 1000);
+        }
+      }
+    },
+    '$store.state.globalConfig.themeConfig.enableMessage': {
+      handler(v) {
+        if (v === '1') {
+          this.initMessage();
+          if (this.timer1) {
+            clearInterval(this.timer);
+          }
+          this.timer1 = setInterval(() => {
+            this.initMessage();
+          }, 60 * 1000);
+        }
+      }
+    },
+  },
   mounted() {
     this.setCurLangIndex();
     // this.getUserCenterInfo();
     window.addEventListener('resize', debounce(this.pageResize));
-    if (this.$store.state.globalConfig.themeConfig.enableApprovalProcess === '1') {
-      this.initTask();
-      setInterval(() => {
-        this.initTask();
-      }, 60 * 1000);
-    }
     if (this.$store.state.globalConfig.themeConfig.enableMessage === '1') {
       this.initMessage();
     }
+    this.initTask();
+    if (this.timer2) {
+      clearInterval(this.timer2);
+    }
+    this.timer2 = setInterval(() => {
+      this.initTask();
+    }, 60 * 1000);
   },
 
   methods: {
@@ -546,6 +577,12 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('resize', debounce(this.pageResize));
+    if (this.timer1) clearInterval(this.timer1);
+    if (this.timer2) clearInterval(this.timer2);
+    if (this.timer) clearInterval(this.timer);
+    this.timer1 = null;
+    this.timer = null;
+    this.timer2 = null;
   }
 };
 </script>

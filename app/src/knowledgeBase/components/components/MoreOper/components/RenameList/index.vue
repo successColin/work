@@ -1,5 +1,5 @@
 <!--
- * @Descripttion: 更多操作/收藏
+ * @Descripttion: 重命名
  * @Author: ytx
  * @Date: 2022-02-21 09:01:36
  * @Last Modified by: ytx
@@ -12,6 +12,8 @@
       <apiot-input
         class="rename__search"
         placeholder="请输入重命名"
+        v-model="keyword"
+        focus
       ></apiot-input>
       <footer>
         <u-button
@@ -33,6 +35,10 @@
 <script>
 export default {
   props: {
+    obj: {
+      type: Object,
+      default: () => {}
+    },
     show: {
       type: Boolean,
       default: false
@@ -43,11 +49,26 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      keyword: '',
+      endName: ''
+    };
   },
   components: {},
   computed: {},
   watch: {
+    obj(v) {
+      console.log(v);
+      this.endName = '';
+      this.keyword = '';
+      if (v.type === 1) {
+        this.keyword = v.name;
+      } else {
+        const index = v.name.lastIndexOf('.');
+        this.keyword = v.name.slice(0, index);
+        this.endName = v.name.slice(index);
+      }
+    },
     show(v) {
       console.log(v);
     }
@@ -60,7 +81,7 @@ export default {
     },
     // 按钮__确定
     handleOk() {
-      this.$emit('ok');
+      this.$emit('ok', `${this.keyword}${this.endName}`);
     }
   }
 };

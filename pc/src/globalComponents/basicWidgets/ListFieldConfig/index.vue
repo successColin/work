@@ -94,6 +94,16 @@
                 </el-radio-button>
               </el-radio-group>
             </div>
+            <div class="propsSetting flex around"  v-if="!item.isApplyPicture">
+              <p class="setTitle">省略号</p>
+              <el-switch
+                  @click.stop.native
+                  :value="item.isEllipsis"
+                  @change="(value) => changeStyles(value, 'isEllipsis', i, item)"
+                  active-color="#4689F5"
+                  inactive-color="#DCDFE6">
+              </el-switch>
+            </div>
             <div class="propsSetting" v-if="!item.isApplyPicture">
               <p class="setTitle">文字前缀</p>
               <div style="height: 110px;">
@@ -128,6 +138,31 @@
                     :min="0"
                     v-model="item.fieldPrefixHeight"
                     @change="(value) => changeStyles(value, 'fieldPrefixHeight', i, item)"/>
+              </div>
+            </div>
+            <div class="propsSetting">
+              <p class="setTitle">交互方式</p>
+              <el-radio-group
+                  class="alignWrap"
+                  v-model="item.interactionMode"
+                  size="mini"
+                  @change="(value) => changeStyles(value, 'interactionMode', i, item)"
+              >
+                <el-radio-button :label="1">无</el-radio-button>
+                <el-radio-button :label="2">弹框</el-radio-button>
+                <el-radio-button :label="3">链接</el-radio-button>
+                <el-radio-button :label="4">下载</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="propsSetting" v-if="item.interactionMode === 4">
+              <span class="setTitle">回调字段</span>
+              <div>
+                <apiot-input
+                    type="text"
+                    v-model="item.callbackFields"
+                    placeholder="请输入回调字段"
+                    @change="(value) => changeStyles(value, 'callbackFields', i, item)"
+                ></apiot-input>
               </div>
             </div>
             <div class="propsSetting">
@@ -252,6 +287,7 @@ export default {
         fieldColor: '#fff',
         fieldTextAlign: 'center',
         enableConditions: false,
+        isEllipsis: true, // 默认省略号
         conditionsArr: [], // 条件数组，二维数组，子数组对象，包括状态 并且---或者
         isApplyPicture: false // 是否应用与图片
       });
@@ -288,6 +324,7 @@ export default {
             .el-radio-button__inner {
               background: #E5F0FF !important;
               border-color: $component-borderFocus-color !important;
+              color: #4689f5 !important;
             }
 
             .iconfont {
@@ -309,6 +346,9 @@ export default {
 
           .el-radio-button__orig-radio:checked + .el-radio-button__inner {
             background: $component-background-color;
+          }
+          .el-radio-button__inner{
+            color: #333;
           }
         }
       }
@@ -373,6 +413,10 @@ export default {
     }
 
     ::v-deep {
+      .el-upload__tip {
+        color: #333333 !important;
+      }
+
       .el-radio-button {
         width: 60px;
 

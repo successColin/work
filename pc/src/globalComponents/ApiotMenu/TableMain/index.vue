@@ -521,7 +521,6 @@ export default {
             this.showPagi = true;
           });
         }
-        console.log(this.parent.children);
         if (this.getCurLength() === 2) {
           this.tableStyle = 'height: 100%';
           return;
@@ -674,7 +673,13 @@ export default {
           this.numAndSel.showSort = true;
         }
       }
-      if (this.numAndSel.showSelection && this.configData.hasPagination) {
+      // 弹窗选择里面记住
+      if (
+        this.getSelData() &&
+        this.getSelData().name &&
+        this.numAndSel.showSelection &&
+        this.configData.hasPagination
+      ) {
         this.reserveSelection = true;
       }
       // 初始化固定列

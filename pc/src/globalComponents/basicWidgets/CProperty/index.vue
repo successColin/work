@@ -88,7 +88,7 @@ export default {
         width: 100%;
         padding: 8px 15px;
         font-size: 13px;
-        border-radius: 0;
+        border-radius: 4px;
         color: #333;
         border-color: #e9e9e9;
         background: $component-background-color;

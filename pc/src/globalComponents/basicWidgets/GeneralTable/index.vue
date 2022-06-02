@@ -44,6 +44,7 @@
           <div
               class="column-content"
               v-if="!column.isApplyPicture"
+              :class="{'ellipsis': column.isEllipsis}"
           >
             <img
                 class="prefix"
@@ -217,7 +218,8 @@ export default {
           fieldFontSize,
           fieldColor,
           fieldTextAlign,
-          fieldWidth
+          fieldWidth,
+          isEllipsis
           // conditionsArr = []
         } = column;
         const {
@@ -235,6 +237,15 @@ export default {
         } = this.config;
         const height = this.height / rows / this.scale;
         const conditionColor = this.getColor(column, data, 'fieldRelColor');
+        const obj = {
+          lineHeight: `${height}px`,
+          height: `${height}px`,
+          width: `${fieldWidth}%`,
+          textAlign: `${fieldTextAlign}`
+        };
+        if (!isEllipsis) {
+          delete obj.lineHeight;
+        }
         if (enableLinesHighlighted &&
             autoHighlight &&
             loop &&
@@ -242,9 +253,21 @@ export default {
             i === 0 &&
             this.list.length > rows
         ) {
-          return `lineHeight:${height}px;height: ${height}px;width:${fieldWidth}%;fontFamily:${highlightFontFamily};fontWeight:${highlightFontWeight};fontSize:${highlightFontSize}px;color:${highlightColor};textAlign:${fieldTextAlign};`;
+          return {
+            ...obj,
+            fontFamily: `${highlightFontFamily}`,
+            fontWeight: `${highlightFontWeight}`,
+            fontSize: `${highlightFontSize}px`,
+            color: `${highlightColor}`
+          };
         }
-        return `lineHeight:${height}px;height: ${height}px;width:${fieldWidth}%;fontFamily:${fieldFontFamily};fontWeight:${fieldFontWeight};fontSize:${fieldFontSize}px;color:${conditionColor || fieldColor};textAlign:${fieldTextAlign};`;
+        return {
+          ...obj,
+          fontFamily: `${fieldFontFamily}`,
+          fontWeight: `${fieldFontWeight}`,
+          fontSize: `${fieldFontSize}px`,
+          color: `${conditionColor || fieldColor}`
+        };
       };
     },
     getColor() {
@@ -371,7 +394,6 @@ export default {
           }
         } = this.config;
         const height = this.height / rows / this.scale;
-        console.log(this.height, 'height', this.scale);
         let highLightStyles = ''; let
           speHighlightArr;
         let bg = '';
@@ -570,6 +592,7 @@ export default {
       } = config;
       if (interactionMode === 1) { return; }
       const urlSplit = [];
+      console.warn(interactionMode, 'interactionMode');
       if (callbackFields) { //  回调参数
         const fields = callbackFields.split(',');
         fields.forEach((item) => {
@@ -650,7 +673,6 @@ export default {
         ...item,
         snoZ: index + 1
       }));
-      console.log(this.type, 'design', !!this.type, dataType !== 1);
       if (!!this.type && dataType !== 1) {
         let list;
         if (dataType === 2) {
@@ -897,9 +919,9 @@ export default {
 
       .column-td {
         height: 100%;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
+        //text-overflow: ellipsis;
+        //white-space: nowrap;
+        //overflow: hidden;
 
         .prefix {
           display: inline-block;
@@ -925,25 +947,31 @@ export default {
           width: 100%;
           height: 100%;
           position: relative;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          overflow: hidden;
+          //text-overflow: ellipsis;
+          //white-space: nowrap;
+          //overflow: hidden;
 
           .column-iconOpe {
             position: absolute;
             right: 0;
             cursor: pointer;
+            height: 100%;
+            display: flex;
+            top: 0;
+            align-items: center;
 
             & > span {
               display: none;
-              margin-right: 10px;
+              //margin-right: 10px;
               transition: display 2s;
 
               &:hover {
                 opacity: 0.3;
               }
             }
-
+            .el-icon-download {
+              margin-left: 5px;
+            }
             //& > span:last-child {
             //  margin-right: 10px;
             //}
@@ -955,6 +983,11 @@ export default {
         }
       }
     }
+  }
+  .ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 }
 </style>

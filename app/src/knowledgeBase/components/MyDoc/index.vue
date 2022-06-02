@@ -10,7 +10,7 @@
     <!-- 吸顶 -->
     <u-sticky :customNavHeight="customBar">
       <div class="recentDoc__sticky">
-        <search-button></search-button>
+        <search-button :classId="classId"></search-button>
         <section class="recentDoc__nav">
           <div class="recentDoc__nav--left">
             <!-- 头部类型 -->
@@ -33,8 +33,13 @@
               :style="{ left: selectTypeLeft + 'rpx' }"
             ></div>
           </div>
-          <i class="appIcon appIcon-shaixuan" @click="isShowPopup = true"></i>
+          <i
+            class="appIcon appIcon-shaixuan"
+            @click="isShowPopup = true"
+            v-if="tabValue === 1"
+          ></i>
         </section>
+        <!-- 分享：他人共享和我的分享 -->
         <div
           class="recentDoc__select"
           v-if="tabValue === 2"
@@ -43,6 +48,11 @@
           {{ selectTitle }}
           <i class="appIcon appIcon-xialasanjiao"></i>
         </div>
+        <!-- 路径 -->
+        <apiot-breadcrumb
+          :arr="pathArr"
+          @handlePathFun="handlePathFun"
+        ></apiot-breadcrumb>
       </div>
     </u-sticky>
     <!-- loading -->
@@ -50,12 +60,15 @@
       :loading="loading"
       bgColor="rgba(0, 0, 0, 0.1)"
       style="z-index: 1"
+      loadingText=""
     ></u-loading-page>
     <list-data
       class="recentDoc__list"
       :dataArr="dataArr"
       :isShowMoreOper.sync="isShowMoreOper"
-      @handleJumpIn="handleJumpIn"
+      :currentObj.sync="currentObj"
+      :pathArr.sync="pathArr"
+      :videoPreviewUrl.sync="videoPreviewUrl"
     ></list-data>
 
     <!-- 上传 -->
@@ -95,7 +108,12 @@
     </div>
 
     <!-- 更多操作弹窗 -->
-    <more-oper :isShowMoreOper.sync="isShowMoreOper"></more-oper>
+    <more-oper
+      :isShowMoreOper.sync="isShowMoreOper"
+      :currentObj.sync="currentObj"
+      :isCollect="isCollect"
+      @refreshFun="refreshFun"
+    ></more-oper>
 
     <!-- 更多操作弹窗 -->
     <toggle-sharing
@@ -103,6 +121,15 @@
       @handleOthersShare="handleOthersShare"
       @handleMyShare="handleMyShare"
     ></toggle-sharing>
+
+    <view v-if="videoPreviewUrl" class="previewVideo" @click="cancelVideo">
+      <video
+        :src="videoPreviewUrl"
+        autoplay="true"
+        controls
+        object-fit="contain"
+      ></video>
+    </view>
   </div>
 </template>
 
@@ -124,6 +151,12 @@ import otyerTypeUrl from '@/static/img/fileType/OTHER.svg';
 
 export default {
   mixins: [dataListMixin],
+  provide() {
+    return {
+      getList: this.getList,
+      visitRecordFun: this.visitRecordFun
+    };
+  },
   props: {
     title: {
       type: String,
@@ -132,12 +165,20 @@ export default {
   },
   data() {
     return {
+      classId: 1,
+      pathArr: [
+        {
+          name: '全部'
+        }
+      ],
       isShowPopup: false, // 筛选
       isShowMoreOper: false, // 更多操作
       isToggleSharing: false,
       selectTypeLeft: 40,
-      tabValue: 1,
+      tabValue: 1, // 菜单 tabs
       selectTitle: '他人共享',
+      currentObj: {},
+      videoPreviewUrl: '',
       typeTabs: [
         {
           name: '我的文件',
@@ -158,7 +199,8 @@ export default {
       screenArr1: [
         {
           name: '全部类型',
-          state: true
+          state: true,
+          id: 1
         },
         {
           name: '文档',
@@ -243,8 +285,16 @@ export default {
       // #endif
       return height;
     },
-    getUserId() {
-      return this.$store.state.userCenter.userInfo.id;
+    pathArrValue() {
+      return [
+        {
+          name: '全部'
+        }
+      ];
+    },
+    // 是否是收藏
+    isCollect() {
+      return this.tabValue === 3;
     }
   },
   watch: {
@@ -267,6 +317,57 @@ export default {
     this.getList();
   },
   methods: {
+    // 接口方式
+    connectFun(v) {
+      console.log(v);
+      // v tabs
+      const obj = this.screenArr1.find((item) => item.state);
+      const pathObj = this.pathArr[this.pathArr.length - 1];
+      const parentId = pathObj.id;
+      let params = {};
+      if (parentId) {
+        params = {
+          parentId
+        };
+      }
+      if (v.id === 1) {
+        this.selectTypeLeft = 40;
+        this.tabValue = 1;
+        // obj 类型
+        if (obj.id === 1) {
+          this.getList(params);
+        } else {
+          // fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
+          this.getTypeList({
+            fileType: obj.id
+          });
+        }
+      }
+      if (v.id === 2) {
+        this.selectTypeLeft = 150;
+        this.tabValue = 2;
+        if (params.parentId) {
+          this.getList(params);
+        } else {
+          this.getOtherShareList();
+        }
+      }
+      if (v.id === 3) {
+        this.selectTypeLeft = 245;
+        this.tabValue = 3;
+        if (params.parentId) {
+          this.getList(params);
+        } else {
+          this.getCollectionList();
+        }
+      }
+    },
+    // 刷新页面
+    refreshFun() {
+      const obj = this.typeTabs.find((v) => v.state);
+      this.connectFun(obj);
+    },
+    // 切换类型
     handleSwitchTabs(v) {
       this.typeTabs.forEach((item) => {
         item.state = false;
@@ -274,33 +375,8 @@ export default {
           item.state = true;
         }
       });
-      if (v.id === 1) {
-        this.selectTypeLeft = 40;
-        this.tabValue = 1;
-        this.getList();
-      }
-      if (v.id === 2) {
-        this.selectTypeLeft = 150;
-        this.tabValue = 2;
-        this.getOtherShareList();
-      }
-      if (v.id === 3) {
-        this.selectTypeLeft = 245;
-        this.tabValue = 3;
-        this.getCollectionList();
-      }
-    },
-
-    // 跳转下一层
-    handleJumpIn(v) {
-      console.log(v);
-      if (v.sysKlTree.treeType === 1) {
-        this.getList({
-          parentId: v.sysKlTree.id
-        });
-      } else {
-        this.visitRecordFun();
-      }
+      this.pathArr = this.pathArrValue;
+      this.connectFun(v);
     },
     handleOthersShare() {
       this.getOtherShareList();
@@ -312,6 +388,7 @@ export default {
     },
     // 筛选__重置
     handleReset() {
+      this.isShowPopup = false;
       this.screenArr1.forEach((item, i) => {
         if (i === 0) {
           item.state = true;
@@ -325,19 +402,19 @@ export default {
       // this.screenArr3.forEach((item) => {
       //   item.state = false;
       // });
-      this.isShowPopup = false;
       this.getList();
     },
     // 筛选__确定
     handleOk() {
       this.isShowPopup = false;
-      const obj = this.screenArr1.find((v) => v.state);
-      if (obj.id) {
-        // fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
-        this.getTypeList({
-          fileType: obj.id
-        });
-      }
+      this.connectFun({ id: this.tabValue });
+    },
+    handlePathFun(v, i) {
+      this.pathArr = this.pathArr.slice(0, i + 1);
+      this.connectFun({ id: this.tabValue });
+    },
+    cancelVideo() {
+      this.videoPreviewUrl = '';
     }
   },
   // 上拉加载
@@ -353,4 +430,21 @@ export default {
 $--name: 'recentDoc';
 
 @include setSearch($--name);
+
+.previewVideo {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  video {
+    width: 100%;
+  }
+}
 </style>

@@ -9,6 +9,7 @@
         :flag="2"
         :tableInfo="getCurrentTab.tableInfo"
         :notShowSys="false"
+        :showType="showType"
       ></ActionTerm>
     </div>
     <div class="sqlTerm" v-if="getCurrentTab.filterTermType === 2">
@@ -29,6 +30,10 @@ export default {
   props: {
     getCurrentTab: {
       type: Object
+    },
+    showType: {
+      type: Array,
+      default: () => [1]
     }
   },
   data() {
@@ -110,12 +115,20 @@ export default {
 .FilterTerm {
   overflow-x: hidden;
   ::v-deep {
+    @media (min-height: 640px) {
+      & > .el-dialog {
+        height: 640px;
+      }
+    }
+    @media (max-height: 640px) {
+      & > .el-dialog {
+        position: absolute;
+        top: 20px;
+        bottom: 20px;
+      }
+    }
     & > .el-dialog {
       width: 960px;
-      max-height: 640px;
-      position: absolute;
-      top: 100px;
-      bottom: 100px;
       & > .el-dialog__body {
         padding-top: 0;
         padding-bottom: 0;

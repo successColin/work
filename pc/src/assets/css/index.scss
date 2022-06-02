@@ -289,3 +289,7 @@ textarea::-ms-input-placeholder {
   pointer-events: none;
   cursor: not-allowed;
 }
+
+.el-button--mini {
+  border-radius: 4px !important;
+}

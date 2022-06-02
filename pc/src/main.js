@@ -29,7 +29,12 @@ const resetMessage = (options) => {
   if (messageInstance) {
     messageInstance.close();
   }
-  messageInstance = Message({ duration: 1500, ...options });
+  messageInstance = Message({
+    duration: 1500,
+    showClose: true,
+    offset: 50,
+    ...options,
+  });
   return messageInstance;
 };
 
@@ -38,6 +43,7 @@ const resetMessage = (options) => {
     if (typeof options === 'string') {
       options = {
         duration: 1500,
+        showClose: true,
         message: options,
       };
     }

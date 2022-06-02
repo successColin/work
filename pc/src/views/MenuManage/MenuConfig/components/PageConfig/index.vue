@@ -341,7 +341,7 @@ export default {
 
   mounted() {
     // 获取事件字典
-    this.$store.dispatch('getCurrentDict', 'TRIGGER_EVENT,PANEL_TYPE');
+    this.$store.dispatch('getCurrentDict', 'TRIGGER_EVENT,PANEL_TYPE,REQUISITE_TYPE');
     // 更新字典项
     this.$bus.$on('changeDictArr', (dict) => {
       if (!this.configData[0].dictArr.includes(dict)) {
@@ -369,11 +369,17 @@ export default {
     async initConfig() {
       // 不是面板配置
       if (!this.isPanel) {
-        const data = await getSysDesignMenu({
-          sysMenuDesignId: this.$route.query.id
-        });
-        if (data && data.designOverallLayout) {
-          this.configData = data.designOverallLayout;
+        if (sessionStorage.configData) {
+          this.configData = JSON.parse(sessionStorage.configData);
+        } else {
+          const data = await getSysDesignMenu({
+            sysMenuDesignId: this.$route.query.id
+          });
+          if (data && data.designOverallLayout) {
+            this.configData = data.designOverallLayout;
+          }
+        }
+        if (this.configData[0]) {
           this.$nextTick(() => {
             // 防止刚开始渲染的时候触发多次
             this.$bus.$on('changeCurActiveObj', (obj) => {
@@ -452,7 +458,7 @@ export default {
           [this.activeObj] = this.activeObj.children;
         });
       }
-      this.clearDirty();
+      // this.clearDirty();
     },
     // 获取完配置去除不存在的面板跟编码
     clearDirty() {
@@ -495,7 +501,7 @@ export default {
         const res = this.checkDataSource();
         if (!res.flag) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: res.msg
           });
           return Promise.reject();

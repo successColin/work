@@ -121,6 +121,34 @@
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
       </el-form-item>
+      <el-form-item
+        style="margin-bottom: 0"
+        v-if="
+          $route.query.isApp === '1' &&
+          activeObj.dataSource.columnName &&
+          activeObj.relateType === 1 &&
+          configData[0].paneObj[activeObj.compId] &&
+          configData[0].paneObj[activeObj.compId].sysMenuDesignId
+        "
+      >
+        <p class="switchBox">
+          是否启用扫描功能
+          <el-switch
+            v-model="activeObj.enableScan"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+        <apiot-button
+          class="panelBtn"
+          v-if="activeObj.enableScan"
+          @click="showScanConfig = true"
+        >
+          <i class="iconfont icon-shezhi m-r-4"></i>弹出扫一扫过滤条件
+        </apiot-button>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -275,6 +303,15 @@
       :isSelPanel="true"
       :triggerCompMap="triggerCompMap"
     ></PanelConfig>
+    <!-- 面板扫一扫弹窗 -->
+    <ScanConfig
+      :visible.sync="showScanConfig"
+      :showScanConfig="showScanConfig"
+      :configData="configData"
+      :activeObj="activeObj"
+      :isSelPanel="true"
+      :triggerCompMap="triggerCompMap"
+    ></ScanConfig>
     <!-- 跳转菜单配置 -->
     <ToMenuConfig
       :visible.sync="showMenuConfig"
@@ -289,6 +326,7 @@
 import propertyMixin from '../propertyMixin';
 import SelectFormula from '../GlobalConfig/components/AddAction/components/SelectFormula';
 import PanelConfig from '../ContentConfig/PanelConfig';
+import ScanConfig from '../ContentConfig/ScanConfig';
 import ToMenuConfig from '../ContentConfig/ToMenuConfig';
 
 export default {
@@ -307,14 +345,16 @@ export default {
         panelFilter: [] // 面板过滤条件
       },
       showPanelConfig: false, // 面板配置弹窗是否显示
-      showMenuConfig: false
+      showMenuConfig: false,
+      showScanConfig: false
     };
   },
 
   components: {
     SelectFormula,
     PanelConfig,
-    ToMenuConfig
+    ToMenuConfig,
+    ScanConfig
   },
 
   computed: {

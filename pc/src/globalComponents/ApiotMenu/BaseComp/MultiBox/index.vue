@@ -185,7 +185,6 @@ export default {
       .el-checkbox-group {
         display: flex;
         align-items: center;
-        height: 32px;
         flex-wrap: wrap;
       }
       .el-form-item__label {

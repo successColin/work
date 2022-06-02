@@ -106,6 +106,7 @@ export default [
         name: 'home',
         component: () => import('_v/Home'),
         beforeEnter: async (to, from, next) => {
+          console.log(3333);
           await store.dispatch('getHomeRoute');
           const { homeArr } = store.state.base;
           if (homeArr.length) {
@@ -116,6 +117,7 @@ export default [
           } else {
             next();
           }
+          next();
         },
         meta: {
           childrenPage: true,
@@ -127,6 +129,15 @@ export default [
         component: (resolve) => require(['_v/Role'], resolve),
         meta: {
           title: '角色管理',
+          childrenPage: true,
+        },
+      },
+      {
+        path: '/flow',
+        name: 'flow',
+        component: (resolve) => require(['_v/Flow'], resolve),
+        meta: {
+          title: '流程管理',
           childrenPage: true,
         },
       },
@@ -146,6 +157,7 @@ export default [
         name: 'homeMenu',
         component: () => import('_v/HomeMenu'),
         meta: {
+          isModulePage: true,
           childrenPage: true,
         },
         parentName: 'layout',

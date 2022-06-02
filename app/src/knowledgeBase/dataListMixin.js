@@ -9,19 +9,20 @@ import {
 } from '@/api/knowledgeBase';
 
 export default {
-  props: {
-    // 节点分类（1 我的 2 企业 3业务)
-    classId: {
-      type: Number,
-      default: 1,
-    },
-  },
+  props: {},
 
   data() {
     return {
       loading: false,
       dataArr: [],
+      classId: 1,
     };
+  },
+
+  computed: {
+    getUserId() {
+      return this.$store.state.userCenter.userInfo.id;
+    },
   },
 
   methods: {
@@ -46,7 +47,7 @@ export default {
         fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
         current: 1,
         // keywords: '',
-        size: 10,
+        size: 99999,
         ...params,
       });
       this.sortFun(res.records || []);
@@ -96,6 +97,9 @@ export default {
         // keywords: '',
         userId: this.getUserId,
         ...params,
+      });
+      res.forEach((item) => {
+        item.collect = true;
       });
       this.sortFun(res);
       this.loading = false;

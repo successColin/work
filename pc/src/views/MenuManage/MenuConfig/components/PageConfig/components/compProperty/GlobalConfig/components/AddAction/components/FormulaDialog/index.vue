@@ -199,7 +199,7 @@ export default {
       showFormula: false, // 是否展示公式树搜索
       showFormulaTree: false, // 是否展示公式树
       formulaData: [
-        // type 1 表示哪里都有 2表示只在触发器影响控件里面有 3 表示是执行函数
+        // type 1 表示哪里都有 2表示只在触发器影响控件里面有 3 表示是执行函数 4 代表 app
         {
           name: '常用公式',
           children: [
@@ -210,7 +210,8 @@ export default {
             { name: 'GET_MENU_ID', isFormula: true, type: 1 },
             { name: 'BULK_ADD', isFormula: true, type: 3 },
             { name: 'BULK_ONE_ADD', isFormula: true, type: 3 },
-            { name: 'CREATE_UNIQUE', isFormula: true, type: 3 }
+            { name: 'CREATE_UNIQUE', isFormula: true, type: 3 },
+            { name: 'GET_SCAN_VALUE', isFormula: true, type: 4 }
           ]
         },
         {
@@ -454,9 +455,17 @@ export default {
         }
         return '';
       });
+      //
       parser.setFunction('GET_MENU_ID', (params) => {
         if (params.length !== 0) {
           return new Error('获取菜单id公式无参数');
+        }
+        return '';
+      });
+
+      parser.setFunction('GET_SCAN_VALUE', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取扫一扫结果公式无参数');
         }
         return '';
       });

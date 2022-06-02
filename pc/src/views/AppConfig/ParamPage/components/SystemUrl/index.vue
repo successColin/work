@@ -16,7 +16,7 @@
           label-position="top"
           label-width="80px"
           class="form"
-          ref="addDict"
+          ref="system"
           :model="formData"
         >
           <div class="form--line">
@@ -127,6 +127,7 @@
 </template>
 
 <script>
+import { getInfoByKey, saveParameter } from '@/api/appConfig.js';
 import QrcodeInput from '../QrcodeInput';
 import QrcodeDown from '../QrcodeDown';
 
@@ -150,7 +151,8 @@ export default {
         production: 'http://',
         testExtranet: 'http://',
         testIntranet: 'http://'
-      }
+      },
+      infoId: ''
     };
   },
 
@@ -189,10 +191,37 @@ export default {
   },
 
   methods: {
-    saveUrl() {}
+    getParamsInfoByKey() {
+      try {
+        const param = {
+          key: 'SYSTEM_ENVIRONMENT',
+        };
+        getInfoByKey(param).then((res) => {
+          this.formData = res.parameterJson;
+          this.infoId = res.id;
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async saveUrl() {
+      try {
+        const params = {
+          id: this.infoId,
+          parameterKey: 'SYSTEM_ENVIRONMENT',
+          parameterJson: JSON.stringify(this.formData)
+        };
+        await saveParameter(params);
+        this.$message.success('操作成功！');
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
 
-  mounted() {}
+  mounted() {
+    this.getParamsInfoByKey();
+  }
 };
 </script>
 

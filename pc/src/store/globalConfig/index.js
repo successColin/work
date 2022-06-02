@@ -61,7 +61,7 @@ export default {
       state.themeConfigArr = res;
       state.themeConfig = obj;
       console.log(state);
-      state.menuType = state.themeConfig.menuStyle;
+      state.menuType = state.themeConfig.menuStyle || 1;
     },
     // 设置主题及相关配置
     setThemeConfig(state, { key, value }) {

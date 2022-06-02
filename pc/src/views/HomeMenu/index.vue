@@ -43,11 +43,11 @@
 <!--        muted loop autoplay-->
 <!--        :src="bgConfig.bgImage"></video>-->
 <!--    <Loading v-if="isShow"/>-->
-<!--    <ImageZoom-->
-<!--        v-if="imageFileVisible"-->
-<!--        :imageFileName="imageFileName"-->
-<!--        :imageFileUrl="imageFileUrl"-->
-<!--    ></ImageZoom>-->
+    <ImageZoom
+        v-if="imageFileVisible"
+        :imageFileName="imageFileName"
+        :imageFileUrl="imageFileUrl"
+    ></ImageZoom>
   </div>
 </template>
 
@@ -292,7 +292,9 @@ export default {
       this.list = newArr.filter((item) => item.isShow); // 只展示显示的控件
     },
     setDrawContent() { //  计算画布大小
-      const { width: availWidth, height: availHeight } = document.querySelector('.contentWrap').getBoundingClientRect();
+      const dom = document.querySelector('.contentWrap');
+      if (!dom) return;
+      const { width: availWidth, height: availHeight } = dom.getBoundingClientRect();
       const { showType, width: dWidth, height: dHeight } = this.bgConfig;
       const widthScalc = availWidth / (dWidth || 1920);
       const heightScalc = availHeight / (dHeight || 1080);

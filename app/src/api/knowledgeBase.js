@@ -2,7 +2,7 @@
  * @Author: ytx
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: ytx
- * @Last Modified time: 2022-05-30 15:22:09
+ * @Last Modified time: 2022-06-02 10:12:46
  * 知识库管理
  */
 import FetchData from './axiosConfig';
@@ -51,10 +51,83 @@ export function listCollection(params) {
     params,
   });
 }
-// 访问文件
+
+// 访问文件记录
 export function visitRecord(data) {
   return FetchData.request({
     url: '/system/knowledge/visitRecord',
+    method: 'post',
+    data,
+  });
+}
+
+// 收藏文件
+export function collectFile(data) {
+  return FetchData.request({
+    url: '/system/knowledge/collect',
+    method: 'post',
+    data,
+  });
+}
+
+// 取消收藏文件
+export function cancelCollect(data) {
+  return FetchData.request({
+    url: '/system/knowledge/cancelCollect',
+    method: 'post',
+    data,
+  });
+}
+
+// 修改文件夹名称
+export function updateFolder(data) {
+  return FetchData.request({
+    url: '/system/knowledge/updateFolder',
+    method: 'post',
+    data,
+  });
+}
+
+// 删除文件
+export function deleteFile(data) {
+  return FetchData.request({
+    url: '/system/knowledge/deleteFile',
+    method: 'post',
+    data,
+  });
+}
+
+// 获取全部用户
+export function pageSysUser(params) {
+  return FetchData.request({
+    url: '/system/user/pageSysUser',
+    method: 'get',
+    params,
+  });
+}
+
+// 获取收藏用户
+export function listCollectionUser(params) {
+  return FetchData.request({
+    url: '/system/org/listCollectionUser',
+    method: 'get',
+    params,
+  });
+}
+
+// 分享知识库
+export function fileShare(data) {
+  return FetchData.request({
+    url: '/system/knowledge/fileShare',
+    method: 'post',
+    data,
+  });
+}
+
+// 移动文件
+export function moveFolder(data) {
+  return FetchData.request({
+    url: '/system/knowledge/moveFolder',
     method: 'post',
     data,
   });

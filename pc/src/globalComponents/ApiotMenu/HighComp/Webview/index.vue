@@ -105,10 +105,10 @@ export default {
 
       this.$nextTick(() => {
         const id = parent.getCurTab;
-        console.log(id);
+        // console.log(id);
         if (id && document.getElementById(id)) {
           const height = document.getElementById(id).offsetHeight;
-          console.log(height);
+          // console.log(height);
           this.curHeight = height - 20;
         }
       });

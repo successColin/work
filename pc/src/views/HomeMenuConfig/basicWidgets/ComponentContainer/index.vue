@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import VueDragResize from 'vue-drag-resize';
+// import VueDragResize from 'vue-drag-resize';
 
 const ImageBox = () => import('../../components/ImageBox/index');
 const BasicPieChart = () => import('../../components/BasicPieChart/index');
@@ -91,7 +91,7 @@ export default {
   },
 
   components: {
-    VueDragResize,
+    // VueDragResize,
     ImageBox,
     RealTime,
     BasicPieChart,

@@ -19,7 +19,11 @@
         <img
           class="treeNode__treeIcon--img m-r-4"
           :src="configData.treeIcon.imageUrl"
-          v-if="configData.hasTreeIcon && configData.treeIcon.imageUrl"
+          v-if="
+            configData.hasTreeIcon &&
+            configData.treeIcon.imageUrl &&
+            !showCurDict(data)
+          "
         />
         <i
           v-else
@@ -132,17 +136,27 @@ export default {
       }
       return str;
     },
+    // 字典图标是否有值
+    showCurDict() {
+      return (item) => {
+        console.log(item);
+        const compId = this.configData.iconId;
+        const index = this.getFeatureArr.children.findIndex((child) => child.compId === compId);
+        if (index !== -1) {
+          const comp = this.getFeatureArr.children[index];
+          const dict = comp.dataSource.dictObj;
+          const dictArr = this.$store.getters.getCurDict(dict.dictKey);
+          const res = dictArr.find((child) => child.value === item[compId]);
+          if (res && res.icon) {
+            return true;
+          }
+        }
+        return false;
+      };
+    },
     // 获取图标
     getCurDict() {
       return (item, flag) => {
-        if (this.configData.hasTreeIcon) {
-          if (flag === 1) {
-            return this.configData.treeIcon.icon;
-          }
-          if (flag === 2) {
-            return this.configData.treeIcon.color;
-          }
-        }
         let compId = this.configData.iconId;
         if (flag === 2) {
           compId = this.configData.iconColorId;
@@ -160,6 +174,14 @@ export default {
             if (flag === 2) {
               return res.icon.color;
             }
+          }
+        }
+        if (this.configData.hasTreeIcon) {
+          if (flag === 1) {
+            return this.configData.treeIcon.icon;
+          }
+          if (flag === 2) {
+            return this.configData.treeIcon.color;
           }
         }
         return '';

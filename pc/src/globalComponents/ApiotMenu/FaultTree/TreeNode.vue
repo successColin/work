@@ -131,7 +131,7 @@ export default {
   ],
   computed: {
     tooltipTitle() {
-      return function(item) {
+      return function (item) {
         if (item.dataType === 'G') {
           return '关联现象';
         }
@@ -218,7 +218,6 @@ export default {
       }
       const arr = [];
       this.multiExpressionArr.forEach((item) => {
-        console.log(item);
         const { keyCode, name, id } = item;
         arr.push({
           keycode: keyCode,
@@ -274,7 +273,7 @@ export default {
             message: '解绑成功'
           });
           // this.$emit('deleteSuccess');
-          console.log(this.data, this.node);
+          // console.log(this.data, this.node);
           this.$bus.$emit('reloadArea', 'all', this.onlyFlag());
         } catch (error) {
           this.$message({

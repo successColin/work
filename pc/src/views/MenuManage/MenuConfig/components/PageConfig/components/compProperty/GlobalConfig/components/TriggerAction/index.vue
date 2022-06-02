@@ -55,7 +55,7 @@
               :typesPropArr="item.typesPropArr"
               :typesPropName="item.typesPropName"
               :colorIndex="item.colorIndex"
-              :width="item.width"
+              :min-width="item.width"
               :is="dropColumnData[index].compName"
               :buttonArr="item.buttonArr"
               :fixed="item.fixed"
@@ -127,14 +127,14 @@ export default {
           label: 'menuConfig.triggerTable.triggerComp',
           prop: 'comp',
           compName: 'CompColumn',
-          width: 150
+          width: 100
         },
         // 触发事件
         {
           label: 'menuConfig.triggerTable.triggerLinkCode',
           prop: 'linkCode',
           compName: 'ElTableColumn',
-          width: 150
+          width: 100
         },
         // 触发事件
         {
@@ -143,7 +143,7 @@ export default {
           typesPropName: 'TRIGGER_EVENT',
           colorIndex: [1, 4, 2],
           compName: 'TypesColumn',
-          width: 150
+          width: 100
         },
         // 触发事件
         {
@@ -151,7 +151,8 @@ export default {
           prop: 'triggerType',
           typesPropName: 'TRIGGER_TYPE',
           colorIndex: [5],
-          compName: 'TypesColumn'
+          compName: 'TypesColumn',
+          width: 300
         },
         // 优先级
         {
@@ -161,14 +162,14 @@ export default {
           iconCon: 'icon-youxianji',
           colorIndex: 1,
           nameValue: ['triggerPriority'],
-          width: 120
+          width: 100
         },
         // 是否启用
         {
           label: 'entity.indexesTable.isExecuted',
           prop: 'triggerEnabled',
           compName: 'SwitchColumn',
-          width: 120
+          width: 100
         },
         // 编辑
         {

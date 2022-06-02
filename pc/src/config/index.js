@@ -44,7 +44,7 @@ module.exports = {
     '404',
     '401',
     'example',
-    'homeMenu',
+    // 'homeMenu',
     'demo',
     'demo1',
   ],

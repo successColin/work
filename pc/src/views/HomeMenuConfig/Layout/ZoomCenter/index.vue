@@ -58,13 +58,13 @@
             <div class="componentOpear">
             <span
                 class="iconfont"
-                :class="{'icon-jiesuotuceng': item.isLock}"
+                :class="{'icon-jiesuotuceng': item.isLock, 'block': item.isLock,}"
                 @click="changeShowStatus(item, index,'isLock')"
             ></span>
               <span
                   class="iconfont"
                   :class="{'icon-mimaxianshi': item.isShow,
-                  'block': !item.isShow,
+                    'block': !item.isShow,
                    'icon-xianshituceng': !item.isShow}"
                   @click="changeShowStatus(item, index, 'isShow')"
               ></span>
@@ -336,7 +336,8 @@ export default {
   }
 
   .layerList {
-    height: calc(100% - 46px - 42px);
+    //height: calc(100% - 46px - 42px);
+    height: calc(100%);
     padding: 10px 0;
     overflow: auto;
     box-sizing: border-box;
@@ -434,7 +435,6 @@ export default {
           opacity: 1;
         }
       }
-
       .icon-yulan {
         margin-left: 6px;
         display: none;

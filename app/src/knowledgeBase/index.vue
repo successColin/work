@@ -15,18 +15,12 @@
     <!-- 最近文件 -->
     <!-- <recent-doc v-if="currentNav === 0" :title="title"></recent-doc> -->
     <!-- 我的文件 -->
-    <my-doc v-if="currentNav === 0" :title="title" :classId="1"></my-doc>
+    <my-doc v-if="currentNav === 0" :title="title"></my-doc>
     <!-- 企业文件 -->
-    <!-- <enterprise-doc
+    <enterprise-doc
       v-else-if="currentNav === 1"
       :title="title"
-    ></enterprise-doc> -->
-    <!-- 占用 -->
-    <recent-doc
-      v-if="currentNav === 1"
-      :title="title"
-      :classId="2"
-    ></recent-doc>
+    ></enterprise-doc>
 
     <!-- 业务文件 -->
     <!-- <business-doc v-else-if="currentNav === 3" :title="title"></business-doc> -->
@@ -41,9 +35,9 @@
 </template>
 
 <script>
-import RecentDoc from './components/RecentDoc';
+// import RecentDoc from './components/RecentDoc';
 import MyDoc from './components/MyDoc';
-// import EnterpriseDoc from './components/EnterpriseDoc';
+import EnterpriseDoc from './components/EnterpriseDoc';
 // import BusinessDoc from './components/BusinessDoc';
 // 顶部图片
 // import recentlyDocNormal from '@/static/img/knowledge/recentlyDocNormal.svg';
@@ -97,9 +91,9 @@ export default {
     }
   },
   components: {
-    RecentDoc,
-    MyDoc
-    // EnterpriseDoc
+    // RecentDoc,
+    MyDoc,
+    EnterpriseDoc
     // BusinessDoc
   },
   methods: {

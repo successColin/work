@@ -288,7 +288,7 @@ export function replaceFile(data, callback, source) {
         const progressPercent =
           (progressEvent.loaded / progressEvent.total) * 100;
 
-        console.log(progressPercent);
+        // console.log(progressPercent);
         callback(progressPercent);
       }
     },

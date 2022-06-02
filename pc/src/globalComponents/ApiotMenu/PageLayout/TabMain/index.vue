@@ -50,7 +50,7 @@
             "
             @click.native="selectActive(item.children[0], $event)"
             :showType="showType"
-            :btnTypesArr="[1, 2, 5, 6]"
+            :btnTypesArr="[1, 2, 3, 5, 6]"
           ></BtnsArea>
           <!-- 配置 -->
           <draggable
@@ -186,6 +186,7 @@ export default {
   },
 
   mounted() {
+    // console.log(this.configData);
     if (!this.isConfig) {
       this.initMoreBtnArr();
       if (this.configData.hiddenRules && this.configData.hiddenRules.length !== 0) {

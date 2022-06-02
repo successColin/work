@@ -3,7 +3,7 @@
  * @Date: 2021-04-15 18:30:38
  * @LastEditors: tjf
  * @LastEditTime: 2021-07-21 11:04:07
- * @Des: 个人中心-账户安全
+ * @Des: app配置-升级属性
 -->
 <template>
   <div class="update">
@@ -80,28 +80,30 @@
         <div class="form--line">
           <el-form-item
             class="form--child"
-            :label="$t('appconfig.upgradeURL')"
-            prop="upgradeURL"
+            :label="$t('appconfig.androidDownloadUrl')"
+            prop="androidDownloadUrl"
           >
             <apiot-input
-              v-model="appInfo.upgradeURL"
+              v-model="appInfo.androidDownloadUrl"
+              :disabled="true"
               :placeholder="
                 $t('placeholder.pleaseEnterAnyName', {
-                  any: $t('appconfig.upgradeURL'),
+                  any: $t('appconfig.androidDownloadUrl'),
                 })
               "
             ></apiot-input>
           </el-form-item>
           <el-form-item
             class="form--child"
-            :label="$t('appconfig.androidDownloadUrl')"
-            prop="androidDownloadUrl"
+            :label="$t('appconfig.upgradeURL')"
+            prop="upgradeURL"
           >
             <apiot-input
-              v-model="appInfo.androidDownloadUrl"
+              v-model="appInfo.upgradeURL"
+              :disabled="true"
               :placeholder="
                 $t('placeholder.pleaseEnterAnyName', {
-                  any: $t('appconfig.androidDownloadUrl'),
+                  any: $t('appconfig.upgradeURL'),
                 })
               "
             ></apiot-input>
@@ -117,25 +119,25 @@
             <el-upload
               class="uploadArea"
               action=""
-              :on-success="handleChange"
+              :on-success="(response, file, fileList) => handleChange(response, file, fileList, 1)"
               :multiple="false"
               :before-upload="beforeUpload"
-              :accept="accept"
+              accept=".apk"
               :file-list="fileList"
               :http-request="doUpload"
               :show-file-list="false"
             >
-              <div class="notUpload">
-                <i class="icon-shangchuan iconfont m-r-9"></i>
-                {{ $t('appconfig.uploadTips') }}
-              </div>
-              <div class="apkInfo">
+              <div class="apkInfo" v-if="appInfo.apkObj && appInfo.apkObj.name">
                 <i class="icon-APPanzhuangbao iconfont"></i>
                 <div class="info">
-                  <p class="name">eqweqwe.apk</p>
-                  <p>12.23Mb</p>
+                  <p class="name">{{appInfo.apkObj.name}}</p>
+                  <p>{{(appInfo.apkObj.size/1024/1024).tofixed(2)}}Mb</p>
                 </div>
-                <i class="icon-shanchu iconfont"></i>
+                <!-- <i class="icon-shanchu iconfont"></i> -->
+              </div>
+              <div class="notUpload" v-else>
+                <i class="icon-shangchuan iconfont m-r-9"></i>
+                {{ $t('appconfig.uploadTips') }}
               </div>
             </el-upload>
           </el-form-item>
@@ -147,25 +149,25 @@
             <el-upload
               class="uploadArea"
               action=""
-              :on-success="handleChange"
+              :on-success="(response, file, fileList) => handleChange(response, file, fileList, 2)"
               :multiple="false"
               :before-upload="beforeUpload"
-              :accept="accept"
+              accept=".wgt"
               :file-list="fileList"
               :http-request="doUpload"
               :show-file-list="false"
             >
-              <div class="notUpload">
-                <i class="icon-shangchuan iconfont m-r-9"></i>
-                {{ $t('appconfig.uploadTips') }}
-              </div>
-              <div class="apkInfo">
+              <div class="apkInfo" v-if="appInfo.wgtObj && appInfo.wgtObj.name">
                 <i class="icon-APPanzhuangbao iconfont"></i>
                 <div class="info">
-                  <p class="name">eqweqwe.apk</p>
-                  <p>12.23Mb</p>
+                  <p class="name">{{appInfo.wgtObj.name}}</p>
+                  <p>{{(appInfo.wgtObj.size/1024/1024).tofixed(2)}}Mb</p>
                 </div>
-                <i class="icon-shanchu iconfont"></i>
+                <!-- <i class="icon-shanchu iconfont"></i> -->
+              </div>
+              <div class="notUpload" v-else>
+                <i class="icon-shangchuan iconfont m-r-9"></i>
+                {{ $t('appconfig.uploadTips') }}
               </div>
             </el-upload>
           </el-form-item>
@@ -184,7 +186,8 @@
 import { Decrypt } from '_u/utils';
 import axios from 'axios';
 import ajax from '@/api/axiosConfig';
-// import { editUserPassword } from '@/api/userCenter.js';
+import { PREFIX, VERSION } from '@/config';
+import { getInfoByKey, saveParameter } from '@/api/appConfig.js';
 
 export default {
   props: {},
@@ -193,8 +196,10 @@ export default {
     return {
       appInfo: {},
       fileList: [],
-      accept: '.apk',
+      accept: '.apk,.wgt',
       uploading: false,
+      isSubmit: false,
+      infoId: {}
     };
   },
 
@@ -219,22 +224,36 @@ export default {
     }
   },
 
-  mounted() {},
+  mounted() {
+    this.getParamsInfoByKey();
+  },
 
   methods: {
-    saveUrl() {
-      this.$refs.detail.validate((valid) => {
-        if (!this.curData.leaderId) {
-          this.showLeadRequired = true;
-          return false;
-        }
-        if (valid) {
-          this.$emit('submit', this.curData);
-        } else {
-          // console.log('error submit!!');
-          return false;
-        }
-      });
+    getParamsInfoByKey() {
+      try {
+        const param = {
+          key: 'UPGRADE_PROPERTIES',
+        };
+        getInfoByKey(param).then((res) => {
+          this.appInfo = res.parameterJson;
+          this.infoId = res.id;
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async saveUrl() {
+      try {
+        const params = {
+          id: this.infoId,
+          parameterKey: 'UPGRADE_PROPERTIES',
+          parameterJson: JSON.stringify(this.appInfo)
+        };
+        await saveParameter(params);
+        this.$message.success('操作成功！');
+      } catch (error) {
+        console.log(error);
+      }
     },
     async doUpload(param) {
       const { file } = param;
@@ -257,20 +276,18 @@ export default {
         resolve(file);
       });
     },
-    handleChangeType(response, file) {
+    handleChangeType(value) {
       // 校验通过
-      this.$emit('upload-file', file);
-      this.fileList = [file];
+      console.log(value);
+      console.log(this.appInfo);
     },
-    handleChange(file, fileList) {
-      console.log(file);
-      console.log(fileList);
+    handleChange(response, file, fileList, type) {
       const param = new FormData();
-      param.append('file', fileList.raw, fileList.raw.name);
+      param.append('file', file.raw, file.raw.name);
       this.uploading = true;
       axios({
         method: 'post',
-        url: '/file/upload',
+        url: `${PREFIX}/${VERSION}/system/parameter/upload`,
         data: param,
         headers: {
           'content-type': 'multipart/form-data',
@@ -278,15 +295,26 @@ export default {
         }
       }).then(
         (data) => {
-          console.log(data);
+          console.log(data.data.code, 11111111);
           if (data.data.code === '00000') {
-            // this.$message.success(this.$t('common.successfullyModified'));
-            // this.$emit('update:visible', false);
-            // this.$emit('getUserCenterInfo');
+            if (type === 1) {
+              this.appInfo = {
+                ...this.appInfo,
+                apkObj: file,
+                androidDownloadUrl: data.data.data
+              };
+            } else {
+              this.appInfo = {
+                ...this.appInfo,
+                wgtObj: file,
+                upgradeURL: data.data.data
+              };
+            }
           }
           this.uploading = false;
         },
-        () => {
+        (err) => {
+          console.log(err, 222222222222);
           this.uploading = false;
         }
       );
@@ -368,6 +396,9 @@ $--name: 'update';
         justify-content: center;
         color: #aaaaaa;
         font-size: 12px;
+        border: 1px dashed #D9D9D9;
+        border-radius: 4px;
+        box-sizing: border-box;
       }
       .apkInfo {
         height: 100%;

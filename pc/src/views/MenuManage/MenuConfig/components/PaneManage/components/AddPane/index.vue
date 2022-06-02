@@ -31,6 +31,14 @@
           <el-option :value="2" label="私用"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="能否应用于流程" prop="type">
+        <ApiotSwitch
+          :key="form.name"
+          v-model="form.enableWorkflow"
+          :activeValue="1"
+          :inactivevalue="2"
+        ></ApiotSwitch>
+      </el-form-item>
       <el-form-item label="描述" prop="memo">
         <apiot-input
           type="textarea"
@@ -60,6 +68,7 @@ export default {
       form: {
         name: '',
         type: 2,
+        enableWorkflow: 2,
         memo: ''
       },
       rules: {
@@ -76,6 +85,7 @@ export default {
       // console.log(row);
       this.form.name = row.panelName;
       this.form.type = row.panelType;
+      this.form.enableWorkflow = row.enableWorkflow;
       this.form.memo = row.memo;
       this.rowInfo = row;
     },
@@ -107,6 +117,7 @@ export default {
         memo: this.form.memo,
         panelName: this.form.name,
         panelType: this.form.type,
+        enableWorkflow: this.form.enableWorkflow,
         panelClassify: 1,
         clientType: this.$route.query.isApp === '1' ? 2 : 1
       };
@@ -135,6 +146,7 @@ export default {
         ...this.rowInfo,
         memo: this.form.memo,
         panelName: this.form.name,
+        enableWorkflow: this.form.enableWorkflow,
         panelClassify: 1
       };
       try {

@@ -9,7 +9,7 @@
   <u-checkbox-group v-model="checked" class="allUser">
     <u-list @scrolltolower="scrolltolower" :height="listHeight">
       <u-list-item v-for="(item, index) in arr" :key="index">
-        <list-user :obj="item"></list-user>
+        <list-user :obj="item" :isCollect="item.isCollect"></list-user>
       </u-list-item>
     </u-list>
   </u-checkbox-group>
@@ -24,6 +24,15 @@ export default {
       type: Boolean,
       default: false
     },
+    // 分页返回的数据
+    listObj: {
+      type: Object,
+      default: () => {}
+    },
+    listArr: {
+      type: Array,
+      default: () => []
+    },
     height: {
       type: Number,
       default: 260
@@ -31,219 +40,17 @@ export default {
   },
   data() {
     return {
-      checked: [],
-      listArr2: [
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '王小二'
-          },
-          id: 1
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '隔壁老王'
-          },
-          id: 2
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 3
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉'
-          },
-          id: 4
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '王小二'
-          },
-          id: 5
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '隔壁老王'
-          },
-          id: 5
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 6
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉'
-          },
-          id: 7
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '王小二'
-          },
-          id: 8
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '隔壁老王'
-          },
-          id: 9
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 10
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉结束'
-          },
-          id: 11
-        }
-      ],
-      listArr: [
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王小二'
-          },
-          id: 1
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '隔壁老王'
-          },
-          id: 2
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 3
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉'
-          },
-          id: 4
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王小二'
-          },
-          id: 5
-        },
-        {
-          isCollect: true,
-          isSelect: false,
-          userInfo: {
-            username: '隔壁老王'
-          },
-          id: 6
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 7
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉'
-          },
-          id: 8
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王小二'
-          },
-          id: 9
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '隔壁老王'
-          },
-          id: 10
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 11
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉'
-          },
-          id: 12
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '王叶冰'
-          },
-          id: 13
-        },
-        {
-          isCollect: false,
-          isSelect: false,
-          userInfo: {
-            username: '钉钉结束'
-          },
-          id: 14
-        }
-      ]
+      checked: []
+      // listArr2: [
+      //   {
+      //     isCollect: true,
+      //     isSelect: false,
+      //     userInfo: {
+      //       username: '王小二'
+      //     },
+      //     id: 1
+      //   },
+      // ]
     };
   },
   components: {
@@ -251,7 +58,28 @@ export default {
   },
   computed: {
     arr() {
-      return this.isAll ? this.listArr : this.listArr2;
+      // 全部
+      if (this.isAll) {
+        const { records } = this.listObj;
+        if (records) {
+          const rows = records.map((item) => {
+            const arr = this.listArr.filter((obj) => String(obj.id) === String(item.id));
+            if (arr.length > 0) {
+              item.isCollect = true;
+            } else {
+              item.isCollect = false;
+            }
+            return item;
+          });
+          return rows;
+        }
+        return [];
+      }
+      // 常用
+      return this.listArr.map((item) => {
+        item.isCollect = true;
+        return item;
+      });
     },
     listHeight() {
       return `calc(100vh - ${this.height}px)`;
@@ -259,7 +87,7 @@ export default {
   },
   watch: {
     checked(v) {
-      this.$emit('giveSelected', v.length);
+      this.$emit('giveSelected', v);
     }
   },
   filters: {

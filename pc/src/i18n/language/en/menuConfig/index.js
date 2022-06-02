@@ -19,6 +19,7 @@ export default {
     paneTable: {
       paneName: 'paneName',
       paneType: 'type',
+      enableWorkflow: 'Enable Workflow',
       memo: 'memo',
       design: 'design',
     },

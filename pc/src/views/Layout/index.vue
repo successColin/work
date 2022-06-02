@@ -68,9 +68,7 @@ export default {
 
   computed: {
     getKey() {
-      console.log(this.$route);
       if (this.$route.meta.parentPath) {
-        console.log(this.$route.meta.parentPath);
         return this.$route.parentPath;
       }
       return this.$route.fullPath;

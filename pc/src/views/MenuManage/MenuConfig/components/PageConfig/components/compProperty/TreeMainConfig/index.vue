@@ -209,20 +209,6 @@
             v-model="getCurrentTab.hasTreeIcon"
             active-text="是"
             inactive-text="否"
-            @change="getCurrentTab.hasCardIcon = false"
-          >
-          </el-switch>
-        </h2>
-      </div>
-      <div class="contentConfig__box contentConfig__hasTab">
-        <h2 class="contentConfig__hasTab--switchBox">
-          是否启用组件字典图标
-          <el-switch
-            class="contentConfig__hasTab--switch"
-            v-model="getCurrentTab.hasCardIcon"
-            active-text="是"
-            inactive-text="否"
-            @change="getCurrentTab.hasTreeIcon = false"
           >
           </el-switch>
         </h2>
@@ -238,6 +224,18 @@
           :iconType="1"
         ></IconSelect>
         <p class="iconSelect__tip">提示：请添加一个识别度高的图标</p>
+      </div>
+      <div class="contentConfig__box contentConfig__hasTab">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用组件字典图标
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.hasCardIcon"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
       </div>
       <div class="contentConfig__box" v-if="getCurrentTab.hasCardIcon">
         <h2>图标来源</h2>
@@ -808,7 +806,7 @@ export default {
   },
 
   watch: {
-    'getCurrentTab.reloadArea': function(v, v1) {
+    'getCurrentTab.reloadArea': function (v, v1) {
       if (v && v1 && v.length !== v1.length) {
         this.resetReloadArea();
       }

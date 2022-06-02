@@ -10,7 +10,7 @@
     <i
       :class="[
         'appIcon',
-        obj.isCollect ? 'appIcon-yishoucang haveCollect' : 'appIcon-shoucang',
+        isCollect ? 'appIcon-yishoucang haveCollect' : 'appIcon-shoucang',
       ]"
       @click="handleCollect(obj)"
     ></i>
@@ -21,7 +21,9 @@
         :size="68"
       ></user-icon>
       <section>
-        <div class="listUser__user--userName">{{ userInfo.username }}</div>
+        <div class="listUser__user--userName font__ellipsis">
+          {{ userInfo.username }}
+        </div>
         <u-checkbox
           class="listUser__user--checkbox"
           :name="obj.id"
@@ -39,6 +41,10 @@ export default {
     obj: {
       type: Object,
       default: () => {}
+    },
+    isCollect: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -49,7 +55,9 @@ export default {
   },
   computed: {
     userInfo() {
-      return this.obj.userInfo;
+      return {
+        username: this.obj.username
+      };
     }
   },
   watch: {},
@@ -90,6 +98,8 @@ export default {
     &--userName {
       font-size: 32rpx;
       color: #333333;
+      flex: 1;
+      width: 10px;
     }
     & > section {
       display: flex;

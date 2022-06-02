@@ -16,7 +16,7 @@ const router = new VueRouter({
   mode: 'history',
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   // 登录注册等页面，主题色不变
   if (to.meta.notChangeTheme) {
     changeThemeColor(themeColor, false);
@@ -24,12 +24,38 @@ router.beforeEach((to, from, next) => {
     initThemeColor();
   }
   const pathName = to.meta.parentPath ? to.meta.parentPath : to.name;
-  // console.log(store.state.base.allRouteName);
   // 不在白名单跟权限页面的地址去404
   if (
     store.state.base.allRouteName.includes(pathName) ||
     whitePathName.includes(pathName)
   ) {
+    // const toName = to.name;
+    // if (toName === 'home') {
+    //   await store.dispatch('getHomeRoute');
+    //   const { homeArr } = store.state.base;
+    //   if (homeArr.length) {
+    //     const current = homeArr[0];
+    //     next({
+    //       path: `/homeMenu/${current.homePageId}`,
+    //     });
+    //   } else {
+    //     next();
+    //   }
+    //   // if (index !== -1) {
+    //   //   // next({
+    //   //   //   path: to.path
+    //   //   // });
+    //   // } else if (homeArr.length) {
+    //   //   const current = homeArr[0];
+    //   //   next({
+    //   //     path: `/homeMenu/${current.homePageId}`,
+    //   //   });
+    //   // } else {
+    //   //   next();
+    //   // }
+    // } else {
+    //   next();
+    // }
     next();
   } else {
     next('/404');

@@ -509,11 +509,24 @@ export default {
 .relateConfig {
   overflow: hidden;
   ::v-deep {
+    @media (min-height: 640px) {
+      & > .el-dialog {
+        height: 640px;
+      }
+    }
+    @media (max-height: 640px) {
+      & > .el-dialog {
+        position: absolute;
+        top: 20px;
+        bottom: 20px;
+      }
+    }
     & > .el-dialog {
-      width: 930px;
-      margin-top: 8vh !important;
+      width: 960px;
       & > .el-dialog__body {
-        height: 522px;
+        padding-top: 10px;
+        padding-bottom: 0;
+        height: calc(100% - 54px - 54px - 10px);
       }
     }
   }

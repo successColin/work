@@ -440,7 +440,6 @@ export default {
       if (flag === 2) {
         // console.log(comp);
         if (comp.compType === 6) {
-          console.log(comp);
           column.name = `${comp.dataSource.mainTableInfo.tableName}.${comp.dataSource.mainColumnInfo.columnName}`;
         }
       }
@@ -509,7 +508,6 @@ export default {
     },
     // 获取数据
     getList() {
-      console.log(this.keywords);
       // console.log(this.tableInfo);
       const searchInfo = {
         searchValue: '',

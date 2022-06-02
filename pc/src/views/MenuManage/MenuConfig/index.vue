@@ -100,7 +100,11 @@ export default {
       }
       this.$router.push(str);
       */
-      this.$router.replace('/menuManage');
+      if (sessionStorage.menuBackPath) {
+        this.$router.replace(sessionStorage.menuBackPath);
+      } else {
+        this.$router.replace('/menuManage');
+      }
     }
   },
 

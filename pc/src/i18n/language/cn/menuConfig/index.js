@@ -19,6 +19,7 @@ export default {
     paneTable: {
       paneName: '面板名称',
       paneType: '类型',
+      enableWorkflow: '是否可以应用于流程',
       memo: '描述',
       design: '设计',
     },

@@ -295,6 +295,7 @@ export default {
             menuCode: data.sysMenu.menuCode,
             menuName: data.sysMenu.menuName,
             id: data.sysMenu.id,
+            menuDesignId: data.menuDesignId || '',
             icon: {
               icon: '',
               color: '',

@@ -16,9 +16,12 @@ function resolveMenu(module, state) {
       menu.zIndex = module.zIndex + 1;
       if (+menu.menuLevel === 2) {
         menu.isCollect = false;
+        // console.log(menu.routeName, 'menu');
         if (!menu.routeName || /^MENU/.test(menu.routeName)) {
           menu.path = `/menu/${menu.id}?title=${menu.menuName}`;
           menu.routeName = 'menu';
+        } else if (/^homeMenu/.test(menu.routeName)) {
+          // console.log(menu.routeName, 'menu.routeName');
         } else {
           menu.path = `/${menu.routeName}`;
         }
@@ -76,6 +79,7 @@ export default {
   },
   mutations: {
     changeRouteArr(state, arr) {
+      console.log(arr);
       state.routeArr = arr;
       const routeObj = {};
       arrToObj(arr, routeObj);
@@ -123,7 +127,7 @@ export default {
         menuClientType: 'PC',
       };
       try {
-        state.allRouteName = ['home'];
+        state.allRouteName = ['home', 'homeMenu'];
         const data = await menuCenter(params);
         const arr = [];
         data.forEach((module) => {

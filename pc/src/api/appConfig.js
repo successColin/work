@@ -86,3 +86,26 @@ export function deleteAppMenu(data) {
     data,
   });
 }
+// 根据key获取对应参数信息
+export function getInfoByKey(params) {
+  return FetchData.request({
+    url: 'system/parameter/getInfoByKey',
+    params,
+  });
+}
+// 保存参数信息
+export function saveParameter(data) {
+  return FetchData.request({
+    url: 'system/parameter/save',
+    method: 'post',
+    data,
+  });
+}
+// 上传更新文件
+export function uploadUpdatePackage(data) {
+  return FetchData.request({
+    url: 'system/parameter/upload',
+    method: 'post',
+    data,
+  });
+}

@@ -66,7 +66,11 @@
               </apiot-button>
             </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
-            <div v-if="[2, 3, 4].includes(i)" style="flex: none" class="common">
+            <div
+              v-if="[2, 3, 4, 5].includes(i)"
+              style="flex: none"
+              class="common"
+            >
               <apiot-radio
                 @change="(value) => changeRadio(value, item.key)"
                 v-model="params[item.key]"
@@ -80,9 +84,38 @@
                 >{{ $t('common.no') }}
               </apiot-radio>
             </div>
+            <!-- 登录页风格 -->
+            <div v-if="i === 6" class="common">
+              <div v-if="!statement.isLoginStyle">
+                {{
+                  showValueName(loginStyleArr, loginStyle, item.attributeKey)
+                }}
+              </div>
+              <apiot-select
+                style="width: 224px"
+                v-if="statement.isLoginStyle"
+                v-model="loginStyle"
+                :options="loginStyleArr"
+                @change="handleChangeSelectVal('style', $event)"
+              ></apiot-select>
+              <apiot-select
+                style="width: 224px"
+                v-if="statement.isLoginStyle && loginStyle === 2"
+                v-model="stylePercentage"
+                :options="stylePercentageArr"
+                @change="handleChangeSelectVal('stylePercentage', $event)"
+              ></apiot-select>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isLoginStyle', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isLoginStyle) }}
+              </apiot-button>
+            </div>
 
             <!-- 登录页LOGO -->
-            <div v-if="i === 5" class="passwordConfig__logo common">
+            <div v-if="i === 7" class="passwordConfig__logo common">
               <div v-if="!statement.isRegistration">
                 <el-image
                   fit="cover"
@@ -111,7 +144,7 @@
             </div>
 
             <!-- 登录页轮播图 -->
-            <div v-if="i === 6" class="passwordConfig__logo common">
+            <div v-if="i === 8" class="passwordConfig__logo common">
               <div v-if="!statement.isLoopPics">
                 <el-image
                   v-for="(item, i) in loopMaps"
@@ -188,7 +221,8 @@ export default {
         isRecord: false, // 备案号
         isRegistration: false, // 登录页
         isLoopPics: false, // l轮播图
-        isClickErrorCount: false // 错误次数点击
+        isClickErrorCount: false, // 错误次数点击
+        isLoginStyle: false
       },
       loginObj: {}, // login url
       loginWidth: 20, // logo宽度
@@ -205,6 +239,32 @@ export default {
         },
         {
           name: '错误三次才显示',
+          value: 3
+        }
+      ],
+      loginStyle: 1, // 登录风格
+      loginStyleArr: [
+        {
+          name: '平铺式轮播风格',
+          value: 1
+        },
+        {
+          name: '卡片式轮播风格',
+          value: 2
+        }
+      ],
+      stylePercentage: 1, // 卡片式轮播风格 的比例
+      stylePercentageArr: [
+        {
+          name: '比例80%',
+          value: 1
+        },
+        {
+          name: '比例60%',
+          value: 2
+        },
+        {
+          name: '比例40%',
           value: 3
         }
       ],
@@ -254,9 +314,21 @@ export default {
         },
         {
           name: this.$t('globalConfig.forgetPassword'),
-          col: 24,
+          col: 12,
           key: 'enableForgetPassword',
           attributeKey: 'enableForgetPassword'
+        },
+        {
+          name: this.$t('globalConfig.enableMultilingual'),
+          col: 12,
+          key: 'enableMultilingual',
+          attributeKey: 'enableMultilingual'
+        },
+        {
+          name: this.$t('globalConfig.style'),
+          col: 24,
+          key: 'style',
+          attributeKey: 'style'
         },
         {
           name: this.$t('globalConfig.loginpagelogo'),
@@ -272,13 +344,13 @@ export default {
     },
     // 修改 button 状态
     changeBtnName() {
-      return function(state) {
+      return function (state) {
         return state ? this.$t('common.save') : this.$t('common.modify');
       };
     },
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
-      return function(options, val) {
+      return function (options, val) {
         const obj = options.find((item) => item.value === Number(val));
         return obj && obj.name;
       };
@@ -409,6 +481,7 @@ export default {
       const res = await getListByKey({ parameterKey: 'LOGIN' });
       this.loading = false;
       this.response = res;
+      console.log(res);
       const errorObj =
         this.response.find((item) => item.attributeKey === 'sliderErrorsCount') || {};
       const recordObj = this.response.find((item) => item.attributeKey === 'record') || {};
@@ -418,6 +491,11 @@ export default {
         this.response.find((item) => item.attributeKey === 'enableAppLogin') || {};
       const enableForgetPasswordObj =
         this.response.find((item) => item.attributeKey === 'enableForgetPassword') || {};
+      const enableMultilingual =
+        this.response.find((item) => item.attributeKey === 'enableMultilingual') || {};
+      const styleObj = this.response.find((item) => item.attributeKey === 'style') || {};
+      const stylePercentage =
+        this.response.find((item) => item.attributeKey === 'stylePercentage') || {};
       const logoObj = this.response.find((item) => item.attributeKey === 'loginLogo') || {};
       const logoObjWidth =
         this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
@@ -430,13 +508,17 @@ export default {
           this.loopMaps.push({ url: item });
         }
       });
+      console.log(styleObj);
       this.params = {
         ...this.params,
         enableRegistration: enableRegistrationObj.attributeValue,
         enableAppLogin: enableAppLoginObj.attributeValue,
-        enableForgetPassword: enableForgetPasswordObj.attributeValue
+        enableForgetPassword: enableForgetPasswordObj.attributeValue,
+        enableMultilingual: enableMultilingual.attributeValue
       };
       this.errorCount = Number(errorObj.attributeValue);
+      this.loginStyle = Number(styleObj.attributeValue);
+      this.stylePercentage = Number(stylePercentage.attributeValue);
       this.record = recordObj.attributeValue;
       this.loginObj = logoObj;
       this.loginWidth = Number(logoObjWidth.attributeValue);
@@ -542,6 +624,19 @@ export default {
             attributeValue: this.record
           };
         }
+        if (key === 'isLoginStyle') {
+          // 登录logo保存
+          params = [
+            {
+              ...currentObj,
+              attributeValue: this.loginStyle
+            },
+            {
+              ...this.response.find((item) => item.attributeKey === 'stylePercentage'),
+              attributeValue: this.stylePercentage
+            }
+          ];
+        }
         if (key === 'isRegistration') {
           // 登录logo保存
           await this.logoSave(key, attr);
@@ -553,7 +648,11 @@ export default {
           };
         }
         try {
-          await commonUpdate({ list: [params] });
+          if (Array.isArray(params)) {
+            await commonUpdate({ list: [...params] });
+          } else {
+            await commonUpdate({ list: [params] });
+          }
           await this.init();
           this.loading = false;
           this.$message({
@@ -577,12 +676,19 @@ export default {
         this.onlineTimeVal = val;
       } else if (name === 'periodValidity') {
         this.periodValidityValue = val;
+      } else if (name === 'style') {
+        this.loginStyle = val;
+      } else if (name === 'stylePercentage') {
+        this.stylePercentage = val;
       }
     }
   },
   beforeDestroy() {
     // 页面离开时断开连接,清除定时器
-    this.disconnect();
+    if (this.disconnect) {
+      this.disconnect();
+    }
+
     clearInterval(this.timer);
   }
 };

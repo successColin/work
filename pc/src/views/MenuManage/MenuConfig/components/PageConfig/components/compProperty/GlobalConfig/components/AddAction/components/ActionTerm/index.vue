@@ -64,7 +64,7 @@
           ></select-comp>
           <filterable-input
             v-if="flag === 2"
-            class="list__item--column"
+            class="list__item--column fields"
             placeholder="请选择字段"
             :tableName="tableInfo.tableName"
             :showInfo="child.columnObj"
@@ -102,7 +102,7 @@
             :editable="false"
             value-format="yyyy-MM-dd"
             v-model="child.content"
-            class="action__term--liChild VerticalDate"
+            class="action__term--liChild action__term--time VerticalDate"
             placeholder="请选择日期"
           >
           </el-date-picker>
@@ -118,7 +118,7 @@
             :editable="false"
             value-format="yyyy-MM-dd HH:mm:ss"
             v-model="child.content"
-            class="action__term--liChild VerticalDateTime"
+            class="action__term--liChild action__term--time VerticalDateTime"
             placeholder="请选择日期"
           >
           </el-date-picker>
@@ -135,6 +135,7 @@
             :configData="configData"
             class="action__term--formula"
             :triggerCompMap="triggerCompMap"
+            :showType="showType"
             v-model="child.content"
           ></select-formula>
           <i class="iconfont icon-shanchu" @click="deleteTerm(i, j)"></i>
@@ -207,6 +208,11 @@ export default {
     termTitle: {
       type: String,
       default: '生效条件'
+    },
+    // 展示公式类型
+    showType: {
+      type: Array,
+      default: () => [1]
     }
   },
   data() {
@@ -464,7 +470,7 @@ export default {
         overflow: hidden;
 
         .selectCompVertical {
-          width: 260px;
+          width: 200px;
           float: left;
           margin-bottom: 10px;
         }
@@ -475,9 +481,13 @@ export default {
           margin-left: 8px;
           margin-bottom: 10px;
         }
+        .fields {
+          width: 200px;
+          float: left;
+        }
 
         .valueType {
-          width: 328px;
+          width: 268px;
           float: left;
           margin-left: 0;
           margin-bottom: 10px;
@@ -487,14 +497,14 @@ export default {
         .VerticalDateTime,
         .VerticalDate {
           float: left;
-          width: 288px;
+          width: 228px;
           margin-left: 0;
           margin-bottom: 10px;
         }
 
         .selectFormula {
           float: left;
-          width: 288px !important;
+          width: 228px !important;
           margin-left: 0;
           margin-bottom: 10px;
         }
@@ -549,7 +559,8 @@ export default {
       }
     }
 
-    &--input {
+    &--input,
+    &--time {
       margin-left: 10px;
       flex: 1;
     }

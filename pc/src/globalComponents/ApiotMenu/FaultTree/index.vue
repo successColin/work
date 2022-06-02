@@ -691,7 +691,7 @@ export default {
       }
       if (isAdd) {
         const node = this.$refs.tree.getTree().getNode(form);
-        console.log(node);
+        // console.log(node);
         if (node && node.expanded) {
           const params = {
             isThisLevel: 2,

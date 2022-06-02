@@ -109,6 +109,12 @@ export default {
       type: Boolean,
       default: false
     },
+    otherParams: { // 额外参数，用于接口的其他参数
+      type: Object,
+      default() {
+        return {};
+      }
+    },
     tableArr: {
       type: Array,
       default: () => []
@@ -373,7 +379,8 @@ export default {
           relationMenuDesignId: this.$route.query.id,
           unDesign: 1,
           panelClassify: this.isSelPanel ? 2 : 1,
-          clientType: this.$route.query.isApp === '1' ? 2 : 1
+          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          ...this.otherParams
         };
         // console.log(params);
         const res = await pagePanel(params);

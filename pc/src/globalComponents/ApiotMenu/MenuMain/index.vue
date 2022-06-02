@@ -269,7 +269,6 @@ export default {
     },
     // 初始化表单
     resetForm() {
-      console.log(this.getFeatureArr.form);
       if (!this.backForm) {
         this.backForm = JSON.parse(JSON.stringify(this.getFeatureArr.form));
       } else {
@@ -424,9 +423,12 @@ export default {
         panelCompId: this.getValueFromFather('panelCompId'),
         relationMenuDesignId: this.getValueFromFather('relationMenuDesignId')
       };
-      const { tableInfo, compName } = this.configData;
-      if (this.showType && this.showType.type === 'flow' && compName === 'CardMain') {
-        console.log(this.configData, 'flow', tableInfo.tableName);
+      if (
+        this.showType &&
+        this.showType.type === 'flow' &&
+        !this.getNotInitArr().includes(this.configData.compId)
+      ) {
+        const { tableInfo } = this.configData;
         params.workflowFilter = `${tableInfo.tableName}.id=${this.showType.dataId}`;
       }
       const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
@@ -475,7 +477,6 @@ export default {
           ...this.getFeatureArr.form,
           ...tempObj
         };
-        console.log(this.getFeatureArr.form);
         this.loading = false;
         this.initStart();
         // this.changeNotValueChange(false);

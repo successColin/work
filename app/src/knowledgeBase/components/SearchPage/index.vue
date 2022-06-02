@@ -17,6 +17,7 @@
           placeholder="在全部文件中搜索"
           :isTheme="false"
           clearable
+          focus
           @getList="getListFun"
         ></apiot-input>
         <div class="searchPage__nav" v-if="!isGetData">
@@ -31,7 +32,7 @@
             <span :class="getThemeColorFont">{{ keywordValue }} </span>
             ”相关的同名文件
           </div>
-          <section class="searchPage__nav--section" v-if="isShow">
+          <section class="searchPage__nav--section">
             <div
               v-for="(item, index) in screenArr"
               :class="[
@@ -53,6 +54,7 @@
       :loading="loading"
       bgColor="rgba(0, 0, 0, 0.1)"
       style="z-index: 1"
+      loadingText=""
     ></u-loading-page>
 
     <!-- 历史查询 -->
@@ -79,33 +81,45 @@ import dataListMixin from '../../dataListMixin';
 
 export default {
   mixins: [dataListMixin],
+  provide() {
+    return {
+      getList: this.getList,
+      visitRecordFun: this.visitRecordFun
+    };
+  },
   data() {
     return {
       // 赛选项
       screenArr: [
         {
           state: true,
-          name: '全部'
+          name: '全部',
+          id: 1
         },
         {
           state: false,
-          name: '文档'
+          name: '文档',
+          id: 2
         },
         {
           state: false,
-          name: '图片'
+          name: '图片',
+          id: 3
         },
         {
           state: false,
-          name: '视频'
+          name: '视频',
+          id: 4
         },
         {
           state: false,
-          name: '音频'
+          name: '音频',
+          id: 5
         },
         {
           state: false,
-          name: '其他'
+          name: '其他',
+          id: 6
         }
       ],
       title: '搜索',
@@ -121,14 +135,26 @@ export default {
     isGetData() {
       return this.dataArr.length !== 0 || this.keywordValue;
     },
-    isShow() {
-      return this.dataArr.length !== 0 && this.keywordValue;
-    },
     getThemeColorFont() {
       return this.$store.getters.getThemeColorFont;
     }
   },
+  watch: {
+    keywords(v) {
+      if (!v) {
+        this.screenArr.forEach((item) => {
+          item.state = false;
+          if (item.id === 1) {
+            item.state = true;
+          }
+        });
+      }
+    }
+  },
   mounted() {},
+  onLoad(option) {
+    this.classId = option.classId;
+  },
   methods: {
     // 筛选
     handleClickScreen(v) {
@@ -136,6 +162,17 @@ export default {
         item.state = false;
       });
       v.state = true;
+      if (v.id === 1) {
+        this.getList({
+          keywords: this.keywords
+        });
+      } else {
+        // fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
+        this.getTypeList({
+          fileType: v.id,
+          keywords: this.keywords
+        });
+      }
     },
     // 删除历史
     handleDelete() {

@@ -33,6 +33,8 @@ export default {
     enableRegistration: '是否启用注册',
     supportAppCode: '是否支持APP扫码登录',
     forgetPassword: '是否启用忘记密码',
+    enableMultilingual: '是否启用多语言',
+    style: '登录页风格',
     loginpagelogo: '登录页LOGO',
     loginCarousel: '登录轮播图',
     homePageMessage: '是否启用主页消息功能',

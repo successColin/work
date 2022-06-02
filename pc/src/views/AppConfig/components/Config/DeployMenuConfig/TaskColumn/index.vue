@@ -321,12 +321,12 @@ export default {
           columnTypeDict: 1
         },
         {
-          columnName: 'exint1',
+          columnName: 'exint2',
           memo: '扩展整数2',
           columnTypeDict: 1
         },
         {
-          columnName: 'exint1',
+          columnName: 'exint3',
           memo: '扩展整数3',
           columnTypeDict: 1
         },

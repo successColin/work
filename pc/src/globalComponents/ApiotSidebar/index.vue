@@ -42,6 +42,7 @@
         notShowHover: notShowHover,
       }"
     >
+      <apiot-nodata v-if="!dragGroupList.length"></apiot-nodata>
       <draggable
         v-model="dragGroupList"
         :disabled="!isNeedMove"

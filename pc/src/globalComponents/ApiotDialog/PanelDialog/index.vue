@@ -219,12 +219,20 @@ export default {
     }
   }
   ::v-deep {
-    .el-dialog {
+    @media (min-height: 640px) {
+      & > .el-dialog {
+        height: 640px;
+      }
+    }
+    @media (max-height: 640px) {
+      & > .el-dialog {
+        position: absolute;
+        top: 20px;
+        bottom: 20px;
+      }
+    }
+    & > .el-dialog {
       width: 930px;
-      max-height: 640px;
-      position: absolute;
-      top: 100px;
-      bottom: 100px;
     }
     .el-dialog__body {
       padding: 0;

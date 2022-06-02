@@ -354,3 +354,81 @@ export function getBeforesNode(params) {
     params
   });
 }
+
+/**
+ * 获取流程分组列表
+ * @param params
+ * @returns {*}
+ */
+export function getFlowGroup(params) {
+  return fetch.request({
+    url: query.GET_FLOW_GROUP_LIST,
+    method: 'get',
+    params
+  });
+}
+
+/**
+ * 新增流程分组
+ * @param data
+ * @returns {*}
+ */
+export function addGroup(data) {
+  return fetch.request({
+    url: query.ADD_FLOW_GROUP,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 删除分组
+ * @param data
+ * @returns {*}
+ */
+export function delGroup(params) {
+  return fetch.request({
+    url: query.DELETE_FLOW_GROUP,
+    method: 'delete',
+    params
+  });
+}
+
+/**
+ * 修改流程分组的属性
+ * @param data
+ * @returns {*}
+ */
+export function updateGroup(data) {
+  return fetch.request({
+    url: query.UPDATE_FLOW_GROUP,
+    method: 'put',
+    data
+  });
+}
+
+/**
+ * 修改分组排序
+ * @param data
+ * @returns {*}
+ */
+export function switchGroupSno(data) {
+  return fetch.request({
+    url: query.SWITCH_FLOW_GROUP,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 修改流程信息
+ * @param data
+ * @returns {*}
+ */
+export function editFlow(data) {
+  return fetch.request({
+    url: query.EDIT_FLOW,
+    method: 'post',
+    data
+  });
+}

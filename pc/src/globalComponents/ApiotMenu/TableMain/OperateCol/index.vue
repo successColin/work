@@ -4,7 +4,7 @@
     v-on="$listeners"
     v-bind="$attrs"
     resizable
-    show-overflow-tooltip
+    :show-overflow-tooltip="false"
     :prop="configData.dataSource.columnName"
     v-show="false"
   >

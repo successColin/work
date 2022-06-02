@@ -466,7 +466,6 @@ export default {
         obj[this.getSelData().showInfo.name] = arr1[index];
         this.multiEntityArr.push(obj);
       });
-      console.log(this.multiEntityArr);
     },
     // 请求新增的面板
     async getPane() {

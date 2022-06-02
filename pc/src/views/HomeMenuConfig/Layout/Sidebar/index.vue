@@ -148,7 +148,7 @@
 import { createUnique } from '@/utils/utils';
 import ZoomCenter from '../ZoomCenter/index';
 
-export const SqlDataConfig = {
+const SqlDataConfig = {
   SQL: 'select * from table1', // sql
   enableSQLFilter: false, // sql 是否需要过滤器
   SQLDataFilterId: null, // 数据过滤器id
@@ -161,6 +161,14 @@ export const SqlDataConfig = {
   enableDataManage: false, // 是否启用变量管理
   variableConfig: [] // 变量数组
 };
+
+const bulletCommonConfig = {
+  interactionMode: 1, // 交互方式 1、没有 2、弹框 3、跳转链接 4、下载
+  // bulletType: 1, // 1、默认弹框  2、自定义弹框位置 3、 随鼠标位置
+  bulletConfig: {}, // 弹框地址
+  toMenuConfig: {}, // 跳菜单配置
+};
+
 export default {
   props: {},
   data() {
@@ -336,6 +344,7 @@ export default {
                   fieldRelColor: '#fff', // 配置了启用条件及条件满足，则该字段生效
                   isApplyPicture: false, // 是否应用与图片
                   conditionsArr: [], // 条件数组，二维数组，子数组对象，包括状态 并且---或者
+                  ...bulletCommonConfig, // 弹框或者url跳转配置
                   callbackFields: '' // 回调字段集合
                 },
                 {
@@ -354,6 +363,7 @@ export default {
                   enableConditions: false, // 是否启用字段条件
                   fieldRelColor: '#fff', // 配置了启用条件及条件满足，则该字段生效
                   conditionsArr: [], // 条件数组，二维数组，子数组对象，包括状态 并且---或者
+                  ...bulletCommonConfig, // 弹框或者url跳转配置
                   callbackFields: '' // 回调字段集合
                 }
               ], // 自定义列表配置

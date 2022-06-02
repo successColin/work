@@ -32,7 +32,7 @@
     </div>
     <div
       class="nav--home"
-      @click="$router.push('/home')"
+      @click="goHome"
       :class="[{ 'nav--item__active': isHome }]"
     >
       <i class="iconfont icon-zhuye"></i>
@@ -147,17 +147,24 @@ export default {
       ? JSON.parse(sessionStorage.delTabArr)
       : this.delTabArr;
     this.hasMounted = true;
-    console.log(this.tabArr, ',outer');
     bus.$on('changeMenuTab', this.changeMenuTab);
     bus.$on('openMenuList', this.showMenu);
     bus.$on('routerReset', () => {
-      console.log('刷新', sessionStorage.navTabArr, this.tabArr);
       this.tabArr = sessionStorage.navTabArr ? JSON.parse(sessionStorage.navTabArr) : this.tabArr;
     });
     this.initScroll('init');
     window.addEventListener('resize', debounce(this.initScroll));
   },
   methods: {
+    goHome() {
+      if (this.homeArr.length) {
+        const current = this.homeArr[0];
+        const { path } = current;
+        this.$router.push(path);
+        return;
+      }
+      this.$router.push('/home');
+    },
     // 初始化bs
     initScroll(flag) {
       this.$nextTick(() => {
@@ -189,14 +196,13 @@ export default {
           setTimeout(() => {
             this.scroll.refresh();
             // console.log(this.scroll.maxScrollX);
-            const res = this.reduceArr.findIndex((tab) => {
-              console.log(this.$route.path, tab);
-              return (
+            const res = this.reduceArr.findIndex(
+              (tab) =>
+                // console.log(this.$route.path, tab);
                 tab.path === this.$route.path ||
                 this.$route.path.indexOf(tab.path) !== -1 ||
                 (tab.path && tab.path.indexOf(this.$route.path) !== -1)
-              );
-            });
+            );
             this.changePos(res);
           }, 100);
         }
