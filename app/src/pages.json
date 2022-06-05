@@ -101,10 +101,18 @@
       "root": "knowledgeBase",
       "pages": [
         {
-          "path": "index"
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
         },
         {
-          "path": "components/SearchPage/index"
+          "path": "components/SearchPage/index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
         }
       ]
     },

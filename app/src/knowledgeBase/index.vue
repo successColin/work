@@ -1,5 +1,5 @@
 <template>
-  <div :class="['knowledgeBase', isMask ? 'maskOverhidden' : '']">
+  <div>
     <!-- #ifndef MP-DINGTALK -->
     <!-- 顶部 -->
     <apiot-navbar :title="title"></apiot-navbar>
@@ -80,6 +80,12 @@ export default {
       // fileList1: []
     };
   },
+  mounth() {
+    document.body.addEventListener('touchmove', this.p, { passive: false });
+  },
+  beforeDestroy() {
+    document.body.removeEventListener('touchmove', this.p);
+  },
   computed: {
     // 主题色
     themeColor() {
@@ -97,6 +103,10 @@ export default {
     // BusinessDoc
   },
   methods: {
+    p(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    },
     // 切换底部
     changeTab(index) {
       this.currentNav = index;

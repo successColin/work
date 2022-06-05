@@ -8,15 +8,15 @@
 <template>
   <section class="searchPage">
     <apiot-navbar :title="title"></apiot-navbar>
-    <u-sticky offset-top="0">
+    <u-sticky :customNavHeight="customBar">
       <div class="searchPage__sticky">
+        <!-- clearable -->
         <apiot-input
           v-model="keywords"
           class="searchPage__search"
           prefixIcon="appIcon-sousuo"
           placeholder="在全部文件中搜索"
           :isTheme="false"
-          clearable
           focus
           @getList="getListFun"
         ></apiot-input>
@@ -137,6 +137,20 @@ export default {
     },
     getThemeColorFont() {
       return this.$store.getters.getThemeColorFont;
+    },
+    systemInfo() {
+      return this.$store.state.base.systemInfo;
+    },
+    customBar() {
+      let height = 0;
+      // #ifdef MP-DINGTALK
+      height = 0;
+      // #endif
+      // #ifndef MP-DINGTALK
+      height = this.systemInfo.customBar || 0;
+      // #endif
+      console.log(height);
+      return height;
     }
   },
   watch: {
@@ -160,8 +174,10 @@ export default {
     handleClickScreen(v) {
       this.screenArr.forEach((item) => {
         item.state = false;
+        if (v.id === item.id) {
+          item.state = true;
+        }
       });
-      v.state = true;
       if (v.id === 1) {
         this.getList({
           keywords: this.keywords
