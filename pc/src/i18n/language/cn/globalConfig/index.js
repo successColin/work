@@ -9,6 +9,7 @@ export default {
   globalConfig: {
     accountPasswordOptions: '账号密码相关选项',
     themeAndLogoOptions: '主题及Logo相关选项',
+    thirdLinks: '第三方链接',
     fileServerOptions: '文件服务器相关选项',
     watermarkOptions: '水印相关选项',
     loginConfig: '系统登录相关选项',
@@ -35,6 +36,7 @@ export default {
     forgetPassword: '是否启用忘记密码',
     enableMultilingual: '是否启用多语言',
     style: '登录页风格',
+    styleBackgroundImage: '背景图',
     loginpagelogo: '登录页LOGO',
     loginCarousel: '登录轮播图',
     homePageMessage: '是否启用主页消息功能',
@@ -66,5 +68,8 @@ export default {
     UploadProtocolBtn: '上传协议',
     backgroundImage: '请上传登录背景图',
     uploadTheLoginPageLogo: '请上传登录页LOGO',
+    enableLink: '是否启用三方连接',
+    topHeight: '系统顶部高度',
+    topStyle: '系统顶部风格',
   },
 };

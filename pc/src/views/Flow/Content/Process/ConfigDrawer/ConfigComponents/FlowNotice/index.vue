@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" :key="key">
     <div class="config-property">
       <div class="form-item">
         <div class="form-item-label">消息模板</div>
@@ -51,6 +51,7 @@ export default {
   },
   data() {
     return {
+      key: 0,
       value1: [],
       template: null, // 消息模板信息
       typeArr: [],
@@ -77,8 +78,14 @@ export default {
 
   methods: {
     init() {
-      this.template = this.nodeInfo.template || this.template;
-      this.value1 = this.nodeInfo.messageTypes || [];
+      if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
+        this.template = this.nodeInfo.template || this.template;
+        this.value1 = this.nodeInfo.messageTypes || [];
+      } else {
+        this.template = null;
+        this.value1 = [];
+      }
+      this.key += 1;
     },
     async makeOptions(supportTypes = '') {
       if (!supportTypes) return;

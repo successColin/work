@@ -170,23 +170,26 @@
               </el-form-item>
             </div>
           </div>
-          <div class="form__line">
+          <!-- <div class="form__line">
             <el-form-item class="form__child">
               <div slot="label">
                 {{ $t('importTemplate.isItTreeImport') }}
               </div>
               <el-radio-group v-model="ruleForm.isTree" :disabled="isSystem">
-                <!-- 1是 2否 -->
                 <el-radio :label="2">{{ $t('common.no') }}</el-radio>
                 <el-radio :label="1">{{ $t('common.is') }}</el-radio>
               </el-radio-group>
             </el-form-item>
-          </div>
+          </div> -->
         </section>
         <!-- 富文本 -->
         <div class="form__line">
           <el-form-item class="form__child" :label="$t('importTemplate.descr')">
-            <apiot-wangeditor ref="wangeditor" :value="ruleForm.remarksHtml">
+            <apiot-wangeditor
+              ref="wangeditor"
+              :value="ruleForm.remarksHtml"
+              class="wangeditor"
+            >
             </apiot-wangeditor>
           </el-form-item>
         </div>
@@ -642,6 +645,9 @@ export default {
           flex: 1;
         }
       }
+    }
+    .wangeditor {
+      height: 50vh;
     }
     ::v-deep {
       .el-form-item__label {

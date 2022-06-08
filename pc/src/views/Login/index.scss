@@ -14,7 +14,13 @@
       line-height: 40px;
     }
   }
+  header {
+    position: absolute;
+    right: $remto50px;
+    flex-direction: row-reverse;
+  }
   .content {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
@@ -23,9 +29,7 @@
     text-align: left;
     font-size: 13px;
     box-shadow: none;
-    &__lang,
-    &__loginIn,
-    &__reference {
+    &__loginIn {
       display: flex;
       align-items: center;
       flex: 1;
@@ -33,11 +37,6 @@
         color: #6b798d;
         text-decoration: none;
       }
-    }
-    // 语言
-    &__lang {
-      flex-direction: row-reverse;
-      margin-right: 50px;
     }
     // 登录
     &__loginIn {
@@ -48,17 +47,17 @@
       // 容器
       .vessel {
         min-width: 330px;
-        min-height: 450px;
-        width: 30%;
+        min-height: 35vh;
+        width: 25vw;
         // 标题
         &__title {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          height: 33px;
+          height: $remto32px;
           // 登录名称
           &--name {
-            font-size: 24px;
+            font-size: $remto24px;
             color: #111111;
           }
           // 扫码登录图片
@@ -69,25 +68,30 @@
         }
         // 欢迎登录APIoT平台！
         &__info {
-          margin-top: 6px;
+          margin-top: $remto6px;
           text-align: left;
-          font-size: 13px;
+          font-size: $remto12px;
           color: #6b798d;
         }
       }
     }
-    // 备案
-    &__reference {
-      justify-content: center;
-      font-size: 12px;
+  }
+  // 备案
+  footer {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    font-size: $remto12px;
+    color: #6b798d;
+    cursor: pointer;
+    text-align: center;
+    a {
+      height: 100%;
+      display: flex;
+      flex-direction: column-reverse;
+      margin-bottom: $remto60px;
       color: #6b798d;
-      cursor: pointer;
-      a {
-        height: 100%;
-        display: flex;
-        flex-direction: column-reverse;
-        margin-bottom: 60px;
-      }
+      text-decoration: none;
     }
   }
 }

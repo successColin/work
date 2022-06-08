@@ -495,7 +495,6 @@ export default {
   },
 
   created() {
-    console.log(111);
     this.initIcon();
     this.initLabel();
   },

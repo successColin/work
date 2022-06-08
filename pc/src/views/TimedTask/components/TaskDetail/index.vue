@@ -117,7 +117,6 @@
             optionLabel="templateName"
           ></select-cycle>
         </el-form-item>
-        <!-- 还没有做 (存储过程) ？？？？？？？？？ -->
         <!-- 存储过程 -->
         <el-form-item
           :label="$t('timedTask.storedProcedure')"
@@ -135,6 +134,30 @@
             :showInfo="storedshowInfo"
             :hasPagination="false"
           ></select-cycle>
+        </el-form-item>
+        <!-- 内置接口 -->
+        <el-form-item
+          :label="$t('timedTask.builtInInterface')"
+          class="form--child"
+          prop="interfaceType"
+          v-else-if="formData.jobType === 4"
+        >
+          <el-select
+            v-model="formData.interfaceType"
+            :placeholder="
+              $t('placeholder.pleaseSelect', {
+                any: this.$t('timedTask.builtInInterface'),
+              })
+            "
+          >
+            <el-option
+              v-for="item in interfaceOption"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
       </div>
       <!-- 第三行：消息渠道 -->
@@ -244,8 +267,19 @@ export default {
         cronTime: '', // 周期
         templateId: '', // 消息模板ID
         proceduresId: '',
-        messageTypes: [] // 消息渠道
+        messageTypes: [], // 消息渠道
+        interfaceType: '' // 内置接口
       },
+      interfaceOption: [
+        {
+          id: 'DEVICE_RESOURCE_STATISTICS',
+          name: '设备资源管理器定时统计'
+        },
+        {
+          id: 'INSEPCTION_OVERDUE_TASKS_PROCESS',
+          name: '巡检任务定时过期处理'
+        }
+      ],
       configurationObj: { contents: [], supportTypes: [] },
       // 周期
       cycleColumnArr, // 列
@@ -301,6 +335,7 @@ export default {
         this.formData.proceduresName = '';
         this.formData.proceduresMethod = '';
         this.formData.messageTypes = [];
+        this.formData.interfaceType = '';
         this.showInfoCycle = {};
         this.showInfoTemplate = {};
         this.storedshowInfo = {};
@@ -331,7 +366,7 @@ export default {
         this.tableData = templateValue.parameterList;
         this.formData.templateId = templateValue.templateId;
         this.formData.proceduresId = templateValue.proceduresId;
-        console.log(templateValue.messageTypes);
+        this.formData.interfaceType = templateValue.interfaceType;
         this.$nextTick(() => {
           this.formData.messageTypes = templateValue.messageTypes || [];
         });
@@ -387,7 +422,16 @@ export default {
             trigger: 'change'
           }
         ],
-        messageTypes: [{ required: true, validator: this.checkMessageType, trigger: 'change' }]
+        messageTypes: [{ required: true, validator: this.checkMessageType, trigger: 'change' }],
+        interfaceType: [
+          {
+            required: true,
+            message: this.$t('placeholder.pleaseSelect', {
+              any: this.$t('timedTask.builtInInterface')
+            }),
+            trigger: 'change'
+          }
+        ]
       };
     },
     // 类型
@@ -492,7 +536,8 @@ export default {
             messageTypes,
             proceduresId,
             proceduresName,
-            proceduresMethod
+            proceduresMethod,
+            interfaceType
           } = this.formData;
           const params = {
             jobName,
@@ -505,6 +550,10 @@ export default {
               proceduresName,
               proceduresMethod,
               parameterList: this.tableData
+            });
+          } else if (this.formData.jobType === 4) {
+            params.typeProps = JSON.stringify({
+              interfaceType
             });
           } else {
             params.typeProps = JSON.stringify({

@@ -8,7 +8,7 @@
 <template>
   <div class="drag" ref="dragDiv">
     <!-- 背景 -->
-    <div class="drag__bg" style="position: absolute; top: 3px; left: 3px"></div>
+    <div class="drag__bg"></div>
     <!-- 描述 -->
     <div class="drag__text shadow">{{ confirmWords }}</div>
     <!-- icon -->
@@ -17,7 +17,6 @@
       @mousedown="mousedownFn($event)"
       :class="['iconfont', iconFontCon]"
       class="handler handler_bg"
-      style="position: absolute; top: 3px; left: 3px"
     ></div>
   </div>
 </template>
@@ -113,22 +112,26 @@ export default {
 <style lang="scss" scoped>
 .drag {
   width: 100%;
-  height: 40px;
-  line-height: 40px;
+  height: $remto40px;
+  line-height: $remto40px;
   background: #f1f3f6;
-  border: 1px solid #dde2ea;
-  border-radius: 4px;
+  border: $remto1px solid #dde2ea;
+  border-radius: $remto4px;
   position: relative;
   text-align: center;
 }
 .handler {
-  width: 34px;
-  height: 34px;
-  line-height: 34px;
+  width: $remto34px;
+  height: $remto34px;
+  line-height: $remto34px;
   background: #ffffff;
   cursor: pointer;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.12);
-  border-radius: 2px;
+  box-shadow: 0px 0px $remto4px 0px rgba(0, 0, 0, 0.12);
+  border-radius: $remto2px;
+  position: absolute;
+  top: $remto3px;
+  left: $remto3px;
+  font-size: $remto14px;
 }
 .icon__color1 {
   color: #83d4e8;
@@ -138,9 +141,12 @@ export default {
 }
 .drag__bg {
   background: #83d4e8;
-  height: 34px;
+  height: $remto34px;
   width: 0px;
-  border-radius: 2px;
+  border-radius: $remto2px;
+  position: absolute;
+  top: $remto3px;
+  left: $remto3px;
 }
 .drag__text {
   position: absolute;
@@ -152,7 +158,7 @@ export default {
   user-select: none;
   -o-user-select: none;
   -ms-user-select: none;
-  font-size: 13px;
+  font-size: $remto13px;
   color: #666666;
 }
 
@@ -184,18 +190,18 @@ export default {
 @-webkit-keyframes animate {
   /* 背景从-100px的水平位置，移动到+100px的水平位置。如果要移动Y轴的，设置第二个数值 */
   from {
-    background-position: -200px 0;
+    background-position: -$remto200px 0;
   }
   to {
-    background-position: 200px 0;
+    background-position: $remto200px 0;
   }
 }
 @keyframes animate {
   from {
-    background-position: -200px 0;
+    background-position: -$remto200px 0;
   }
   to {
-    background-position: 200px 0;
+    background-position: $remto200px 0;
   }
 }
 </style>

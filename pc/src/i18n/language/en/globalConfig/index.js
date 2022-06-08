@@ -9,6 +9,7 @@ export default {
   globalConfig: {
     accountPasswordOptions: 'Account and password',
     themeAndLogoOptions: 'Theme and logo',
+    thirdLinks: 'System Third Links',
     fileServerOptions: 'File server',
     watermarkOptions: 'Watermark',
     loginConfig: 'Login related',
@@ -35,6 +36,7 @@ export default {
     forgetPassword: 'Enable forget password',
     enableMultilingual: 'Enable Multilingual',
     style: 'Landing Page Style',
+    styleBackgroundImage: 'Style Background Image',
     loginpagelogo: 'Login page logo',
     loginCarousel: 'Login carousel map',
     homePageMessage: 'Enable homepage message',
@@ -67,5 +69,8 @@ export default {
     UploadProtocolBtn: 'Upload protocol',
     backgroundImage: 'Please upload the login background image',
     uploadTheLoginPageLogo: 'Please upload the login page logo',
+    enableLink: 'Enable Link',
+    topHeight: 'System Top Height',
+    topStyle: 'System Top Style',
   },
 };

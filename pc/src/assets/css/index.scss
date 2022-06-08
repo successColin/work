@@ -70,6 +70,16 @@ $dimensions: (
   color: $--hover-fontColor;
 }
 
+.loginFontHover:hover {
+  cursor: pointer;
+  color: $loginThemeColor;
+}
+
+.loginIconHover:hover {
+  cursor: pointer;
+  color: $loginThemeColor;
+}
+
 .apiotNoData {
   position: relative;
   width: 100%;

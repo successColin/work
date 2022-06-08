@@ -217,68 +217,56 @@
                 inactive-color="#DCDFE6">
             </el-switch>
           </div>
-          <div class="propsSetting" v-if="false">
-            <span class="setTitle">交互方式</span>
-            <div>
-              <el-radio-group
-                  size="mini"
-                  v-model="getComponentInfo.interactionMode"
-                  @change="(value) => changeTitle(value, 'interactionMode')"
-              >
-                <el-radio-button :label="1">无</el-radio-button>
-                <el-radio-button :label="2">弹框</el-radio-button>
-                <el-radio-button :label="3">链接</el-radio-button>
-              </el-radio-group>
-            </div>
-          </div>
-          <div class="ellipsisWrap flex propsSetting" v-if="getComponentInfo.interactionMode===2">
-            <div class="InputWrap">
-              <c-input
-                  lable="宽:"
-                  type="number"
-                  :numberValue="getComponentInfo.bulletWidth"
-                  @Input-Change="(value) => changeTitle(Number(value), 'bulletWidth')"/>
-              <c-input
-                  lable="高:"
-                  type="number"
-                  :numberValue="getComponentInfo.bulletHeight"
-                  @Input-Change="(value) => changeTitle(Number(value), 'bulletHeight')"/>
-            </div>
-          </div>
-          <div class="propsSetting" v-if="getComponentInfo.interactionMode===2">
-            <p class="setTitle">弹框地址</p>
-            <c-input
-                type="text"
-                :value="getComponentInfo.bulletUrl"
-                @Input-Change="(value) => changeTitle(value, 'bulletUrl')"
-                @blur="(e) => checkIsRight(e.target.value, 'bulletUrl')"
-            />
-          </div>
-          <div class="propsSetting" v-if="getComponentInfo.interactionMode===3">
-            <p class="setTitle">超链接</p>
-            <c-input
-                type="text"
-                :value="getComponentInfo.url"
-                @Input-Change="(value) => changeTitle(value, 'url')"
-                @blur="(e) => checkIsRight(e.target.value, 'url')"
-            />
-          </div>
-          <div class="ellipsisWrap flex propsSetting" v-if="getComponentInfo.interactionMode===3">
-            <span class="setTitle">是否打开新窗口</span>
-            <el-switch
-                :value="getComponentInfo.enableOpenNewWindow"
-                @change="(value) => changeTitle(value, 'enableOpenNewWindow')"
-                active-color="#4689F5"
-                inactive-color="#DCDFE6">
-            </el-switch>
-          </div>
+        </div>
+      </el-collapse-item>
+      <el-collapse-item title="交互配置" name="4">
+        <div>
+          <el-radio-group
+              class="radioGroup"
+              size="mini"
+              v-model="getComponentInfo.interactionType"
+              @change="(value) => changeTitle(value, 'interactionType')"
+          >
+            <el-radio-button :label="1">无</el-radio-button>
+            <el-radio-button :label="2">弹出面板</el-radio-button>
+            <el-radio-button :label="3">跳转菜单</el-radio-button>
+          </el-radio-group>
+        </div>
+        <div class="btnWrap">
+          <apiot-button
+              class="panelBtn"
+              v-if="getComponentInfo.interactionType === 2"
+              @click="visible=true"
+          >
+            <i class="iconfont icon-shezhi m-r-4"></i>弹出面板配置
+          </apiot-button>
+          <apiot-button
+              class="panelBtn"
+              v-if="getComponentInfo.interactionType === 3"
+          >
+            <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
+          </apiot-button>
         </div>
       </el-collapse-item>
     </el-collapse>
+    <PanelConfig
+        :visible.sync="visible"
+        :tabPaneConfig="tabPaneConfig"
+        :activeObj="activeObj"
+        :isSelPanel="true"
+        :otherParams="{ panelType: 5,
+                 unDesign: 1,
+                 panelClassify: 1,
+                 clientType: 1}"
+        @cancle-click="handleCancel"
+        :isCustomPage="true"
+        ref="panelConfig"
+    ></PanelConfig>
   </div>
 </template>
 
 <script>
+import PanelConfig from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/PanelConfig';
 import LocationProperties from '../../basicWidgets/CLocationProperties/index';
 import { predefineColors } from '../../constants/global';
 import { IsURL } from '../../constants/common';
@@ -299,7 +287,9 @@ export default {
   },
   data() {
     return {
+      visible: false,
       enable: true,
+      activeObj: { dialogTitle: '' },
       fontFamilyOptions: [
         {
           label: '微软雅黑',
@@ -361,10 +351,16 @@ export default {
   },
 
   components: {
-    LocationProperties
+    LocationProperties,
+    PanelConfig
   },
 
   computed: {
+    tabPaneConfig() {
+      const { panelConfig } = this.getComponentInfo;
+      const { curPaneObj } = panelConfig;
+      return curPaneObj || {};
+    },
     getComponentInfo() { // 获取控件详情信息
       const { componentId } = this.activeComponent;
       if (!componentId) {
@@ -379,10 +375,19 @@ export default {
   },
 
   mounted() {
+    this.activeObj = this.getComponentInfo.panelConfig.activeObj || { dialogTitle: '' };
   },
   watch: {
   },
   methods: {
+    handleCancel() {
+      const { curPaneObj, activeObj } = this.$refs.panelConfig;
+      const value = {
+        curPaneObj,
+        activeObj
+      };
+      this.changeTitle(value, 'panelConfig');
+    },
     changeStyles(value, key) { // 样式修改
       const list = [...this.getList];
       const index = this.reduceIndex();
@@ -480,6 +485,7 @@ export default {
       }
     }
   }
+
   .propsSetting {
     margin-bottom: 10px;
 
@@ -504,6 +510,7 @@ export default {
             line-height: 32px;
           }
         }
+
         .el-input-number.is-controls-right .el-input__inner {
           padding-right: 0;
           padding-left: 10px;
@@ -557,6 +564,7 @@ export default {
               background: #E5F0FF !important;
               border-color: $component-borderFocus-color !important;
             }
+
             .iconfont {
               color: #4689f5 !important;
             }
@@ -629,9 +637,36 @@ export default {
     }
   }
 
+  .radioGroup {
+    display: flex;
+    width: 100%;
+    ::v-deep {
+      .el-radio-button {
+        flex: 1;
+        .el-radio-button__inner {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .btnWrap {
+    width: 100%;
+    margin: 10px auto;
+
+    .panelBtn {
+      width: 100%;
+    }
+  }
+
   .ellipsisWrap {
     justify-content: space-between;
     align-items: center;
+  }
+  ::v-deep {
+    .action__term--liChild {
+      width: 100px;
+    }
   }
 }
 </style>

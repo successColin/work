@@ -79,6 +79,10 @@ export default {
     height: {
       type: String,
       default: '422px'
+    },
+    showContent: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -288,6 +292,22 @@ export default {
       const htmlText = `${markText}`;
       htmlNode.innerHTML = htmlText;
       return htmlNode;
+    }
+  },
+
+  watch: {
+    showContent(v) {
+      if (v) {
+        this.$nextTick(() => {
+          // this.jsonEditor.setValue(this.formulaStr);
+          // 自动聚焦
+          this.jsonEditor.focus();
+          // // 聚焦到最后
+          this.jsonEditor.setCursor(this.jsonEditor.lineCount(), 0);
+          // // 替换组件的标记
+          // this.repalceCompMark();
+        });
+      }
     }
   }
 };

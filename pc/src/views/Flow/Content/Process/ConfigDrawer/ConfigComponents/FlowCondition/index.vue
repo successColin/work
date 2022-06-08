@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="conditionWrap">
+  <div class="conditionWrap" :key="key">
     <ActionTerm
         ref="dataFiltering"
         businessType="flow"
@@ -36,6 +36,7 @@ export default {
   },
   data() {
     return {
+      key: 0,
       tableName: '',
       configData: [], // 页面配置信息
       lambdaArr,
@@ -127,13 +128,19 @@ export default {
 
   methods: {
     init() {
-      if (JSON.stringify(this.nodeInfo) !== '{}') {
+      if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         const { conditionDesc = 1, conditions = [], tableName } = this.nodeInfo;
         this.termObj = {
           termType: conditionDesc,
           termArr: conditions,
         };
         this.tableName = tableName;
+        this.$nextTick(() => {
+          this.key += 1;
+        });
+      } else {
+        this.termObj = {};
+        this.tableName = '';
       }
     }
   },

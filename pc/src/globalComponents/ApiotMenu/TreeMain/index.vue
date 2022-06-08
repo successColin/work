@@ -107,6 +107,7 @@
         <div style="height: 100%" class="menuMain__feature--compList" v-else>
           <SingleTree
             ref="tree"
+            :class="`tree${configData.compId}`"
             v-show="!showList"
             :treeData="sidebarData"
             :parent="getFeatureArr"
@@ -513,7 +514,7 @@ export default {
         obj = this.getFatherPanel().panelVarObj[this.configData.compId];
       } else if (+this.$route.query.isJump === 1 && menuFilter) {
         obj = this.getCurMenu('menuVarObj');
-        if (obj) {
+        if (obj[this.configData.compId]) {
           obj = obj[this.configData.compId];
         }
       } else if (this.configData.termParams) {
@@ -670,7 +671,20 @@ export default {
         this.loading = false;
       });
       if (needNext && data.length) {
-        this.selectItem(data[0]);
+        this.$nextTick(() => {
+          this.selectItem(data[0]);
+          if (!(searchInfo && flag)) {
+            // 正常树打开第一个节点
+            if (this.$refs.tree) {
+              this.$refs.tree.getTree().setCurrentKey(this.selectKey);
+              this.$nextTick(() => {
+                document
+                  .querySelector(`.tree${this.configData.compId} .is-current`)
+                  .firstChild.click();
+              });
+            }
+          }
+        });
       }
     },
     prevClick() {
@@ -786,7 +800,6 @@ export default {
         }
         this.selectKey = item[this.getIdCompId];
       }
-
       // 触发其他区域数据的加载
       if (flag && this.configData.reloadArea.length) {
         // 选中节点

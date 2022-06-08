@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-04-29 19:47:04
  * @Last Modified by: ytx
- * @Last Modified time: 2021-08-13 17:10:12
+ * @Last Modified time: 2022-06-06 09:31:04
  */
 export default {
   timedTask: {
@@ -24,6 +24,7 @@ export default {
     messageTemplate: 'message template',
     externalInterface: 'external interface',
     storedProcedure: 'stored procedure',
+    builtInInterface: 'Built-in interface',
     newsChannel: 'news channel',
     parameterSettings: 'parameter settings',
     parameter: 'parameter',

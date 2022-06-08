@@ -70,6 +70,7 @@ const ColumnLineMix = () => import('./Components/ColumnLineMix/index');
 const Dashboard = () => import('./Components/Dashboard/index');
 const AuxiliaryLine = () => import('./Components/AuxiliaryLine/index');
 const RealTime = () => import('./Components/RealTime/index');
+const HorizontalProgressBar = () => import('./Components/HorizontalProgressBar/index');
 // const TabComponent = () => import('./Components/TabComponent/index');
 // const TimeFiltering = () => import('./Components/TimeFiltering/index');
 // const DropdownBox = () => import('./Components/DropdownBox/index');
@@ -115,6 +116,7 @@ export default {
   components: {
     // FullScreenBtn,
     // PopCloseButton,
+    HorizontalProgressBar,
     SingleLineTextHome,
     BackgroundBox,
     ImageBox,

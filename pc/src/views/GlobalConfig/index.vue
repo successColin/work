@@ -68,6 +68,13 @@ export default {
           type: ''
         },
         {
+          name: 'globalConfig.thirdLinks',
+          icon: 'icon-dingbusanfanglianjie',
+          color: '#5A80ED',
+          url: 'thirdLinks',
+          type: ''
+        },
+        {
           name: 'globalConfig.fileServerOptions',
           icon: 'icon-wenjianfuwuqixuanxiang',
           color: '#FC8256',

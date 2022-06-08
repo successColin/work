@@ -16,6 +16,7 @@
       <SelectSql
         v-bind="$attrs"
         :formulaStr.sync="getCurrentTab.filterTermSql"
+        :showContent="showContent"
       ></SelectSql>
     </div>
   </section>
@@ -34,6 +35,10 @@ export default {
     showType: {
       type: Array,
       default: () => [1]
+    },
+    showContent: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

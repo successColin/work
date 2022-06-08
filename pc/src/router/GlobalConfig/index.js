@@ -10,7 +10,9 @@ const GlobalConfig = [
     },
     redirect: () => {
       const { userInfo } = store.state.userCenter;
-      const { tenantVO: { tenantCode } } = userInfo;
+      const {
+        tenantVO: { tenantCode },
+      } = userInfo;
       if (tenantCode !== 'platform') {
         return '/globalConfig/themeConfig';
       }
@@ -31,6 +33,16 @@ const GlobalConfig = [
         path: 'themeConfig',
         name: 'themeConfig',
         component: () => import('_v/GlobalConfig/ThemeConfig'),
+        meta: {
+          childrenPage: true,
+          parentPath: 'globalConfig',
+          parentName: '全局参数',
+        },
+      },
+      {
+        path: 'thirdLinks',
+        name: 'thirdLinks',
+        component: () => import('_v/GlobalConfig/ThirdLinks'),
         meta: {
           childrenPage: true,
           parentPath: 'globalConfig',

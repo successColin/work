@@ -65,18 +65,22 @@ export default {
   },
   17: {
     compType: 17,
-    imgUrl: 'baseComp/SearchCondition.svg',
+    imgUrl: 'baseComp/Coding.svg',
   },
   18: {
     compType: 18,
-    imgUrl: 'baseComp/SearchCondition.svg',
+    imgUrl: 'baseComp/DividingLine.svg',
   },
   19: {
     compType: 19,
-    imgUrl: 'baseComp/SearchCondition.svg',
+    imgUrl: 'highComp/Webview.svg',
   },
   20: {
     compType: 20,
-    imgUrl: 'baseComp/Label.svg',
+    imgUrl: 'baseComp/TextTip.svg',
+  },
+  21: {
+    compType: 21,
+    imgUrl: 'baseComp/RichText.svg',
   },
 };

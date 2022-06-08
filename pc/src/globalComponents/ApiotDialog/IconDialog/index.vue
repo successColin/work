@@ -6,7 +6,13 @@
 * @Last Modified time: 2021-04-28 15:34:39
 -->
 <template>
-  <apiot-dialog v-on="$listeners" v-bind="$attrs" @sure-click="iconSelected">
+  <apiot-dialog
+    v-on="$listeners"
+    v-bind="$attrs"
+    @sure-click="iconSelected"
+    @clear-click="clearClick"
+    :isShowClear="true"
+  >
     <el-tabs v-model="curTab" @tab-click="handleClick" class="icon__tabs">
       <el-tab-pane :label="$t('menu.fonticon')" name="1" class="icon__tab">
         <div class="icon__left m-r-10">
@@ -268,6 +274,17 @@ export default {
       } catch (error) {
         this.showLoading = false;
       }
+    },
+    clearClick() {
+      this.iconfont = 'icon-jiahao';
+      this.curColor = '';
+      this.imgUrl = '';
+
+      this.$emit('update:iconFontClass', this.iconfont);
+      this.$emit('update:iconFontColor', `#${this.curColor}`);
+      this.$emit('update:iconImgUrl', `${this.imgUrl}`);
+
+      this.$emit('iconSelected', this.iconfont, `#${this.curColor}`, this.imgUrl);
     }
   }
 };

@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-04-29 19:47:04
  * @Last Modified by: ytx
- * @Last Modified time: 2021-08-13 17:09:54
+ * @Last Modified time: 2022-06-06 09:30:45
  */
 export default {
   timedTask: {
@@ -25,6 +25,7 @@ export default {
     messageTemplate: '消息模板',
     externalInterface: '外部接口',
     storedProcedure: '存储过程',
+    builtInInterface: '内置接口',
     newsChannel: '消息渠道',
     parameterSettings: '参数设置',
     parameter: '参数',

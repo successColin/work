@@ -121,7 +121,6 @@ export default {
         ...this.editorConfig,
         ...this.extraEditorConfig,
       };
-      console.log(this.toolbarConfig);
       this.show = true;
     },
   },

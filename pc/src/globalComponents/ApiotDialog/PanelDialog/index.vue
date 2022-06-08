@@ -24,7 +24,7 @@
       :curTypeValue.sync="curTypeValue"
       @changeShowType="changeShowType"
     ></ListOrTree>
-    <Menu
+    <ApiotMenu
       :panelObj="panelObj"
       :dataSelObj="dataSelObj"
       v-if="showPanel"
@@ -32,12 +32,12 @@
       @setDataSel="setDataSel"
       @multiArrChange="multiArrChange"
       ref="menu"
-    ></Menu>
+    ></ApiotMenu>
   </apiot-dialog>
 </template>
 
 <script>
-import Menu from '@/views/Menu';
+import ApiotMenu from '@/views/ApiotMenu';
 
 export default {
   name: '',
@@ -160,7 +160,7 @@ export default {
   },
 
   components: {
-    Menu
+    ApiotMenu
   },
 
   watch: {

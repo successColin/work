@@ -55,6 +55,7 @@ const Dashboard = () => import('../../components/Dashboard/index');
 const SingleLineTextHome = () => import('../../components/SingleLineTextHome/index');
 const BackgroundBox = () => import('../../components/BackgroundBox/index');
 const RealTime = () => import('../../components/RealTime/index');
+const HorizontalProgressBar = () => import('../../components/HorizontalProgressBar/index');
 
 export default {
   props: {
@@ -102,7 +103,8 @@ export default {
     ColumnLineMix,
     Dashboard,
     SingleLineTextHome,
-    BackgroundBox
+    BackgroundBox,
+    HorizontalProgressBar
   },
 
   computed: {},

@@ -3,7 +3,7 @@
     <apiot-button>
       <i class="iconfont icon-qita m-r-4"></i>更多操作</apiot-button
     >
-    <el-dropdown-menu slot="dropdown">
+    <el-dropdown-menu slot="dropdown" class="moreBtn">
       <el-dropdown-item
         v-for="child in moreOperateArr"
         :key="child.compId"
@@ -12,6 +12,7 @@
           :key="child.compId"
           :is="child.compName"
           :configData="child"
+          :moreBtn="true"
           v-bind="$attrs"
         ></component
       ></el-dropdown-item>
@@ -57,6 +58,12 @@ export default {
     margin-left: 0;
     display: flex;
     align-items: center;
+  }
+}
+.moreBtn {
+  box-shadow: 0px 0px 4px 0px rgb(0 0 0 / 30%) !important;
+  .formButton > .el-button--text {
+    color: currentColor !important;
   }
 }
 </style>

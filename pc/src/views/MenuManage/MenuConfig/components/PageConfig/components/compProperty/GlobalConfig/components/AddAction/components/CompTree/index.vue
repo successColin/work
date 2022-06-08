@@ -297,6 +297,10 @@ export default {
       }
     },
     nodeClick(data, node) {
+      //
+      if (!data.compType || data.compType >= 1000) {
+        return;
+      }
       const tempComp = JSON.parse(JSON.stringify(data));
       this.$set(this, 'curComp', JSON.parse(JSON.stringify(data)));
       const pathArr = [];

@@ -1,6 +1,6 @@
 <!-- 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" :class="[{ isSmall: isSmall }]">
     <el-upload
       class="uploadWrap"
       :class="{ oneFiles: fileList.length === 1 }"
@@ -17,7 +17,6 @@
       <div slot="file" slot-scope="{ file }">
         <el-image
           class="el-upload-list__item-thumbnail"
-          style="width: 48px; height: 48px"
           :src="file.url"
           fit="cover "
         ></el-image>
@@ -29,13 +28,14 @@
       </div>
     </el-upload>
     <el-slider
+      v-if="showSlider"
       class="sliderWrap"
       :min="min"
       :max="max"
       :value="imgWidth"
       @input="changeWidth"
     ></el-slider>
-    <span class="sizeWrap">{{ imgWidth }}px</span>
+    <span class="sizeWrap" v-if="showSlider">{{ imgWidth }}px</span>
   </div>
 </template>
 
@@ -57,6 +57,17 @@ export default {
     max: {
       type: Number,
       default: 25
+    },
+    showSlider: {
+      type: Boolean,
+      default: true
+    },
+    maxKb: {
+      type: Number
+    },
+    isSmall: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -108,10 +119,12 @@ export default {
         }
       ).then(() => {
         this.fileList = [];
+        this.$emit('removeSuccesss');
       });
     },
     handleChange(response, file) {
       this.fileList.push(file);
+      this.$emit('uploadSuccess');
     },
     changeWidth(width) {
       this.$emit('change-image-width', width);
@@ -126,7 +139,12 @@ export default {
         const { name, size } = file;
         const nameArr = name.split('.');
         const type = nameArr[nameArr.length - 1];
-        const newSize = size / 1024 < 200;
+        let newSize = false;
+        if (this.maxKb) {
+          newSize = size / 1024 < this.maxKb;
+        } else {
+          newSize = size / 1024 < 200;
+        }
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
             type: 'error',
@@ -136,6 +154,14 @@ export default {
           return;
         }
         if (!newSize) {
+          if (this.maxKb) {
+            this.$message({
+              type: 'error',
+              message: `文件格式大于${this.maxKb}KB，请压缩文件之后再上传!`
+            });
+            reject(file);
+            return;
+          }
           this.$message({
             type: 'error',
             message: this.$t('icon.beforeUploading')
@@ -158,6 +184,19 @@ export default {
 
   .uploadWrap {
     ::v-deep {
+      .el-upload--picture-card {
+        width: 48px;
+        height: 48px;
+        line-height: 48px;
+      }
+
+      .el-upload-list--picture-card .el-upload-list__item {
+        width: 48px;
+        height: 48px;
+      }
+      .el-checkbox {
+        line-height: 20px;
+      }
       .el-upload--picture-card i {
         font-size: 16px !important;
       }
@@ -175,7 +214,28 @@ export default {
       }
     }
   }
+  .el-upload-list__item-thumbnail {
+    width: 48px;
+    height: 48px;
+  }
+  &.isSmall {
+    ::v-deep {
+      .el-upload--picture-card {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+      }
 
+      .el-upload-list--picture-card .el-upload-list__item {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    .el-upload-list__item-thumbnail {
+      width: 30px;
+      height: 30px;
+    }
+  }
   .sliderWrap {
     width: 256px;
     margin-left: 30px;

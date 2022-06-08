@@ -159,7 +159,7 @@
           </el-switch>
         </h2>
         <h2 class="contentConfig__hasTab--switchBox">
-          允许允许下载
+          是否允许下载
           <el-switch
             class="contentConfig__hasTab--switch"
             v-model="activeObj.showDownload"

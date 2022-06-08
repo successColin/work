@@ -58,14 +58,14 @@
     <!-- 记住密码 -->
     <div class="loginForm__pswdLine">
       <div class="loginForm__pswdLine--keep">
-        <apiot-checkbox v-model="ruleForm.rememberMe" class="fontHover">
+        <apiot-checkbox v-model="ruleForm.rememberMe" class="loginFontHover">
           <span class="loginForm__pswdLine--title">
             {{ $t('login.rememberPassword') }}
           </span>
         </apiot-checkbox>
       </div>
       <div
-        class="loginForm__pswdLine--forget fontHover"
+        class="loginForm__pswdLine--forget loginFontHover"
         @click="handleJump"
         v-if="configs.enableForgetPassword === '1'"
       >
@@ -316,41 +316,44 @@ export default {
 .loginForm {
   // 空
   &__empty {
-    margin-top: 40px;
+    margin-top: $remto40px;
   }
   // 提示
   &__prompt {
-    margin: 12px 0 20px 0;
+    margin: $remto12px 0 $remto20px 0;
   }
   // 账号, 密码
   &__label {
-    font-size: 16px;
+    font-size: $remto16px;
   }
   &--setTop {
-    margin-top: 14px;
+    margin-top: $remto14px;
   }
   // 输入框
   &__inputBox {
-    margin-top: 8px;
+    margin-top: $remto8px;
   }
   // 记住密码
   &__pswdLine {
-    margin-top: 14px;
+    margin-top: $remto14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     .loginForm__pswdLine--title {
       position: relative;
-      left: -2px;
+      left: -$remto2px;
+    }
+    &--forget {
+      font-size: $remto13px;
     }
   }
   // 登录按钮
   &__loginButton {
-    margin: 30px 0 14px 0;
+    margin: $remto30px 0 $remto14px 0;
     position: relative;
     &--btn {
-      height: $--button-height;
-      font-size: 16px;
+      height: $remto40px;
+      font-size: $remto16px;
       font-family: PingFangSC-Medium, PingFang SC !important;
       font-weight: 600;
       color: #ffffff;
@@ -359,7 +362,7 @@ export default {
     .maskLayer {
       position: absolute;
       width: 100%;
-      height: $--button-height;
+      height: $remto40px;
       top: 0;
       cursor: not-allowed;
     }
@@ -369,10 +372,34 @@ export default {
   }
   ::v-deep {
     .el-alert {
-      border: 1px solid rgba(255, 77, 79, 0.5);
+      height: $remto40px;
+      border: $remto1px solid rgba(255, 77, 79, 0.5);
       .el-alert__content {
         padding: 0;
       }
+      .el-alert__title {
+        font-size: $remto13px;
+        line-height: $remto18px;
+      }
+    }
+    .el-input__inner {
+      height: $remto40px !important;
+      line-height: $remto40px !important;
+    }
+    .el-input {
+      font-size: $remto13px;
+    }
+    .el-checkbox,
+    .el-checkbox__label {
+      font-size: $remto13px;
+      color: #333;
+    }
+    .el-checkbox__inner {
+      width: $remto13px;
+      height: $remto13px;
+    }
+    .el-checkbox__label {
+      padding-left: $remto10px;
     }
   }
 }
@@ -381,7 +408,7 @@ export default {
   position: relative;
   overflow: hidden;
   background: $--color-primary;
-  border-radius: 4px;
+  border-radius: $remto4px;
   ::v-deep {
     .el-button {
       position: relative;

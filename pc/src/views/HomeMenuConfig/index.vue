@@ -109,6 +109,7 @@ const BasicBarChartConfig = () => import('./configComponents/BasicBarChartConfig
 const BasicLineChartConfig = () => import('./configComponents/BasicLineChartConfig/index');
 const CircleProgressBarConfig = () => import('./configComponents/CircleProgressBarConfig/index');
 const TransverseBarChartConfig = () => import('./configComponents/TransverseBarChartConfig/index');
+const HorizontalProgressBarConfig = () => import('./configComponents/HorizontalProgressBarConfig/index');
 const ColumnLineMixConfig = () => import('./configComponents/ColumnLineMixConfig/index');
 const DashboardConfig = () => import('./configComponents/DashboardConfig/index');
 const SingleLineTextHomeConfig = () => import('./configComponents/SingleLineTextHomeConfig/index');
@@ -150,7 +151,8 @@ export default {
     SingleLineTextHomeConfig,
     GeneralTableConfig,
     BackgroundBoxConfig,
-    RealTimeConfig
+    RealTimeConfig,
+    HorizontalProgressBarConfig
   },
 
   computed: {

@@ -67,10 +67,17 @@ export default {
       // 节点流程配置信息
       type: Object,
       default: () => {}
+    },
+    currentVersion: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
     return {
+      key: 0,
       detialObj: {}, // 内容详情
       lambdaArr,
       visible: false,
@@ -165,8 +172,24 @@ export default {
       this.ruleList = this.nodeInfo.ruleList || [];
     }
   },
-
+  watch: {
+    nodeInfo: {
+      immediate: true,
+      deep: true,
+      handler() {
+        this.init();
+        this.key += 1;
+      }
+    },
+  },
   methods: {
+    init() {
+      if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
+        this.ruleList = this.nodeInfo.ruleList || [];
+      } else {
+        this.ruleList = [];
+      }
+    },
     doShow(type, obj) {
       this.visible = true;
       this.currentType = type;

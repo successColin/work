@@ -67,7 +67,7 @@
     <div class="approverContent">
       <div class="approverInfo">
         <!--        <img :src="require('./text.png')" alt="">-->
-        <Menu
+        <ApiotMenu
           :showType="showType"
           :panelObj="getPanelObj"
           :nodeConfig="nodeConfig"
@@ -185,7 +185,7 @@ import {
   doLaunch,
   revokeFlow
 } from '@/api/flow';
-import Menu from '@/views/Menu/index';
+import ApiotMenu from '@/views/ApiotMenu/index';
 // import DiscussionArea from '../DiscussionArea/index';
 import Flow from '../Flow/index';
 
@@ -227,7 +227,7 @@ export default {
 
   components: {
     // DiscussionArea,
-    Menu,
+    ApiotMenu,
     Flow
   },
 

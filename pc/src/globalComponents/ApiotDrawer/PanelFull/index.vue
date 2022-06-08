@@ -18,7 +18,7 @@
       </apiot-button>
       <span class="m-l-14">{{ panelObj ? panelObj.panelName : '' }}</span>
     </header>
-    <Menu
+    <ApiotMenu
       class="panel__full--content"
       :panelObj="panelObj"
       :dataSelObj="dataSelObj"
@@ -26,12 +26,12 @@
       @closePanle="closePanle"
       @setDataSel="setDataSel"
       ref="menu"
-    ></Menu>
+    ></ApiotMenu>
   </apiot-drawer>
 </template>
 
 <script>
-import Menu from '@/views/Menu';
+import ApiotMenu from '@/views/ApiotMenu';
 
 export default {
   name: '',
@@ -70,7 +70,7 @@ export default {
   },
 
   components: {
-    Menu
+    ApiotMenu
   }
 };
 </script>

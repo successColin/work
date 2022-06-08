@@ -49,4 +49,9 @@ export default {
 .icon-fanhui {
   color: #aaaaaa;
 }
+.myRegister__header--right:hover {
+  .icon-fanhui {
+    color: $--hover-fontColor;
+  }
+}
 </style>

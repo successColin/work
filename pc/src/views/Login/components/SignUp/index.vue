@@ -8,71 +8,28 @@
 <template>
   <div class="signUp">
     <!-- app 下载弹出框 -->
-    <div class="signUp__download--app">
-      <div></div>
-      <el-popover
-        placement="left"
-        width="400"
-        v-if="isScan"
-        @show="handleIsShowFun"
-      >
-        <section class="signUp__content">
-          <div class="signUp__content--title1">
-            {{ $t('login.mobileAPPScanCodeDownload') }}
-          </div>
-          <div class="signUp__content--title2">
-            {{ $t('login.intelligentOperationAndMaintenance') }}
-          </div>
-          <div class="signUp__content--title3">
-            {{ $t('login.openV10BrandNewSmartFactory') }}
-          </div>
-          <div class="area">
-            <div class="area__left">
-              <apiot-button
-                class="apiot__button apiot__primary"
-                @click="handleButton('android')"
-              >
-                <i class="iconfont icon-anzhuo"></i>
-                {{ $t('login.androidDownload') }}
-              </apiot-button>
-              <apiot-button
-                class="apiot__button apiot__yellow ios"
-                @click="handleButton('ios')"
-              >
-                <i class="iconfont icon-IOS"></i>
-                {{ $t('login.downloadTheIPhone') }}
-              </apiot-button>
-            </div>
-            <div class="area__right">
-              <div v-if="!qrCodeUrl">
-                <div>
-                  <div class="area__right--title1">
-                    <i
-                      class="iconfont icon-shouzhizuobian"
-                      style="color: #bbc3cd"
-                    ></i>
-                    {{ $t('login.clickTheLeftButton') }}
-                  </div>
-                  <div class="area__right--title2">
-                    {{ $t('login.getTheQRCode') }}
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <img :src="qrCodeUrl" alt="" />
-              </div>
-            </div>
-          </div>
-        </section>
-        <div slot="reference" class="signUp__downTitle fontHover">
-          {{ $t('login.downloadAPP') }}
+    <div class="signUp__download" v-if="isScan">
+      <div class="signUp__downTitle">
+        {{ $t('login.downloadAPP') }}
+      </div>
+      <el-popover placement="bottom" trigger="click">
+        <img :src="androidCode" alt="" width="150" height="150" />
+        <div slot="reference" class="signUp__download--anzhuo">
+          <i class="iconfont icon-anzhuo"></i>
+        </div>
+      </el-popover>
+      <el-popover placement="bottom" trigger="click">
+        <img :src="iosCode" alt="" width="150" height="150" />
+        <div slot="reference" class="signUp__download--IOS">
+          <i class="iconfont icon-IOS"></i>
         </div>
       </el-popover>
     </div>
+    <div></div>
     <!-- 还没有账号？立即注册 -->
     <div class="signUp__jump">
       <span>{{ $t('login.noAccountYet') }}</span>
-      <span class="signUp__jump--btn fontHover" @click="handleJump">
+      <span class="signUp__jump--btn loginFontHover" @click="handleJump">
         {{ $t('login.signUpNow') }}
       </span>
     </div>
@@ -90,27 +47,17 @@ export default {
       default: false
     }
   },
-  data() {
-    return {
-      // 二维码图片路径
-      qrCodeUrl: ''
-    };
+  computed: {
+    androidCode() {
+      return androidCode;
+    },
+    iosCode() {
+      return iosCode;
+    }
   },
   methods: {
-    handleIsShowFun() {
-      this.qrCodeUrl = '';
-    },
     handleJump() {
       this.$router.push('/register');
-    },
-    handleButton(type) {
-      if (type === 'android') {
-        // console.log('android');
-        this.qrCodeUrl = androidCode;
-      } else {
-        // console.log('ios');
-        this.qrCodeUrl = iosCode;
-      }
     }
   }
 };
@@ -121,94 +68,49 @@ export default {
   display: flex;
   justify-content: space-between;
   &__jump {
-    margin-bottom: 30px;
+    font-size: $remto13px;
   }
   &__jump--btn {
     // 立即注册按钮
-    color: $--color-primary;
+    color: $loginThemeColor;
   }
-  &__jump--btn:hover {
-    color: $--hover-fontColor;
-  }
-  &__content {
-    margin: 20px 30px 30px 20px;
-    &--title1 {
-      font-size: 32px;
-      color: #333333;
-    }
-    &--title2 {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #808080;
-    }
-    &--title3 {
-      margin-top: 8px;
-      font-size: 18px;
-      color: $--color-primary;
-    }
-    .area {
+  // &__jump--btn:hover {
+  //   color: darken($loginThemeColor, 90%);
+  // }
+  &__download {
+    &--anzhuo,
+    &--IOS {
+      width: $remto24px;
+      height: $remto24px;
+      border-radius: 50%;
       display: flex;
-      justify-content: space-between;
-      &__left {
-        flex: 1;
-        i {
-          font-size: 20px;
-          margin-right: 5px;
-        }
-        ::v-deep {
-          .el-button + .el-button {
-            margin-left: 0px;
-          }
-          .el-button {
-            border: 0;
-          }
-        }
-        .apiot__button {
-          width: 190px;
-          height: 40px;
-          line-height: 40px;
-          text-align: center;
-          border-radius: 4px;
-          font-size: 16px;
-          color: #fcfcfc;
-          margin-top: 46px;
-        }
-        .ios {
-          margin-top: 27px;
-        }
-      }
-      &__right {
-        width: 115px;
-        height: 115px;
-        margin-top: 42px;
-        background: #fafafa;
-        border: 1px solid #e9e9e9;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 12px;
-        &--title1 {
-          color: #333333;
-        }
-        &--title2 {
-          color: #808080;
-          text-align: center;
-        }
-        img {
-          width: 110px;
-          height: 110px;
-        }
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      i {
+        color: #fff;
       }
     }
+    &--anzhuo {
+      background: #4689f5;
+      margin-left: $remto8px;
+    }
+    &--IOS {
+      background: #34c7be;
+      margin-left: $remto4px;
+    }
+  }
+  &__download,
+  &__jump {
+    height: $remto5px;
+    margin-bottom: $remto30px;
+    display: flex;
+    align-items: center;
   }
   &__downTitle {
-    font-size: 13px;
+    font-size: $remto13px;
     text-decoration: none;
-    color: $--color-primary;
-  }
-  &__downTitle:hover {
-    cursor: pointer;
-    color: $--hover-fontColor;
+    // color: $--color-primary;
   }
   :focus {
     outline: 0;

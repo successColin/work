@@ -27,6 +27,9 @@
       ref="curDialog"
     >
       <slot name="btn"></slot>
+      <apiot-button @click="clearClick" v-if="isShowClear">
+        {{ $te(clearBtnName) ? $t(clearBtnName) : clearBtnName }}
+      </apiot-button>
       <apiot-button @click="cancleClick">
         {{ $te(cancelBtnName) ? $t(cancelBtnName) : cancelBtnName }}
       </apiot-button>
@@ -53,6 +56,10 @@ export default {
       type: String,
       default: 'common.cancle'
     },
+    clearBtnName: {
+      type: String,
+      default: 'common.clear'
+    },
     loading: {
       type: Boolean,
       default: false
@@ -66,6 +73,11 @@ export default {
     isShowSure: {
       type: Boolean,
       default: true
+    },
+    // 是否显示清空按钮
+    isShowClear: {
+      type: Boolean,
+      default: false
     },
     isShowFooter: {
       type: Boolean,
@@ -103,6 +115,10 @@ export default {
       this.$emit('cancle-click');
       // this.loading = false;
       this.$emit('update:loading', false);
+    },
+    clearClick() {
+      this.$emit('update:loading', false);
+      this.$emit('clear-click');
     },
     handleWrapperMousedown(e) {
       if (this.mouseStop) {

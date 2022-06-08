@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" :key="key">
     <div class="config-property">
       <div class="form-item">
         <div class="form-item-label">存储过程</div>
@@ -147,21 +147,35 @@ export default {
       return curInfo;
     }
   },
-
+  watch: {
+    nodeInfo: {
+      deep: true,
+      immediate: true,
+      handler() {
+        this.init();
+      }
+    }
+  },
   mounted() {
     const configData = sessionStorage.getItem('configData');
     if (configData) {
       this.configData = JSON.parse(configData);
     }
-    if (JSON.stringify(this.nodeInfo) !== '{}') {
-      this.proceduresList = this.nodeInfo.proceduresList;
-      this.sysProceduresObj = this.nodeInfo.sysProceduresObj || {};
-      this.returnValue = this.nodeInfo.returnValue || '';
-    }
   },
-  watch: {},
 
   methods: {
+    init() {
+      if (JSON.stringify(this.nodeInfo) !== '{}' && this.nodeInfo) {
+        this.proceduresList = this.nodeInfo.proceduresList || [];
+        this.sysProceduresObj = this.nodeInfo.sysProceduresObj || {};
+        this.returnValue = this.nodeInfo.returnValue || '';
+      } else {
+        this.proceduresList = [];
+        this.sysProceduresObj = {};
+        this.returnValue = '';
+      }
+      this.key += 1;
+    },
     selectColumnRes(column) {
       const { id, proceduresName } = column;
       this.sysProceduresObj = {

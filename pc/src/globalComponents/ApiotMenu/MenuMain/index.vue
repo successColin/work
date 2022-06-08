@@ -341,7 +341,7 @@ export default {
         obj = this.getFatherPanel().panelVarObj[this.configData.compId];
       } else if (+this.$route.query.isJump === 1 && menuFilter) {
         obj = this.getCurMenu('menuVarObj');
-        if (obj) {
+        if (obj[this.configData.compId]) {
           obj = obj[this.configData.compId];
         }
       } else if (this.configData.termParams) {

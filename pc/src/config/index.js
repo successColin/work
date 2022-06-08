@@ -17,9 +17,37 @@ module.exports = {
     { value: 'in', label: 'in' },
     { value: 'not in', label: 'not in' },
   ],
+  loginStyleArr: [
+    {
+      name: '平铺式轮播风格',
+      value: 1,
+    },
+    {
+      name: '卡片式轮播风格',
+      value: 2,
+    },
+  ],
+  stylePercentageArr: [
+    {
+      name: '比例70%',
+      value: 1,
+      label: '70%',
+    },
+    {
+      name: '比例60%',
+      value: 2,
+      label: '60%',
+    },
+    {
+      name: '比例50%',
+      value: 3,
+      label: '50%',
+    },
+  ],
   themeColor: '#4689F5', // 这个色号必须和主题色是一个颜色才行，要不然出来的css模板文件是空的,element-ui的默认主题色是#409EFF
   selectColorArr: [
-    '#5A80ED',
+    '#4689f5',
+    '#C62127',
     '#EE5E5E',
     '#FAB71C',
     '#FC8256',
@@ -30,7 +58,7 @@ module.exports = {
     '#EF4373',
     '#708DB7',
   ],
-  userColorArr: ['#5A80ED', '#FAB71C', '#FC8256', '#EE5E5E', '#34C7BE'], // 用户头像颜色
+  userColorArr: ['#4689f5', '#FAB71C', '#FC8256', '#EE5E5E', '#34C7BE'], // 用户头像颜色
   whitePathName: [
     'dataA',
     'login',

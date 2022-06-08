@@ -5,8 +5,8 @@
  * @LastEditTime: 2021-04-19 16:54:24
  * @Des:
  */
-import { menuCenter, menuCenterFav } from '@/api/menuManage';
 import { fetchHomeRoute } from '@/api/design';
+import { menuCenter, menuCenterFav } from '@/api/menuManage';
 import bus from '@/utils/bus';
 // import router from '@/router';
 
@@ -56,6 +56,7 @@ export default {
     homeArr: [], // 主页菜单
     curModuleId: -1, // 当前模块id
     curMenuId: -1, // 当前菜单id
+    loginThemeColor: '#4689f5',
   },
   getters: {
     getRouteArr(state) {
@@ -79,7 +80,6 @@ export default {
   },
   mutations: {
     changeRouteArr(state, arr) {
-      console.log(arr);
       state.routeArr = arr;
       const routeObj = {};
       arrToObj(arr, routeObj);
@@ -110,6 +110,12 @@ export default {
     },
     changeRouteAuthArr(state, arr) {
       state.routeAuthArr = arr;
+    },
+    changeLoginThemeColor(state, val) {
+      document
+        .getElementsByTagName('body')[0]
+        .style.setProperty('--loginThemeColor', val);
+      state.routeAuthArr = val;
     },
     // 更改当前路由id
     changeCurMenuId(state, id) {

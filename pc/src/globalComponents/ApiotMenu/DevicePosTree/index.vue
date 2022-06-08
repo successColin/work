@@ -101,6 +101,7 @@
         >
           <SingleTree
             ref="tree"
+            :class="`tree${configData.compId}`"
             v-show="!showList"
             :treeData="sidebarData"
             :parent="getFeatureArr"
@@ -729,7 +730,6 @@ export default {
         this.pageCount = 0;
         this.pageData = [];
         this.noMore = false;
-        console.log(this.getDataPermissions);
         // 不分页
         const params = {
           dataPermissions: this.getDataPermissions,
@@ -786,6 +786,17 @@ export default {
       if (needNext) {
         this.$nextTick(() => {
           this.selectItem(data[0]);
+          if (!(searchInfo && flag)) {
+            // 正常树打开第一个节点
+            if (this.$refs.tree) {
+              this.$refs.tree.getTree().setCurrentKey(this.selectKey);
+              this.$nextTick(() => {
+                document
+                  .querySelector(`.tree${this.configData.compId} .is-current`)
+                  .firstChild.click();
+              });
+            }
+          }
         });
       }
     },

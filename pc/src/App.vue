@@ -22,6 +22,11 @@ export default {
       this.$store.dispatch('getRoute');
     }
     window.addEventListener('beforeunload', this.beforeLoad);
+
+    window.onresize = function () {
+      document.documentElement.style.fontSize = `${document.documentElement.clientWidth / 125}px`;
+    };
+    document.documentElement.style.fontSize = `${document.documentElement.clientWidth / 125}px`;
   },
   methods: {
     beforeLoad() {

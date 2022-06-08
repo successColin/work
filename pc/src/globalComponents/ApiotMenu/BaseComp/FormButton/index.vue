@@ -14,19 +14,40 @@
       :disabled="!configData.helpInfo.length"
     >
       <apiot-button
+        v-if="!moreBtn"
+        :class="[{ isTableBtn: isTableBtn }]"
         :type="configData.buttonStyle"
         :loading="isLoading"
         :style="getStyle"
         @mouseenter.native="mouseenter"
         @mouseleave.native="mouseleave"
         @click.stop.prevent="btnClick"
-        :disabled="canReadonly || configData.canReadonly"
+        :disabled="canReadonly ? true : configData.canReadonly"
         ><i
           v-if="configData.buttonForm !== 1"
           :class="`iconfont ${configData.iconFont} ${
             configData.buttonForm === 2 ? 'm-r-4' : ''
           }`"
           :style="`${configData.buttonStyle === 'primary' ? 'color:#fff' : ''}`"
+        ></i
+        ><span v-if="configData.buttonForm !== 3">{{
+          configData.name
+        }}</span></apiot-button
+      >
+      <apiot-button
+        v-else
+        type="text"
+        style="border: 0 none"
+        :loading="isLoading"
+        @mouseenter.native="mouseenter"
+        @mouseleave.native="mouseleave"
+        @click.stop.prevent="btnClick"
+        :disabled="canReadonly ? true : configData.canReadonly"
+        ><i
+          v-if="configData.buttonForm !== 1"
+          :class="`iconfont ${configData.iconFont} ${
+            configData.buttonForm === 2 ? 'm-r-4' : ''
+          }`"
         ></i
         ><span v-if="configData.buttonForm !== 3">{{
           configData.name
@@ -121,6 +142,10 @@ export default {
       default() {
         return {};
       }
+    },
+    moreBtn: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -134,7 +159,8 @@ export default {
       canShow: true,
       canReadonly: false,
       importVisible: false, // 点击导入可见
-      isAdd: false // 保存操作是否是新增
+      isAdd: false, // 保存操作是否是新增
+      allFormStr: ''
     };
   },
   mixins: [compMixin],
@@ -298,12 +324,49 @@ export default {
         }
       }
     },
+    // 点击前处理下compMap
+    resolveCompMap() {
+      let arr = this.multiEntityArr;
+      let tableComp = [];
+      let area = null;
+      if (this.isTabBtn) {
+        [area] = this.featureArr;
+        arr = this.menuMain.$refs[area.compId][0].multiEntityArr;
+        tableComp = this.menuMain.$refs[area.compId][0].getFeatureArr.children;
+      } else {
+        tableComp = this.menuMain.getFeatureArr.children;
+        area = this.tableInfo;
+      }
+      const ids = [];
+      if (arr) {
+        arr.forEach((data) => {
+          tableComp.forEach((comp) => {
+            if (data.id) {
+              ids.push(data.id);
+            } else if (
+              comp.dataSource.columnName === 'id' &&
+              comp.dataSource.relateName === '主表'
+            ) {
+              ids.push(data[comp.compId]);
+            }
+          });
+        });
+      }
+
+      // console.log(ids, this.getAllForm());
+      this.allFormStr = JSON.stringify({
+        ...this.getAllForm(),
+        CUR_SELECTED_IDS: ids.join()
+      });
+      // console.log(this.allFormStr);
+    },
     async btnClick() {
       // console.log('点击');
       this.isLoading = true;
       try {
         // // console.log(this.menuMain);
         // console.log(this.configData);
+        this.resolveCompMap();
         // 树结点的选择
         if (this.tableInfo.isTree) {
           // 选中当前删除的节点
@@ -548,8 +611,9 @@ export default {
         formInfo: [],
         removeFileIds: this.fileDeleteIds.join(),
         tableName: this.tableInfo.tableInfo.tableName,
-        compMap: JSON.stringify(this.getAllForm()),
-        menuId: this.$route.params.id
+        compMap: this.allFormStr,
+        menuId: this.$route.params.id,
+        flowType: this.configData.flowType
       };
       params.formInfo = this.resolveSaveData(this.featureArr, this.tableInfo);
       return params;
@@ -606,8 +670,9 @@ export default {
       // console.log(areaArr);
       const params = {
         batchInfo: [],
-        compMap: JSON.stringify(this.getAllForm()),
-        menuId: this.$route.params.id
+        compMap: this.allFormStr,
+        menuId: this.$route.params.id,
+        flowType: this.configData.flowType
       };
       areaArr.forEach((area) => {
         if (
@@ -793,9 +858,10 @@ export default {
         ids: '',
         tableName: this.tableInfo.tableInfo.tableName,
         userId: this.$store.state.userCenter.userInfo.id,
-        compMap: JSON.stringify(this.getAllForm()),
+        compMap: this.allFormStr,
         menuId: this.$route.params.id,
-        batchInfo: []
+        batchInfo: [],
+        flowType: this.configData.flowType
       };
       const area = this.tableInfo;
       // 表单区删除 || 表格区表格里面删除
@@ -843,9 +909,10 @@ export default {
         ids: '',
         tableName: area.tableInfo.tableName,
         userId: this.$store.state.userCenter.userInfo.id,
-        compMap: JSON.stringify(this.getAllForm()),
+        compMap: this.allFormStr,
         menuId: this.$route.params.id,
-        batchInfo: []
+        batchInfo: [],
+        flowType: this.configData.flowType
       };
       // 表单区删除
       if (area.propertyCompName === 'MenuMainConfig') {
@@ -1388,7 +1455,7 @@ export default {
             ','
           )}&menuId=${this.$route.params.id}&userId=${
             this.$store.state.userCenter.userInfo.id
-          }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(this.getAllForm()))}`
+          }&whereOptions=${whereOptions}&compMap=${encodeURI(this.allFormStr)}`
         );
 
         console.log(qs.stringify(collectionArr));
@@ -1403,7 +1470,7 @@ export default {
               ','
             )}&menuId=${this.$route.params.id}&userId=${
               this.$store.state.userCenter.userInfo.id
-            }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(this.getAllForm()))}`,
+            }&whereOptions=${whereOptions}&compMap=${encodeURI(this.allFormStr)}`,
             token: Decrypt(localStorage.getItem('token') || ''),
             method: 'GET'
           },
@@ -1456,7 +1523,6 @@ export default {
       this.$bus.$emit('setDataSel', data, this.onlyFlag());
     },
     resolveHtml(html) {
-      console.log(html);
       const reg = /<messageVar vartype=[$]([A-Za-z0-9]+)>[^<]{0,}<\/messageVar>/g;
       const str = html.replace(reg, (res, v) => {
         if (this.getAllForm()[v]) {
@@ -1600,6 +1666,12 @@ export default {
         width: auto;
       }
     }
+  }
+  .isTableBtn {
+    height: 28px;
+    line-height: 26px;
+    font-size: 13px;
+    padding: 0 10px;
   }
 }
 </style>

@@ -2,8 +2,8 @@
  * @Description: 多语言职位-中文
  * @Author: tjf
  * @Date: 2021-04-23 09:32:44
- * @Last Modified by: sss
- * @Last Modified time: 2021-09-04 09:40:36
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-06-07 16:46:22
  */
 
 export default {
@@ -79,7 +79,7 @@ export default {
     beforeUploading:
       'File size exceeded 25KB, please upload again after compression!', //
     beforeUploadingConfig:
-      'File size exceeded 200KB, please upload again after compression!!',
+      'File size exceeded 1024KB, please upload again after compression!!',
   },
   knowledge: {
     title_my: 'My', // My

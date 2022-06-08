@@ -206,5 +206,11 @@ $paddingVal: 15px;
     cursor: pointer;
     color: $--hover-iconColor;
   }
+  &__input {
+    .icon-mimayincang,
+    .icon-mimaxianshi {
+      font-size: $remto20px;
+    }
+  }
 }
 </style>

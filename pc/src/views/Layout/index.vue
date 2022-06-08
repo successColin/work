@@ -8,6 +8,7 @@
 <template>
   <apiot-container
     :navLeftWidth="$store.getters.getMenuType === 1 ? 0 : navLeftWidth"
+    :headerHeight="$store.state.globalConfig.themeConfig.topHeight"
   >
     <template v-slot:header>
       <layout-header @refresh="refresh"></layout-header>
@@ -78,6 +79,7 @@ export default {
   beforeMount() {
     this.getUserCenterInfo();
     this.$store.dispatch('fetchThemeConfig', 'THEME_AND_LOGO');
+    this.$store.dispatch('fetchThirdLinks');
   },
   mounted() {
     this.$bus.$on('showMenu', this.showMenu);

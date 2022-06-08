@@ -20,7 +20,7 @@
     </div>
     <!-- 右侧获取验证码文字 -->
     <div
-      class="inputGetcode__input--suffix fontHover"
+      class="inputGetcode__input--suffix loginFontHover"
       slot="suffix"
       :class="{ 'inputGetcode__input--disabled': !canClick }"
       @click="handleSuffix"

@@ -208,10 +208,13 @@ export default {
             { name: 'GET_ORG_ID', isFormula: true, type: 1 },
             { name: 'GET_ROLES_ID', isFormula: true, type: 1 },
             { name: 'GET_MENU_ID', isFormula: true, type: 1 },
+            // { name: 'GET_TABLE_IDS', isFormula: true, type: 1 },
             { name: 'BULK_ADD', isFormula: true, type: 3 },
             { name: 'BULK_ONE_ADD', isFormula: true, type: 3 },
             { name: 'CREATE_UNIQUE', isFormula: true, type: 3 },
-            { name: 'GET_SCAN_VALUE', isFormula: true, type: 4 }
+            { name: 'GET_SCAN_VALUE', isFormula: true, type: 4 },
+            { name: 'GET_SHOW_VALUE', isFormula: true, type: 1 },
+            { name: 'GET_TABLE_VALUE', isFormula: true, type: 1 }
           ]
         },
         {
@@ -381,6 +384,18 @@ export default {
         }
         return '';
       });
+      parser.setFunction('GET_SHOW_VALUE', (params) => {
+        if (params.length !== 1) {
+          return new Error('获取显示值，需要有且只有一个参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TABLE_VALUE', (params) => {
+        if (params.length !== 1 || params.length !== 1) {
+          return new Error('获取列表值，需要1个或2个参数');
+        }
+        return '';
+      });
       // BULK_ONE_ADD
       parser.setFunction('BULK_ONE_ADD', (params) => {
         if (params.length === 0) {
@@ -459,6 +474,12 @@ export default {
       parser.setFunction('GET_MENU_ID', (params) => {
         if (params.length !== 0) {
           return new Error('获取菜单id公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TABLE_IDS', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取表格id集合公式无参数');
         }
         return '';
       });

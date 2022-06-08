@@ -218,10 +218,10 @@ export default {
                 // eslint-disable-next-line max-len
                 return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ // 颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
                   offset: 0,
-                  color: colorList[params.dataIndex].c1
+                  color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
                 }, {
                   offset: 1,
-                  color: colorList[params.dataIndex].c2
+                  color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
                 }]);
               }
             }

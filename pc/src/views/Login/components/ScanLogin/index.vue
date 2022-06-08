@@ -54,39 +54,39 @@ export default {
 //@import url(); 引入公共css类
 .scanLogin {
   display: flex;
-  height: 32px;
+  height: $remto32px;
   &__name {
-    width: 78px;
-    line-height: 32px;
+    width: $remto78px;
+    line-height: $remto32px;
     background: #f1f3f6;
-    margin-right: 6px;
-    font-size: 12px;
+    margin-right: $remto6px;
+    font-size: $remto12px;
     color: #333333;
     position: relative;
-    border-radius: 5px;
+    border-radius: $remto5px;
     text-align: center;
   }
   &__name:after {
-    width: 5px;
-    height: 5px;
-    border-right: 1px solid #f1f3f6;
-    border-top: 1px solid #f1f3f6;
+    width: $remto5px;
+    height: $remto5px;
+    border-right: $remto1px solid #f1f3f6;
+    border-top: $remto1px solid #f1f3f6;
     transform: rotate(45deg);
     position: absolute;
-    right: -4px;
-    top: 14px;
+    right: -$remto4px;
+    top: $remto14px;
     background: #f1f3f6;
     content: '';
   }
   &__icon {
-    font-size: 30px;
+    font-size: $remto30px;
     color: #7e8a9c;
   }
   .nameBgnHover {
     background: #ebebeb;
   }
   .iconFontHover {
-    color: $--hover-iconColor !important;
+    color: $loginThemeColor !important;
   }
 }
 </style>

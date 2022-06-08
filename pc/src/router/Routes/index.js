@@ -1,6 +1,6 @@
 import store from '@/store/index';
-import GlobalConfig from '../GlobalConfig';
 import AppConfig from '../AppConfig';
+import GlobalConfig from '../GlobalConfig';
 
 export default [
   {
@@ -207,6 +207,15 @@ export default [
           childrenPage: true,
         },
       },
+      // 通用导入
+      {
+        path: 'generalImport',
+        name: 'generalImport',
+        component: () => import('_v/GeneralImport'),
+        meta: {
+          parentPath: 'HomePageConfig',
+        },
+      },
       {
         path: 'dictionary',
         name: 'dictionary',
@@ -264,7 +273,7 @@ export default [
       {
         path: 'menu/:id',
         name: 'menu',
-        component: () => import('_v/Menu'),
+        component: () => import('_v/ApiotMenu'),
         meta: {
           isModulePage: true,
           title: '测试',

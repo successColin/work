@@ -237,13 +237,14 @@ export default {
             normal: {
               color: (params) => {
                 const colorList = [...colorArr, ...supplementaryColorArr];
+                const { dataIndex } = params;
                 // 颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
                 return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{
                   offset: 0,
-                  color: colorList[params.dataIndex].c1
+                  color: colorList[dataIndex].c1 || colorList[dataIndex].c2 || '#fff'
                 }, {
                   offset: 1,
-                  color: colorList[params.dataIndex].c2
+                  color: colorList[dataIndex].c2 || colorList[dataIndex].c1 || '#fff'
                 }]);
               }
             }

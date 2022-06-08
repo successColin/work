@@ -14,7 +14,10 @@
     >
       <slot name="header"></slot>
     </header>
-    <section class="container__wrapper">
+    <section
+      class="container__wrapper"
+      :style="`height: calc(100% - ${headerHeight}px);`"
+    >
       <div class="container__left" :style="`width:${navLeftWidth}px`">
         <slot name="navLeft"></slot>
       </div>
@@ -58,7 +61,7 @@ export default {
     // 头部的高度，单位px
     headerHeight: {
       type: Number,
-      default: 40
+      default: 50
     },
     // 右边栏宽度
     navLeftWidth: {
@@ -92,7 +95,6 @@ export default {
   &__wrapper {
     flex: 1;
     display: flex;
-    height: calc(100% - 50px);
   }
   &__left {
     width: 0;

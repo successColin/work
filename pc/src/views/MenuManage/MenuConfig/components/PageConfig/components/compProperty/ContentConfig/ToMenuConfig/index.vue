@@ -104,6 +104,7 @@
                 :getCurrentTab="filter"
                 :configData="configData"
                 :triggerCompMap="triggerCompMap"
+                :showContent="activeName === index"
                 v-bind="$attrs"
               ></TermComp>
             </li>
@@ -188,7 +189,6 @@ export default {
             if (index === -1) obj[`${key}-${area.tableInfo.tableName}`] = area;
           }
         });
-        console.log(obj);
         return obj;
       };
     },
@@ -240,7 +240,6 @@ export default {
                 });
               }
             });
-            return obj;
           }
         }
         return obj;

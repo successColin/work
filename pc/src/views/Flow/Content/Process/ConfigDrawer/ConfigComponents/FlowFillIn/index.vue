@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" :key="key">
     <div class="config-property">
       <div class="form-item">
         <div class="form-item-label">指定填写对象</div>
@@ -144,6 +144,7 @@ export default {
   },
   data() {
     return {
+      key: 0,
       curPaneObj: {},
       visibleType: null, // 弹框类型
       tabOptions: [],
@@ -239,7 +240,7 @@ export default {
 
   methods: {
     init() {
-      if (JSON.stringify(this.nodeInfo) !== '{}') {
+      if (JSON.stringify(this.nodeInfo) !== '{}' && this.nodeInfo) {
         const {
           fillUsers,
           submitText,
@@ -262,7 +263,21 @@ export default {
         this.appCheckFormConfigJSON = appCheckFormConfig
           ? JSON.parse(JSON.stringify(appCheckFormConfig))
           : [];
+      } else {
+        this.sourceType = {
+          // 审批人集合
+          ROLE: [], // 角色
+          ORG: [], // 组织
+          USER: [], // 固定人员
+          POST: [] // 职位
+        };
+        this.submitText = '保存';
+        this.checkFormConfigJSONOrigin = [];
+        this.checkFormConfigJSON = [];
+        this.appCheckFormConfigJSONOrigin = [];
+        this.appCheckFormConfigJSON = [];
       }
+      this.key += 1;
     },
     // 选择面板
     async selectPane(pane) {

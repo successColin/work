@@ -7,13 +7,14 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" :key="key">
     <div class="config-property">
       <div class="form-item">
         <div class="form-item-label">添加审批人</div>
         <div class="form-item-content">
           <SelectUsers
             v-bind="$attrs"
+            :params="params"
             :approverObj="sourceType"
             @select-flow-approval="appendUsers"
           ></SelectUsers>
@@ -211,6 +212,9 @@ export default {
         return {};
       }
     },
+    params: {
+      type: Object,
+    },
     nodeInfo: {
       // 节点流程配置信息
       type: Object,
@@ -219,6 +223,7 @@ export default {
   },
   data() {
     return {
+      key: 0,
       curPaneObj: {},
       configData: [], // 页面配置
       checkFormConfigJSON: [], // 审批人页面配置
@@ -327,13 +332,24 @@ export default {
       deep: true,
       handler() {
         this.init();
+        this.key += 1;
       }
     },
+    'params.nodeId': {
+      immediate: true,
+      deep: true,
+      handler(v, o) {
+        // this.init();
+        if (v !== o) {
+          this.key += 1;
+        }
+      }
+    }
   },
 
   methods: {
     init() {
-      if (JSON.stringify(this.nodeInfo) !== '{}') {
+      if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.sourceType = this.nodeInfo.checkUsers;
         if (this.nodeInfo.allowAddCheck) {
           this.checkList.push('allowAddCheck');
@@ -372,6 +388,27 @@ export default {
           ? JSON.parse(JSON.stringify(appCheckFormConfig))
           : [];
         this.effectiveApprovalDays = effectiveApprovalDays || '';
+      } else {
+        this.sourceType = {
+          // 审批人集合
+          ROLE: [], // 角色
+          ORG: [], // 组织
+          USER: [], // 固定人员
+          POST: [] // 职位
+        };
+        this.checkList = [];
+        this.multiPersonApproval = '';
+        this.buttonAttributes = {
+          passText: '通过', // 通过按钮属性
+          rejectText: '驳回', // 驳回按钮属性
+          reasonForRejectionRequired: true //  驳回理由是否必填
+        };
+        this.afterProcess = '';
+        this.checkFormConfigJSONOrigin = [];
+        this.checkFormConfigJSON = [];
+        this.appCheckFormConfigJSONOrigin = [];
+        this.appCheckFormConfigJSON = [];
+        this.effectiveApprovalDays = '';
       }
     },
     handleOk() {

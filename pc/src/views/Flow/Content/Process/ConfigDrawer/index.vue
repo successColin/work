@@ -194,6 +194,11 @@ export default {
     }
   },
   watch: {
+    activeData: {
+      handler(v) {
+        console.log(v);
+      }
+    },
     drawer: {
       immediate: true,
       deep: true,

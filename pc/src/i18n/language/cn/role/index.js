@@ -2,8 +2,8 @@
  * @Description: 多语言职位-中文
  * @Author: tjf
  * @Date: 2021-04-23 09:32:44
- * @Last Modified by: sss
- * @Last Modified time: 2021-09-04 09:40:11
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-06-07 16:46:16
  */
 
 export default {
@@ -77,7 +77,7 @@ export default {
     pleaseUploadToSave: '请上传图标之后再保存',
     notSupportIcon: '上传的文件格式不支持',
     beforeUploading: '文件格式大于25KB，请压缩文件之后再上传!',
-    beforeUploadingConfig: '文件格式大于200KB，请压缩文件之后再上传!',
+    beforeUploadingConfig: '文件格式大于1024KB，请压缩文件之后再上传!',
   },
   knowledge: {
     title_my: '我的',

@@ -8,19 +8,19 @@
     :append-to-body="true"
     :hasFooter="false"
   >
-    <Menu
+    <ApiotMenu
       :panelObj="panelObj"
       :dataSelObj="dataSelObj"
       v-if="showPanel"
       @closePanle="closePanle"
       @setDataSel="setDataSel"
       ref="menu"
-    ></Menu>
+    ></ApiotMenu>
   </apiot-drawer>
 </template>
 
 <script>
-import Menu from '@/views/Menu';
+import ApiotMenu from '@/views/ApiotMenu';
 
 export default {
   name: '',
@@ -59,7 +59,7 @@ export default {
   },
 
   components: {
-    Menu
+    ApiotMenu
   }
 };
 </script>

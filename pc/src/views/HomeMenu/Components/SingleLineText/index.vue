@@ -175,7 +175,7 @@ export default {
       const { takeEffect, staticValue } = dataConfig;
       if (dataType === 1) {
         const obj = JSON.parse(staticValue);
-        this.content = obj[takeEffect] || '';
+        this.content = obj[takeEffect];
       }
       if (dataType === 2) {
         await this.getApi();
@@ -215,7 +215,7 @@ export default {
           // eslint-disable-next-line no-new-func
           const fun = new Function(`return ${apiFilterFun}`);
           const result = fun()(JSON.parse(targetObj));
-          this.content = result[apiEffect] || '';
+          this.content = result[apiEffect];
           return;
         }
         this.content = JSON.parse(targetObj)[apiEffect];
@@ -249,7 +249,7 @@ export default {
         // eslint-disable-next-line no-new-func
         const fun = new Function(`return ${SQLFilterFun}`);
         const result = fun()(res);
-        this.content = result[SQLEffect] || '';
+        this.content = result[SQLEffect];
         return;
       }
       this.content = JSON.stringify(res[SQLEffect]);

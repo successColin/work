@@ -231,6 +231,7 @@ export default {
               gradientType: 1, // 渐变色类型
               enableBackground: false,
               enableEllipsis: true,
+              interactionType: 1, // 交互
               isShow: true, // 是否显示，用于图层控制组件显示与否
               isLock: false, // 是否锁定
               dataType: 1, // 1：静态；2：接口获取；3：SQL获取
@@ -251,7 +252,7 @@ export default {
                 borderRadius: 0,
                 borderColor: '#4689F5',
                 borderWidth: 1,
-                borderStyle: 'solid'
+                borderStyle: 'solid',
               },
               dataConfig: {
                 staticValue: '{"text":"文本组件","value":"文本组件2"}', // 静态值
@@ -259,7 +260,9 @@ export default {
               },
               SqlDataConfig: {
                 ...SqlDataConfig
-              }
+              },
+              panelConfig: {}, // 跳转面板配置
+              skipMenuConfig: {}, // 跳菜单配置
             },
             {
               name: '图片',
@@ -977,7 +980,58 @@ export default {
               SqlDataConfig: {
                 ...SqlDataConfig
               }
-            }
+            },
+            {
+              componentName: 'HorizontalProgressBar',
+              imgUrl: 'homePage/HorizontalProgressBar.svg',
+              name: '横向进度条',
+              width: 500,
+              height: 280,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              enableGrid: false, // 是否启用容器布局
+              enableLabel: true, // 是否显示标注
+              enableTitle: true, // 是否显示标题
+              stylesObj: {
+                zIndex: 1,
+                gridLeft: 30, // 距离容器左边
+                gridTop: 30, // 距离容器顶部
+                gridRight: 30, // 距离容器右边
+                gridBottom: 30, // 距离容器底部
+                barWidth: 20, // 柱子宽度
+                borderRadius: 10, // 柱子顶部倒角
+                barBgColor: 'rgba(0,0,0,.2)', // 进度条背景色
+                XFontFamily: '微软雅黑',
+                XFontWeight: 'normal',
+                XFontSize: 14,
+                XColor: 'rgba(0,0,0,.7)',
+                labelField: 'x', // 标注字段
+                labelPrefix: '', // 标注前缀
+                labelSuffix: '', // 标注后缀
+                labelFontFamily: '微软雅黑', // 标注字体
+                labelFontWeight: 'normal', // 标注文字粗细
+                labelFontSize: 12, // 标注文字大小
+                labelColor: '#808080', // 标注字体颜色
+                labelPosition: 'insideRight', // 标注位置，顶部， 内部，底部
+                labelOffset: 20, // 文字偏移
+                colorArr: [
+                  { c1: '#7381F8', c2: '#7381F8' },
+                  { c1: '#4689F5', c2: '#4689F5' },
+                  { c1: '#43DBFF', c2: '#43DBFF' }
+                ], // 区域颜色
+              },
+              dataConfig: {
+                staticValue: '[{"x":"新创建","y":98,"s": 100},{"x":"进行中","y":86,"s": 100},{"x":"已完成","y":90,"s":100}]' // 静态值
+              },
+              SqlDataConfig: {
+                ...SqlDataConfig
+              }
+            },
           ]
         },
         {

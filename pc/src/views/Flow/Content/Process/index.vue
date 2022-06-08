@@ -125,7 +125,7 @@ export default {
       // const newData = { ...args };
       NodeUtils.setFlowVersinId(flowVersionId);
       await NodeUtils[event](...args);
-      this.forceUpdate();
+      await this.forceUpdate();
     },
 
     async fetchNodeDetials() {
@@ -163,6 +163,7 @@ export default {
           id: this.activeVersion.id,
           globalAttributes: config
         });
+        this.$message.success('保存成功!');
         this.activeVersion = {
           ...this.activeVersion,
           globalAttributes: config
@@ -182,9 +183,9 @@ export default {
       this.handleCancelHelp();
       this.forceUpdate();
     },
-    forceUpdate() {
+    async forceUpdate() {
       this.updateId += 1;
-      this.submitFlowTree();
+      await this.submitFlowTree();
     },
     async submitFlowTree() {
       // 提交流程数据
@@ -248,7 +249,7 @@ export default {
       };
       try {
         await updateNodeInfo(params);
-        this.forceUpdate();
+        await this.forceUpdate();
       } catch (e) {
         console.log(e);
       }

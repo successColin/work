@@ -16,11 +16,11 @@
             </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
             <div
-              v-if="[0, 1, 2, 3, 4].includes(i)"
+              v-if="[0, 1, 2, 3, 4, 5].includes(i)"
               style="flex: none"
               class="common"
             >
-              <apiot-radio
+              <!-- <apiot-radio
                 @change="(value) => changeRadio(value, item.attr)"
                 v-model="$store.state.globalConfig.themeConfig[item.attr]"
                 label="1"
@@ -31,10 +31,36 @@
                 v-model="$store.state.globalConfig.themeConfig[item.attr]"
                 label="0"
                 >{{ $t('common.no') }}
-              </apiot-radio>
+              </apiot-radio> -->
+              <ApiotSwitch
+                v-model="$store.state.globalConfig.themeConfig[item.attr]"
+                @change="(value) => changeRadio(value, item.attr)"
+              ></ApiotSwitch>
+              <image-and-change
+                class="m-l-10 m-r-10"
+                style="width: auto"
+                v-if="item.imgAttr"
+                :ref="item.imgAttr"
+                :imgObj="imgObj[item.imgAttr]"
+                :isSmall="true"
+                :showSlider="false"
+                @uploadSuccess="uploadSuccess(item.imgAttr)"
+                @removeSuccesss="changeRadio('', item.imgAttr)"
+              />
+              <el-checkbox-group
+                v-model="checkList"
+                @change="(value) => changeRadio(value, item.helpCenterMenu)"
+                v-if="item.helpCenterMenu"
+                class="checkBox"
+              >
+                <el-checkbox label="1">帮助文档</el-checkbox>
+                <el-checkbox label="2">视频教程</el-checkbox>
+                <el-checkbox label="3">常见问题</el-checkbox>
+                <el-checkbox label="4">更新日志</el-checkbox>
+              </el-checkbox-group>
             </div>
             <!-- 菜单样式 -->
-            <div v-else-if="i === 5" class="common">
+            <div v-else-if="i === 6" class="common">
               <div v-if="!statement.isMenuStyle">
                 {{
                   showValueName(
@@ -58,7 +84,7 @@
               </apiot-button>
             </div>
             <!-- 主题风格 -->
-            <div v-else-if="i === 6" class="common">
+            <div v-else-if="i === 7" class="common">
               <div class="colorWrap">
                 <div v-for="item in themeStyleArr" :key="item.color">
                   <div
@@ -83,13 +109,39 @@
                 </div>
               </div>
             </div>
+            <!-- 系统顶部高度 -->
+            <div v-else-if="i === 8" class="common">
+              <div v-if="!statement.isTopHeight">
+                {{ $store.state.globalConfig.themeConfig.topHeight }}px
+              </div>
+              <div v-else style="display: flex; align-items: center">
+                <el-slider
+                  class="sliderWrap"
+                  style="width: 140px"
+                  :min="40"
+                  :max="60"
+                  :step="2"
+                  v-model="$store.state.globalConfig.themeConfig.topHeight"
+                ></el-slider>
+                <span class="sizeWrap m-l-14"
+                  >{{ $store.state.globalConfig.themeConfig.topHeight }}px</span
+                >
+              </div>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isTopHeight')"
+              >
+                {{ changeBtnName(statement.isTopHeight) }}
+              </apiot-button>
+            </div>
             <!-- 主题样式 -->
-            <div v-else-if="i === 7" class="common">
+            <div v-else-if="i === 9" class="common">
               <div class="colorWrap">
                 <div
                   v-for="item in themeColor"
                   :key="item"
-                  style="margin-right: 4px"
+                  style="margin-right: 0px"
                 >
                   <div
                     class="colorBox"
@@ -112,8 +164,27 @@
                 </div>
               </div>
             </div>
+            <div v-else-if="i === 10" class="common">
+              <div v-if="!statement.istopStyle">
+                {{ $store.state.globalConfig.themeConfig.topStyle }}
+              </div>
+              <div v-else>
+                <apiot-select
+                  style="width: 200px"
+                  v-model="$store.state.globalConfig.themeConfig.topStyle"
+                  :options="topStyleArr"
+                ></apiot-select>
+              </div>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('istopStyle')"
+              >
+                {{ changeBtnName(statement.istopStyle) }}
+              </apiot-button>
+            </div>
             <!-- 登录页LOGO -->
-            <div v-else-if="i === 8" class="passwordConfig__logo common">
+            <div v-else-if="i === 11" class="passwordConfig__logo common">
               <div v-if="!statement.isRegistration">
                 <el-image
                   fit="cover"
@@ -154,6 +225,7 @@
 <script>
 import { commonUpdate, updateImages } from '@/api/globalConfig';
 import { changeThemeColor } from '@/utils/themeColorClient';
+import { selectColorArr } from '@/config';
 import ImageAndChange from '../components/ImageAndChange';
 
 export default {
@@ -163,12 +235,14 @@ export default {
       loading: false,
       // eslint-disable-next-line max-len
       // themeColor: ['#4689f5', '#EE5E5E', '#FAB71C', '#FC8256', '#34C7BE', '#10B98A', '#1CA6FF', '#A853F2', '#EF4373', '#708DB7'],
-      themeColor: ['#4689f5', '#CC3534'],
+      themeColor: selectColorArr,
       params: {},
       statement: {
         isRegistration: false,
         isLoopPics: false,
-        isMenuStyle: false
+        isMenuStyle: false,
+        isTopHeight: false,
+        istopStyle: false
       },
       themeStyleArr: [
         {
@@ -195,12 +269,29 @@ export default {
           name: this.$t('globalConfig.menuModuleMode'),
           value: 3
         }
+      ],
+      imgObj: {
+        enableMessageIcon: {},
+        enableApprovalProcessIcon: {},
+        enableHelpCenterIcon: {},
+        enableFullScreenIcon: {}
+      },
+      checkList: [],
+      topStyleArr: [
+        {
+          name: '智能运维',
+          value: '智能运维'
+        }
       ]
     };
   },
   components: { ImageAndChange },
   mounted() {
     this.menuStyle = this.$store.state.globalConfig.themeConfig.menuStyle;
+    this.checkList = this.$store.state.globalConfig.themeConfig.helpCenterMenu
+      ? this.$store.state.globalConfig.themeConfig.helpCenterMenu.split(',')
+      : [];
+    this.initImgObj();
   },
   computed: {
     loginImg() {
@@ -210,7 +301,7 @@ export default {
     },
     getValue() {
       // eslint-disable-next-line no-unused-vars
-      return function(key) {
+      return function (key) {
         return this.$store.state.globalConfig.themeConfig[key];
       };
     },
@@ -220,12 +311,22 @@ export default {
         {
           name: this.$t('globalConfig.homePageMessage'),
           col: 12,
-          attr: 'enableMessage'
+          attr: 'enableMessage',
+          imgAttr: 'enableMessageIcon'
         },
         {
           name: this.$t('globalConfig.homepageApproval'),
           col: 12,
-          attr: 'enableApprovalProcess'
+          attr: 'enableApprovalProcess',
+          imgAttr: 'enableApprovalProcessIcon'
+        },
+
+        {
+          name: this.$t('globalConfig.enableFullScreen'),
+          col: 12,
+          key: 'enableRegistration',
+          attr: 'enableFullScreen',
+          imgAttr: 'enableFullScreenIcon'
         },
         {
           name: this.$t('globalConfig.enableMultilingualism'),
@@ -234,14 +335,16 @@ export default {
         },
         {
           name: this.$t('globalConfig.enableHelpCenter'),
-          col: 12,
-          attr: 'enableHelpCenter'
+          col: 24,
+          attr: 'enableHelpCenter',
+          imgAttr: 'enableHelpCenterIcon',
+          helpCenterMenu: 'helpCenterMenu'
         },
         {
-          name: this.$t('globalConfig.enableFullScreen'),
+          name: this.$t('globalConfig.enableLink'),
           col: 24,
-          key: 'enableRegistration',
-          attr: 'enableFullScreen'
+          key: 'enableLink',
+          attr: 'enableLink'
         },
         {
           name: this.$t('globalConfig.menuStyle'),
@@ -251,14 +354,24 @@ export default {
         },
         {
           name: this.$t('globalConfig.themeStyle'),
-          col: 24,
+          col: 12,
           key: 'forgetPassword',
           attr: 'themeStyle'
         },
         {
+          name: this.$t('globalConfig.topHeight'),
+          col: 12,
+          attr: 'topHeight'
+        },
+        {
           name: this.$t('globalConfig.themeColor'),
-          col: 24,
+          col: 12,
           attr: 'themeColor'
+        },
+        {
+          name: this.$t('globalConfig.topStyle'),
+          col: 12,
+          attr: 'topStyle'
         },
         {
           name: this.$t('globalConfig.homePageLogo'),
@@ -269,19 +382,27 @@ export default {
     },
     // 修改 button 状态
     changeBtnName() {
-      return function(state) {
+      return function (state) {
         return state ? this.$t('common.save') : this.$t('common.modify');
       };
     },
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
-      return function(options, val) {
+      return function (options, val) {
         const obj = options.find((item) => item.value === val);
         return obj && obj.name;
       };
     }
   },
   methods: {
+    // 初始化图片
+    initImgObj() {
+      Object.keys(this.imgObj).forEach((key) => {
+        this.imgObj[key] =
+          this.$store.state.globalConfig.themeConfigArr.find((item) => item.attributeKey === key) ||
+          {};
+      });
+    },
     async changeWidth(width) {
       const { fileList } = this.$refs.imageAndChange[0];
       if (!fileList.length) {
@@ -311,6 +432,9 @@ export default {
         ...currentObj,
         attributeValue: value
       };
+      if (key === 'helpCenterMenu') {
+        params.attributeValue = value.join();
+      }
       await this.update(params);
       if (key === 'themeColor') {
         localStorage.setItem('theme_color', value);
@@ -335,6 +459,12 @@ export default {
         await this.logoSave();
         await this.update(params);
       }
+      if (key === 'isTopHeight') {
+        this.changeRadio(this.$store.state.globalConfig.themeConfig.topHeight, 'topHeight');
+      }
+      if (key === 'istopStyle') {
+        this.changeRadio(this.$store.state.globalConfig.themeConfig.topStyle, 'topStyle');
+      }
       this.statement[key] = !this.statement[key];
     },
     async logoSave() {
@@ -351,6 +481,33 @@ export default {
       const update = async (paramsForm) => {
         try {
           await updateImages(paramsForm);
+        } catch (e) {
+          // console.log(e);
+        }
+      };
+      if (fileList.length && Object.keys(fileList[0]).length > 3) {
+        formData.append('files', fileList[0].raw);
+        await update(formData);
+      } else if (!fileList.length) {
+        formData.append('files', '');
+        await update(formData);
+      }
+    },
+    async uploadSuccess(key) {
+      // 登录logo保存
+      const formData = new FormData();
+      const { fileList } = this.$refs[key][0];
+      const arr = this.$store.state.globalConfig.themeConfigArr || [];
+      const imageObj = arr.find((item) => item.attributeKey === key);
+      const newImageObj = JSON.parse(JSON.stringify(imageObj));
+      delete newImageObj.attributeValue;
+      Object.keys(newImageObj).forEach((item) => {
+        formData.append(item, newImageObj[item]);
+      });
+      const update = async (paramsForm) => {
+        try {
+          await updateImages(paramsForm);
+          await this.$store.dispatch('fetchThemeConfig', 'THEME_AND_LOGO');
         } catch (e) {
           // console.log(e);
         }
@@ -406,7 +563,7 @@ $borderColor: 1px solid #e9e9e9;
 
       & > .common {
         flex: 1;
-        margin-left: 27px;
+        margin-left: 20px;
         margin-right: 20px;
         display: flex;
         align-items: center;
@@ -558,6 +715,9 @@ $borderColor: 1px solid #e9e9e9;
   .el-upload-list--picture-card .el-upload-list__item {
     width: 48px;
     height: 48px;
+  }
+  .el-checkbox {
+    line-height: 20px;
   }
 }
 </style>

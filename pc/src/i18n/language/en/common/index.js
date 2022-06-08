@@ -37,6 +37,7 @@ export default {
     empty: 'empty',
     sure: 'sure',
     cancle: 'cancle',
+    clear: 'clear',
     save: 'save',
     tip: 'tip',
     error: 'error',

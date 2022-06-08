@@ -76,9 +76,9 @@
               :dialogType="4"
               :options="tabOptions"
               :otherParams="{
+                 panelType: 5,
                  unDesign: 1,
                  enableWorkflow: 1,
-                 panelType: 1,
                  panelClassify: 1,
                  clientType: 1}"
               @selectRes="selectPane($event, 'pcTab')"
@@ -98,8 +98,8 @@
               :options="tabOptions"
               :isSelPanel="false"
               :otherParams="{
+                 panelType: 5,
                  unDesign: 1,
-                 panelType: 1,
                  panelClassify: 1,
                  clientType: 2,
                  enableWorkflow: 1

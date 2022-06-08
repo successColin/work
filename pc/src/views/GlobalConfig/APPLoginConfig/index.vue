@@ -15,7 +15,7 @@
           :key="`${item.name}_${i}`"
           :span="item.col"
         >
-          <li>
+          <li :name="item.key">
             <div class="leftName">
               <div v-if="!Array.isArray(item.name)">
                 {{ item.name }}
@@ -29,7 +29,7 @@
 
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
             <div
-              v-if="[0, 1, 2, 3, 4, 5].includes(i)"
+              v-if="[0, 1, 2, 3].includes(i)"
               style="flex: none"
               class="common"
             >
@@ -45,6 +45,51 @@
                 label="0"
                 >{{ $t('common.no') }}
               </apiot-radio>
+            </div>
+
+            <!-- 登录页风格 -->
+            <div v-if="i === 4" class="common">
+              <div v-if="!statement.isLoginStyle">
+                {{
+                  showValueName(loginStyleArr, loginStyle, item.attributeKey)
+                }}
+              </div>
+              <div v-else>
+                <apiot-select
+                  style="width: 224px"
+                  v-if="statement.isLoginStyle"
+                  v-model="loginStyle"
+                  :options="loginStyleArr"
+                  @change="handleChangeSelectVal('style', $event)"
+                ></apiot-select>
+              </div>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isLoginStyle', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isLoginStyle) }}
+              </apiot-button>
+            </div>
+            <!-- 登录页主题色 -->
+            <div v-if="i === 5" class="common">
+              <div class="colorWrap">
+                <div
+                  class="colorBox"
+                  :style="'background:' + item.color"
+                  @click="changeRadio(item.value, 'themeColor')"
+                  v-for="item in themeStyleArr"
+                  :key="item.color"
+                >
+                  <i
+                    class="el-icon-check"
+                    :class="{
+                      selected: themeColor === item.value,
+                    }"
+                    v-if="themeColor === item.value"
+                  ></i>
+                </div>
+              </div>
             </div>
             <div v-if="[6].includes(i)" class="common">
               <div v-if="!statement.isUpload">
@@ -98,7 +143,65 @@
                 </apiot-button>
               </div>
             </div>
-
+            <!-- 登录页轮播图 -->
+            <div
+              v-if="i === 7"
+              class="passwordConfig__logo common"
+              style="line-height: 48px"
+            >
+              <div v-if="!statement.isLoopPics">
+                <span style="color: #666666" v-if="!loopMaps.length">{{
+                  $t('globalConfig.backgroundImage')
+                }}</span>
+                <el-image
+                  v-for="(item, i) in loopMaps"
+                  class="userImage m-r-4"
+                  style="width: 48px; height: 48px; border-radius: 4px"
+                  :src="item.url"
+                  :key="item.url + '__' + i"
+                  fit="cover"
+                ></el-image>
+              </div>
+              <el-upload
+                v-else
+                class="uploadWrap"
+                :class="{ uploadHide: loopMaps.length === 1 }"
+                :file-list="loopMaps"
+                list-type="picture-card"
+                action="/"
+                :on-success="
+                  (response, file) => handleChange(response, file, 'loopMaps')
+                "
+                :multiple="false"
+                :before-upload="beforeUpload"
+                :accept="accept"
+                :http-request="doUpload"
+              >
+                <i slot="default" class="el-icon-plus"></i>
+                <div slot="file" slot-scope="{ file }">
+                  <img
+                    class="el-upload-list__item-thumbnail"
+                    :src="file.url"
+                    alt=""
+                  />
+                  <span class="el-upload-list__item-actions">
+                    <span
+                      class="el-upload-list__item-delete"
+                      @click="handleRemove(file, 'loopMaps')"
+                    >
+                      <i class="el-icon-delete"></i>
+                    </span>
+                  </span>
+                </div>
+              </el-upload>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isLoopPics', item.key, 'loopMaps')"
+              >
+                {{ changeBtnName(statement.isLoopPics) }}
+              </apiot-button>
+            </div>
             <!-- 登录页LOGO -->
             <div
               v-if="i === 8"
@@ -160,66 +263,6 @@
                 {{ changeBtnName(statement.isRegistration) }}
               </apiot-button>
             </div>
-
-            <!-- 登录页轮播图 -->
-            <div
-              v-if="i === 7"
-              class="passwordConfig__logo common"
-              style="line-height: 48px"
-            >
-              <div v-if="!statement.isLoopPics">
-                <span style="color: #666666" v-if="!loopMaps.length">{{
-                  $t('globalConfig.backgroundImage')
-                }}</span>
-                <el-image
-                  v-for="(item, i) in loopMaps"
-                  class="userImage m-r-4"
-                  style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="item.url"
-                  :key="item.url + '__' + i"
-                  fit="cover"
-                ></el-image>
-              </div>
-              <el-upload
-                v-else
-                class="uploadWrap"
-                :class="{ uploadHide: loopMaps.length === 1 }"
-                :file-list="loopMaps"
-                list-type="picture-card"
-                action="/"
-                :on-success="
-                  (response, file) => handleChange(response, file, 'loopMaps')
-                "
-                :multiple="false"
-                :before-upload="beforeUpload"
-                :accept="accept"
-                :http-request="doUpload"
-              >
-                <i slot="default" class="el-icon-plus"></i>
-                <div slot="file" slot-scope="{ file }">
-                  <img
-                    class="el-upload-list__item-thumbnail"
-                    :src="file.url"
-                    alt=""
-                  />
-                  <span class="el-upload-list__item-actions">
-                    <span
-                      class="el-upload-list__item-delete"
-                      @click="handleRemove(file, 'loopMaps')"
-                    >
-                      <i class="el-icon-delete"></i>
-                    </span>
-                  </span>
-                </div>
-              </el-upload>
-              <apiot-button
-                type="text"
-                class="passwordConfig__operation"
-                @click="handleChangeCount('isLoopPics', item.key, 'loopMaps')"
-              >
-                {{ changeBtnName(statement.isLoopPics) }}
-              </apiot-button>
-            </div>
           </li>
         </el-col>
       </el-row>
@@ -229,6 +272,7 @@
 
 <script>
 import { getListByKey, commonUpdate, updateImages } from '@/api/globalConfig';
+import { selectColorArr } from '@/config';
 
 export default {
   data() {
@@ -244,22 +288,37 @@ export default {
         isUpload: false, // 备案号
         isRegistration: false, // 登录页
         isLoopPics: false, // l轮播图
-        isClickErrorCount: false // 错误次数点击
+        isClickErrorCount: false, // 错误次数点击
+        isLoginStyle: false // 登陆风格
       },
       loginObj: {}, // login url
       loopMaps: [],
       loginMaps: [],
-      fileList: [] // 协议列表
+      fileList: [], // 协议列表
+      loginStyle: 1, // 登录风格
+      loginStyleArr: [
+        {
+          name: '平铺式轮播风格',
+          value: 1
+        },
+        {
+          name: '卡片式轮播风格',
+          value: 2
+        }
+      ],
+      themeColor: 1,
+      themeStyleArr: []
     };
   },
   components: {},
   created() {},
   mounted() {
+    this.initColor();
     this.init();
   },
   computed: {
     fileUrl() {
-      return function(url) {
+      return function (url) {
         if (!url) return '';
         return url.substr(0, url.length - 1);
       };
@@ -280,18 +339,18 @@ export default {
           attributeKey: 'enableRegistration',
           key: 'enableRegistration'
         },
-        {
-          name: this.$t('globalConfig.enableWX'),
-          col: 12,
-          attributeKey: 'enableWeChatLogin',
-          key: 'enableWeChatLogin'
-        },
-        {
-          name: this.$t('globalConfig.enableDingTalk'),
-          col: 12,
-          key: 'enableDingDingLogin',
-          attributeKey: 'enableDingDingLogin'
-        },
+        // {
+        //   name: this.$t('globalConfig.enableWX'),
+        //   col: 12,
+        //   attributeKey: 'enableWeChatLogin',
+        //   key: 'enableWeChatLogin'
+        // },
+        // {
+        //   name: this.$t('globalConfig.enableDingTalk'),
+        //   col: 12,
+        //   key: 'enableDingDingLogin',
+        //   attributeKey: 'enableDingDingLogin'
+        // },
         {
           name: this.$t('globalConfig.enableAppPassword'),
           col: 12,
@@ -309,6 +368,18 @@ export default {
           col: 12,
           key: 'enableMultilingual',
           attributeKey: 'enableMultilingual'
+        },
+        {
+          name: this.$t('globalConfig.style'),
+          col: 24,
+          key: 'style',
+          attributeKey: 'style'
+        },
+        {
+          name: this.$t('globalConfig.themeColor'),
+          col: 24,
+          key: 'themeColor',
+          attributeKey: 'themeColor'
         },
         {
           name: this.$t('globalConfig.LoginRegistrationAgreement'),
@@ -332,19 +403,28 @@ export default {
     },
     // 修改 button 状态
     changeBtnName() {
-      return function(state) {
+      return function (state) {
         return state ? this.$t('common.save') : this.$t('common.modify');
       };
     },
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
-      return function(options, val) {
+      return function (options, val) {
         const obj = options.find((item) => item.value === Number(val));
         return obj && obj.name;
       };
     }
   },
   methods: {
+    // 初始化主题色
+    initColor() {
+      selectColorArr.forEach((color, index) => {
+        this.themeStyleArr.push({
+          color,
+          value: index + 1
+        });
+      });
+    },
     handleRemove({ url }, key) {
       this.$confirm(
         this.$t('common.areYouSureToDelete', { name: this.$t('helpCenter.image') }),
@@ -446,6 +526,10 @@ export default {
         this.response.find((item) => item.attributeKey === 'backgroundUrl') || {};
       const backgroundUrl = backgroundUrlObj.attributeValue;
       const loginLogo = this.loginObj.attributeValue;
+      const styleObj = this.response.find((item) => item.attributeKey === 'style') || {};
+      this.loginStyle = Number(styleObj.attributeValue);
+      const themeColorObj = this.response.find((item) => item.attributeKey === 'themeColor') || {};
+      this.themeColor = Number(themeColorObj.attributeValue);
       const makeUrlArr = (value, key) => {
         if (value) {
           const arr = value.split(',');
@@ -471,6 +555,10 @@ export default {
         ...currentObj,
         attributeValue: this.params[key]
       };
+      if (key === 'themeColor') {
+        this.themeColor = value;
+        params.attributeValue = value;
+      }
       try {
         await commonUpdate({ list: [params] });
         this.$message({
@@ -542,6 +630,25 @@ export default {
           this.statement[key] = !this.statement[key];
           return;
         }
+        if (key === 'isLoginStyle') {
+          const currentObj = this.response.find((item) => item.attributeKey === attr);
+          // 登录logo保存
+          const params = {
+            ...currentObj,
+            attributeValue: this.loginStyle
+          };
+
+          try {
+            await commonUpdate({ list: [params] });
+            this.$message({
+              type: 'success',
+              message: this.$t('common.successfullyModified')
+            });
+            this.loading = false;
+          } catch (e) {
+            this.loading = false;
+          }
+        }
       }
       this.statement[key] = !this.statement[key];
     },
@@ -612,6 +719,25 @@ $borderColor: 1px solid #e9e9e9;
         justify-content: space-between;
         font-size: 13px;
         color: #333333;
+        .colorWrap {
+          display: flex;
+          & .colorBox {
+            flex-grow: 1;
+            width: 20px;
+            height: 20px;
+            margin: 8px 2.7px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 20px;
+
+            & .el-icon-check {
+              color: #fff;
+              opacity: 1;
+              transition: opacity 1s;
+            }
+          }
+        }
         .uploadAgreement {
           .icon-shangchuan {
             color: #4689f5;

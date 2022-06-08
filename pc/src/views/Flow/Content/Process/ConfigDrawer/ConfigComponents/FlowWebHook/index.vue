@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" :key="key">
     <div class="config-property">
       <div class="form-item">
         <div class="form-item-label">请求类型</div>
@@ -103,6 +103,7 @@ export default {
   },
   data() {
     return {
+      key: 0,
       showCompTree: false,
       showReturnValue: false,
       configData: {},
@@ -184,16 +185,18 @@ export default {
   mounted() {
   },
   watch: {
-    deep: true,
-    immediate: true,
-    handler() {
-      this.init();
+    nodeInfo: {
+      deep: true,
+      immediate: true,
+      handler() {
+        this.init();
+      }
     }
   },
 
   methods: {
     init() {
-      if (JSON.stringify(this.nodeInfo) !== '{}') {
+      if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.$nextTick(() => {
           this.requestMethod = this.nodeInfo.requestMethod || 'GET';
           this.requestUrl = this.nodeInfo.requestUrl || '';
@@ -201,7 +204,14 @@ export default {
           this.returnValue = this.nodeInfo.returnValue || '';
           this.requestParameter = this.nodeInfo.requestParameter || '{}';
         });
+      } else {
+        this.requestMethod = 'GET';
+        this.requestUrl = '';
+        this.requestHeadersList = [];
+        this.returnValue = '';
+        this.requestParameter = '{}';
       }
+      this.key += 1;
     },
     addHeader() {
       // 添加请求参数

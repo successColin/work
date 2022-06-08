@@ -39,6 +39,7 @@ export default {
     sure: '确定',
     save: '保存',
     cancle: '取消',
+    clear: '清空',
     tip: '提示',
     error: '错误',
     number: '数字',

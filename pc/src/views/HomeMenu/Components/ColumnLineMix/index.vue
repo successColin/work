@@ -213,7 +213,7 @@ export default {
               smooth: groupDisplay === 'curve',
               step: groupDisplay === 'trapezoid',
               itemStyle: {
-                color: newColorArr[index].c1
+                color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff'
               },
               label: {
                 show: true,
@@ -249,9 +249,9 @@ export default {
                   x2: 0,
                   y2: 1,
                   colorStops: [{
-                    offset: 0, color: newColorArr[index].c1 // 0% 处的颜色
+                    offset: 0, color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
                   }, {
-                    offset: 1, color: newColorArr[index].c2 // 100% 处的颜色
+                    offset: 1, color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
                   }],
                   global: false // 缺省为 false
                 }
@@ -295,10 +295,10 @@ export default {
                   borderRadius: [borderRadius, borderRadius, 0, 0],
                   color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
                     offset: 0,
-                    color: newColorArr[index].c1 // 0% 处的颜色
+                    color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
                   }, {
                     offset: 1,
-                    color: newColorArr[index].c2 // 100% 处的颜色
+                    color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
                   }], false)
                 }
               },

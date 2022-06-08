@@ -10,10 +10,18 @@
           class="dropdownMenu__item m-r-10"
           v-for="(item, index) in menuArr"
           :key="index"
+          @click="navClick(item)"
         >
+          <img
+            class="dropdownMenu__item--img"
+            :src="item.iconObj.imageUrl"
+            v-if="item.iconObj.imageUrl"
+            alt=""
+          />
           <i
-            :class="`iconfont ${item.icon.icon}`"
-            :style="`color:${item.icon.color}`"
+            v-else
+            :class="`iconfont ${item.iconObj.icon}`"
+            :style="`color:${item.iconObj.color}`"
           ></i>
           <p class="font__ellipsis" :title="item.menuName">
             {{ item.menuName }}
@@ -48,7 +56,11 @@ export default {
 
   mounted() {},
 
-  methods: {}
+  methods: {
+    navClick(item) {
+      window.open(item.linkAdress);
+    }
+  }
 };
 </script>
 
@@ -82,6 +94,10 @@ export default {
     cursor: pointer;
     &:hover {
       background: #f1f7ff;
+    }
+    &--img {
+      width: 40px;
+      height: 40px;
     }
     .iconfont {
       font-size: 40px;

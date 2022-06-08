@@ -76,6 +76,7 @@
     >
       <div>
         <el-form
+            @submit.native.prevent
             ref="dynamicValidateForm"
             label-width="80px"
             label-position="top"

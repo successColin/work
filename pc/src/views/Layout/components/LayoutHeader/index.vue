@@ -91,15 +91,17 @@
           transition="topEnterBottomLeave"
           :content="isFullScreen ? '退出全屏' : '全屏'"
           placement="bottom"
+          v-if="$store.state.globalConfig.themeConfig.enableFullScreen === '1'"
         >
-          <nav
-            class="nav iconNav"
-            @click="zoomFun"
-            v-if="
-              $store.state.globalConfig.themeConfig.enableFullScreen === '1'
-            "
-          >
+          <nav class="nav iconNav" @click="zoomFun">
+            <img
+              class="iconNav__img"
+              :src="getImg('enableFullScreenIcon')"
+              alt=""
+              v-if="getImg('enableFullScreenIcon')"
+            />
             <i
+              v-else
               class="iconfont"
               :class="`${
                 isFullScreen ? 'icon-quxiaoquanping' : 'icon-quanping'
@@ -112,10 +114,19 @@
           v-if="$store.state.globalConfig.themeConfig.enableHelpCenter === '1'"
         >
           <el-dropdown placement="bottom" @command="changeHelp" :tabindex="-1">
-            <i class="iconfont icon-wentibangzhu header__content--help"></i>
+            <img
+              class="iconNav__img"
+              :src="getImg('enableHelpCenterIcon')"
+              alt=""
+              v-if="getImg('enableHelpCenterIcon')"
+            />
+            <i
+              v-else
+              class="iconfont icon-wentibangzhu header__content--help"
+            ></i>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
-                v-for="item in helpCenter"
+                v-for="item in filterHelp(helpCenter)"
                 :key="item.command"
                 :icon="`iconfont ${item.icon}`"
                 :command="item.command"
@@ -131,15 +142,24 @@
           content="审批"
           placement="bottom"
           transition="topEnterBottomLeave"
+          v-if="
+            $store.state.globalConfig.themeConfig.enableApprovalProcess === '1'
+          "
         >
-          <nav
-            class="nav iconNav"
-            v-if="
-              $store.state.globalConfig.themeConfig.enableApprovalProcess ===
-              '1'
-            "
-          >
+          <nav class="nav iconNav">
+            <div
+              v-if="getImg('enableApprovalProcessIcon')"
+              :class="[{ showNum: taskNum > 0 }]"
+              :num="taskNum > 99 ? '99+' : taskNum"
+            >
+              <img
+                class="iconNav__img"
+                :src="getImg('enableApprovalProcessIcon')"
+                alt=""
+              />
+            </div>
             <i
+              v-else
               class="iconfont icon-liuchengshenpi"
               @click="showTask = true"
               :class="[{ showNum: taskNum > 0 }]"
@@ -153,12 +173,22 @@
           content="消息"
           placement="bottom"
           transition="topEnterBottomLeave"
+          v-if="$store.state.globalConfig.themeConfig.enableMessage === '1'"
         >
-          <nav
-            class="nav iconNav"
-            v-if="$store.state.globalConfig.themeConfig.enableMessage === '1'"
-          >
+          <nav class="nav iconNav">
+            <div
+              v-if="getImg('enableMessageIcon')"
+              :class="[{ showNum: messageNum > 0 }]"
+              :num="messageNum > 99 ? '99+' : messageNum"
+            >
+              <img
+                class="iconNav__img"
+                :src="getImg('enableMessageIcon')"
+                alt=""
+              />
+            </div>
             <i
+              v-else
               class="iconfont icon-xiaoxitongzhi"
               :class="[{ showNum: messageNum > 0 }]"
               @click="showMessageFun"
@@ -171,13 +201,14 @@
           class="nav menuBtn"
           v-for="(item, index) in getTopMenu"
           :key="index"
+          @click="navClick(item)"
         >
           {{ item.menuName }}
         </nav>
         <!--        v-if="moreOpeArr.length"-->
         <nav
           class="nav menuBtn"
-          v-if="false"
+          v-if="moreOpeArr.length"
           @mouseenter="mouseenter"
           @mouseleave="mouseLeave"
         >
@@ -391,7 +422,7 @@ export default {
     SwitchTenant,
     userAvatar,
     TaskToDo,
-    MessageShow,
+    MessageShow
   },
   computed: {
     getbg() {
@@ -410,13 +441,27 @@ export default {
       return fontChange(this.name);
     },
     getTopMenu() {
-      return this.btnMenuArr.slice(0, 3);
-    },
-    moreOpeArr() {
-      if (this.btnMenuArr.length > 3) {
-        return this.btnMenuArr.slice(3);
+      console.log(this.$store.state.globalConfig.themeConfig.enableLink);
+      if (this.$store.state.globalConfig.themeConfig.enableLink === '1') {
+        return this.$store.state.globalConfig.thirdLinks.slice(0, 3);
       }
       return [];
+    },
+    moreOpeArr() {
+      if (this.$store.state.globalConfig.themeConfig.enableLink === '1') {
+        if (this.$store.state.globalConfig.thirdLinks.length > 3) {
+          return this.$store.state.globalConfig.thirdLinks.slice(3);
+        }
+      }
+      return [];
+    },
+    getImg() {
+      return (key) =>
+        this.$store.state.globalConfig.themeConfig[key] &&
+        this.$store.state.globalConfig.themeConfig[key].substr(
+          0,
+          this.$store.state.globalConfig.themeConfig[key].length - 1
+        );
     }
   },
   watch: {
@@ -445,7 +490,7 @@ export default {
           }, 60 * 1000);
         }
       }
-    },
+    }
   },
   mounted() {
     this.setCurLangIndex();
@@ -464,6 +509,16 @@ export default {
   },
 
   methods: {
+    filterHelp(arr) {
+      const { helpCenterMenu } = this.$store.state.globalConfig.themeConfig;
+      const a = helpCenterMenu ? helpCenterMenu.split(',') : [];
+      return arr.filter((item, index) => {
+        if (a.includes(`${index + 1}`)) {
+          return true;
+        }
+        return false;
+      });
+    },
     async initTask() {
       const data = (await getMyTodoList({ current: 1, size: 1 })) || {};
       const { total = 0 } = data;
@@ -573,6 +628,9 @@ export default {
     showMessageFun() {
       this.showMessage = true;
       console.log(this.showMessage);
+    },
+    navClick(item) {
+      window.open(item.linkAdress);
     }
   },
   beforeDestroy() {
@@ -800,6 +858,11 @@ $iconNavWidth: 44px;
 
     .iconNav {
       width: $iconNavWidth;
+      &__img {
+        width: 22px;
+        height: 22px;
+        vertical-align: middle;
+      }
 
       .iconfont {
         font-size: $iconFontSizeHeadr;
@@ -807,47 +870,27 @@ $iconNavWidth: 44px;
 
       .icon-xiaoxitongzhi {
         position: relative;
-
-        &.showNum {
-          &:after {
-            content: attr(num);
-            position: absolute;
-            // width: 24px;
-            min-width: 10px;
-            padding: 0 4px;
-            height: 18px;
-            line-height: 18px;
-            border-radius: 10px;
-            background-color: $--color-primary;
-            font-weight: 600;
-            color: #ffffff;
-            font-size: 12px;
-            margin-left: -6px;
-            margin-top: 6px;
-          }
+      }
+      .showNum {
+        &:after {
+          content: attr(num);
+          position: absolute;
+          // width: 24px;
+          min-width: 10px;
+          padding: 0 4px;
+          height: 18px;
+          line-height: 18px;
+          border-radius: 10px;
+          background-color: $--color-primary;
+          font-weight: 600;
+          color: #ffffff;
+          font-size: 12px;
+          margin-left: -6px;
+          margin-top: 6px;
         }
       }
       .icon-liuchengshenpi {
         position: relative;
-
-        &.showNum {
-          &:after {
-            content: attr(num);
-            position: absolute;
-            // width: 24px;
-            min-width: 10px;
-            padding: 0 4px;
-            height: 18px;
-            line-height: 18px;
-            border-radius: 10px;
-            background-color: $--color-primary;
-            font-weight: 600;
-            color: #ffffff;
-            font-size: 12px;
-            margin-left: -6px;
-            margin-top: 6px;
-          }
-        }
       }
     }
 
@@ -862,11 +905,12 @@ $iconNavWidth: 44px;
       padding: 0 20px;
     }
   }
-  ::v-deep{
-    .el-drawer__body, .drawer__content{
+  ::v-deep {
+    .el-drawer__body,
+    .drawer__content {
       overflow: initial;
     }
-    .el-drawer__close-btn{
+    .el-drawer__close-btn {
       position: relative;
       z-index: 1;
     }

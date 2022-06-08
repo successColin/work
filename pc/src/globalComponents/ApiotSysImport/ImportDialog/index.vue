@@ -174,19 +174,21 @@ export default {
       formData.append('file', this.file.raw);
       this.showLoading = true;
       try {
-        // 校验模板
-        if (this.tableArr.find((v) => v === 'sys_org')) {
-          // 特殊组织表
-          await checkOrgSpecialTemplate(formData);
-        } else if (this.tableArr.find((v) => v === 'sys_user')) {
-          // 用户表
-          await checkUserSpecialTemplate(formData);
-        } else if (
-          this.tableArr.find((v) => v === 'sys_position') ||
-          this.tableArr.find((v) => v === 'sys_device')
-        ) {
-          // 设备位置表
-          await checkPDSpecialTemplate(formData);
+        if (this.tableArr.length === 1) {
+          // 校验模板
+          if (this.tableArr.find((v) => v === 'sys_org')) {
+            // 特殊组织表
+            await checkOrgSpecialTemplate(formData);
+          } else if (this.tableArr.find((v) => v === 'sys_user')) {
+            // 用户表
+            await checkUserSpecialTemplate(formData);
+          } else if (
+            this.tableArr.find((v) => v === 'sys_position') ||
+            this.tableArr.find((v) => v === 'sys_device')
+          ) {
+            // 设备位置表
+            await checkPDSpecialTemplate(formData);
+          }
         } else if (this.isTree) {
           // 常规树
           await checkTreeTemplate(formData);
@@ -285,19 +287,21 @@ export default {
         });
         formData.append('relationJson', JSON.stringify(jsonArray));
       }
-      // 特殊表导入
-      if (this.tableArr.find((v) => v === 'sys_org')) {
-        // 组织表
-        await importTemplateOrgStart(formData);
-      } else if (this.tableArr.find((v) => v === 'sys_user')) {
-        // 用户表
-        await importTemplateUserStart(formData);
-      } else if (
-        this.tableArr.find((v) => v === 'sys_position') ||
-        this.tableArr.find((v) => v === 'sys_device')
-      ) {
-        // 设备 和 位置表
-        await importTemplatePDStart(formData);
+      if (this.tableArr.length === 1) {
+        // 特殊表导入
+        if (this.tableArr.find((v) => v === 'sys_org')) {
+          // 组织表
+          await importTemplateOrgStart(formData);
+        } else if (this.tableArr.find((v) => v === 'sys_user')) {
+          // 用户表
+          await importTemplateUserStart(formData);
+        } else if (
+          this.tableArr.find((v) => v === 'sys_position') ||
+          this.tableArr.find((v) => v === 'sys_device')
+        ) {
+          // 设备 和 位置表
+          await importTemplatePDStart(formData);
+        }
       } else if (this.isTree) {
         // 树导入
         await importTemplateTreeOrgStart(formData);

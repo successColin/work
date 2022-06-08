@@ -2,6 +2,8 @@
   <div
     class="menuCard"
     :class="[{ hover: isHover && !isMoving }]"
+    v-loading="loading"
+    element-loading-background="hsla(0,0%,100%,.9)"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
     :style="`animation-duration: ${100 * Math.ceil((index + 1) / 4)}ms;`"
@@ -183,7 +185,8 @@ export default {
         color: '',
         imageUrl: ''
       },
-      showLoading: false
+      showLoading: false,
+      loading: false
     };
   },
 
@@ -277,16 +280,22 @@ export default {
     // 复制菜单
     async copyMenu() {
       console.log(this.groupId, this.item.id);
-      await copyMenu({
-        menuId: this.item.id,
-        modelMenuId: this.groupId
-      });
-      this.$emit('getList');
-      this.$message({
-        type: 'success',
-        message: '复制成功'
-      });
-      this.$store.dispatch('getRoute');
+      this.loading = true;
+      try {
+        await copyMenu({
+          menuId: this.item.id,
+          modelMenuId: this.groupId
+        });
+        this.loading = false;
+        this.$emit('getList');
+        this.$message({
+          type: 'success',
+          message: '复制成功'
+        });
+        this.$store.dispatch('getRoute');
+      } catch (e) {
+        this.loading = false;
+      }
     },
     iconSelected(obj) {
       // console.log(obj);

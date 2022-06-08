@@ -48,7 +48,25 @@ export function commonUpdate(data) {
   return FetchData.request({
     url: '/system/global/modifyGlobal',
     data,
-    method: 'put'
+    method: 'put',
+  });
+}
+
+// 通用增改 单个
+export function saveGlobal(data) {
+  return FetchData.request({
+    url: '/system/global/saveGlobal',
+    data,
+    method: 'put',
+  });
+}
+
+// 通用删除 单个
+export function batchDelete(params) {
+  return FetchData.request({
+    url: '/system/global/batchDelete',
+    params,
+    method: 'delete',
   });
 }
 

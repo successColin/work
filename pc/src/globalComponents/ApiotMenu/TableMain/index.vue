@@ -440,10 +440,17 @@ export default {
       });
       this.$bus.$on(this.getEventName, this.reloadArea);
       this.$bus.$on(`loadSomeArea_${this.parent.compId}`, this.loadArea);
+      this.$bus.$on('getSelMultiArr', this.getSelMultiArr);
     }
   },
 
   methods: {
+    // 获取选中数组
+    getSelMultiArr(onlyFlag, compId, callback) {
+      if (onlyFlag === this.onlyFlag() && compId === this.configData.compId) {
+        callback(this.multiEntityArr);
+      }
+    },
     // 刚打开tab的时候如果不是初始化的，则加载一次
     loadArea(compId) {
       // 代表刚打开的tab
@@ -854,7 +861,7 @@ export default {
         obj = this.getFatherPanel().panelVarObj[this.configData.compId];
       } else if (+this.$route.query.isJump === 1 && menuFilter) {
         obj = this.getCurMenu('menuVarObj');
-        if (obj) {
+        if (obj[this.configData.compId]) {
           obj = obj[this.configData.compId];
         }
       } else if (this.configData.termParams) {
@@ -1331,11 +1338,13 @@ export default {
         // this.$bus.$off(this.getEventName);
         this.$bus.$off(this.getEventName, this.reloadArea);
         this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
+        this.$bus.$off('getSelMultiArr');
       }
     } else {
       // this.$bus.$off(this.getEventName);
       this.$bus.$off(this.getEventName, this.reloadArea);
       this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
+      this.$bus.$off('getSelMultiArr');
     }
   },
 

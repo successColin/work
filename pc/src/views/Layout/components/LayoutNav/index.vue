@@ -235,11 +235,7 @@ export default {
       // 更换菜单中心选中菜单
       this.$bus.$emit('changeSelect', item);
       this.$router.push(item.path);
-      const res = this.getTabArr.findIndex((tab) => {
-        console.log(tab, item);
-        return tab.path.split('?')[0] === item.path.split('?')[0];
-      });
-      console.log(res);
+      const res = this.getTabArr.findIndex((tab) => tab.path.split('?')[0] === item.path.split('?')[0]);
       if (res === -1) {
         this.tabArr.push(item);
         this.$nextTick(() => {

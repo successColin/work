@@ -44,7 +44,7 @@
           <div
               class="column-content"
               v-if="!column.isApplyPicture"
-              :class="{'ellipsis': column.isEllipsis}"
+              :class="{'ellipsis': column.isEllipsis, 'unEllipsis': !column.isEllipsis}"
           >
             <img
                 class="prefix"
@@ -53,6 +53,7 @@
                 :style="getPrefixStyles(column)"
             />
             <span
+                :class="{'unExpress': !column.isEllipsis}"
                 @click="doHref(column, item)"
                 :style="getColumnContentStyles(column)"
                 :title="renderValue(column, item)">
@@ -531,7 +532,7 @@ export default {
         if (JSON.stringify(v) !== '{}' && o && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
           clearTimeout(this.otherTimer);
           this.init();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+        } else if (JSON.stringify(v) === '{}' && o && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
           clearTimeout(this.otherTimer);
           this.init();
         }
@@ -669,6 +670,7 @@ export default {
         apiDataConfig,
         SqlDataConfig
       } = this.config;
+      console.log(dataType, 'dataType');
       const setSnoZ = (list = []) => list.map((item, index) => ({
         ...item,
         snoZ: index + 1
@@ -988,6 +990,13 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+  }
+  .unEllipsis {
+    display: table;
+  }
+  .unExpress {
+    display: table-cell;
+    vertical-align: middle;
   }
 }
 </style>

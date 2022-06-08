@@ -273,8 +273,8 @@ export class NodeUtils {
    * @param { Object  } processData - 流程图的所有节点数据
    */
   static async deleteNode(nodeData, processData, checkEmpty = true) {
-    const delNode = (nodeIds) => {
-      delVersionNodeTree({ nodeId: nodeIds });
+    const delNode = async (nodeIds) => {
+      await delVersionNodeTree({ nodeId: nodeIds });
     };
     // eslint-disable-next-line no-shadow
     const concatChild = (prev, delNode) => {
@@ -295,7 +295,7 @@ export class NodeUtils {
     if (nodeData.type !== 'condition') {
       // 删除的不是分支
       concatChild(prevNode, nodeData);
-      delNode(nodeData.nodeId);
+      await delNode(nodeData.nodeId);
       return;
     }
 
@@ -354,12 +354,12 @@ export class NodeUtils {
       if (this.isConditionNode(nodeData)) {
         const willDelBranch = prevNode.conditionNodes.length === 2;
         const target = willDelBranch ? prevNode : nodeData;
-        this.deleteNode(target, processData, willDelBranch);
+        await this.deleteNode(target, processData, willDelBranch);
       } else {
         if (isEmptyArray(prevNode.conditionNodes)) {
-          this.deleteNode(prevNode, processData);
+          await this.deleteNode(prevNode, processData);
         }
-        this.deleteNode(nodeData, processData, false);
+        await this.deleteNode(nodeData, processData, false);
       }
       // this.deleteNode( prevNode, processData )
       // !this.isConditionNode(nodeData) && this.deleteNode(nodeData, processData)
@@ -376,7 +376,7 @@ export class NodeUtils {
       if (cons.length > 2) {
         deletedArr.push(cons[index].nodeId);
         const newArr = Array.from(new Set(deletedArr));
-        delNode(newArr.join(','));
+        await delNode(newArr.join(','));
         cons.splice(index, 1);
       } else {
         const anotherCon = cons[+!index];
@@ -384,7 +384,7 @@ export class NodeUtils {
           deletedArr.push(item.nodeId);
         });
         const newArr = Array.from(new Set(deletedArr));
-        delNode(newArr.join(','));
+        await delNode(newArr.join(','));
         delete prevNode.conditionNodes;
         if (prevNode.childNode) {
           let endNode = anotherCon;
@@ -396,7 +396,7 @@ export class NodeUtils {
         }
         concatChild(prevNode, anotherCon);
         if (prevNode.childNode && prevNode.childNode.type === 'empty') {
-          this.deleteNode(prevNode.childNode, prevNode);
+          await this.deleteNode(prevNode.childNode, prevNode);
         }
       }
       // 重新编排优先级
@@ -405,7 +405,7 @@ export class NodeUtils {
       return;
     }
     concatChild(prevNode, nodeData);
-    delNode(deletedArr.join(','));
+    await delNode(deletedArr.join(','));
   }
 
   // TODO:

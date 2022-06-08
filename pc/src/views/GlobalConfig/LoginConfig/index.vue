@@ -7,7 +7,7 @@
           :key="`${item.name}_${i}`"
           :span="item.col"
         >
-          <li>
+          <li v-show="!(i === 7 && loginStyle === 1)">
             <div class="leftName">
               <div v-if="!Array.isArray(item.name)">
                 {{ item.name }}
@@ -91,20 +91,23 @@
                   showValueName(loginStyleArr, loginStyle, item.attributeKey)
                 }}
               </div>
-              <apiot-select
-                style="width: 224px"
-                v-if="statement.isLoginStyle"
-                v-model="loginStyle"
-                :options="loginStyleArr"
-                @change="handleChangeSelectVal('style', $event)"
-              ></apiot-select>
-              <apiot-select
-                style="width: 224px"
-                v-if="statement.isLoginStyle && loginStyle === 2"
-                v-model="stylePercentage"
-                :options="stylePercentageArr"
-                @change="handleChangeSelectVal('stylePercentage', $event)"
-              ></apiot-select>
+              <div v-else>
+                <apiot-select
+                  style="width: 224px"
+                  v-if="statement.isLoginStyle"
+                  v-model="loginStyle"
+                  :options="loginStyleArr"
+                  @change="handleChangeSelectVal('style', $event)"
+                ></apiot-select>
+                <apiot-select
+                  class="m-l-10"
+                  style="width: 224px"
+                  v-if="statement.isLoginStyle && loginStyle === 2"
+                  v-model="stylePercentage"
+                  :options="stylePercentageArr"
+                  @change="handleChangeSelectVal('stylePercentage', $event)"
+                ></apiot-select>
+              </div>
               <apiot-button
                 type="text"
                 class="passwordConfig__operation"
@@ -113,9 +116,57 @@
                 {{ changeBtnName(statement.isLoginStyle) }}
               </apiot-button>
             </div>
-
-            <!-- 登录页LOGO -->
+            <!-- 背景图 -->
             <div v-if="i === 7" class="passwordConfig__logo common">
+              <div v-if="!statement.isBackgroundImage">
+                <el-image
+                  fit="cover"
+                  v-if="backgroundImg"
+                  style="width: 48px; height: 48px; border-radius: 4px"
+                  :src="backgroundImg"
+                  class="userImage m-r-4"
+                >
+                </el-image>
+              </div>
+              <image-and-change
+                v-if="statement.isBackgroundImage"
+                :ref="item.attributeKey"
+                :imgObj="backgroundImageObj"
+                :showSlider="false"
+                :maxKb="1024"
+              />
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="
+                  handleChangeCount('isBackgroundImage', item.attributeKey)
+                "
+              >
+                {{ changeBtnName(statement.isBackgroundImage) }}
+              </apiot-button>
+            </div>
+            <!-- 登录页主题色 -->
+            <div v-if="i === 8" class="common">
+              <div class="colorWrap">
+                <div
+                  class="colorBox"
+                  :style="'background:' + item.color"
+                  @click="changeRadio(item.value, 'themeColor')"
+                  v-for="item in themeStyleArr"
+                  :key="item.color"
+                >
+                  <i
+                    class="el-icon-check"
+                    :class="{
+                      selected: themeColor === item.value,
+                    }"
+                    v-if="themeColor === item.value"
+                  ></i>
+                </div>
+              </div>
+            </div>
+            <!-- 登录页LOGO -->
+            <div v-if="i === 9" class="passwordConfig__logo common">
               <div v-if="!statement.isRegistration">
                 <el-image
                   fit="cover"
@@ -128,7 +179,7 @@
               </div>
               <image-and-change
                 v-if="statement.isRegistration"
-                ref="imageAndChange"
+                ref="loginLogo"
                 :imgObj="loginObj"
                 :imgWidth="loginWidth"
                 @change-image-width="changeWidth"
@@ -144,7 +195,7 @@
             </div>
 
             <!-- 登录页轮播图 -->
-            <div v-if="i === 8" class="passwordConfig__logo common">
+            <div v-if="i === 10" class="passwordConfig__logo common">
               <div v-if="!statement.isLoopPics">
                 <el-image
                   v-for="(item, i) in loopMaps"
@@ -202,6 +253,7 @@
 
 <script>
 import { getListByKey, commonUpdate, updateImages } from '@/api/globalConfig';
+import { selectColorArr, stylePercentageArr, loginStyleArr } from '@/config';
 // import { makeUrlToBase64, dataURLtoFile } from '@/utils/utils';
 // import SockJS from 'sockjs-client';
 // import Stomp from 'stompjs';
@@ -222,7 +274,8 @@ export default {
         isRegistration: false, // 登录页
         isLoopPics: false, // l轮播图
         isClickErrorCount: false, // 错误次数点击
-        isLoginStyle: false
+        isLoginStyle: false, // 登陆风格
+        isBackgroundImage: false // 背景图
       },
       loginObj: {}, // login url
       loginWidth: 20, // logo宽度
@@ -243,31 +296,12 @@ export default {
         }
       ],
       loginStyle: 1, // 登录风格
-      loginStyleArr: [
-        {
-          name: '平铺式轮播风格',
-          value: 1
-        },
-        {
-          name: '卡片式轮播风格',
-          value: 2
-        }
-      ],
-      stylePercentage: 1, // 卡片式轮播风格 的比例
-      stylePercentageArr: [
-        {
-          name: '比例80%',
-          value: 1
-        },
-        {
-          name: '比例60%',
-          value: 2
-        },
-        {
-          name: '比例40%',
-          value: 3
-        }
-      ],
+      loginStyleArr,
+      stylePercentage: 2, // 卡片式轮播风格 的比例
+      stylePercentageArr,
+      backgroundImageObj: {}, // 背景图url
+      themeColor: 1,
+      themeStyleArr: [],
       loopMaps: []
     };
   },
@@ -276,6 +310,7 @@ export default {
     // this.setSocket(`${this.expertSysid}/${this.consultationSysid}`);
   },
   mounted() {
+    this.initColor();
     this.init();
     // this.initWebSocket();
   },
@@ -285,6 +320,16 @@ export default {
       return (
         this.loginObj.attributeValue &&
         this.loginObj.attributeValue.substr(0, this.loginObj.attributeValue.length - 1)
+      );
+    },
+    backgroundImg() {
+      // eslint-disable-next-line max-len
+      return (
+        this.backgroundImageObj.attributeValue &&
+        this.backgroundImageObj.attributeValue.substr(
+          0,
+          this.backgroundImageObj.attributeValue.length - 1
+        )
       );
     },
     // 左侧配置
@@ -331,6 +376,18 @@ export default {
           attributeKey: 'style'
         },
         {
+          name: this.$t('globalConfig.styleBackgroundImage'),
+          col: 24,
+          key: 'backgroundImage',
+          attributeKey: 'backgroundImage'
+        },
+        {
+          name: this.$t('globalConfig.themeColor'),
+          col: 24,
+          key: 'themeColor',
+          attributeKey: 'themeColor'
+        },
+        {
           name: this.$t('globalConfig.loginpagelogo'),
           col: 24,
           attributeKey: 'loginLogoWidth'
@@ -357,6 +414,15 @@ export default {
     }
   },
   methods: {
+    // 初始化主题色
+    initColor() {
+      selectColorArr.forEach((color, index) => {
+        this.themeStyleArr.push({
+          color,
+          value: index + 1
+        });
+      });
+    },
     handleRemove({ url }) {
       this.$confirm(
         this.$t('common.areYouSureToDelete', { name: this.$t('helpCenter.image') }),
@@ -385,7 +451,7 @@ export default {
         const { name, size } = file;
         const nameArr = name.split('.');
         const type = nameArr[nameArr.length - 1];
-        const newSize = size / 1024 < 200;
+        const newSize = size / 1024 < 1024;
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
             type: 'error',
@@ -481,7 +547,6 @@ export default {
       const res = await getListByKey({ parameterKey: 'LOGIN' });
       this.loading = false;
       this.response = res;
-      console.log(res);
       const errorObj =
         this.response.find((item) => item.attributeKey === 'sliderErrorsCount') || {};
       const recordObj = this.response.find((item) => item.attributeKey === 'record') || {};
@@ -494,9 +559,12 @@ export default {
       const enableMultilingual =
         this.response.find((item) => item.attributeKey === 'enableMultilingual') || {};
       const styleObj = this.response.find((item) => item.attributeKey === 'style') || {};
+      const themeColorObj = this.response.find((item) => item.attributeKey === 'themeColor') || {};
       const stylePercentage =
         this.response.find((item) => item.attributeKey === 'stylePercentage') || {};
       const logoObj = this.response.find((item) => item.attributeKey === 'loginLogo') || {};
+      const backgroundObj =
+        this.response.find((item) => item.attributeKey === 'backgroundImage') || {};
       const logoObjWidth =
         this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
       const loopObj = this.response.find((item) => item.attributeKey === 'loginLoopMaps') || {};
@@ -508,7 +576,6 @@ export default {
           this.loopMaps.push({ url: item });
         }
       });
-      console.log(styleObj);
       this.params = {
         ...this.params,
         enableRegistration: enableRegistrationObj.attributeValue,
@@ -519,8 +586,10 @@ export default {
       this.errorCount = Number(errorObj.attributeValue);
       this.loginStyle = Number(styleObj.attributeValue);
       this.stylePercentage = Number(stylePercentage.attributeValue);
+      this.themeColor = Number(themeColorObj.attributeValue);
       this.record = recordObj.attributeValue;
       this.loginObj = logoObj;
+      this.backgroundImageObj = backgroundObj;
       this.loginWidth = Number(logoObjWidth.attributeValue);
     },
     async changeRadio(value, key) {
@@ -530,6 +599,10 @@ export default {
         ...currentObj,
         attributeValue: this.params[key]
       };
+      if (key === 'themeColor') {
+        this.themeColor = value;
+        params.attributeValue = value;
+      }
       try {
         await commonUpdate({ list: [params] });
         this.$message({
@@ -541,11 +614,12 @@ export default {
         this.loading = false;
       }
     },
-    async logoSave() {
+    async logoSave(key = 'loginLogo') {
       // 登录logo保存
       const formData = new FormData();
-      const { fileList } = this.$refs.imageAndChange[0];
-      const imageObj = this.response.find((item) => item.attributeKey === 'loginLogo');
+      console.log(this.$refs[key]);
+      const { fileList } = this.$refs[key][0];
+      const imageObj = this.response.find((item) => item.attributeKey === key);
       const newImageObj = JSON.parse(JSON.stringify(imageObj));
       delete newImageObj.attributeValue;
       Object.keys(newImageObj).forEach((item) => {
@@ -624,6 +698,10 @@ export default {
             attributeValue: this.record
           };
         }
+        if (key === 'isBackgroundImage') {
+          // 登录logo保存
+          await this.logoSave(attr);
+        }
         if (key === 'isLoginStyle') {
           // 登录logo保存
           params = [
@@ -639,8 +717,8 @@ export default {
         }
         if (key === 'isRegistration') {
           // 登录logo保存
-          await this.logoSave(key, attr);
-          const { imgWidth } = this.$refs.imageAndChange[0];
+          await this.logoSave();
+          const { imgWidth } = this.$refs.loginLogo[0];
           const widthObj = this.response.find((item) => item.attributeKey === 'loginLogoWidth');
           params = {
             ...widthObj,
@@ -739,6 +817,25 @@ $borderColor: 1px solid #e9e9e9;
         justify-content: space-between;
         font-size: 13px;
         color: #333333;
+        .colorWrap {
+          display: flex;
+          & .colorBox {
+            flex-grow: 1;
+            width: 20px;
+            height: 20px;
+            margin: 8px 2.7px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 20px;
+
+            & .el-icon-check {
+              color: #fff;
+              opacity: 1;
+              transition: opacity 1s;
+            }
+          }
+        }
       }
     }
   }

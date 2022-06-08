@@ -208,6 +208,23 @@
         ></select-formula>
       </el-form-item>
       <el-form-item
+        label="流程类型"
+        v-show="[1, 2].includes(activeObj.buttonType)"
+      >
+        <el-select
+          v-model="activeObj.flowType"
+          placeholder="请选择流程类型"
+          class="m-b-10"
+        >
+          <el-option
+            :label="item.label"
+            :value="item.value"
+            v-for="item in flowType"
+            :key="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
         label="提交前提示"
         v-show="[1, 2, 5, 9, 10].includes(activeObj.buttonType)"
       >
@@ -519,6 +536,20 @@ export default {
         },
         {
           label: '自定义提示',
+          value: 3
+        }
+      ],
+      flowType: [
+        {
+          label: '无',
+          value: 1
+        },
+        {
+          label: '存为草稿',
+          value: 2
+        },
+        {
+          label: '发起流程',
           value: 3
         }
       ],

@@ -516,6 +516,7 @@ export default {
               },
               execFunc: false, // 允许执行函数
               execFuncName: '', // 函数表达式
+              flowType: 1, // 流程类型
               beforeSubmit: {
                 type: 1,
                 html: ''
@@ -907,7 +908,7 @@ export default {
             {
               name: '编码',
               areaType: 1, // 表示内容区
-              imgUrl: 'baseComp/SingleLineText.svg',
+              imgUrl: 'baseComp/Coding.svg',
               compType: 17,
               compId: createUnique(),
               compName: 'Coding',
@@ -935,7 +936,7 @@ export default {
               name: '分割线',
               showLabelTitle: true, // 是否显示分割线的标题
               areaType: 1,
-              imgUrl: 'baseComp/SearchCondition.svg',
+              imgUrl: 'baseComp/DividingLine.svg',
               compType: 18,
               compId: createUnique(),
               compName: 'DividingLine',
@@ -953,7 +954,7 @@ export default {
               dragTable: false,
               dragCard: false, // 能否拖入卡片区
               dragTree: false, // 能否拖入卡片区
-              imgUrl: 'baseComp/Label.svg',
+              imgUrl: 'baseComp/TextTip.svg',
               compType: 20,
               compId: createUnique(),
               compName: 'TextTip',
@@ -997,7 +998,7 @@ export default {
               dragTable: false,
               dragCard: false, // 能否拖入卡片区
               dragTree: false, // 能否拖入卡片区
-              imgUrl: 'baseComp/Label.svg',
+              imgUrl: 'baseComp/RichText.svg',
               compType: 21,
               compId: createUnique(),
               compName: 'RichText',
@@ -1130,7 +1131,7 @@ export default {
               name: 'Webview',
               showLabelTitle: true, // 是否显示分割线的标题
               areaType: 1,
-              imgUrl: 'baseComp/SearchCondition.svg',
+              imgUrl: 'highComp/Webview.svg',
               compType: 19,
               compId: createUnique(),
               compName: 'Webview',
@@ -1248,7 +1249,7 @@ export default {
               name: '关联资料',
               compType: 1006,
               propertyCompName: 'RelatedDataConfig', // 组件配置渲染名称
-              imgUrl: 'busiComp/faultTree.svg', // 组件拖拽图标
+              imgUrl: 'busiComp/RelatedData.svg', // 组件拖拽图标
               compId: createUnique(), // 组件id
               compName: 'RelatedData', // 真实页面组件渲染名称
               isTree: false,
