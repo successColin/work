@@ -262,7 +262,7 @@ export default {
                 ...SqlDataConfig
               },
               panelConfig: {}, // 跳转面板配置
-              skipMenuConfig: {}, // 跳菜单配置
+              skipMenuConfig: [], // 跳菜单配置
             },
             {
               name: '图片',
@@ -393,6 +393,7 @@ export default {
               verticalMirror: false, // 垂直镜像
               isShow: true, // 是否显示，用于图层控制组件显示与否
               isLock: false, // 是否锁定
+              enableShadows: true, // 是否启用阴影
               stylesObj: {
                 backgroundImage: '',
                 borderRadius: 0,
@@ -403,7 +404,12 @@ export default {
                 borderColor: '#4689F5',
                 borderWidth: 1,
                 borderStyle: 'solid',
-                rotationAngle: 0
+                rotationAngle: 0,
+                xShadow: 0, // 水平阴影
+                yShadow: 0, // 垂直阴影
+                shadowDistance: 0, // 阴影距离
+                blurRadius: 4, // 模糊半径
+                shadowColor: 'rgba(0,0,0,.16)', // 阴影颜色
               }
             },
             {

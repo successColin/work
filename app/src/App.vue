@@ -60,7 +60,7 @@ export default {
 @import '@/assets/css/reset.css';
 // #ifndef MP
 // app独有
-@import url('https://at.alicdn.com/t/font_2808920_9l2b75434a.css');
+@import url('https://at.alicdn.com/t/font_2808920_zu4rgie65d.css');
 // app与pc共有
 @import url('https://at.alicdn.com/t/font_2516478_vw78gt5teg.css');
 // #endif

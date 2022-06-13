@@ -112,26 +112,26 @@ export default {
 <style lang="scss" scoped>
 .drag {
   width: 100%;
-  height: $remto40px;
-  line-height: $remto40px;
+  height: 40px;
+  line-height: 40px;
   background: #f1f3f6;
-  border: $remto1px solid #dde2ea;
-  border-radius: $remto4px;
+  border: 1px solid #dde2ea;
+  border-radius: 4px;
   position: relative;
   text-align: center;
 }
 .handler {
-  width: $remto34px;
-  height: $remto34px;
-  line-height: $remto34px;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
   background: #ffffff;
   cursor: pointer;
-  box-shadow: 0px 0px $remto4px 0px rgba(0, 0, 0, 0.12);
-  border-radius: $remto2px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
   position: absolute;
-  top: $remto3px;
-  left: $remto3px;
-  font-size: $remto14px;
+  top: 3px;
+  left: 3px;
+  font-size: 14px;
 }
 .icon__color1 {
   color: #83d4e8;
@@ -141,12 +141,12 @@ export default {
 }
 .drag__bg {
   background: #83d4e8;
-  height: $remto34px;
+  height: 34px;
   width: 0px;
-  border-radius: $remto2px;
+  border-radius: 2px;
   position: absolute;
-  top: $remto3px;
-  left: $remto3px;
+  top: 3px;
+  left: 3px;
 }
 .drag__text {
   position: absolute;
@@ -158,7 +158,7 @@ export default {
   user-select: none;
   -o-user-select: none;
   -ms-user-select: none;
-  font-size: $remto13px;
+  font-size: 13px;
   color: #666666;
 }
 
@@ -190,18 +190,18 @@ export default {
 @-webkit-keyframes animate {
   /* 背景从-100px的水平位置，移动到+100px的水平位置。如果要移动Y轴的，设置第二个数值 */
   from {
-    background-position: -$remto200px 0;
+    background-position: -200px 0;
   }
   to {
-    background-position: $remto200px 0;
+    background-position: 200px 0;
   }
 }
 @keyframes animate {
   from {
-    background-position: -$remto200px 0;
+    background-position: -200px 0;
   }
   to {
-    background-position: $remto200px 0;
+    background-position: 200px 0;
   }
 }
 </style>

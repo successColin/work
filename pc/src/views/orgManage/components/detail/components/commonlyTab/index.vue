@@ -32,6 +32,7 @@ export default {
   data() {
     return {
       tableData: [],
+      keywords: '',
     };
   },
   props: {
@@ -49,8 +50,12 @@ export default {
     },
   },
   computed: {
+    getSearchList() {
+      return this.collectUserList.filter((item) => item.username.indexOf(this.keywords) > -1);
+    },
     listData() {
-      const rows = this.collectUserList.map((item) => {
+      const resultArr = this.keywords ? this.getSearchList : this.collectUserList;
+      const rows = resultArr.map((item) => {
         const arr = this.checkeduser.filter((obj) => String(obj.id) === String(item.id));
         if (arr.length > 0) {
           item.checked = true;
@@ -60,12 +65,19 @@ export default {
         return item;
       });
       return rows;
-    },
+    }
   },
   mounted() {
     // this.getUserList();
   },
-  methods: {},
+  methods: {
+    setKeywords(v) {
+      this.keywords = v;
+    },
+    getUserList(v) {
+      this.setKeywords(v);
+    }
+  },
   watch: {},
 };
 </script>

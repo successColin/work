@@ -1,7 +1,8 @@
-const padLeftZero = function(str) {
+const padLeftZero = function (str) {
   return `00${str}`.substring(str.length);
 };
 
+// yyyy-MM-dd hh:mm:ss
 const formatDate = (date, fmt) => {
   if (date) {
     date = typeof date === 'string' ? date.replace(/-/g, '/') : date;

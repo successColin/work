@@ -46,7 +46,7 @@
       </div>
       <search-input @getList="getColumnList" v-model="keyWord"></search-input>
     </div>
-    <div
+    <apiot-table
       class="multi__table"
       :class="[
         { 'multi__table--height1': this.getCurrntMultiArr.length > 0 },
@@ -54,33 +54,30 @@
           'multi__table--height2': isShowOverflow,
         },
       ]"
+      :tableData="tableData"
+      row-key="columnName"
+      :dropColumnData="dropColumnData"
+      :border="false"
+      @change-selectd="changeSelectd"
+      @tableInited="tableInited"
+      @select-all="selectAll"
+      dropClass=".multi__table"
+      ref="multiDialogTable"
     >
-      <apiot-table
-        :tableData="tableData"
-        row-key="columnName"
-        :dropColumnData="dropColumnData"
-        :border="false"
-        @change-selectd="changeSelectd"
-        @tableInited="tableInited"
-        @select-all="selectAll"
-        dropClass=".multi__table"
-        ref="multiDialogTable"
-      >
-        <component
-          v-for="(item, index) in dropColumnData"
-          :key="`${item.prop}_${index}`"
-          :label="$t(item.label)"
-          :prop="item.prop"
-          sortable="custom"
-          :sort-orders="['ascending', 'descending']"
-          show-overflow-tooltip
-          :width="item.width"
-          :colorIndex="item.colorIndex"
-          :is="dropColumnData[index].compName"
-          :typesPropName="item.typesPropName"
-        ></component>
-      </apiot-table>
-    </div>
+      <component
+        v-for="(item, index) in dropColumnData"
+        :key="`${item.prop}_${index}`"
+        :label="$t(item.label)"
+        :prop="item.prop"
+        sortable="custom"
+        :sort-orders="['ascending', 'descending']"
+        show-overflow-tooltip
+        :width="item.width"
+        :colorIndex="item.colorIndex"
+        :is="dropColumnData[index].compName"
+        :typesPropName="item.typesPropName"
+      ></component>
+    </apiot-table>
   </apiot-dialog>
 </template>
 

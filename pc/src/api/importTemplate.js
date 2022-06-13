@@ -300,6 +300,24 @@ export function checkUserSpecialTemplate(data) {
   });
 }
 
+// 特殊表校验进度监控
+export function getCheckSpecialProgress(params) {
+  return FetchData.request({
+    url: '/system/special/getCheckProgress',
+    method: 'get',
+    params,
+  });
+}
+
+// 特殊表
+export function getCheckSpecialSpecialProgress(params) {
+  return FetchData.request({
+    url: '/system/special/getUploadProgress',
+    method: 'get',
+    params,
+  });
+}
+
 // ------------------------
 // 树接口
 // 树结构校验模板
@@ -353,5 +371,30 @@ export function importTemplateTreeOrgStart(data) {
     headers: {
       'content-type': 'multipart/form-data',
     },
+  });
+}
+
+// 错误信息导出
+// 常规导出
+export function exportErrorMessage(params) {
+  return FetchData.request({
+    url: '/system/sysImportExport/exportErrorMessage',
+    method: 'get',
+    params,
+  });
+}
+// 树导出
+export function exportErrorTreeMessage(params) {
+  return FetchData.request({
+    url: '/system/treeImport/exportErrorMessage',
+    method: 'get',
+    params,
+  });
+}
+export function exportErrorSpecialMessage(params) {
+  return FetchData.request({
+    url: '/system/special/exportErrorMessage',
+    method: 'get',
+    params,
   });
 }

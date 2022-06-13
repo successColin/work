@@ -1,7 +1,7 @@
 <template>
   <section class="formula">
     <div class="formula__params">
-      <div class="formula__params--comp">
+      <div class="formula__params--comp" v-if="treeType!==5">
         <div class="formula__params--compHead">
           表单控件
           <i class="iconfont icon-sousuo" @click="showCompSearch"></i>
@@ -40,6 +40,41 @@
           </el-tree>
         </div>
       </div>
+      <div class="formula__params--comp" v-if="treeType===5">
+        <div class="formula__params--compHead">
+          函数
+          <i class="iconfont icon-sousuo" @click="showFormulaSearch"></i>
+          <search-input
+              v-show="showFormula"
+              ref="formulaSearch"
+              @getList="getFormulaTree"
+              @blur="formulaSearchBlur"
+              v-model="formulaNameKey"
+              class="compSearch"
+          ></search-input>
+        </div>
+        <div class="formula__params--formuTree formula__params--compTree">
+          <el-tree
+              v-if="treeType===5"
+              ref="formulaTree"
+              :data="formulaData"
+              node-key="compId"
+              class="formula__tree"
+              default-expand-all
+              @node-click="formulaNodeClick"
+              :filter-node-method="formulaFilterNode"
+              :expand-on-click-node="false"
+          >
+            <div
+                slot-scope="{ data }"
+                :key="data.name"
+                class="formula__treeItem"
+            >
+              {{ data.name }}
+            </div>
+          </el-tree>
+        </div>
+      </div>
     </div>
     <div class="formula__box">
       <div class="formula__box--header">{{ titleName }}</div>
@@ -58,6 +93,8 @@ import 'codemirror/addon/hint/anyword-hint.js';
 import 'codemirror/theme/idea.css';
 import 'codemirror/lib/codemirror.css';
 import { getChartsByEx } from '@/utils/utils';
+import { formulaData } from '@/config';
+import parser from '_u/formula';
 
 export default {
   props: {
@@ -80,26 +117,48 @@ export default {
       type: String,
       default: '422px'
     },
+    treeType: { // 树展示类型
+      type: Number,
+      default: 1
+    },
     showContent: {
       type: Boolean,
       default: false
+    },
+    showType: {
+      type: Array,
+      default: () => [1]
     }
   },
   data() {
     return {
+      showFormula: false, // 是否展示公式树搜索
+      showFormulaTree: false, // 是否展示公式树
+      formulaNameKey: '',
       showLoading: false, // 是否展示loading
       compName: '', // 组件树搜索名
       showCompTree: false, // 是否展示组件树搜索
       showTree: false, // 是否展示组件树
       jsonEditor: null,
       formulaValue: '',
-      cursor: null
+      cursor: null,
+      formulaData
     };
   },
 
   components: {},
 
-  computed: {},
+  computed: {
+    getFormulaData() {
+      const arr = [];
+      this.formulaData.forEach((item) => {
+        item.children.forEach((formula) => {
+          arr.push(formula.name);
+        });
+      });
+      return arr;
+    },
+  },
 
   mounted() {
     this.getTree();
@@ -140,14 +199,224 @@ export default {
       // console.log(111);
       // 替换组件的标记
       this.repalceCompMark();
+      this.repalceFormulaMark();
+      this.repalceSysMark();
+      // 初始化方法
+      this.initFunc();
     });
   },
 
   methods: {
+    // 初始化自定的方法
+    initFunc() {
+      // GET_FIELD_VALUE
+      parser.setFunction('GET_FIELD_VALUE', (params) => {
+        if (params.length === 0) {
+          return new Error('需要一个参数');
+        }
+        if (params[0] === '') {
+          return new Error('参数需要具体的字段');
+        }
+        const reg = /^[A-Za-z]+$/;
+        if (typeof params[0] === 'string' && !reg.test(params[0])) {
+          return new Error('参数需是英文字母！');
+        }
+        return '';
+      });
+      // GET_VAR
+      parser.setFunction('GET_VAR', (params) => {
+        if (params.length !== 1) {
+          return '';
+        }
+        return params[0];
+      });
+      // 数据选择框选择数据公式，只在影响控件里面有
+      parser.setFunction('GET_SELDATA', (params) => {
+        if (
+          params.length !== 2 &&
+            params.length !== 3 &&
+            params.length !== 4 &&
+            params.length !== 5
+        ) {
+          return new Error('参数为两个,三个或四个');
+        }
+        if (params[0] !== '') {
+          return new Error('第一个参数应为数据选择框组件');
+        }
+        if (typeof params[1] !== 'string' && params[1] !== '') {
+          return new Error('第二个参数应为字符串');
+        }
+        return '';
+      });
+      // BULK_ADD
+      parser.setFunction('BULK_ADD', (params) => {
+        if (params.length === 0) {
+          return new Error('批量新增需要参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_SHOW_VALUE', (params) => {
+        if (params.length !== 1) {
+          return new Error('获取显示值，需要有且只有一个参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TABLE_VALUE', (params) => {
+        if (params.length !== 1 || params.length !== 1) {
+          return new Error('获取列表值，需要1个或2个参数');
+        }
+        return '';
+      });
+      // BULK_ONE_ADD
+      parser.setFunction('BULK_ONE_ADD', (params) => {
+        if (params.length === 0) {
+          return new Error('批量新增需要参数');
+        }
+        return '';
+      });
+      // CREATE_UNIQUE
+      parser.setFunction('CREATE_UNIQUE', (params) => {
+        if (params.length === 0) {
+          return new Error('修改提交值需要参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_USER_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_ORG_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_ROLES_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_DATE', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_DATETIME', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_YEAR', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_MONTH', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_WEEK', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_DAY', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TIMESTAMP', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return '';
+      });
+      //
+      parser.setFunction('GET_MENU_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取菜单id公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TABLE_IDS', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取表格id集合公式无参数');
+        }
+        return '';
+      });
+
+      parser.setFunction('GET_SCAN_VALUE', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取扫一扫结果公式无参数');
+        }
+        return '';
+      });
+    },
+    // 初始化方法替换
+    repalceFormulaMark() {
+      const strArry = this.jsonEditor.getValue().split('\n'); // 一共几行
+      for (let line = 0, len = strArry.length; line < len; line += 1) {
+        // 提取出字符串中需要转化成标记的字符以及其所在的位置
+        const marTextArry = getChartsByEx(
+          strArry[line],
+          `\\[(${this.getFormulaData.join('|')})\\]`
+        );
+        for (let col = 0, len1 = marTextArry.length; col < len1; col += 1) {
+          const formulaName = marTextArry[col].result[1];
+          // 开始标记
+          this.jsonEditor.doc.markText(
+            { line, ch: marTextArry[col].from }, // 开始位置
+            { line, ch: marTextArry[col].to }, // 结束位置
+            {
+              replacedWith: this.createMartDom(formulaName, true),
+              inclusiveLeft: false,
+              inclusiveRight: false,
+              selectRight: true,
+              handleMouseEvents: true
+            }
+          );
+        }
+      }
+    },
+    // 初始化方法替代
+    repalceSysMark() {
+      const strArry = this.jsonEditor.getValue().split('\n'); // 一共几行
+      for (let line = 0, len = strArry.length; line < len; line += 1) {
+        // 提取出字符串中需要转化成标记的字符以及其所在的位置
+        const marTextArry = getChartsByEx(
+          strArry[line],
+          '\\$(\\d+)-\\d+-([a-zA-Z0-9_\\-\\u4e00-\\u9fa5]+)\\$'
+        );
+        for (let col = 0, len1 = marTextArry.length; col < len1; col += 1) {
+          const formulaName = marTextArry[col].result[2];
+          // 开始标记
+          this.jsonEditor.doc.markText(
+            { line, ch: marTextArry[col].from }, // 开始位置
+            { line, ch: marTextArry[col].to }, // 结束位置
+            {
+              replacedWith: this.createMartDom(formulaName, false, marTextArry[col].result[1]),
+              inclusiveLeft: false,
+              inclusiveRight: false,
+              selectRight: true,
+              handleMouseEvents: true
+            }
+          );
+        }
+      }
+    },
     // 初始化组件替换
     repalceCompMark() {
       const strArry = this.jsonEditor.getValue().split('\n'); // 一共几行
-      // console.log(2222);
       for (let line = 0, len = strArry.length; line < len; line += 1) {
         // console.log(strArry[line]);
         // 提取出字符串中需要转化成标记的字符以及其所在的位置
@@ -174,12 +443,17 @@ export default {
     // 获取组件树
     getTree() {
       this.showTree = false;
-      this.$nextTick(() => {
-        this.showTree = true;
-        setTimeout(() => {
-          this.$refs.configTree.filter(this.compName);
-        }, 0);
-      });
+      if (this.treeType !== 5) { // 不是自定义页面的时候，才执行
+        this.$nextTick(() => {
+          this.showTree = true;
+          setTimeout(() => {
+            this.$refs.configTree.filter(this.compName);
+          }, 0);
+        });
+      }
+      if (this.treeType === 5) {
+        this.$refs.formulaTree.filter();
+      }
     },
     // 组件搜索失焦
     compSearchBlur() {
@@ -292,7 +566,79 @@ export default {
       const htmlText = `${markText}`;
       htmlNode.innerHTML = htmlText;
       return htmlNode;
-    }
+    },
+    // 获取公式树
+    getFormulaTree() {
+      this.showFormulaTree = false;
+      this.$nextTick(() => {
+        this.showFormulaTree = true;
+        setTimeout(() => {
+          this.$refs.formulaTree.filter(this.formulaNameKey);
+        }, 0);
+      });
+    },
+    // 公式搜索失焦
+    formulaSearchBlur() {
+      if (!this.formulaNameKey) {
+        this.showFormula = false;
+      }
+    },
+    // 公式搜索展示
+    showFormulaSearch() {
+      this.showFormula = true;
+      this.$nextTick(() => {
+        this.$refs.formulaSearch.focus();
+      });
+    },
+    formulaNodeClick(data) {
+      if (!data.isFormula) {
+        return;
+      }
+      const key = `[${data.name}]`;
+      this.setFormulaMarkText(key, data.name);
+    },
+    setFormulaMarkText(key, name, isFormula = true) {
+      const { ch, line } = this.cursor;
+      const cursor = {
+        line,
+        ch: ch + key.length
+      };
+      // 插入对应实际的值
+      this.jsonEditor.replaceRange(key, this.cursor);
+      // 对这个实际的值进行标记
+      this.jsonEditor.doc.markText(this.cursor, cursor, {
+        replacedWith: this.createMartDom(name, isFormula, this.treeType),
+        inclusiveLeft: false,
+        inclusiveRight: false,
+        selectRight: true,
+        handleMouseEvents: true
+      });
+      if (isFormula) {
+        this.jsonEditor.replaceSelection('()');
+        cursor.ch += 1;
+      }
+      // 标记好后，进行聚焦，设置光标位置,聚焦到括号内部
+      this.jsonEditor.focus();
+      this.jsonEditor.doc.setCursor(cursor);
+      this.cursor = cursor;
+    },
+    // 公式filter
+    formulaFilterNode(value, data) {
+      if (value && data.name.indexOf(value) === -1) {
+        return false;
+      }
+      // 对数据选择框的公式做特殊处理
+      // if (data.name === 'GET_SELDATA') {
+      //   // console.log(data.name);
+      //   if (!this.isAffetComp) {
+      //     return false;
+      //   }
+      // }
+      if (!this.showType.includes(data.type)) {
+        return false;
+      }
+      return true;
+    },
   },
 
   watch: {

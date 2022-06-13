@@ -22,7 +22,7 @@
         >
         </el-checkbox>
       </span>
-      <span class="title manage-tag m-r-6">
+      <span class="title titleClass manage-tag m-r-6">
         <user-headname
           :isBig="true"
           :userInfo="item"
@@ -138,5 +138,20 @@ export default {
   font-size: 12px;
   text-align: center;
   line-height: 28px;
+}
+.titleClass {
+  width: calc(100% - 46px - 52px) !important;
+  ::v-deep{
+    .username {
+      width: calc(100% - 28px);
+    }
+    .user.big {
+      height: 28px;
+    }
+    .user__name{
+      flex: 1;
+      overflow: hidden;
+    }
+  }
 }
 </style>

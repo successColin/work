@@ -209,7 +209,7 @@ $paddingVal: 15px;
   &__input {
     .icon-mimayincang,
     .icon-mimaxianshi {
-      font-size: $remto20px;
+      font-size: 20px;
     }
   }
 }

@@ -896,7 +896,7 @@ export default {
 
     .el-tabs__item {
       padding: 0 10px;
-      color: #FFFFFF;
+      color: #333333;
       opacity: .7;
     }
 
@@ -923,7 +923,7 @@ export default {
 
     .el-tabs__nav-next, .el-tabs__nav-prev {
       line-height: 40px;
-      color: #FFFFFF;
+      color: #333333;
 
       &:hover {
         color: #4689F5;

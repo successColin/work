@@ -128,7 +128,7 @@ export default {
   ::v-deep {
     .el-drawer.rtl,
     .el-drawer.ltr {
-      top: $layoutHeader;
+      top: 50px;
       bottom: 0;
       height: auto;
     }
@@ -139,6 +139,7 @@ export default {
 
     .el-drawer__header {
       margin: 0;
+      font-size: 16px;
       padding: 0 22px 0 36px;
       line-height: 56px;
       height: 55px;

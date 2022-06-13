@@ -46,6 +46,7 @@
               class="ToMenuConfig__content--termFormula"
               :triggerCompMap="triggerCompMap"
               v-model="item.jumpTerm"
+              v-bind="$attrs"
             ></select-formula>
           </div>
           <div class="ToMenuConfig__btnArea m-t-10">
@@ -79,13 +80,13 @@
           <ul class="ToMenuConfig__ul">
             <li
               class="ToMenuConfig__li"
-              v-for="(filter, index) in item.menuFilter"
-              :key="index"
+              v-for="(filter, i) in item.menuFilter"
+              :key="i"
             >
               <h1 class="ToMenuConfig__li--head">
-                <span class="ToMenuConfig__li--title"
-                  >{{ filter.name }}({{ filter.tableInfo.tableName }})</span
-                >
+                <span class="ToMenuConfig__li--title">
+                  {{ filter.name }}({{ filter.tableInfo.tableName }})
+                </span>
                 <el-select
                   class="ToMenuConfig__li--select"
                   v-model="filter.filterTermType"
@@ -122,6 +123,7 @@
 
 <script>
 import { getDesignMenu } from '@/api/menuConfig';
+import { formulaData } from '@/config';
 import MenuSelect from './MenuSelect';
 import SelectFormula from '../../GlobalConfig/components/AddAction/components/SelectFormula';
 import TermComp from '../FilterPane/TermComp';
@@ -130,13 +132,17 @@ export default {
   name: '',
   props: {
     activeObj: {
-      type: Object
+      type: [Object, Array]
     },
     configData: {
       type: Array
     },
     triggerCompMap: {
       type: Object
+    },
+    sourceType: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -144,7 +150,8 @@ export default {
       showMenu: false,
       menuConfig: {},
       menuList: [], // 菜单列表
-      activeName: ''
+      activeName: '',
+      formulaData
     };
   },
   components: {
@@ -251,10 +258,17 @@ export default {
     }
   },
   created() {
-    if (this.configData[0].menuObj && this.configData[0].menuObj[this.activeObj.compId]) {
+    if (
+      !this.sourceType &&
+      this.configData[0].menuObj &&
+      this.configData[0].menuObj[this.activeObj.compId]
+    ) {
       this.menuList = this.configData[0].menuObj[this.activeObj.compId];
-      this.menuList.forEach((menu) => this.getPaneConfig(menu));
     }
+    if (this.sourceType === 1) {
+      this.menuList = this.activeObj;
+    }
+    this.menuList.forEach((menu) => this.getPaneConfig(menu));
   },
   methods: {
     // 获取面板数据
@@ -280,10 +294,12 @@ export default {
         jumpTerm: '', // 跳转条件
         menuFilter: [] // 菜单过滤条件
       });
-      if (!this.configData[0].menuObj) {
-        this.$set(this.configData[0], 'menuObj', {});
+      if (!this.sourceType) {
+        if (!this.configData[0].menuObj) {
+          this.$set(this.configData[0], 'menuObj', {});
+        }
+        this.configData[0].menuObj[this.activeObj.compId] = this.menuList;
       }
-      this.configData[0].menuObj[this.activeObj.compId] = this.menuList;
       await this.getPaneConfig(v);
       this.activeName = this.menuList.length - 1;
     },

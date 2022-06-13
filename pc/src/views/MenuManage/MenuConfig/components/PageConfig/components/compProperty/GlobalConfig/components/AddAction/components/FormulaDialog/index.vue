@@ -208,7 +208,7 @@ export default {
             { name: 'GET_ORG_ID', isFormula: true, type: 1 },
             { name: 'GET_ROLES_ID', isFormula: true, type: 1 },
             { name: 'GET_MENU_ID', isFormula: true, type: 1 },
-            // { name: 'GET_TABLE_IDS', isFormula: true, type: 1 },
+            { name: 'GET_TABLE_IDS', isFormula: true, type: 1 },
             { name: 'BULK_ADD', isFormula: true, type: 3 },
             { name: 'BULK_ONE_ADD', isFormula: true, type: 3 },
             { name: 'CREATE_UNIQUE', isFormula: true, type: 3 },
@@ -227,6 +227,12 @@ export default {
             { name: 'GET_WEEK', isFormula: true, type: 1 },
             { name: 'GET_DAY', isFormula: true, type: 1 },
             { name: 'GET_TIMESTAMP', isFormula: true, type: 1 }
+          ]
+        },
+        {
+          name: '自定义页面函数',
+          children: [
+            { name: 'GET_FIELD_VALUE', isFormula: true, type: 5 },
           ]
         },
         {
@@ -353,6 +359,22 @@ export default {
   methods: {
     // 初始化自定的方法
     initFunc() {
+      // GET_FIELD_VALUE
+      parser.setFunction('GET_FIELD_VALUE', (params) => {
+        console.log(params, 'GET_FIELD_VALUE');
+        if (params.length === 0) {
+          return new Error('需要一个参数');
+        }
+        if (params[0] === '') {
+          return new Error('参数需要具体的字段');
+        }
+        const reg = /^[A-Za-z]+$/;
+        if (typeof params[0] === 'string' && !reg.test(params[0])) {
+          return new Error('参数需是英文字母！');
+        }
+        return '';
+      });
+      // GET_VAR
       parser.setFunction('GET_VAR', (params) => {
         if (params.length !== 1) {
           return '';

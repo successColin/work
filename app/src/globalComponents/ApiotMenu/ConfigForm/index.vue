@@ -20,7 +20,10 @@
     ></config-btns>
     <u-form ref="configForm" :model="dataVaild" labelPosition="top">
       <div class="configForm__content">
-        <form-head :title="funcConfig.name" v-if="funcConfig.showTitle"></form-head>
+        <form-head
+          :title="funcConfig.name"
+          v-if="funcConfig.showTitle"
+        ></form-head>
         <div
           class="configForm__content--item"
           v-for="(el, index) in elementsShow"
@@ -101,16 +104,23 @@
             v-else-if="el.compType === 19"
             :element="el"
           ></form-item-iframe>
+          <form-item-text-tip
+            v-else-if="el.compType === 20"
+            :element="el"
+          ></form-item-text-tip>
           <view
             class="grap"
-            v-if="funcConfig.layoutStyle !== 2 && el.canShow"
+            v-if="
+              funcConfig.layoutStyle !== 2 && el.canShow && el.compType !== 20
+            "
           ></view>
           <view
             class="hasBorder"
             v-else-if="
               funcConfig.layoutStyle === 2 &&
               index !== currentElementList.length - 1 &&
-              topPosEl.indexOf(el.compType) === -1
+              topPosEl.indexOf(el.compType) === -1 &&
+              el.compType !== 20
             "
           ></view>
         </div>
@@ -142,6 +152,7 @@ import FormItemUpload from './FormItem/FormItemUpload.vue';
 import FormItemUploadcers from './FormItem/FormItemUploadcers.vue';
 import FormItemInput from './FormItem/FormItemInput.vue';
 import FormItemIframe from './FormItem/FormItemIframe.vue';
+import FormItemTextTip from './FormItem/FormItemTextTip.vue';
 import compMixin from '../compMixin';
 import mpMixin from '@/mixin/mpMixin';
 
@@ -158,7 +169,8 @@ export default {
     FormItemTextarea,
     FormItemUpload,
     FormItemUploadcers,
-    FormItemIframe
+    FormItemIframe,
+    FormItemTextTip
   },
 
   mixins: [compMixin, mpMixin],
@@ -285,7 +297,7 @@ export default {
       this.showLoading = true;
       try {
         const { compId } = this.funcConfig;
-        const { isPanel, isJump, parentCompId, parentSysMenuDesignId } = this.htmlConfig;
+        const { isPanel, isJump, isProcess, parentCompId, parentSysMenuDesignId } = this.htmlConfig;
         const params = {
           compId,
           sysMenuDesignId: this.sysMenuDesignId(),
@@ -302,6 +314,13 @@ export default {
           const jumpMenuFilter = this.getJumpMenuFilter() || [];
           const { panelFilter = [] } = params;
           params.panelFilter = [...panelFilter, ...jumpMenuFilter];
+        }
+
+        // 如果是流程跳转面板
+        if (isProcess) {
+          const { tableInfo } = this.funcConfig;
+          const { workflowDataId } = this.htmlConfig;
+          params.workflowFilter = `${tableInfo.tableName}.id=${workflowDataId}`;
         }
         console.log('panelFilter=====================');
         const result = await getSidebarSingle(params);
@@ -358,7 +377,10 @@ export default {
 
       let data = {};
       // 表单控件，如果没有过滤条件，则不请求接口
-      if (hasPanelFilter || filterTermSql || filterTermStr) data = await this.getForm();
+      // 如果是从流程中跳转过来地，则默认请求逻辑
+      const { isProcess } = this.htmlConfig;
+      // eslint-disable-next-line max-len
+      if (hasPanelFilter || filterTermSql || filterTermStr || isProcess) data = await this.getForm();
       await this.resolveFormData(data, type);
       this.reloadPage = true;
       this.$nextTick(() => {

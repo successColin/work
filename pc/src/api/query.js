@@ -124,6 +124,12 @@ export default {
   DO_PROCESSING_IMPORT: '/system/sysImportExport/getUploadProgress', // 导入进度
   DO_PROCESSING_IMPORT_START: '/system/sysImportExport/importTemplateStart', // 开起导入动作
   DO_CHECK_TEMPLATE: '/system/sysImportExport/checkTemplate', // 校验模板是否正确
+
+  // 导出错误信息
+  EXPORT_ERROR_MESSAGE: `${PREFIX}/${VERSION}/system/sysImportExport/exportErrorMessage`, // 常规导出
+  EXPORT_ERROR_TREE_MESSAGE: `${PREFIX}/${VERSION}/system/treeImport/exportErrorMessage`, // 树导出
+  EXPORT_ERROR_SPCIAL_MESSAGE: `${PREFIX}/${VERSION}/system/special/exportErrorMessage`, // 特殊表导出
+
   // 流程
   GET_TABLE_FIELDS: '/system/column/listSysEntityColumns', // 获取表字段
   GET_FLOW_LIST: '/workflow/list', // 获取流程列表
@@ -183,5 +189,4 @@ export default {
   MARK_MAIL_READ: 'innerMail/read', // 设置我的站内信已读
   MARK_MAIL_ALL_READ: 'innerMail/readMyAll', // 设置我的所有站内信已读
   GET_MAIL_COUNT: 'innerMail/queryCount', // 查询当前时间登录用户的站内信数量
-
 };

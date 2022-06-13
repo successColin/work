@@ -2,6 +2,7 @@
 <template>
   <div class="treeWrap" v-loading="loading">
     <el-tree
+      :default-expanded-keys="[-10]"
       ref="tree"
       highlight-current
       lazy
@@ -21,125 +22,131 @@
 </template>
 
 <script>
-import { getRoleLiistById } from '@/api/role';
-import {
-  // addInsertSort,
-  // changeModifySortSon,
-  getListSort
-  // deleteSort,
-  // updateModifySort
-} from '@/api/importTemplate';
+import { getListSort, getPageTemplate } from '@/api/importTemplate';
 
 export default {
-  props: {
-    isolationSign: {
-      type: String,
-      default: ''
-    }
-  },
   data() {
     return {
       defaultProps: {
         label: 'name',
         children: 'childList',
         isLeaf: (data) => {
-          if (Object.prototype.hasOwnProperty.call(data, 'roleName')) {
-            return true;
-          }
-          const { roleTotal } = data;
-          return !roleTotal;
+          const { count } = data;
+          return !count;
         }
       },
       treeData: [],
       loading: false,
       level: 1,
-      highLightKey: null // 高亮节点
+      highLightKey: null, // 高亮节点
+      detailArr: [],
+      checkedKey: [],
+      isOne: true
     };
   },
-  components: {},
-
-  computed: {},
-
   mounted() {
     this.loading = false;
     this.getTreeList();
   },
-  watch: {},
-
   methods: {
+    // 获取树
     async getTreeList() {
-      // 获取树
       try {
         this.loading = true;
+        await this.getPageTemplateFun(-10);
         const res = await getListSort();
         res.unshift({
           name: '系统模板',
-          id: -10
+          id: -10,
+          count: this.detailArr.length
         });
         this.treeData = res;
         this.level = 1;
-        this.$nextTick(() => {
-          this.highLightKey = res.length ? res[0].id : null;
-          this.$refs.tree.setCurrentKey(this.highLightKey);
-        });
         this.loading = false;
       } catch (e) {
         this.loading = false;
       }
     },
     checkNode(data) {
-      // 选中节点
-      this.highLightKey = data.id;
-      this.$bus.$emit(`selectTreeNode_${this.isolationSign}`, data);
+      if (data.children) {
+        // 选中节点
+        this.highLightKey = data.id;
+        this.$bus.$emit('getTreeDate', data);
+      }
     },
     async loadNode(node, resolve) {
       const { data } = node;
       if (node.level === 0 || node.level === 2) {
         return resolve([]);
       }
-      const params = { groupId: data.id };
-      const res = await getRoleLiistById(params);
+      await this.getPageTemplateFun(data.id, resolve);
       this.level = 3;
-      resolve(res);
     },
+    // 获取详情
+    async getPageTemplateFun(id, resolve) {
+      const params = { current: 1, size: 9999, parentid: id };
+      const res = await getPageTemplate(params);
+      const arr = [];
+      res.records.forEach((item) => {
+        arr.push({
+          ...item,
+          name: item.templateName,
+          children: true
+        });
+      });
+      if (resolve) {
+        if (this.isOne) {
+          this.$nextTick(() => {
+            const arrOne = arr[0];
+            this.highLightKey = arr.length ? arrOne.id : null;
+            console.log(this.highLightKey);
+            this.$refs.tree.setCurrentKey(this.highLightKey);
+            this.$bus.$emit('getTreeDate', arrOne);
+          });
+          this.isOne = false;
+        }
+        resolve(arr);
+      } else {
+        this.detailArr = arr;
+      }
+    },
+    // 渲染内容
     renderContent(h, { node }) {
-      const { level, data, label } = node;
+      const { level, label } = node;
       let icon = null;
-      let name = null;
-
       if (this.level === 1 && level === 1) {
         icon = 'icon-fenzuchangtai';
-        name = label;
       } else if (
         (this.level === 2 && level === 2) ||
         (this.level === 3 && level === 2) ||
         (this.level === 2 && level === 1)
       ) {
-        icon = 'icon-jiaose';
-        name = data.roleName;
+        icon = 'icon-chufashijian';
       } else if (this.level === 3 && level === 1) {
         icon = 'icon-fenzuchangtai';
-        name = label;
       }
       return (
         <span class="custom-tree-node">
           <span class={`${icon} iconfont`}></span>
-          <span title={`${name}`}>{name}</span>
+          <span title={`${label}`}>{label}</span>
         </span>
       );
     }
-  },
-  name: 'List'
+  }
 };
 </script>
 
 <style lang='scss' scoped>
 .treeWrap {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 20px);
   overflow: auto;
+  margin: 10px 0;
 
   ::v-deep {
+    .el-tree {
+      height: 100%;
+    }
     .custom-tree-node {
       width: calc(100% - 32px);
       white-space: nowrap;
@@ -164,8 +171,8 @@ export default {
       }
     }
 
-    .custom-tree-node .icon-jiaose {
-      color: #ee5e5e;
+    .custom-tree-node .icon-chufashijian {
+      color: #34c7be;
     }
 
     .custom-tree-node .icon-fenzuchangtai {

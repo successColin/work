@@ -6,13 +6,11 @@
  * @LastEditTime: 2021-04-22 16:44:26
 -->
 <template>
-  <!-- min-width: 420px;
-  width: 25vw; -->
   <div class="myCarousel" :style="{ width, minWidth }">
     <!-- login -->
     <img
       class="myCarousel__login"
-      :style="`height: calc(${configs.loginLogoWidth / 12}rem)`"
+      :style="`height: calc(${configs.loginLogoWidth}px)`"
       :src="getLogoUrl"
       alt=""
     />
@@ -38,12 +36,12 @@ import loginImg from '@/assets/img/pcLoginLog.png';
 import img1 from '@/assets/img/carousel1.png';
 import img2 from '@/assets/img/carousel2.png';
 import img3 from '@/assets/img/carousel3.png';
+import img4 from '@/assets/img/carousel4.png';
 
 export default {
   props: {
     type: {
-      type: Number,
-      default: 1
+      type: Number
     },
     configs: {
       type: Object,
@@ -56,7 +54,7 @@ export default {
     },
     width: {
       type: String,
-      default: '25vw'
+      default: '360px'
     },
     minWidth: {
       type: String
@@ -92,6 +90,9 @@ export default {
         if (this.type === 3) {
           return [{ src: img3 }];
         }
+        if (!this.type) {
+          return [{ src: img4 }];
+        }
       }
       const arr = urls.split(',');
       if (!arr.length) return this.picArr;
@@ -110,10 +111,10 @@ export default {
 .myCarousel {
   &__login {
     // width: 90px;
-    height: $remto24px;
+    height: 24px;
     position: fixed;
     z-index: 99;
-    margin: $remto60px 0 0 $remto50px;
+    margin: 60px 0 0 50px;
   }
   &__img {
     height: 100%;
@@ -129,20 +130,20 @@ export default {
       display: none;
     }
     .el-carousel__button {
-      margin-bottom: $remto50px;
-      width: $remto6px;
-      height: $remto6px;
+      margin-bottom: 50px;
+      width: 6px;
+      height: 6px;
       background: #aeb6c2;
-      border-radius: $remto3px;
+      border-radius: 3px;
     }
     .el-carousel__indicators {
       .is-active {
         .el-carousel__button {
-          width: $remto12px;
-          height: $remto6px;
+          width: 12px;
+          height: 6px;
           // background: #4689f5 !important;
           background: $loginThemeColor !important;
-          border-radius: $remto3px;
+          border-radius: 3px;
         }
       }
     }

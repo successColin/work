@@ -6,21 +6,26 @@
  * @Last Modified time: 2022-01-05 14:20:13
 -->
 <template>
-  <div class="prompt" v-if="show" @touchmove.prevent>
+  <div class="prompt" :class="[position]" v-if="show" @touchmove.prevent>
     <div class="prompt__layout"></div>
-    <div class="prompt__wrap" @click.stop="cancleClick">
+    <div class="prompt__wrap">
       <div class="prompt__wrap__content">
-        <div class="prompt__wrap--title" v-if="modalObj.showTile">
+        <div
+          class="prompt__wrap--title"
+          v-if="modalObj.showTile"
+          :style="titleStyle"
+        >
           {{ modalObj.title }}
         </div>
         <view class="prompt__wrap--content">
-          {{ modalObj.content }}
+          <div class="prompt__wrap--content--title">{{ modalObj.content }}</div>
           <slot></slot>
         </view>
         <div class="prompt__wrap--button">
           <div
             v-if="modalObj.showCancel"
             class="button cancel"
+            :style="{ background: cancelColor }"
             @click.stop="cancleClick"
           >
             {{ modalObj.cancelTitle }}
@@ -46,6 +51,16 @@ export default {
     content: {
       type: String,
       default: ''
+    },
+    // top/middle/bottom
+    position: {
+      type: String,
+      default: 'middle'
+    },
+    titleStyle: Object,
+    cancelColor: {
+      type: String,
+      default: '#fff'
     }
   },
   data() {
@@ -68,7 +83,9 @@ export default {
       this.modalObj.success({ confirm: true });
     },
     // 取消按钮事件
-    cancleClick() {
+    cancleClick(e) {
+      console.log('cancleClick====');
+      console.log(e);
       this.show = false;
       this.modalObj.success({ cancel: true });
     },
@@ -111,6 +128,29 @@ export default {
   top: 0;
   left: 0;
   z-index: 1100;
+  &.bottom {
+    .prompt__wrap {
+      padding: 0;
+      align-items: flex-end;
+      &__content {
+        border-radius: 30rpx 30rpx 0 0;
+      }
+      &--button {
+        box-sizing: border-box;
+        padding: 0 30rpx;
+        margin-bottom: 19rpx;
+        box-shadow: none;
+        .button {
+          height: 72rpx;
+          line-height: 72rpx;
+          border-radius: 12rpx;
+          &.sure {
+            margin-left: 24rpx;
+          }
+        }
+      }
+    }
+  }
   &__layout {
     position: fixed;
     top: 0;
@@ -140,13 +180,18 @@ export default {
       overflow: hidden;
     }
     &--title {
+      padding: 0 30rpx;
       flex-shrink: 0;
       margin-top: 42rpx;
-      text-align: center;
       font-size: 34rpx;
       color: #333333;
+      &--title {
+        width: 100%;
+        text-align: center;
+      }
     }
     &--content {
+      padding: 0 30rpx;
       margin-top: 20rpx;
       flex-shrink: 0;
       color: #808080;
@@ -156,7 +201,6 @@ export default {
     &--button {
       flex-shrink: 0;
       width: 100%;
-      height: 88rpx;
       margin-top: 60rpx;
       box-shadow: inset 0px 1rpx 0px 0px #e9e9e9;
       font-size: 30rpx;

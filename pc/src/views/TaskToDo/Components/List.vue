@@ -172,7 +172,7 @@ export default {
                                   overflow: hidden;
                                   text-overflow: ellipsis;
                                   white-space: nowrap;
-                                  line-height: 18px;">${item}： <span style="color: #333333;">${params[item]}</span></p>
+                                  ">${item}： <span style="color: #333333;">${params[item]}</span></p>
 `
           )
           .join('');

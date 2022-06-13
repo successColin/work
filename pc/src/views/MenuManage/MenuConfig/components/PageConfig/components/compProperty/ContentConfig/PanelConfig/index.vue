@@ -82,10 +82,10 @@
               :triggerCompMap="triggerCompMap"
             ></select-comp>
             <apiot-input
-                class="dataTransfer__item--comp4"
-                v-if="isCustomPage"
-                v-model="item.field"
-                placeholder="请选择当前控件内的字段"
+              class="dataTransfer__item--comp4"
+              v-if="isCustomPage"
+              v-model="item.field"
+              placeholder="请选择当前控件内的字段"
             ></apiot-input>
           </div>
         </li>
@@ -129,16 +129,16 @@
               >{{ item.name }}({{ item.tableInfo.tableName }})</span
             >
             <span class="PanelConfig__li--title" v-else>{{ item.name }}</span>
-           <div class="PanelConfig__li--selectWrap">
-             <el-select
-                 class="PanelConfig__li--select"
-                 v-if="item.compName !== 'RelatedData'"
-                 v-model="item.filterTermType"
-             >
-               <el-option label="普通设置筛选" :value="1"></el-option>
-               <el-option label="填写sql筛选" :value="2"></el-option>
-             </el-select>
-           </div>
+            <div class="PanelConfig__li--selectWrap">
+              <el-select
+                class="PanelConfig__li--select"
+                v-if="item.compName !== 'RelatedData'"
+                v-model="item.filterTermType"
+              >
+                <el-option label="普通设置筛选" :value="1"></el-option>
+                <el-option label="填写sql筛选" :value="2"></el-option>
+              </el-select>
+            </div>
             <span
               class="PanelConfig__li--delete"
               @click="deleteArea(index)"
@@ -193,12 +193,14 @@ import SelectComp from '../../GlobalConfig/components/AddAction/components/Selec
 
 export default {
   props: {
-    isCustomPage: { // 是否是自定义页面。true为自定义页面，fasle 是菜单配置
+    isCustomPage: {
+      // 是否是自定义页面。true为自定义页面，fasle 是菜单配置
       type: Boolean,
       default: false
     },
-    tabPaneConfig: { // 自定义页面那边需要
-      type: Object,
+    tabPaneConfig: {
+      // 自定义页面那边需要
+      type: Object
     },
     otherParams: {
       type: Object,
@@ -272,7 +274,6 @@ export default {
           if (index === -1) obj[`${key}-${area.tableInfo.tableName}`] = area;
         }
       });
-      console.log(obj);
       return obj;
     },
     // 获取面板所有单位
@@ -370,8 +371,8 @@ export default {
     if (
       !this.isCustomPage &&
       this.configData.length &&
-        this.configData[0].paneObj &&
-        this.configData[0].paneObj[this.activeObj.compId]
+      this.configData[0].paneObj &&
+      this.configData[0].paneObj[this.activeObj.compId]
     ) {
       this.curPaneObj = this.configData[0].paneObj[this.activeObj.compId];
       this.getPaneConfig();
@@ -539,12 +540,12 @@ export default {
   overflow-x: hidden;
   ::v-deep {
     @media (min-height: 640px) {
-      & >.el-dialog {
+      & > .el-dialog {
         height: 640px;
       }
     }
     @media (max-height: 640px) {
-     & > .el-dialog {
+      & > .el-dialog {
         position: absolute;
         top: 20px;
         bottom: 20px;
@@ -636,7 +637,7 @@ export default {
       font-weight: 600;
       color: #333333;
     }
-    &--selectWrap{
+    &--selectWrap {
       margin-left: auto;
       width: 200px;
     }

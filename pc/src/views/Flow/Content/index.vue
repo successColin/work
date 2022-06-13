@@ -102,7 +102,7 @@
 
 <script>
 import { getFlowList, addFlow, delFlow, editFlow } from '@/api/flow';
-import { selectColorArr } from '@/config';
+import { userColorArr } from '@/config';
 import Users from '@/views/Users/Main/UserColumn/Users/index';
 import FlowDesign from './Process/index';
 
@@ -134,7 +134,7 @@ export default {
     getColor() {
       return function(index) {
         const i = index % 5;
-        return `color: ${selectColorArr[i]}`;
+        return `color: ${userColorArr[i]}`;
       };
     }
   },

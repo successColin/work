@@ -13,7 +13,7 @@
         <i class="iconfont icon-fanhui"></i>{{ $t('common.return') }}
       </apiot-button>
     </div>
-    <div class="header__pageName">主页配置</div>
+    <div class="header__pageName">{{ $route.query.name || '自定义页面配置'}}</div>
     <div class="header__scale">
       <div class="header__scale--autoZoom">
         <apiot-select
@@ -272,7 +272,7 @@ export default {
           }
 
           .el-slider__bar {
-            background: linear-gradient(90deg, #e9e9e9 0%, #4689f5 100%);
+            background: linear-gradient(90deg, #4689f5 0%, #4689f5 100%);
           }
         }
       }
@@ -297,8 +297,8 @@ export default {
         border-radius: 4px;
 
         .el-slider__bar {
-          border-top-left-radius: 0px;
-          border-bottom-left-radius: 0px;
+          border-top-left-radius: 4px;
+          border-bottom-left-radius: 4px;
           background-color: #e9e9e9;
         }
 

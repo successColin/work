@@ -15,6 +15,7 @@
       @closePanle="closePanle"
       @setDataSel="setDataSel"
       ref="menu"
+      v-bind="$attrs"
     ></ApiotMenu>
   </apiot-drawer>
 </template>

@@ -14,7 +14,9 @@
     </div>
     <div class="sqlTerm" v-if="getCurrentTab.filterTermType === 2">
       <SelectSql
+        :key="key"
         v-bind="$attrs"
+        :showType="showType"
         :formulaStr.sync="getCurrentTab.filterTermSql"
         :showContent="showContent"
       ></SelectSql>
@@ -43,6 +45,7 @@ export default {
   },
   data() {
     return {
+      key: 0,
       lambdaArr,
       termObj: {
         termType: 1, // 1 代表外层and 内层 or
@@ -76,6 +79,15 @@ export default {
     SelectSql
   },
   watch: {
+    showContent: {
+      immediate: true,
+      handler(v, o) {
+        console.log(v, 'watch');
+        if (v !== o) {
+          this.key += 1;
+        }
+      }
+    },
     termObj: {
       handler(v) {
         // console.log(this.getCurrentTab);

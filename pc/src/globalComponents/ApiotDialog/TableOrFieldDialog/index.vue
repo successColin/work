@@ -66,6 +66,7 @@
 import { getListSysEntityTables, listSysEntityColumns } from '@/api/entityManage';
 import { listDictByType, listDict } from '@/api/dictManage';
 import { pagePanel, getPageSysImportTemplateList } from '@/api/menuConfig';
+import { sysMenuPage } from '@/api/menuManage';
 
 export default {
   props: {
@@ -109,7 +110,8 @@ export default {
       type: Boolean,
       default: false
     },
-    otherParams: { // 额外参数，用于接口的其他参数
+    otherParams: {
+      // 额外参数，用于接口的其他参数
       type: Object,
       default() {
         return {};
@@ -153,6 +155,9 @@ export default {
       if (this.dialogType === 4) {
         return '面板';
       }
+      if (this.dialogType === 6) {
+        return '菜单';
+      }
       return this.title || '';
     },
     getLable() {
@@ -166,6 +171,8 @@ export default {
         case 4:
           return 'id';
         case 5:
+          return 'id';
+        case 6:
           return 'id';
         default:
           return 'id';
@@ -301,12 +308,30 @@ export default {
             compName: 'ElTableColumn'
           }
         );
+      } else if (this.dialogType === 6) {
+        this.dropColumnData.push({
+          label: this.$t('common.name', { name: this.$t('menu.menu') }),
+          prop: 'menuName',
+          compName: 'ElTableColumn'
+        });
       }
     },
     // 获取列表数据
     async getList() {
       if (this.tableArr.length) {
-        this.tableData = this.tableArr;
+        this.tableData = this.tableArr.filter((item) => {
+          const keys = Object.keys(item);
+          const index = keys.findIndex((key) => {
+            if (item[key].toString().indexOf(this.dictKeywords) !== -1 || !this.dictKeywords) {
+              return true;
+            }
+            return false;
+          });
+          if (index === -1) {
+            return false;
+          }
+          return true;
+        });
         this.rowKey = 'tableName';
         return;
       }
@@ -388,9 +413,23 @@ export default {
         this.total = res.total;
       } else if (this.dialogType === 5) {
         const params = {
-          keywords: this.dictKeywords
+          keywords: this.dictKeywords,
+          current: this.current,
+          size: this.size
         };
         const res = await getPageSysImportTemplateList(params);
+        this.tableData = res.records;
+        this.total = res.total;
+      } else if (this.dialogType === 6) {
+        const res = await sysMenuPage({
+          size: this.size,
+          current: this.current,
+          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          menuLevel: 2,
+          menuType: 2,
+          keywords: this.dictKeywords
+        });
+        // console.log(data);
         this.tableData = res.records;
         this.total = res.total;
       }

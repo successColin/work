@@ -21,6 +21,7 @@
         :dropColumnData="dropColumnData"
         @selection-change="handleSelectionChange"
         @cellMouseEnter="cellMouseEnter"
+        :selectable="canSelectEd"
         ref="fieldTable"
         dropClass=".field__main"
       >
@@ -160,6 +161,12 @@ export default {
       if (row.typeDict === 1) {
         row.showIndex = true;
       }
+    },
+    canSelectEd(row) {
+      if (row.typeDict === 1) {
+        return false;
+      }
+      return true;
     },
     // 获取操作数组
     getDropColumnData() {

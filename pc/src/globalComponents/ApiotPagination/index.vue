@@ -49,7 +49,7 @@ export default {
     },
     pageSizes: {
       type: Array,
-      default: () => [10, 20, 30, 40]
+      default: () => [10, 20, 50, 100, 200, 500, 1000]
     }
   },
   data() {

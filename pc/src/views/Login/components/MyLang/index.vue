@@ -98,30 +98,30 @@ export default {
 .myLang {
   cursor: pointer;
   height: 100%;
-  margin-top: $remto45px;
+  margin-top: 45px;
   &__link {
     background: #f1f3f6;
   }
   &--cursor,
   &__link {
-    height: $remto34px;
-    line-height: $remto34px;
-    padding: 0 $remto20px;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 20px;
   }
   &__link,
   &__dropdown,
   &--cursor {
     display: inline-block;
     color: #333333;
-    font-size: $remto13px;
-    border-radius: $remto4px;
+    font-size: 13px;
+    border-radius: 4px;
   }
   &__img {
-    width: $remto24px;
-    height: $remto24px;
+    width: 24px;
+    height: 24px;
     vertical-align: middle;
     position: relative;
-    top: -$remto2px;
+    top: -2px;
   }
   :focus {
     outline: 0;
@@ -129,10 +129,10 @@ export default {
 }
 ::v-deep {
   .el-dropdown-menu__item {
-    padding-right: $remto36px;
-    font-size: $remto14px;
-    line-height: $remto36px;
-    padding: 0 $remto20px;
+    padding-right: 36px;
+    font-size: 14px;
+    line-height: 36px;
+    padding: 0 20px;
   }
 }
 </style>

@@ -121,11 +121,9 @@
                   :min="40"
                   :max="60"
                   :step="2"
-                  v-model="$store.state.globalConfig.themeConfig.topHeight"
+                  v-model="topHeight"
                 ></el-slider>
-                <span class="sizeWrap m-l-14"
-                  >{{ $store.state.globalConfig.themeConfig.topHeight }}px</span
-                >
+                <span class="sizeWrap m-l-14">{{ topHeight }}px</span>
               </div>
               <apiot-button
                 type="text"
@@ -282,12 +280,14 @@ export default {
           name: '智能运维',
           value: '智能运维'
         }
-      ]
+      ],
+      topHeight: 50
     };
   },
   components: { ImageAndChange },
   mounted() {
     this.menuStyle = this.$store.state.globalConfig.themeConfig.menuStyle;
+    this.topHeight = this.$store.state.globalConfig.themeConfig.topHeight;
     this.checkList = this.$store.state.globalConfig.themeConfig.helpCenterMenu
       ? this.$store.state.globalConfig.themeConfig.helpCenterMenu.split(',')
       : [];
@@ -442,6 +442,10 @@ export default {
       }
     },
     async handleChangeCount(key) {
+      if (!this.statement[key]) {
+        this.statement[key] = !this.statement[key];
+        return false;
+      }
       // 滑块显示设置
       if (key === 'isMenuStyle' && this.statement[key]) {
         await this.changeRadio(this.menuStyle, 'menuStyle');
@@ -460,7 +464,7 @@ export default {
         await this.update(params);
       }
       if (key === 'isTopHeight') {
-        this.changeRadio(this.$store.state.globalConfig.themeConfig.topHeight, 'topHeight');
+        this.changeRadio(this.topHeight, 'topHeight');
       }
       if (key === 'istopStyle') {
         this.changeRadio(this.$store.state.globalConfig.themeConfig.topStyle, 'topStyle');

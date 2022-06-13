@@ -238,7 +238,8 @@ export default {
       if (!hasBtnsArea) return null;
       const [btnEle] = this.elements;
       if (!featureObj) return { ...btnEle };
-
+      console.log('featureObj===========================');
+      console.log(featureObj);
       const btns = { ...btnEle };
       const children = [];
       btns.children.forEach((btn) => {
@@ -352,13 +353,16 @@ export default {
         form: value,
         children: {}
       };
+      console.log('initCard==========================');
       if (JSON.stringify(triggers) !== '{}') {
+        console.log('initCard==========================1');
         res = this.initCardStart(triggers, value, formId, elementsObj);
       }
       const { form, compObj: children } = res;
+      console.log(res);
       this.featureObj = {
         form,
-        children,
+        children: children || {},
         formId
       };
     },

@@ -167,8 +167,21 @@ export default {
     },
     getStylesStransformScale() { // 设计区域大小，当大缩小设置
       return function () {
-        const { width, height } = this.menuProperties;
-        return `transform: scale(${this.scale}, ${this.scale});width:${width}px;height:${height}px`;
+        const {
+          width, height, enableShadows, xShadow, yShadow, shadowDistance, shadowColor, blurRadius
+        } = this.menuProperties;
+        let obj = {
+          transform: `scale(${this.scale}, ${this.scale})`,
+          width: `${width}px`,
+          height: `${height}px`,
+        };
+        if (enableShadows) {
+          obj = {
+            ...obj,
+            'box-shadow': `${xShadow}px ${yShadow}px ${blurRadius}px ${shadowDistance}px ${shadowColor}`
+          };
+        }
+        return obj;
       };
     },
     getComponentConfig() { // 获取单个组件的属性配置
@@ -246,6 +259,7 @@ export default {
       });
       this.updateList(newList);
       this.menuProperties = designJson ? JSON.parse(designJson) : menuProperties;
+      console.log(this.menuProperties);
     },
     async doSave() { // 保存控件
       const newList = [];
@@ -417,7 +431,7 @@ export default {
       this.observer = null;
     }
   },
-  name: 'index',
+  name: 'homeMenuConfig',
 };
 </script>
 
@@ -438,6 +452,7 @@ export default {
       width: 280px;
       height: 100%;
       position: relative;
+      z-index: 1;
     }
 
     &__main {
@@ -464,6 +479,7 @@ export default {
         bottom: 0;
         transform-origin: left top;
         background: #ffffff;
+        box-shadow: 0px 0px 6px 0px rgb(0 0 0 / 12%);
         .homePageContent__main--area {
           position: absolute;
           width: 100%;
@@ -543,6 +559,7 @@ export default {
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.18);
       border-radius: 0px 4px 4px 0px;
       cursor: pointer;
+      z-index: 0;
     }
 
     & .sidebarClose {

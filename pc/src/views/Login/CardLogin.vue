@@ -18,20 +18,21 @@
       <my-lang></my-lang>
     </header>
     <!-- 登录方式 -->
-    <section :style="{ width: boxWidth, height: styleHeight }">
+    <!-- w: 860px; h: 520px -->
+    <section
+      :style="{ width: '860px', height: styleHeight, transform: scaleValue }"
+    >
       <!-- 轮播 -->
       <my-carousel
         :configs="configs"
         :height="styleHeight"
-        width="20vw"
-        :minWidth="carouselWidth"
         :type="type"
       ></my-carousel>
       <!-- 登录内容：账号密码 -->
       <div class="vessel">
         <!-- 扫码登录 -->
         <div class="vessel__title">
-          <div class="vessel__title--name">{{ $t('login.login') }}</div>
+          <div class="vessel__title--name">Login</div>
           <scan-login
             v-if="configs.enableAppLogin === '1'"
             class="vessel__title--scan_login"
@@ -40,8 +41,6 @@
             :configs="configs"
           ></scan-login>
         </div>
-        <!-- info -->
-        <div class="vessel__info">{{ $t('login.welcomeToAPIoT') }}</div>
         <!-- 账号密码form 和 扫码登录 -->
         <login-form
           class="vessel__loginForm"
@@ -91,32 +90,20 @@ export default {
     LoginScan
   },
   computed: {
-    boxWidth() {
-      return this.styleWidthObj.label;
-    },
-    carouselWidth() {
+    scaleValue() {
       if (this.styleWidthObj.value === 1) {
-        return '420px';
+        return 'scale(1.15)';
       }
       if (this.styleWidthObj.value === 2) {
-        return '380px';
+        return 'scale(1)';
       }
       if (this.styleWidthObj.value === 3) {
-        return '300px';
+        return 'scale(0.85)';
       }
-      return '';
+      return 'scale(1)';
     },
     styleHeight() {
-      // if (this.styleWidthObj.value === 1) {
-      //   return 'calc(100vh - 20rem)';
-      // }
-      // if (this.styleWidthObj.value === 2) {
-      //   return 'calc(100vh - 22rem)';
-      // }
-      // if (this.styleWidthObj.value === 3) {
-      //   return 'calc(100vh - 24rem)';
-      // }
-      return 'calc(100vh - 20rem)';
+      return '520px';
     },
     imgUrl() {
       const img = this.configs.backgroundImage;
@@ -140,8 +127,8 @@ export default {
   align-items: center;
   &__lang {
     position: absolute;
-    top: $remto45px;
-    right: $remto50px;
+    top: 45px;
+    right: 50px;
     ::v-deep {
       .myLang {
         margin-top: 0;
@@ -155,14 +142,11 @@ export default {
   }
   footer {
     position: absolute;
-    bottom: $remto40px;
+    bottom: 40px;
     width: 100%;
     text-align: center;
-    font-size: $remto12px;
+    font-size: 12px;
     a {
-      height: 100%;
-      display: flex;
-      flex-direction: column-reverse;
       color: #6b798d;
       text-decoration: none;
     }
@@ -170,8 +154,8 @@ export default {
 }
 // 容器
 .vessel {
-  min-width: $remto330px;
-  min-height: $remto450px;
+  min-width: 330px;
+  min-height: 450px;
   width: 30%;
   display: flex;
   flex-direction: column;
@@ -182,10 +166,10 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: $remto32px;
+    height: 33px;
     // 登录名称
     &--name {
-      font-size: $remto24px;
+      font-size: 24px;
       color: #111111;
     }
     // 扫码登录图片
@@ -196,9 +180,9 @@ export default {
   }
   // 欢迎登录APIoT平台！
   &__info {
-    margin-top: $remto6px;
+    margin-top: 6px;
     text-align: left;
-    font-size: $remto13px;
+    font-size: 13px;
     color: #6b798d;
   }
 }

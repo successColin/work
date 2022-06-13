@@ -34,6 +34,16 @@
               </div>
             </div>
           </el-form-item>
+          <el-form-item label="页面展示方式">
+            <el-select v-model="config.showType" placeholder="请选择类型">
+              <el-option
+                  :label="item.label"
+                  :value="item.value"
+                  v-for="item in Options"
+                  :key="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <p class="switchBox">
               启用删格
@@ -53,18 +63,48 @@
                 controls-position="right"
             ></el-input-number>
           </el-form-item>
-          <el-form-item label="背景色">
+          <el-form-item label="背景色" style="height: 51px;">
             <CColorPicker v-model="config.bgColor"></CColorPicker>
           </el-form-item>
-          <el-form-item label="页面展示方式">
-            <el-select v-model="config.showType" placeholder="请选择类型">
-              <el-option
-                  :label="item.label"
-                  :value="item.value"
-                  v-for="item in Options"
-                  :key="item.value"
-              ></el-option>
-            </el-select>
+          <el-form-item>
+            <p class="switchBox">
+              启用阴影
+              <el-switch
+                  v-model="config.enableShadows"
+                  class="switchBox__switch"
+                  active-text="是"
+                  inactive-text="否"
+              >
+              </el-switch>
+            </p>
+          </el-form-item>
+          <el-form-item label="水平阴影" v-if="config.enableShadows">
+            <el-input-number
+                v-model="config.xShadow"
+                controls-position="right"
+            ></el-input-number>
+          </el-form-item>
+          <el-form-item label="垂直阴影" v-if="config.enableShadows">
+            <el-input-number
+                v-model="config.yShadow"
+                controls-position="right"
+            ></el-input-number>
+          </el-form-item>
+          <el-form-item label="阴影距离" v-if="config.enableShadows">
+            <el-input-number
+                v-model="config.shadowDistance"
+                controls-position="right"
+            ></el-input-number>
+          </el-form-item>
+          <el-form-item label="模糊半径" v-if="config.enableShadows">
+            <el-input-number
+                :min="0"
+                v-model="config.blurRadius"
+                controls-position="right"
+            ></el-input-number>
+          </el-form-item>
+          <el-form-item label="阴影颜色" v-if="config.enableShadows">
+            <CColorPicker v-model="config.shadowColor"></CColorPicker>
           </el-form-item>
         </el-form>
       </div>
@@ -137,9 +177,14 @@ export default {
   &__content {
     width: 100%;
     height: calc(100% - 46px);
-    padding: 12px 10px;
+    //padding: 12px 10px;
+    overflow: auto;
     box-sizing: border-box;
-
+    .singleLineTextConfig {
+      height: calc(100% - 24px);
+      width: calc(100% - 20px);
+      margin: 12px 10px
+    }
     .tile {
       display: flex;
       justify-content: space-between;

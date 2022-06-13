@@ -7,33 +7,34 @@
 -->
 <template>
   <apiot-container
-    :navLeftWidth="$store.getters.getMenuType === 1 ? 0 : navLeftWidth"
-    :headerHeight="$store.state.globalConfig.themeConfig.topHeight"
+      :navLeftWidth="$store.getters.getMenuType === 1 ? 0 : navLeftWidth"
+      :headerHeight="$store.state.globalConfig.themeConfig.topHeight"
   >
     <template v-slot:header>
       <layout-header @refresh="refresh"></layout-header>
     </template>
     <template v-slot:navLeft>
       <menu-tradition
-        v-if="[2].includes($store.getters.getMenuType)"
+          v-if="[2].includes($store.getters.getMenuType)"
       ></menu-tradition>
       <menu-list v-show="[3].includes($store.getters.getMenuType)"></menu-list>
     </template>
     <template v-slot:nav>
       <layout-nav
-        @refresh="refresh"
-        @showMenu="showMenu"
-        @clearCacheBefore="clearCacheBefore"
+          @refresh="refresh"
+          @showMenu="showMenu"
+          @clearCacheBefore="clearCacheBefore"
       ></layout-nav>
     </template>
     <template>
       <transition :name="aniName">
         <keep-alive :max="4" :include="keepAliveArr">
           <router-view
-            ref="routerView"
-            v-if="showPage"
-            class="view__layout"
-            :key="getKey"
+              ref="routerView"
+              v-if="showPage"
+              class="view__layout"
+              :class="{hasShadow: isShow}"
+              :key="getKey"
           />
         </keep-alive>
       </transition>
@@ -68,6 +69,10 @@ export default {
   },
 
   computed: {
+    isShow() {
+      const { name } = this.$route;
+      return name === 'homeMenu';
+    },
     getKey() {
       if (this.$route.meta.parentPath) {
         return this.$route.parentPath;
@@ -108,7 +113,8 @@ export default {
       try {
         const arr = ['/appConfig/funcPage', '/appConfig/mine'];
         const { pathname } = window.location;
-        if (arr.includes(pathname) || pathname.split('/').includes('menuConfig')) {
+        if (arr.includes(pathname) || pathname.split('/')
+          .includes('menuConfig')) {
           await this.$confirm('请确认是否保存配置', {
             confirmButtonText: this.$t('common.sure'),
             cancelButtonText: this.$t('common.cancle'),
@@ -135,7 +141,7 @@ export default {
         } else {
           this.navLeftWidth = 0;
         }
-        console.log(this.aniName);
+        // console.log(this.aniName);
         setTimeout(() => {
           this.aniName = 'slide-left';
         }, 0.5);
@@ -169,5 +175,9 @@ export default {
   height: calc(100% - 10px);
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.16);
   background-color: #fff;
+}
+
+.hasShadow {
+  box-shadow: none;
 }
 </style>

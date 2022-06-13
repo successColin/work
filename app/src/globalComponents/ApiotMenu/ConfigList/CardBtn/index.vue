@@ -298,7 +298,7 @@ export default {
     justify-content: flex-end;
     .btns__item {
       flex-shrink: 0;
-      width: 134rpx;
+      // width: 134rpx;
       height: 52rpx;
       margin-right: 20rpx;
       &:last-child {

@@ -104,6 +104,16 @@ export default {
     }
   },
 
+  watch: {
+    isShow(v) {
+      if (v.success) {
+        this.$emit('successFun', false);
+      } else {
+        this.$emit('successFun', true);
+      }
+    }
+  },
+
   mounted() {},
 
   methods: {},

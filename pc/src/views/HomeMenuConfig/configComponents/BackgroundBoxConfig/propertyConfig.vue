@@ -168,6 +168,60 @@
         </div>
       </div>
     </div>
+    <div class="ellipsisWrap flex propsSetting">
+      <span class="setTitle">启用阴影</span>
+      <el-switch
+          :value="getComponentInfo.enableShadows"
+          @change="(value) => changeTitle(value, 'enableShadows')"
+          active-color="#4689F5"
+          inactive-color="#DCDFE6">
+      </el-switch>
+    </div>
+    <div class="propsSetting" v-if="getComponentInfo.enableShadows">
+      <p class="setTitle">水平阴影</p>
+      <el-input-number
+          controls-position="right"
+          :value="getComponentInfo.stylesObj.xShadow"
+          @change="(value) => changeStyles(value, 'xShadow')"
+      />
+    </div>
+    <div class="propsSetting" v-if="getComponentInfo.enableShadows">
+      <p class="setTitle">垂直阴影</p>
+      <el-input-number
+          controls-position="right"
+          :value="getComponentInfo.stylesObj.yShadow"
+          @change="(value) => changeStyles(value, 'yShadow')"
+      />
+    </div>
+    <div class="propsSetting" v-if="getComponentInfo.enableShadows">
+      <p class="setTitle">阴影距离</p>
+      <el-input-number
+          controls-position="right"
+          :value="getComponentInfo.stylesObj.shadowDistance"
+          @change="(value) => changeStyles(value, 'shadowDistance')"
+      />
+    </div>
+    <div class="propsSetting" v-if="getComponentInfo.enableShadows">
+      <p class="setTitle">模糊半径</p>
+      <el-input-number
+          :min="0"
+          controls-position="right"
+          :value="getComponentInfo.stylesObj.blurRadius"
+          @change="(value) => changeStyles(value, 'blurRadius')"
+      />
+    </div>
+    <div class="propsSetting" v-if="getComponentInfo.enableShadows">
+      <p class="setTitle">阴影颜色</p>
+      <c-color-picker
+          size="small"
+          v-model="getComponentInfo.stylesObj.shadowColor"
+          show-alpha
+          @change="(value) => changeStyles(value, 'shadowColor')"
+          :predefine="predefineColors"
+      >
+      </c-color-picker>
+    </div>
+
   </div>
 </template>
 
@@ -504,7 +558,6 @@ export default {
         }
       }
     }
-
     .wrap {
       display: flex;
       text-align: left;
@@ -517,6 +570,13 @@ export default {
         font-size: 14px;
       }
     }
+  }
+  .flex {
+    display: flex;
+  }
+  .ellipsisWrap {
+    justify-content: space-between;
+    align-items: center;
   }
 }
 </style>

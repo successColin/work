@@ -32,10 +32,12 @@
             placeholder="请选择宽度"
             @change="activeObj.rightWidth = 100 - activeObj.leftWidth"
           >
-            <el-option label="15%" :value="15"></el-option>
-            <el-option label="20%" :value="20"></el-option>
-            <el-option label="25%" :value="25"></el-option>
-            <el-option label="30%" :value="30"></el-option>
+            <el-option label="15%" :value="16"></el-option>
+            <el-option label="20%" :value="18"></el-option>
+            <el-option label="25%" :value="20"></el-option>
+            <el-option label="30%" :value="22"></el-option>
+            <el-option label="30%" :value="24"></el-option>
+            <el-option label="30%" :value="26"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item
@@ -47,10 +49,12 @@
             placeholder="请选择宽度"
             @change="activeObj.leftWidth = 100 - activeObj.rightWidth"
           >
-            <el-option label="85%" :value="85"></el-option>
-            <el-option label="80%" :value="80"></el-option>
-            <el-option label="75%" :value="75"></el-option>
-            <el-option label="70%" :value="70"></el-option>
+            <el-option label="85%" :value="84"></el-option>
+            <el-option label="80%" :value="82"></el-option>
+            <el-option label="75%" :value="80"></el-option>
+            <el-option label="70%" :value="78"></el-option>
+            <el-option label="70%" :value="76"></el-option>
+            <el-option label="70%" :value="74"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="高度占比" v-if="activeObj.topHeight">

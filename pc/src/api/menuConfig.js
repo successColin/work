@@ -340,6 +340,15 @@ export function modifyPanel(data) {
   });
 }
 
+// 复制设计列表
+export function copyPanel(data) {
+  return FetchData.request({
+    url: 'system/design/copyPanel',
+    method: 'post',
+    data,
+  });
+}
+
 // 删除面板
 export function batchDeletePanel(params) {
   return FetchData.request({

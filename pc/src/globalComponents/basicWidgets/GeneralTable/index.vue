@@ -873,10 +873,14 @@ export default {
       window.removeEventListener('resize', () => {
       });
     }
+    clearTimeout(this.timer);
+    clearTimeout(this.timerSql);
+    clearTimeout(this.timerApi);
+    clearTimeout(this.otherTimer);
     this.timer = null;
     this.timerSql = null;
     this.timerApi = null;
-    clearTimeout(this.otherTimer);
+    this.otherTimer = null;
   },
   name: 'index'
 };

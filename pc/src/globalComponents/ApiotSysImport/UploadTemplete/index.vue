@@ -49,12 +49,18 @@
       </div>
     </div>
     <div class="download__memo">
-      <div v-html="htmlText.remarks"></div>
+      <div v-html="htmlText.remarks" v-if="htmlText.remarksText"></div>
+      <div v-else>
+        <div v-for="(item, i) in exportTips" :key="i" style="line-height: 2">
+          {{ item.content }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { exportTips } from '@/config';
 import { Decrypt, getBlob, saveAs } from '@/utils/utils';
 import query from '@/api/query';
 import { getTemplateInfo } from '@/api/user';
@@ -81,7 +87,11 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+    exportTips() {
+      return exportTips;
+    }
+  },
 
   mounted() {
     this.fetchTemplateMemo();

@@ -54,32 +54,32 @@ export default {
 //@import url(); 引入公共css类
 .scanLogin {
   display: flex;
-  height: $remto32px;
+  height: 32px;
   &__name {
-    width: $remto78px;
-    line-height: $remto32px;
+    width: 78px;
+    line-height: 32px;
     background: #f1f3f6;
-    margin-right: $remto6px;
-    font-size: $remto12px;
+    margin-right: 6px;
+    font-size: 12px;
     color: #333333;
     position: relative;
-    border-radius: $remto5px;
+    border-radius: 5px;
     text-align: center;
   }
   &__name:after {
-    width: $remto5px;
-    height: $remto5px;
-    border-right: $remto1px solid #f1f3f6;
-    border-top: $remto1px solid #f1f3f6;
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid #f1f3f6;
+    border-top: 1px solid #f1f3f6;
     transform: rotate(45deg);
     position: absolute;
-    right: -$remto4px;
-    top: $remto14px;
+    right: -4px;
+    top: 14px;
     background: #f1f3f6;
     content: '';
   }
   &__icon {
-    font-size: $remto30px;
+    font-size: 30px;
     color: #7e8a9c;
   }
   .nameBgnHover {

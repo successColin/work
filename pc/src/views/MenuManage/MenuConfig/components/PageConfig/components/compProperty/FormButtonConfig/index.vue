@@ -794,7 +794,8 @@ export default {
         templateName: v.templateName,
         tableArr,
         id: v.id,
-        isTree: v.isTree === 1
+        isTree: v.isTree === 1,
+        sortId: v.sortId
       };
     }
   }

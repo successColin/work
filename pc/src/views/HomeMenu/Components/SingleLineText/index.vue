@@ -8,7 +8,7 @@
 
 <!-- 页面 -->
 <template>
-  <div class="singleTextWrap" :style="getContentStyles()" @click="handleClick">
+  <div class="singleTextWrap" :style="getContentStyles()">
     <div
         class="singleTextContent"
         :style="getTextStyles()"
@@ -18,14 +18,23 @@
     >
       <span>{{ content }}</span>
     </div>
+    <component
+      :is="panelConfig.activeObj.dialogName || 'PanelDialog'"
+      :showPanel="visible"
+      :visible.sync="visible"
+      :panelObj="panelObj"
+      v-if="JSON.stringify(panelConfig) !== '{}'"
+    ></component>
   </div>
 </template>
 
 <script>
 import { isEqual } from 'lodash';
-import Bus from '@/utils/bus';
+import parser from '@/utils/formula';
 import { getInfoById } from '@/api/design';
-import { IsURL } from '@/views/HomeMenuConfig/constants/common';
+import { formatDate } from '@/utils/utils';
+
+let FIXED_OBJ = {}; // 保存
 
 export default {
   props: {
@@ -43,18 +52,31 @@ export default {
   },
   data() {
     return {
+      visible: false,
+      obj1: {},
       content: '',
-      timer: null
+      obj: {}, // 文本对象
+      timer: null,
+      panelConfig: {}, // 面板属性
     };
   },
 
   components: {},
 
   computed: {
+    panelObj() {
+      const { activeObj, curPaneObj } = this.panelConfig;
+      return {
+        ...curPaneObj,
+        ...activeObj,
+        panelVarObj: {},
+        panelName: activeObj.dialogTitle
+      };
+    },
     getTextStyles() {
       return function () {
         // eslint-disable-next-line max-len
-        const { stylesObj = {}, gradientType, enableBackground, width, height, url, interactionMode, bulletUrl, enableEllipsis } = this.config;
+        const { stylesObj = {}, gradientType, enableBackground, width, height, interactionType, enableEllipsis } = this.config;
         const {
           color1,
           color2,
@@ -83,7 +105,7 @@ export default {
         if (enableBackground) {
           styles += `text-shadow:${hShadow}px ${vShadow}px ${blur}px ${shadowColor};`;
         }
-        if ((url || bulletUrl) && interactionMode !== 1) {
+        if (interactionType && interactionType !== 1) {
           styles += 'cursor: pointer;';
         }
         return styles;
@@ -110,6 +132,7 @@ export default {
   },
   mounted() {
     this.init();
+    this.initFunc();
   },
   watch: {
     otherParams: {
@@ -127,19 +150,87 @@ export default {
     }
   },
   methods: {
-    handleClick() {
-      const { bulletType, interactionMode, bulletUrl, bulletWidth, bulletHeight } = this.config;
-      if (interactionMode === 2 && bulletType === 1) {
-        Bus.$emit('modalOpera', {
-          visible: true,
-          singleConfig: {
-            url: bulletUrl,
-            bulletWidth,
-            bulletHeight
-          },
-          otherParams: {}
-        });
-      }
+    // 初始化自定的方法
+    initFunc() {
+      parser.setFunction('GET_VAR', (params) => {
+        if (params.length === 0) {
+          return '';
+        }
+        return params[0];
+      });
+      parser.setFunction('GET_USER_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.id;
+      });
+      parser.setFunction('GET_ORG_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.orgId;
+      });
+      parser.setFunction('GET_ROLES_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.roleIds;
+      });
+      parser.setFunction('GET_DATE', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return formatDate(new Date(), 'yyyy-MM-dd');
+      });
+      parser.setFunction('GET_DATETIME', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
+      });
+      parser.setFunction('GET_YEAR', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getFullYear();
+      });
+      parser.setFunction('GET_MONTH', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getMonth();
+      });
+      parser.setFunction('GET_WEEK', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getDay();
+      });
+      parser.setFunction('GET_DAY', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getDate();
+      });
+      parser.setFunction('GET_TIMESTAMP', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getTime();
+      });
+      parser.setFunction('GET_MENU_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取菜单id公式无参数');
+        }
+        return this.$route.query.id;
+      });
+      parser.setFunction('GET_FIELD_VALUE', (params) => {
+        if (!params.length) {
+          return new Error('获取控件字段值公式无参数');
+        }
+        const field = params[0];
+        return FIXED_OBJ[field];
+      });
     },
     getParameters() {
       const { id, componentId } = this.config;
@@ -174,8 +265,15 @@ export default {
       const { dataType, dataConfig } = this.config;
       const { takeEffect, staticValue } = dataConfig;
       if (dataType === 1) {
-        const obj = JSON.parse(staticValue);
+        let obj = {};
+        try {
+          obj = JSON.parse(staticValue);
+        } catch (e) {
+          obj = {};
+        }
         this.content = obj[takeEffect];
+        this.obj = obj;
+        this.obj1 = { ...obj };
       }
       if (dataType === 2) {
         await this.getApi();
@@ -209,12 +307,20 @@ export default {
         }
         if (!apiEffect && !enableApiFilter) {
           this.content = targetObj;
+          this.obj = targetObj;
           return;
         }
         if (enableApiFilter && apiFilterFun && apiDataFilterId) {
           // eslint-disable-next-line no-new-func
           const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(JSON.parse(targetObj));
+          let obj1 = {};
+          try {
+            obj1 = JSON.parse(targetObj);
+          } catch (e) {
+            obj1 = {};
+          }
+          const result = fun()(obj1);
+          this.obj = result;
           this.content = result[apiEffect];
           return;
         }
@@ -249,23 +355,152 @@ export default {
         // eslint-disable-next-line no-new-func
         const fun = new Function(`return ${SQLFilterFun}`);
         const result = fun()(res);
+        this.obj = result;
         this.content = result[SQLEffect];
         return;
       }
       this.content = JSON.stringify(res[SQLEffect]);
     },
-    hrefUrl() {
-      const { url, enableOpenNewWindow } = this.config;
-      if (!url) {
-        return;
-      }
-      if (!IsURL(url)) {
-        return;
-      }
-      if (enableOpenNewWindow) {
-        window.open(url, '_blank');
+    doSkipMenu(skipMenuConfig) { // 跳菜单
+      const menuConfig = skipMenuConfig.find((item) => {
+        if (!item.jumpTerm) { // 如果没有条件，默认跳
+          return true;
+        }
+        const isFlag = this.formulaConversion(item.jumpTerm);
+        return isFlag;
+      });
+      if (menuConfig) {
+        // 获取目标菜单
+        const menu = this.$store.getters.getCurMenu(menuConfig.id);
+        if (menu) {
+          const curMenu = JSON.parse(JSON.stringify(menu));
+          curMenu.path = `${curMenu.path}&isJump=1`;
+          menuConfig.menuVarObj = {};
+          menuConfig.menuFilter.forEach((item, index) => { // 将公式值处理成固定值
+            const { filterTermStr, filterTermSql, filterTermType } = item;
+            if (filterTermType === 1) { // 普通的过滤条件
+              const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
+              menuConfig.menuFilter[index].filterTermStr = JSON.stringify(newFilterTermStr);
+            }
+            if (filterTermType === 2) { // sql过滤条件
+              const str = this.reduceSqlFilter(filterTermSql);
+              menuConfig.menuFilter[index].filterTermSql = str;
+            }
+          });
+          const menuObj = {};
+          menuObj[menuConfig.id] = menuConfig;
+          sessionStorage.jumpMenuObj = JSON.stringify(menuObj);
+          this.$bus.$emit('changeMenuTab', curMenu);
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '您没有该跳转菜单的权限'
+          });
+        }
       } else {
-        window.open(url, '_self');
+        this.$message({
+          type: 'warning',
+          message: '您没有符合条件的菜单'
+        });
+      }
+    },
+    reduceNormalFilter(filterTermStr) { // 处理普通的过滤条件
+      const newFilterTermStr = filterTermStr ? JSON.parse(filterTermStr) : {};
+      const { termArr = [] } = newFilterTermStr;
+      termArr.forEach((termItem) => {
+        termItem.forEach((term) => {
+          const { valueType, content } = term;
+          if (valueType === 2) {
+            const result = this.formulaConversion(content);
+            term.valueType = 1;
+            term.content = result;
+          }
+        });
+      });
+      if (JSON.stringify(newFilterTermStr) === '{}') {
+        return '';
+      }
+      return newFilterTermStr;
+    },
+    reduceSqlFilter(filterTermSql) { // 处理sql过滤条件
+      let str = this.regProcess(filterTermSql);
+      const reg = /GET_FIELD_VALUE\('[\w\d\s]+'\)/g;
+      str = str.replace(reg, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      return str;
+    },
+    doSpringPanel(panelConfig) {
+      const { curPaneObj } = panelConfig;
+      if (curPaneObj && curPaneObj.id) {
+        curPaneObj.panelFilter.forEach((item, index) => { // 将公式值处理成固定值
+          const { filterTermStr, filterTermSql, filterTermType } = item;
+          if (filterTermType === 1) { // 普通的过滤条件
+            const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
+            curPaneObj.panelFilter[index].filterTermStr = newFilterTermStr ? JSON.stringify(newFilterTermStr) : '';
+          }
+          if (filterTermType === 2) { // sql过滤条件
+            const str = this.reduceSqlFilter(filterTermSql);
+            curPaneObj.panelFilter[index].filterTermSql = str;
+          }
+        });
+        const { panelData } = curPaneObj;
+        const panelFixData = {};
+        if (panelData && panelData.length) {
+          panelData.forEach((item) => {
+            const { field, paneComp: { compId } } = item;
+            panelFixData[compId] = FIXED_OBJ[field] || field;
+          });
+        }
+        curPaneObj.panelFixData = panelFixData;
+        this.panelConfig = panelConfig;
+        this.$nextTick(() => {
+          this.visible = true;
+        });
+      }
+    },
+    regProcess(str = '') { // 将公式中的特殊字符去除
+      if (!str) return '';
+      const formulaRes = str
+        .replace(/\[|\]/g, '')
+        .replace(/!==/g, '<>')
+        .replace(/!=/g, '<>')
+        .replace(/===(?!=)/g, '=')
+        .replace(/==(?!=)/g, '=');
+      const newStr = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, '');
+      return newStr;
+    },
+    // 处理公式
+    formulaConversion(formulaStr) {
+      let str = this.regProcess(formulaStr);
+      let res = parser.parse(`${str}`);
+      console.log(res, 'res', str);
+      if (res.error) {
+        str = str.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');
+        res = parser.parse(`${str}`);
+      }
+      // console.log(res);
+      // 最终错误把字符串返回
+      if (res.error) {
+        return false;
+      }
+      return res.result;
+    },
+
+    hrefUrl() { // 点击操作
+      const { interactionType, panelConfig, skipMenuConfig } = this.config;
+      FIXED_OBJ = this.obj;
+      // 1不需处理
+      if (interactionType === 1) return;
+      // 跳菜单
+      if (interactionType === 3 && skipMenuConfig.length) {
+        this.doSkipMenu(skipMenuConfig);
+        return;
+      }
+      // 弹面板
+      if (interactionType === 2) {
+        this.doSpringPanel(panelConfig);
       }
     }
   },

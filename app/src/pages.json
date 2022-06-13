@@ -149,12 +149,20 @@
           "path": "index"
         }
       ]
+    },
+    {
+      "root": "PagesProcess",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
     }
   ],
   "preloadRule": {
     "pages/MenuHome/index": {
       "network": "all",
-      "packages": ["menuConfigure", "knowledgeBase"]
+      "packages": ["menuConfigure", "knowledgeBase", "PagesProcess"]
     },
     "menuConfigure/index": {
       "network": "all",

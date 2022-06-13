@@ -75,5 +75,8 @@ export default {
     color: #808080;
     line-height: 32rpx;
   }
+  textarea {
+    text-align: left;
+  }
 }
 </style>

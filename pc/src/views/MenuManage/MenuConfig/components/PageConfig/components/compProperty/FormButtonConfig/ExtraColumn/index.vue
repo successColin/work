@@ -110,7 +110,6 @@ export default {
       child.content = '';
     },
     selectColumnRes(column, columnObj, child) {
-      console.log(column, columnObj, child);
       if (columnObj) {
         if (columnObj.columnName !== column.columnName) {
           columnObj.columnName = column.columnName;

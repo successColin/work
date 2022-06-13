@@ -15,7 +15,6 @@
           minWidth="420px"
           width="25vw"
           height="100vh"
-          :type="type"
         ></my-carousel>
       </div>
     </template>
@@ -87,11 +86,7 @@ export default {
     LoginScan, // 扫码登录
     MyCarousel // 轮播图
   },
-  computed: {
-    type() {
-      return this.styleWidthObj && this.styleWidthObj.value;
-    }
-  }
+  computed: {}
 };
 </script>
 <style lang="scss" scoped>

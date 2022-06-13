@@ -7,6 +7,7 @@ import Inspection from './Inspection';
 import interfaceCommon from './interfaceCommon';
 import map from './map/index';
 import menu from './menu/index';
+import process from './process';
 import search from './search';
 import serverInfo from './serverInfo';
 import userCenter from './userCenter';
@@ -27,6 +28,7 @@ export default new Vuex.Store({
     Inspection,
     search,
     serverInfo,
+    process,
   },
   plugins: [
     createPersistedState({

@@ -76,6 +76,8 @@ export default {
   onLoad(option) {
     option = option || {};
     this.onlyFlag = this._uid;
+    if (option.isProcess) option.isProcess = true;
+    else option.isProcess = false;
     this.menuConfig = { ...this.menuConfig, ...option };
     // #ifdef MP-ALIPAY
     this.hasDing = true;

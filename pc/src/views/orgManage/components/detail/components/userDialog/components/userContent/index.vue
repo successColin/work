@@ -140,6 +140,11 @@ export default {
     },
     switchTab() {
       this.keywords = '';
+      this.$nextTick(() => {
+        if (this.activeTab === 'commonly') {
+          this.$refs[this.activeTab][0].getUserList(this.keywords);
+        }
+      });
     },
     updateSelection(row) {
       const index = this.selection.findIndex((item) => String(item.id) === String(row.id));

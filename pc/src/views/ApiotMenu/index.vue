@@ -1,13 +1,39 @@
 <template>
-  <component
-    v-if="
-      show && this.configDataArr[0] && this.configDataArr[0].designOverallLayout
-    "
-    :is="configData.compName"
-    :showType="showType"
-    :configData.sync="configData"
-  ></component>
-  <el-skeleton :rows="14" animated v-else />
+  <div class="menu">
+    <component
+      v-if="
+        show &&
+        this.configDataArr[0] &&
+        this.configDataArr[0].designOverallLayout
+      "
+      :is="configData.compName"
+      :showType="showType"
+      :configData.sync="configData"
+    ></component>
+    <el-skeleton
+      :rows="14"
+      animated
+      v-if="!this.panelObj && showSkeleton"
+      class="skeleton"
+    >
+      <template slot="template">
+        <el-skeleton-item variant="p" style="width: 50%" />
+        <el-skeleton-item variant="p" style="width: 40%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 70%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 80%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 30%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 40%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 90%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 20%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 30%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 70%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 80%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 30%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 40%" class="m-t-16" />
+        <el-skeleton-item variant="p" style="width: 90%" class="m-t-16" />
+      </template>
+    </el-skeleton>
+  </div>
 </template>
 
 <script>
@@ -18,7 +44,7 @@ import { isExistInObj, createUnique, formatDate } from '@/utils/utils';
 let getAllPaneBack = null;
 
 export default {
-  name: 'menu',
+  name: 'ApiotMenu',
   props: {
     showType: {
       type: Object,
@@ -55,7 +81,8 @@ export default {
       notValueChange: false, // 不进行值变化
       notTabChange: false, // 不进行tab显示隐藏变化
       initComp: {},
-      watchArr: [] // 值变化监听数组
+      watchArr: [], // 值变化监听数组
+      showSkeleton: true
     };
   },
   provide() {
@@ -164,6 +191,7 @@ export default {
       });
       // 插入菜单id
       obj.MENU_ID = this.$route.params.id;
+      obj.CUR_SELECTED_IDS = sessionStorage.__current__mulArr__id || '';
       return obj;
     },
     getAllReloadArea() {
@@ -191,6 +219,7 @@ export default {
     this.$bus.$on('closePanel', this.closePanel);
     this.$bus.$on('setDataSel', this.setDataSel);
     this.$bus.$on('multiArrChange', this.multiArrChange);
+    this.$bus.$on('changeShowSkeleton', this.changeShowSkeleton);
   },
   // beforeRouteUpdate(to, from, next) {
   //   next();
@@ -205,6 +234,7 @@ export default {
       this.$bus.$off('setDataSel');
       this.$bus.$off('multiArrChange');
       this.$bus.$off('reloadArea');
+      this.$bus.$off('changeShowSkeleton');
     }
     // 取消值变化的监听
     this.watchArr.forEach((unWatch) => {
@@ -216,6 +246,11 @@ export default {
   },
 
   methods: {
+    // 更改骨架屏状态
+    changeShowSkeleton() {
+      console.log(111);
+      this.showSkeleton = false;
+    },
     // 多选数组变化
     multiArrChange(onlyFlag, v, compIdMap) {
       if (this.onlyFlag === onlyFlag) {
@@ -357,6 +392,13 @@ export default {
         }
         obj.type = 3;
         return obj;
+      });
+
+      parser.setFunction('GET_TABLE_IDS', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取表格id集合公式无参数');
+        }
+        return sessionStorage.__current__mulArr__id || '';
       });
 
       parser.setFunction('GET_USER_ID', (params) => {
@@ -1106,7 +1148,11 @@ export default {
         triggerMap: {}
       };
       params.triggerMap[linkcode] = actionArr;
-      params.compMap = this.getCompMap;
+      // 传给后端触发器 CUR_SELECTED_IDS
+      params.compMap = {
+        ...this.getCompMap,
+        CUR_SELECTED_IDS: sessionStorage.__current__mulArr__id || ''
+      };
       const data = await operationTriggers(JSON.stringify(params));
       const lastAction = actionArr[actionArr.length - 1];
       const triggerId = lastAction.id;
@@ -1330,4 +1376,21 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.menu {
+  position: relative;
+}
+.skeleton {
+  position: absolute;
+  background-color: #fff;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2000;
+  ::v-deep {
+    .el-skeleton__item {
+      display: block;
+    }
+  }
+}
 </style>

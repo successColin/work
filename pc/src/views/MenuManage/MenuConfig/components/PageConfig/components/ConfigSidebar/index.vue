@@ -339,6 +339,102 @@ export default {
               hasCardIcon: false, // 是否启用组件字典图标
               iconId: '', // 组件字典图标来源的组件id
               iconColorId: '' // 组件字典图标颜色来源的组件id
+            },
+            {
+              name: '多表树',
+              compType: 1007,
+              propertyCompName: 'MultiTreeConfig',
+              imgUrl: 'areaComp/TreeMain.svg',
+              compId: createUnique(),
+              compName: 'MultiTree',
+              pageType: 2,
+              shouldTab: true,
+              areaType: 1,
+              showTitle: false, // 显示标题
+              canChangeName: true, // 标记名字是否可以变更，用于组件树上名字的替换
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
+              },
+              relateTableArr: [],
+              relateTableIndex: 0,
+              children: [],
+              multiDataSource: [
+                {
+                  name: '一级表',
+                  treeIcon: {
+                    icon: '',
+                    color: '',
+                    imageUrl: ''
+                  },
+                  hasCardIcon: false, // 是否启用组件字典图标
+                  iconId: '', // 组件字典图标来源的组件id
+                  iconColorId: '', // 组件字典图标颜色来源的组件id
+                  tableInfo: {
+                    id: '',
+                    tableName: ''
+                  },
+                  lastLevelColumn: {
+                    id: '',
+                    columnName: ''
+                  },
+                  selfLevelColumn: {
+                    id: '',
+                    columnName: ''
+                  },
+                  filterTermType: 1, // 1 是普通 2是sql
+                  filterTermStr: '', // 普通字符串
+                  filterTermSql: '', // sql字符串
+                  termParams: '' // 过滤条件需要的组件参数id
+                },
+                {
+                  name: '二级表',
+                  treeIcon: {
+                    icon: '',
+                    color: '',
+                    imageUrl: ''
+                  },
+                  hasCardIcon: false, // 是否启用组件字典图标
+                  iconId: '', // 组件字典图标来源的组件id
+                  iconColorId: '', // 组件字典图标颜色来源的组件id
+                  tableInfo: {
+                    id: '',
+                    tableName: ''
+                  },
+                  lastLevelColumn: {
+                    id: '',
+                    columnName: '',
+                    columnTypeDict: ''
+                  },
+                  selfLevelColumn: {
+                    id: '',
+                    columnName: '',
+                    columnTypeDict: ''
+                  },
+                  filterTermType: 1, // 1 是普通 2是sql
+                  filterTermStr: '', // 普通字符串
+                  filterTermSql: '', // sql字符串
+                  termParams: '' // 过滤条件需要的组件参数id
+                }
+              ], // 数据多选框数据源
+              filterTermType: 1, // 1 是普通 2是sql
+              filterTermStr: '', // 普通字符串
+              filterTermSql: '', // sql字符串
+              termParams: '', // 过滤条件需要的组件参数id
+              shouldInit: true, // 是否初始化
+              reloadArea: [], // 要刷新的区域
+              isTree: true, // 是否是树区
+              hasTreeIcon: false, // 是否有树区固定图标
+              treeIcon: {
+                icon: '',
+                color: '',
+                imageUrl: ''
+              }, // 树的固定图标
+              linkSymbol: '', // 链接符
+              hasCardIcon: false, // 是否启用组件字典图标
+              iconId: '', // 组件字典图标来源的组件id
+              iconColorId: '' // 组件字典图标颜色来源的组件id
             }
           ]
         }
@@ -1483,7 +1579,7 @@ export default {
             return false;
           }
         } else {
-          if (![1002, 1003, 1004, 1005].includes(dragElement.compType)) {
+          if (![1002, 1003, 1004, 1005, 1007].includes(dragElement.compType)) {
             // 侧边 不是卡片跟树 不允许拖进
             return false;
           }
@@ -1492,7 +1588,7 @@ export default {
             return false;
           }
         }
-      } else if (![1000, 1002, 1003, 1004, 1006].includes(dragElement.compType)) {
+      } else if (![1000, 1002, 1003, 1004, 1006, 1007].includes(dragElement.compType)) {
         return false;
       }
     },

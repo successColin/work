@@ -63,7 +63,6 @@ export default {
       notTouch: false
     };
   },
-
   mounted() {},
   computed: {
     getChangeShow() {
@@ -164,6 +163,11 @@ export default {
   },
 
   watch: {
+    panelObj: {
+      handler(v) {
+        console.log(v, '---面板信息');
+      }
+    },
     showPanel(v) {
       if (v) {
         this.$nextTick(() => {

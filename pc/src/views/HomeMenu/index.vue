@@ -14,6 +14,7 @@
     >
       <div class="previewWrap" :style="getStylesBgUrl()">
         <div class="contentBox">
+          <el-skeleton v-if="loading" :rows="14" animated/>
           <component
               :transitionScaleX="transitionScaleX"
               :transitionScaleY="transitionScaleY"
@@ -96,6 +97,7 @@ export default {
   },
   data() {
     return {
+      timer: null,
       imageFileName: '',
       imageFileUrl: '',
       imageFileVisible: false,
@@ -143,10 +145,25 @@ export default {
       return this.list.filter((item) => item.isShow);
     },
     getBGStyle() {
-      const { bgImage, bgColor, width, height, showType } = this.bgConfig;
+      const {
+        bgImage,
+        bgColor,
+        width,
+        height,
+        showType,
+        enableShadows,
+        xShadow,
+        yShadow,
+        blurRadius,
+        shadowDistance,
+        shadowColor
+      } = this.bgConfig;
       let styles = '';
       if (showType === 4) {
         styles += `width: ${width}px;height:${height}px;`;
+      }
+      if (enableShadows) {
+        styles += `boxShadow: ${xShadow}px ${yShadow}px ${blurRadius}px ${shadowDistance}px ${shadowColor};`;
       }
       if (bgImage) {
         styles += `background-image: url('${bgImage || ''}');`;
@@ -156,7 +173,7 @@ export default {
         styles += `background:${bgColor || ''};`;
         return styles;
       }
-      return '';
+      return styles;
     },
     getStylesBgUrl() { // 获取背景图
       return function () {
@@ -181,6 +198,7 @@ export default {
   },
 
   mounted() {
+    console.log('mounted');
     Bus.$off('modalOpera').$on('modalOpera', ({ visible, singleConfig }) => {
       this.visible = visible;
       this.singleConfig = singleConfig;
@@ -190,15 +208,22 @@ export default {
       this.imageFileName = imageFileName;
       this.imageFileUrl = imageFileUrl;
     });
-    setTimeout(() => {
+    this.timer = setTimeout(() => {
       this.init();
     }, 500);
     window.addEventListener('resize', this.setDrawContent);
-    window.addEventListener('message', (e) => {
-      if (e.data.message === 'modalClose') {
-        this.visible = Boolean(e.data.visible);
-      }
-    }, false);
+    // window.addEventListener('message', (e) => {
+    //   if (e.data.message === 'modalClose') {
+    //     this.visible = Boolean(e.data.visible);
+    //   }
+    // }, false);
+  },
+  watch: {
+    $route(to, from) {
+      console.log('路由变化了');
+      console.log('当前页面路由：', to);
+      console.log('上一个路由：', from);
+    },
   },
 
   methods: {
@@ -207,6 +232,7 @@ export default {
     },
     async init() {
       const query = this.$route.params;
+      console.log('mounted, 为什么重新调用接口', query);
       const params = {
         ...query,
         ...this.otherParams
@@ -298,7 +324,7 @@ export default {
       if (!dom) return;
       const { width: availWidth, height: availHeight } = dom.getBoundingClientRect();
       const { showType, width: dWidth, height: dHeight } = this.bgConfig;
-      const widthScalc = availWidth / (dWidth || 1920);
+      const widthScalc = availWidth / (dWidth + 10 || 1920);
       const heightScalc = availHeight / (dHeight || 1080);
       // this.transitionScale = widthScalc > heightScalc ? heightScalc : widthScalc;
       if (showType === 1) {
@@ -321,9 +347,15 @@ export default {
     }
   },
   beforeDestroy() {
-    // window && window.removeEventListener('message');
+    if (window) {
+      window.removeEventListener('resize', this.setDrawContent);
+    }
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    console.log('beforeDestroy', this.$route.params);
   },
-  name: 'index'
+  name: 'homeMenu'
 };
 </script>
 

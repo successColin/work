@@ -563,7 +563,6 @@ export default {
     },
     // 表格切换
     tableChange(table) {
-      console.log(this.activeObj.dataSource.relateName, table.relateName);
       if (this.activeObj.dataSource.relateName === table.relateName) {
         return;
       }

@@ -1,0 +1,96 @@
+@mixin setRowBtnStyle(
+  $--name,
+  $--gridColumns,
+  $--gridSize,
+  $--gridRowGap,
+  $--gridColumnGap
+) {
+  .#{$--name} {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: $form-row-btns-height;
+    line-height: 100%;
+    background: #fff;
+    border-radius: 100px;
+    box-shadow: 0 0 20rpx 0 rgba(0, 0, 0, 0.1);
+    .btns {
+      width: 100%;
+      margin-left: $--gridColumnGap;
+      display: grid;
+      &.big {
+        margin-left: 0;
+        height: 100%;
+        .btns__item {
+          padding: 0;
+          height: 100%;
+          &:not(:last-child)::after {
+            top: 16px;
+          }
+        }
+      }
+      &__item {
+        padding: 0 13rpx;
+        position: relative;
+        height: 62rpx;
+        overflow: hidden;
+        &:not(:last-child)::after {
+          position: absolute;
+          top: 9px;
+          right: 0;
+          content: '';
+          display: block;
+          width: 1px;
+          height: 24rpx;
+          background: rgba(217, 217, 217, 0.8);
+          z-index: 10;
+        }
+        &:first-child {
+          padding-left: 0;
+        }
+      }
+      &__title {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        i {
+          font-size: 38rpx;
+        }
+      }
+      &__name {
+        margin-left: 10rpx;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .hiddenBtns {
+      position: absolute;
+      right: 0;
+      bottom: 45px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+
+      &__btn {
+        margin-bottom: 20rpx;
+        flex-shrink: 0;
+        width: 156rpx;
+        height: 64rpx;
+        animation-duration: 1s;
+      }
+      .appIcon {
+        color: #fff;
+        margin-right: 4rpx;
+        font-size: 38rpx;
+      }
+      .iconfont {
+        color: #fff;
+        margin-right: 4rpx;
+        font-size: 38rpx;
+      }
+    }
+  }
+}

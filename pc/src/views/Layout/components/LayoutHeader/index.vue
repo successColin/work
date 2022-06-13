@@ -441,7 +441,6 @@ export default {
       return fontChange(this.name);
     },
     getTopMenu() {
-      console.log(this.$store.state.globalConfig.themeConfig.enableLink);
       if (this.$store.state.globalConfig.themeConfig.enableLink === '1') {
         return this.$store.state.globalConfig.thirdLinks.slice(0, 3);
       }

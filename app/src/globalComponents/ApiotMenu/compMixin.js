@@ -22,6 +22,10 @@ export default {
           parentSysMenuDesignId: '',
           menuFlag: null, // 菜单标识，即菜单id
           hiddenRules: null, // tab页显示隐藏条件
+          isProcess: false, // 是否是流程面板
+          workflowDataId: null, // 具体业务id
+          processNodeId: null, // 节点id，用于获取节点配置信息
+          instanceId: null, // 流程节点id，用于获取流程进度
         };
       },
     },
@@ -92,6 +96,7 @@ export default {
     },
     panelFilter() {
       const { sourceFlagId } = this.htmlConfig;
+      if (!sourceFlagId) return {};
       return this.$store.state.menu.panelFilter[sourceFlagId];
     },
     menuFilter() {

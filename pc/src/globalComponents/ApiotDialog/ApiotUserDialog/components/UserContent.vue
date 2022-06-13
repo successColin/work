@@ -47,9 +47,9 @@
           :name="item.name"
           v-for="item in tabsArr"
           :key="item.name"
-          :lazy="true"
         >
           <component
+            v-if="activeTab===item.name"
             v-on="$listeners"
             :key="item.name"
             :activeTab="item.name"
@@ -158,6 +158,11 @@ export default {
     },
     switchTab() {
       this.keywords = '';
+      this.$nextTick(() => {
+        if (this.activeTab === 'commonly') {
+          this.$refs[this.activeTab][0].getUserList(this.keywords);
+        }
+      });
     },
     updateSelection(row) {
       if (this.isMult) {

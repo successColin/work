@@ -12,6 +12,7 @@
         v-bind="$attrs"
         :value="currentRadioId"
         :disabled="disabled"
+        :placeholder="placeholder"
         filterable
         class="filterableInput__select"
         ref="select"
@@ -38,7 +39,7 @@
       ></i>
       <div
         class="filterableInput__result"
-        v-if="currentRadioObj && showRes"
+        v-if="currentRadioObj && currentRadioId && showRes"
         @click="changeRes"
         @mouseenter="showClose = true"
         @mouseleave="showClose = false"
@@ -93,6 +94,7 @@
 import { getListSysEntityTables, listSysEntityColumns } from '@/api/entityManage';
 import { getDictList } from '@/api/dictManage';
 import { listPanel, getSysImportTemplateList } from '@/api/menuConfig';
+import { sysMenuList } from '@/api/menuManage';
 
 export default {
   props: {
@@ -150,7 +152,8 @@ export default {
       type: Boolean,
       default: false
     },
-    otherParams: { // 额外参数，用于接口的其他参数
+    otherParams: {
+      // 额外参数，用于接口的其他参数
       type: Object,
       default() {
         return {};
@@ -159,6 +162,10 @@ export default {
     tableArr: {
       type: Array,
       default: () => []
+    },
+    placeholder: {
+      type: String,
+      default: '请选择'
     }
   },
   data() {
@@ -188,6 +195,8 @@ export default {
             return this.currentRadioObj.panelName;
           case 5:
             return this.currentRadioObj.templateName;
+          case 6:
+            return this.currentRadioObj.menuName;
           default:
             return '';
         }
@@ -206,6 +215,8 @@ export default {
           return 'panelName';
         case 5:
           return 'templateName';
+        case 6:
+          return 'menuName';
         default:
           return 'id';
       }
@@ -318,6 +329,15 @@ export default {
           keywords: this.keyWord
         };
         const res = await getSysImportTemplateList(params);
+        this.options = res;
+      } else if (this.dialogType === 6) {
+        const res = await sysMenuList({
+          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          menuLevel: 2,
+          menuType: 2,
+          keywords: this.keyWord
+        });
+        // console.log(data);
         this.options = res;
       }
     },

@@ -40,8 +40,24 @@
               @change="item.normalValue = ''"
             >
               <el-option label="显隐" :value="1"></el-option>
-              <el-option label="只读" :value="2"></el-option>
-              <el-option label="是否必填" :value="5"></el-option>
+              <el-option
+                v-show="
+                  ![16].includes(triggerCompMap[item.comp.compId].compType)
+                "
+                :label="
+                  [5].includes(triggerCompMap[item.comp.compId].compType)
+                    ? '禁用'
+                    : '只读'
+                "
+                :value="2"
+              ></el-option>
+              <el-option
+                label="是否必填"
+                :value="5"
+                v-show="
+                  ![5, 16].includes(triggerCompMap[item.comp.compId].compType)
+                "
+              ></el-option>
               <el-option
                 label="固定值"
                 :value="3"
@@ -189,7 +205,15 @@ export default {
     SelectFormula
   },
 
-  computed: {},
+  computed: {
+    // 获取触发组件类型
+    getCompType() {
+      if (this.triggerComp.compId) {
+        return this.triggerCompMap[this.triggerComp.compId].compType;
+      }
+      return '';
+    }
+  },
 
   created() {
     if (this.affectingComponents) {

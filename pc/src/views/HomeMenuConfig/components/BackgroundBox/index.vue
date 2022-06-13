@@ -51,10 +51,15 @@ export default {
   computed: {
     getTextStyles() {
       return function () {
-        const { stylesObj } = this.config;
-        let styles = `width: ${this.config.width}px;height: ${this.config.height}px;line-height:${this.config.height}px;zIndex:${stylesObj.zIndex};`;
-        if (this.config.verticalMirror) {
+        const { stylesObj: { zIndex, xShadow, yShadow, blurRadius, shadowDistance, shadowColor },
+          width, height, verticalMirror, enableShadows } = this.config;
+        let styles = `width: ${width}px;height: ${height}px;line-height:${height}px;zIndex:${zIndex};`;
+        console.log(enableShadows, verticalMirror);
+        if (verticalMirror) {
           styles += 'transform: rotateX(180deg);';
+        }
+        if (enableShadows) {
+          styles += `boxShadow: ${xShadow}px ${yShadow}px ${blurRadius}px ${shadowDistance}px ${shadowColor};`;
         }
         return styles;
       };

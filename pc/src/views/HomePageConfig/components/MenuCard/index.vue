@@ -259,7 +259,9 @@ export default {
     },
     enterMenuRole() {
       sessionStorage.menuBackPath = this.$route.path;
-      this.$router.replace(`/homeMenuConfig/${this.item.id}`);
+      console.log(this.item);
+      const { menuName } = this.item;
+      this.$router.replace(`/homeMenuConfig/${this.item.id}?name=${menuName}`);
     }
   },
 

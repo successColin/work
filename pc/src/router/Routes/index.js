@@ -106,7 +106,6 @@ export default [
         name: 'home',
         component: () => import('_v/Home'),
         beforeEnter: async (to, from, next) => {
-          console.log(3333);
           await store.dispatch('getHomeRoute');
           const { homeArr } = store.state.base;
           if (homeArr.length) {
@@ -158,7 +157,7 @@ export default [
         component: () => import('_v/HomeMenu'),
         meta: {
           isModulePage: true,
-          childrenPage: true,
+          childrenPage: false,
         },
         parentName: 'layout',
       },
@@ -272,7 +271,7 @@ export default [
       },
       {
         path: 'menu/:id',
-        name: 'menu',
+        name: 'ApiotMenu',
         component: () => import('_v/ApiotMenu'),
         meta: {
           isModulePage: true,
@@ -341,7 +340,7 @@ export default [
   {
     path: '/homeMenuConfig/:id',
     name: 'homeMenuConfig',
-    component: () => import('_v/HomeMenuConfig/'),
+    component: (resolve) => require(['_v/HomeMenuConfig'], resolve),
     meta: {
       parentPath: 'HomePageConfig',
     },

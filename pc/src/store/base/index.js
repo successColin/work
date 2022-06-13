@@ -19,7 +19,7 @@ function resolveMenu(module, state) {
         // console.log(menu.routeName, 'menu');
         if (!menu.routeName || /^MENU/.test(menu.routeName)) {
           menu.path = `/menu/${menu.id}?title=${menu.menuName}`;
-          menu.routeName = 'menu';
+          menu.routeName = 'ApiotMenu';
         } else if (/^homeMenu/.test(menu.routeName)) {
           // console.log(menu.routeName, 'menu.routeName');
         } else {

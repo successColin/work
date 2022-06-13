@@ -57,6 +57,7 @@
       width="40"
       type="selection"
       :reserve-selection="reserveSelection"
+      :selectable="selectable"
       v-else-if="showSelection"
       fixed="left"
     >
@@ -183,6 +184,11 @@ export default {
     reserveSelection: {
       type: Boolean,
       default: false
+    },
+    // 过滤
+    selectable: {
+      type: Function,
+      default: () => true
     }
   },
   data() {
@@ -436,10 +442,10 @@ export default {
           }
         });
         this.$nextTick(() => {
-          const cellArr = document.querySelectorAll('.cell');
-          cellArr.forEach((cell) => {
-            cell.title = cell.innerText;
-          });
+          // const cellArr = document.querySelectorAll('.cell');
+          // cellArr.forEach((cell) => {
+          //   cell.title = cell.innerText;
+          // });
           this.$emit('tableInited', this.curData);
         });
       }

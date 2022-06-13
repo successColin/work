@@ -91,23 +91,32 @@
               :menuHeight="menuHeight"
               @switchType="switchShowType"
             ></tree-device-pos>
+            <knowledge-base
+              v-else-if="area.compName === 'RelatedData'"
+            ></knowledge-base>
           </div>
         </div>
       </template>
+      <!-- 流程节点1 -->
+      <process-nodes
+        v-if="htmlConfig.isProcess"
+        :nodeId="htmlConfig.instanceId"
+      ></process-nodes>
       <view
-        v-if="getCurrentTab.showTabBtn"
+        v-if="getCurrentTab.showTabBtn || htmlConfig.isProcess"
         class="menuConfig__tab--btns"
         :class="[`compute--area-${onlyFlag}`]"
       >
-        <config-btns
+        <tab-btns
           :tabProp="canShowTablist[current]"
           :tabId="getCurrentTab.compId"
           :htmlConfig="htmlConfig"
+          :showTabBtn="getCurrentTab.showTabBtn"
           :featureArr="getFuncAreas.slice(1)"
           :isTabBtn="true"
           @setBatchArea="setBatchArea"
           @checkedAllClick="checkedAll"
-        ></config-btns>
+        ></tab-btns>
       </view>
     </tab-page>
   </view>
@@ -119,9 +128,10 @@ import TabPage from '../TabPage';
 import ConfigList from '../ConfigList';
 import ConfigForm from '../ConfigForm';
 import configTree from '../ConfigTree';
-import ConfigBtns from '../ConfigBtns';
+import TabBtns from '../ConfigBtns/TabBtns.vue';
 import TreeDevicePos from '../TreeDevicePos';
-import ApiotTabs from '@/globalComponents/ApiotTabs';
+import ProcessNodes from '../ProcessNodes';
+import KnowledgeBase from '../../Apiotknowledge';
 
 import parser from '@/utils/formula';
 
@@ -156,7 +166,16 @@ export default {
     }
   },
 
-  components: { ApiotTabs, TabPage, ConfigList, ConfigForm, configTree, ConfigBtns, TreeDevicePos },
+  components: {
+    TabPage,
+    ConfigList,
+    ConfigForm,
+    configTree,
+    TabBtns,
+    TreeDevicePos,
+    ProcessNodes,
+    KnowledgeBase
+  },
 
   data() {
     return {
@@ -379,7 +398,7 @@ export default {
   },
 
   watch: {
-    'getAllPane.tabObj': function (newV) {
+    'getAllPane.tabObj': function(newV) {
       // 需要隐藏的tab
       const hiddenTabsArr = [];
       const { hiddenRules = [] } = this.htmlConfig;
@@ -486,7 +505,6 @@ export default {
           obj[paneconfig.id] = ''; // 用于记录该面板是否已经请求
         }
       }
-      console.log('panelArry=====');
       if (panelArry.length > 0) {
         const result = await getDesignMenu({
           panelId: panelArry.join(',')
@@ -502,12 +520,23 @@ export default {
       try {
         const { htmlConfig } = this;
         const params = {};
-        if (htmlConfig.isPanel) params.panelId = htmlConfig.id;
+        if (htmlConfig.isPanel || htmlConfig.isProcess) params.panelId = htmlConfig.id;
         else params.sysMenuId = htmlConfig.id;
         let panelConfig = null;
+        let canGetConfig = true; // 是否需要通过接口获取面板信息
         if (htmlConfig.isPanel) {
           panelConfig = JSON.stringify(this.$store.state.menu.panelConfig[params.panelId]);
-        } else {
+          canGetConfig = false;
+        } else if (htmlConfig.isProcess) {
+          // 流程面板
+          panelConfig = this.$store.state.menu.panelConfig[params.panelId];
+          if (panelConfig) {
+            panelConfig = JSON.stringify(panelConfig);
+            canGetConfig = false;
+          }
+        }
+        // 是否需要通过接口获取面板信息
+        if (canGetConfig) {
           const data = await getDesignMenu(params);
           panelConfig = JSON.stringify(data[0]);
         }

@@ -109,6 +109,7 @@ import ContentConfig from './components/compProperty/ContentConfig';
 import MenuMainConfig from './components/compProperty/MenuMainConfig';
 import CardMainConfig from './components/compProperty/CardMainConfig';
 import TreeMainConfig from './components/compProperty/TreeMainConfig';
+import MultiTreeConfig from './components/compProperty/MultiTreeConfig';
 import DevicePosTreeConfig from './components/compProperty/DevicePosTreeConfig';
 import FaultTreeConfig from './components/compProperty/FaultTreeConfig';
 import TableMainConfig from './components/compProperty/TableMainConfig';
@@ -191,6 +192,7 @@ export default {
     MenuMainConfig,
     CardMainConfig,
     TreeMainConfig,
+    MultiTreeConfig,
     DevicePosTreeConfig,
     TableMainConfig,
     BtnsAreaConfig,
@@ -340,6 +342,7 @@ export default {
   },
 
   mounted() {
+    console.log(this.isSelect);
     // 获取事件字典
     this.$store.dispatch('getCurrentDict', 'TRIGGER_EVENT,PANEL_TYPE,REQUISITE_TYPE');
     // 更新字典项
@@ -578,6 +581,11 @@ export default {
             if (tempObj.compName === 'BtnsArea' || tempObj.compName === 'RelatedData') {
               break;
             }
+            if (tempObj.compName === 'MultiTree') {
+              console.log(tempObj);
+              break;
+            }
+
             if (!tempObj.tableInfo.tableName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未配置数据源`;
@@ -675,6 +683,27 @@ export default {
             if (!tempObj.multiTable.column.columnName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择多选字段来源字段`;
+              break;
+            }
+            break;
+          case 5:
+            if (tempObj.templateInfo && !tempObj.templateInfo.id && tempObj.buttonType === 7) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未选择导入模板`;
+              break;
+            }
+            if (
+              (tempObj.templateInfo &&
+                !tempObj.templateInfo.id &&
+                tempObj.buttonType === 8 &&
+                tempObj.exportSetting === 1) ||
+              (tempObj.templateInfo &&
+                !tempObj.templateInfo.id &&
+                tempObj.buttonType === 8 &&
+                tempObj.exportSetting === 2)
+            ) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未选择导出模板`;
               break;
             }
             break;

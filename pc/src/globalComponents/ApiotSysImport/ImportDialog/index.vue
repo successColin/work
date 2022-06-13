@@ -27,13 +27,19 @@
       :isHideFooter="isHideFooter"
       :isHideCancel="false"
       :isHideOk="true"
+      :isShowSure="isShowSure"
+      :cancelBtnName="!isShowSure ? 'common.close' : 'common.cancle'"
     >
       <preview
         v-if="status === 'preview'"
         :checkInfo="checkInfo"
         :diffTime="diffTime"
       />
-      <importting v-if="status === 'import'" :checkInfo="checkInfo" />
+      <importting
+        v-if="status === 'import'"
+        :checkInfo="checkInfo"
+        @successFun="successFun"
+      />
     </apiot-dialog>
   </div>
 </template>
@@ -57,7 +63,10 @@ import {
   importTemplatePDStart,
   checkOrgSpecialTemplate,
   checkUserSpecialTemplate,
-  checkPDSpecialTemplate
+  checkPDSpecialTemplate,
+  importSpecialTemplate,
+  getCheckSpecialProgress,
+  getCheckSpecialSpecialProgress
 } from '@/api/importTemplate';
 import { createUnique, getSeconds } from '@/utils/utils';
 
@@ -89,6 +98,10 @@ export default {
     isTree: {
       type: Boolean,
       default: false
+    },
+    sortId: {
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -103,7 +116,8 @@ export default {
       checkInfo: {}, // 校验信息
       startTime: '',
       diffTime: '',
-      isEnd: false // 导入结束
+      isEnd: false, // 导入结束
+      isShowSure: true
     };
   },
 
@@ -145,6 +159,9 @@ export default {
         return this.$t('importAndExport.dataImport');
       }
       return this.$t('importAndExport.dataPreCheck');
+    },
+    isSpecial() {
+      return this.sortId === -10;
     }
   },
 
@@ -154,6 +171,9 @@ export default {
   },
   inject: ['resolveFormula'],
   methods: {
+    successFun(v) {
+      this.isShowSure = v;
+    },
     getFiles(file) {
       this.file = file;
     },
@@ -173,8 +193,9 @@ export default {
       formData.append('uuid', this.uniqueId);
       formData.append('file', this.file.raw);
       this.showLoading = true;
+      console.log(this.tableArr, this.sortId, this.isSpecial);
       try {
-        if (this.tableArr.length === 1) {
+        if (this.isSpecial && this.tableArr.length === 1) {
           // 校验模板
           if (this.tableArr.find((v) => v === 'sys_org')) {
             // 特殊组织表
@@ -196,7 +217,16 @@ export default {
           await doCheckTemplateIsRight(formData);
         }
         // 导入校验
-        if (this.isTree) {
+        if (this.isSpecial && this.tableArr.length === 1) {
+          if (
+            this.tableArr.find((v) => v === 'sys_org') ||
+            this.tableArr.find((v) => v === 'sys_user') ||
+            this.tableArr.find((v) => v === 'sys_position') ||
+            this.tableArr.find((v) => v === 'sys_device')
+          ) {
+            await importSpecialTemplate(formData);
+          }
+        } else if (this.isTree) {
           await importTreeTemplate(formData);
         } else {
           await doUploadFiles(formData);
@@ -208,6 +238,7 @@ export default {
         this.startTime = Date.parse(new Date());
         this.doPreChek();
       } catch (e) {
+        console.log(22222222222, e);
         this.showLoading = false;
       }
     },
@@ -219,11 +250,22 @@ export default {
       this.timer = setTimeout(async () => {
         try {
           let res;
-          if (this.isTree) {
+          console.log(this.tableArr);
+          if (this.isSpecial && this.tableArr.length === 1) {
+            if (
+              this.tableArr.find((v) => v === 'sys_org') ||
+              this.tableArr.find((v) => v === 'sys_user') ||
+              this.tableArr.find((v) => v === 'sys_position') ||
+              this.tableArr.find((v) => v === 'sys_device')
+            ) {
+              res = await getCheckSpecialProgress({ uuid: this.uniqueId });
+            }
+          } else if (this.isTree) {
             res = await getCheckTreeProgress({ uuid: this.uniqueId });
           } else {
             res = await doProcessChek({ uuid: this.uniqueId });
           }
+          console.log(1111111111111, res);
           const { Row, Sum, isCheckFinish, errorRow = 0 } = res;
           this.checkInfo = res;
           if (isCheckFinish || Row >= Sum) {
@@ -287,7 +329,7 @@ export default {
         });
         formData.append('relationJson', JSON.stringify(jsonArray));
       }
-      if (this.tableArr.length === 1) {
+      if (this.isSpecial && this.tableArr.length === 1) {
         // 特殊表导入
         if (this.tableArr.find((v) => v === 'sys_org')) {
           // 组织表
@@ -320,7 +362,16 @@ export default {
       this.timer = setTimeout(async () => {
         try {
           let res;
-          if (this.isTree) {
+          if (this.isSpecial && this.tableArr.length === 1) {
+            if (
+              this.tableArr.find((v) => v === 'sys_org') ||
+              this.tableArr.find((v) => v === 'sys_user') ||
+              this.tableArr.find((v) => v === 'sys_position') ||
+              this.tableArr.find((v) => v === 'sys_device')
+            ) {
+              res = await getCheckSpecialSpecialProgress({ uuid: this.uniqueId });
+            }
+          } else if (this.isTree) {
             res = await getUploadTreeProgress({ uuid: this.uniqueId });
           } else {
             res = await doImportProcess({ uuid: this.uniqueId });

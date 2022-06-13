@@ -68,7 +68,7 @@ export default {
   display: flex;
   justify-content: space-between;
   &__jump {
-    font-size: $remto13px;
+    font-size: 13px;
   }
   &__jump--btn {
     // 立即注册按钮
@@ -80,8 +80,8 @@ export default {
   &__download {
     &--anzhuo,
     &--IOS {
-      width: $remto24px;
-      height: $remto24px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -93,22 +93,22 @@ export default {
     }
     &--anzhuo {
       background: #4689f5;
-      margin-left: $remto8px;
+      margin-left: 8px;
     }
     &--IOS {
       background: #34c7be;
-      margin-left: $remto4px;
+      margin-left: 4px;
     }
   }
   &__download,
   &__jump {
-    height: $remto5px;
-    margin-bottom: $remto30px;
+    height: 5px;
+    margin-bottom: 30px;
     display: flex;
     align-items: center;
   }
   &__downTitle {
-    font-size: $remto13px;
+    font-size: 13px;
     text-decoration: none;
     // color: $--color-primary;
   }

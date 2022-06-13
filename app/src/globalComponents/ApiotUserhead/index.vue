@@ -75,13 +75,13 @@ export default {
 
   computed: {
     firstLetter() {
-      return function(row) {
+      return function (row) {
         const userName = row[this.prop];
         return fontChange(userName);
       };
     },
     colorIndex() {
-      return function(row) {
+      return function (row) {
         const colors = ['#5A80ED', '#FAB71C', '#FC8256', '#EE5E5E', '#34C7BE'];
         let index = row[this.colorId] || 0;
         // 如果根据colorId没有获取到对应的值，则根据首字母

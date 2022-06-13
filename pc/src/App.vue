@@ -22,17 +22,17 @@ export default {
       this.$store.dispatch('getRoute');
     }
     window.addEventListener('beforeunload', this.beforeLoad);
-
-    window.onresize = function () {
-      document.documentElement.style.fontSize = `${document.documentElement.clientWidth / 125}px`;
-    };
-    document.documentElement.style.fontSize = `${document.documentElement.clientWidth / 125}px`;
   },
   methods: {
     beforeLoad() {
-      const arr = ['/appConfig/funcPage', '/appConfig/mine'];
+      const arr = ['/appConfig/funcPage', '/appConfig/mine', '/homeMenuConfig/'];
       const { pathname } = window.location;
-      if (arr.includes(pathname) || pathname.split('/').includes('menuConfig')) {
+      const pathnameArr = pathname.split('/');
+      if (
+        arr.includes(pathname) ||
+        pathnameArr.includes('menuConfig') ||
+        pathnameArr.includes('homeMenuConfig')
+      ) {
         window.event.returnValue = '刷什么新，快按“取消”吧！';
       }
     }

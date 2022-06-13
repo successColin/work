@@ -243,6 +243,7 @@
           <apiot-button
               class="panelBtn"
               v-if="getComponentInfo.interactionType === 3"
+              @click="showMenuConfig=true"
           >
             <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
           </apiot-button>
@@ -253,20 +254,34 @@
         :visible.sync="visible"
         :tabPaneConfig="tabPaneConfig"
         :activeObj="activeObj"
-        :isSelPanel="true"
+        :isSelPanel="false"
+        :showType="showType"
         :otherParams="{ panelType: 5,
                  unDesign: 1,
                  panelClassify: 1,
                  clientType: 1}"
         @cancle-click="handleCancel"
         :isCustomPage="true"
+        :treeType="5"
         ref="panelConfig"
     ></PanelConfig>
+    <ToMenuConfig
+        ref="ToMenuConfig"
+        @cancle-click="handleMenuCancel"
+        class="ToMenuConfig"
+        :visible.sync="showMenuConfig"
+        :activeObj="skipMenuConfig"
+        :sourceType="1"
+        :treeType="5"
+        :showType="showType"
+        :showContent="true"
+    ></ToMenuConfig>
   </div>
 </template>
 
 <script>
 import PanelConfig from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/PanelConfig';
+import ToMenuConfig from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/ToMenuConfig';
 import LocationProperties from '../../basicWidgets/CLocationProperties/index';
 import { predefineColors } from '../../constants/global';
 import { IsURL } from '../../constants/common';
@@ -287,9 +302,12 @@ export default {
   },
   data() {
     return {
+      showType: [1, 5],
+      showMenuConfig: false,
       visible: false,
       enable: true,
-      activeObj: { dialogTitle: '' },
+      activeObj: { dialogTitle: '', dialogName: 'PanelDialog' },
+      skipMenuConfig: [], // 跳菜单
       fontFamilyOptions: [
         {
           label: '微软雅黑',
@@ -352,13 +370,14 @@ export default {
 
   components: {
     LocationProperties,
-    PanelConfig
+    PanelConfig,
+    ToMenuConfig
   },
 
   computed: {
     tabPaneConfig() {
       const { panelConfig } = this.getComponentInfo;
-      const { curPaneObj } = panelConfig;
+      const { curPaneObj } = panelConfig || {};
       return curPaneObj || {};
     },
     getComponentInfo() { // 获取控件详情信息
@@ -374,12 +393,19 @@ export default {
     }
   },
 
-  mounted() {
-    this.activeObj = this.getComponentInfo.panelConfig.activeObj || { dialogTitle: '' };
+  created() {
+    const { panelConfig, skipMenuConfig } = this.getComponentInfo;
+    const initObj = { dialogTitle: '', dialogName: 'PanelDialog' };
+    this.activeObj = panelConfig ? panelConfig.activeObj || initObj : initObj;
+    this.skipMenuConfig = skipMenuConfig || [];
   },
   watch: {
   },
   methods: {
+    handleMenuCancel() {
+      const { menuList = [] } = this.$refs.ToMenuConfig;
+      this.changeTitle(menuList, 'skipMenuConfig');
+    },
     handleCancel() {
       const { curPaneObj, activeObj } = this.$refs.panelConfig;
       const value = {
@@ -666,6 +692,28 @@ export default {
   ::v-deep {
     .action__term--liChild {
       width: 100px;
+    }
+  }
+  .ToMenuConfig {
+    ::v-deep{
+      .ToMenuConfig__li--select{
+        width: 200px;
+      }
+      .el-collapse-item__arrow{
+        margin: 0 8px 0 auto;
+      }
+      .el-collapse-item__header {
+        position: relative;
+        background: #f1f7ff;
+        border-radius: 4px;
+        border: 1px solid #e9e9e9;
+        height: 38px;
+        line-height: 38px;
+      }
+      .el-collapse-item__content {
+        padding: 0 0 8px 0;
+        background-color: #fff;
+      }
     }
   }
 }

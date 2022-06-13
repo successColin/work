@@ -17,34 +17,21 @@
 </template>
 
 <script>
-import { getUsersState } from '@/api/user';
 import LeftTree from './Left';
 import MainCon from './Main';
 
 export default {
-  name: 'user',
-  data() {
-    return {};
-  },
-
   components: {
     LeftTree,
     MainCon
-  },
-
-  computed: {},
-
-  mounted() {
-    this.fetchState();
-  },
-
-  methods: {
-    async fetchState() {
-      this.userData = await getUsersState({ dictKeys: 'USER_STATE' });
-    }
   }
 };
 </script>
 
 <style lang='scss' scoped>
+::v-deep {
+  .content__area {
+    overflow: auto;
+  }
+}
 </style>

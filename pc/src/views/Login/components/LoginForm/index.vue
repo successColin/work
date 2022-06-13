@@ -14,12 +14,7 @@
     :show-message="false"
     @validate="validateFun"
   >
-    <!-- 空margin-top：40 -->
-    <div class="loginForm__empty" v-if="!errorTitle"></div>
-    <!-- 提示框 -->
-    <div class="loginForm__prompt" v-else>
-      <el-alert :title="errorTitle" type="error" :closable="false"></el-alert>
-    </div>
+    <div class="loginForm__empty"></div>
     <!-- 账号 -->
     <div class="loginForm__label">{{ $t('login.account') }}</div>
     <el-form-item prop="username">
@@ -64,12 +59,22 @@
           </span>
         </apiot-checkbox>
       </div>
-      <div
-        class="loginForm__pswdLine--forget loginFontHover"
-        @click="handleJump"
-        v-if="configs.enableForgetPassword === '1'"
-      >
-        {{ $t('login.forgotPassword') }}
+      <div class="loginForm__pswdLine--forget">
+        <div
+          class="loginFontHover"
+          @click="handleJump"
+          v-if="configs.enableForgetPassword === '1'"
+        >
+          {{ $t('login.forgotPassword') }}
+        </div>
+        <div class="loginForm__pswdLine--forget--line"></div>
+        <span
+          class="loginFontHover"
+          @click="handleJumpRegister"
+          v-if="configs.enableRegistration === '1'"
+        >
+          {{ $t('login.signUpNow') }}
+        </span>
       </div>
     </div>
     <!-- button -->
@@ -90,14 +95,14 @@
       <div v-if="isBtnDisabled" class="maskLayer"></div>
     </div>
     <!-- 注册 -->
-    <sign-up v-if="configs.enableRegistration === '1'"></sign-up>
+    <!-- <sign-up v-if="configs.enableRegistration === '1'"></sign-up> -->
   </el-form>
 </template>
 <script>
 import { postLoginForm } from '@/api/login.js';
 import { Encrypt, Decrypt } from '@/utils/utils';
 import SliderValidation from '../SliderValidation';
-import SignUp from '../SignUp';
+// import SignUp from '../SignUp';
 
 export default {
   props: {
@@ -115,8 +120,6 @@ export default {
       checked: false,
       // 按钮状态
       isBtnDisabled: true,
-      // 错误提示的文案
-      errorTitle: '',
       // 表单参数
       ruleForm: {
         username: '', // 账号
@@ -155,8 +158,8 @@ export default {
     }
   },
   components: {
-    SliderValidation, // 拖动验证
-    SignUp // 注册组件
+    SliderValidation // 拖动验证
+    // SignUp // 注册组件
   },
   mounted() {
     if (this.isShowValidation) {
@@ -177,12 +180,10 @@ export default {
     }
     this.$nextTick(() => {
       this.$refs.ruleForm.clearValidate();
-      this.errorTitle = '';
     });
     this.$bus.$on('changeLange', () => {
       this.$nextTick(() => {
         this.$refs.ruleForm.clearValidate();
-        this.errorTitle = '';
       });
     });
   },
@@ -208,6 +209,9 @@ export default {
     }
   },
   methods: {
+    handleJumpRegister() {
+      this.$router.push('/register');
+    },
     // 跳转忘记密码
     handleJump() {
       this.$router.push('/forgotpswd');
@@ -256,7 +260,7 @@ export default {
           sessionStorage.removeItem('delTabArr');
         });
       } catch (error) {
-        this.errorTitle = error.message;
+        this.$message.error(error.message);
         this.isBtnDisabled = true;
         this.loadingButton = false;
         const { sliderErrorsCount } = this.configs;
@@ -283,7 +287,9 @@ export default {
     },
     // 校验方法
     validateFun(type, state, error) {
-      this.errorTitle = error;
+      if (error) {
+        this.$message.error(error);
+      }
       this.valiState[type] = state;
       try {
         const { sliderErrorsCount } = this.configs;
@@ -316,44 +322,51 @@ export default {
 .loginForm {
   // 空
   &__empty {
-    margin-top: $remto40px;
+    margin-top: 44px;
   }
   // 提示
   &__prompt {
-    margin: $remto12px 0 $remto20px 0;
+    margin: 12px 0 20px 0;
   }
   // 账号, 密码
   &__label {
-    font-size: $remto16px;
+    font-size: 16px;
   }
   &--setTop {
-    margin-top: $remto14px;
+    margin-top: 14px;
   }
   // 输入框
   &__inputBox {
-    margin-top: $remto8px;
+    margin-top: 8px;
   }
   // 记住密码
   &__pswdLine {
-    margin-top: $remto14px;
+    margin-top: 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     .loginForm__pswdLine--title {
       position: relative;
-      left: -$remto2px;
+      left: -2px;
     }
     &--forget {
-      font-size: $remto13px;
+      font-size: 13px;
+      display: flex;
+      &--line {
+        width: 1px;
+        height: 13px;
+        background: #e9e9e9;
+        margin: 0 10px 0 7px;
+      }
     }
   }
   // 登录按钮
   &__loginButton {
-    margin: $remto30px 0 $remto14px 0;
+    margin: 30px 0 14px 0;
     position: relative;
     &--btn {
-      height: $remto40px;
-      font-size: $remto16px;
+      height: 40px;
+      font-size: 16px;
       font-family: PingFangSC-Medium, PingFang SC !important;
       font-weight: 600;
       color: #ffffff;
@@ -362,7 +375,7 @@ export default {
     .maskLayer {
       position: absolute;
       width: 100%;
-      height: $remto40px;
+      height: 40px;
       top: 0;
       cursor: not-allowed;
     }
@@ -372,34 +385,39 @@ export default {
   }
   ::v-deep {
     .el-alert {
-      height: $remto40px;
-      border: $remto1px solid rgba(255, 77, 79, 0.5);
+      height: 40px;
+      border: 1px solid rgba(255, 77, 79, 0.5);
       .el-alert__content {
         padding: 0;
       }
       .el-alert__title {
-        font-size: $remto13px;
-        line-height: $remto18px;
+        font-size: 13px;
+        line-height: 18px;
       }
     }
     .el-input__inner {
-      height: $remto40px !important;
-      line-height: $remto40px !important;
+      height: 40px !important;
+      line-height: 40px !important;
     }
     .el-input {
-      font-size: $remto13px;
+      font-size: 13px;
     }
     .el-checkbox,
     .el-checkbox__label {
-      font-size: $remto13px;
+      font-size: 13px;
       color: #333;
     }
-    .el-checkbox__inner {
-      width: $remto13px;
-      height: $remto13px;
-    }
+    // .el-checkbox__inner {
+    //   width: 16px;
+    //   height: 16px;
+    // }
+    // .el-checkbox__inner::after {
+    //   height: 9px;
+    //   left: 5px;
+    //   width: 4px;
+    // }
     .el-checkbox__label {
-      padding-left: $remto10px;
+      padding-left: 10px;
     }
   }
 }
@@ -408,7 +426,7 @@ export default {
   position: relative;
   overflow: hidden;
   background: $--color-primary;
-  border-radius: $remto4px;
+  border-radius: 4px;
   ::v-deep {
     .el-button {
       position: relative;

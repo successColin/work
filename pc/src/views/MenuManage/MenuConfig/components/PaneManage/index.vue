@@ -69,6 +69,7 @@
             @editPane="editPane"
             @editSelData="editSelData"
             @editConfig="editConfig"
+            @copyPanel="copyPanel"
           ></component>
         </apiot-table>
       </section>
@@ -86,6 +87,7 @@
     </div>
     <AddPane
       ref="addField"
+      :key="curDrawerType"
       :visible.sync="drawer"
       :curDrawerType="curDrawerType"
       @addPaneRes="addPaneRes"
@@ -114,7 +116,7 @@
 </template>
 
 <script>
-import { pagePanel, batchDeletePanel } from '@/api/menuConfig';
+import { pagePanel, batchDeletePanel, copyPanel } from '@/api/menuConfig';
 import AddPane from './components/AddPane';
 import DesignConfig from './components/DesignConfig';
 import SelectDesignConfig from './components/SelectDesignConfig';
@@ -167,6 +169,10 @@ export default {
             {
               name: 'menuConfig.paneTable.design',
               funcName: 'editConfig'
+            },
+            {
+              name: 'role.copy',
+              funcName: 'copyPanel'
             }
           ],
           fixed: 'right',
@@ -287,7 +293,9 @@ export default {
       this.curDrawerType = 2;
       this.drawer = true;
       this.row = row;
-      this.$refs.addField.initFormData(row);
+      this.$nextTick(() => {
+        this.$refs.addField.initFormData(row);
+      });
     },
     // 编辑选择面板
     editSelData(row) {
@@ -308,6 +316,39 @@ export default {
       // console.log('设计', row);
       this.row = row;
       this.showConfig = true;
+    },
+    copyPanel(row) {
+      // console.log('复制', row);
+      if (row.panelType === 2) {
+        this.curDrawerType = 3;
+        this.drawer = true;
+        this.row = row;
+        this.$nextTick(() => {
+          this.$refs.addField.initFormData(row);
+        });
+      } else {
+        this.copyPanleReal(row);
+      }
+    },
+    async copyPanleReal(row) {
+      const params = {
+        panelId: row.id
+      };
+      try {
+        await copyPanel(params);
+        this.getColumnList();
+        this.$message({
+          type: 'success',
+          message: '复制成功'
+        });
+      } catch (error) {
+        if (error.panelName) {
+          return this.$message({
+            type: 'error',
+            message: `面板名称 ${error.panelName}`
+          });
+        }
+      }
     },
     // 获取面板列表
     async getColumnList() {
@@ -391,6 +432,10 @@ export default {
               {
                 name: 'menuConfig.paneTable.design',
                 funcName: 'editConfig'
+              },
+              {
+                name: 'role.copy',
+                funcName: 'copyPanel'
               }
             ],
             fixed: 'right',
@@ -422,7 +467,13 @@ export default {
           },
           // 操作
           {
-            buttonArr: [{ name: 'entity.entityTable.operateBtn1', funcName: 'editSelData' }],
+            buttonArr: [
+              { name: 'entity.entityTable.operateBtn1', funcName: 'editSelData' },
+              {
+                name: 'role.copy',
+                funcName: 'copyPanel'
+              }
+            ],
             fixed: 'right',
             compName: 'OperateColumn'
           }

@@ -7,20 +7,20 @@
 -->
 <template>
   <div>
-    <tiled-login :configs="configs" v-if="configs.style === '1'"></tiled-login>
     <card-login
       :configs="configs"
       :styleWidthObj="styleWidthObj"
-      v-else-if="configs.style === '2'"
+      v-if="configs.style === '2'"
     ></card-login>
+    <tiled-login :configs="configs" v-if="configs.style === '1'"></tiled-login>
   </div>
 </template>
 
 <script>
-import { stylePercentageArr, selectColorArr } from '@/config';
 import { getLoginConfig } from '@/api/login';
-import TiledLogin from './TiledLogin';
+import { selectColorArr, stylePercentageArr } from '@/config';
 import CardLogin from './CardLogin';
+import TiledLogin from './TiledLogin';
 
 export default {
   data() {
