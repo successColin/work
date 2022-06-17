@@ -25,6 +25,7 @@
       @changeShowType="changeShowType"
     ></ListOrTree>
     <ApiotMenu
+      :class="[{ isMulti: isMulti }]"
       :panelObj="panelObj"
       :dataSelObj="dataSelObj"
       v-if="showPanel"
@@ -104,7 +105,6 @@ export default {
       this.$emit('setDataSel', arr);
     },
     initSelData(name, value, obj) {
-      // console.log(name, value);
       this.dataSelObj = {
         name,
         value,
@@ -128,6 +128,9 @@ export default {
     },
     multiArrChange(v, map) {
       // console.log(v, map);
+      if (!this.dataSelObj) {
+        return;
+      }
       if (!this.dataSelObj.showInfo) {
         return;
       }
@@ -213,13 +216,16 @@ export default {
       }
     }
   }
+  .isMulti {
+    top: 54px;
+  }
   .btnArr {
     position: absolute;
     z-index: 100;
     left: 20px;
-    top: 60px;
+    top: 6px;
     &.isMulti {
-      top: 112px;
+      top: 58px;
     }
   }
   ::v-deep {
@@ -239,6 +245,7 @@ export default {
       width: 930px;
     }
     .el-dialog__body {
+      position: relative;
       padding: 0;
       height: calc(100% - 54px);
       border-radius: 0 0 8px 8px;

@@ -17,7 +17,7 @@
       <el-form-item
         style="margin-bottom: 0"
         v-if="
-          relateObj.compName !== 'TreeMain' &&
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
           relateObj.compName !== 'TableMain'
         "
       >
@@ -34,7 +34,10 @@
       </el-form-item>
       <el-form-item
         label="标题"
-        v-show="activeObj.showLabelTitle || relateObj.compName === 'TreeMain'"
+        v-show="
+          activeObj.showLabelTitle ||
+          ['TreeMain', 'MultiTree'].includes(relateObj.compName)
+        "
       >
         <apiot-input
           v-model="activeObj.name"
@@ -54,7 +57,10 @@
         >
         </apiot-color-picker>
       </el-form-item>
-      <el-form-item label="帮助信息" v-if="relateObj.compName !== 'TreeMain'">
+      <el-form-item
+        label="帮助信息"
+        v-if="!['TreeMain', 'MultiTree'].includes(relateObj.compName)"
+      >
         <apiot-input
           v-model="activeObj.helpInfo"
           placeholder="这里是帮助信息填写"
@@ -62,7 +68,11 @@
       </el-form-item>
       <el-form-item
         label="关联数据源"
-        v-if="this.relateObj.tableInfo.tableName && getMultiRelate.length"
+        v-if="
+          (this.relateObj.tableInfo.tableName ||
+            ['MultiTree'].includes(relateObj.compName)) &&
+          getMultiRelate.length
+        "
       >
         <el-select :value="1" placeholder="请选择数据源" :disabled="true">
           <el-option label="数据表" :value="1"></el-option>
@@ -70,7 +80,11 @@
       </el-form-item>
       <el-form-item
         label="关系"
-        v-if="this.relateObj.tableInfo.tableName && getMultiRelate.length"
+        v-if="
+          (this.relateObj.tableInfo.tableName ||
+            ['MultiTree'].includes(relateObj.compName)) &&
+          getMultiRelate.length
+        "
       >
         <el-select
           class="relateBox__relate"
@@ -128,7 +142,7 @@
         v-if="
           activeObj.dataSource.columnName &&
           activeObj.dataSource.relateName === '主表' &&
-          relateObj.compName !== 'TreeMain'
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName)
         "
       >
         <p class="switchBox">
@@ -194,7 +208,7 @@
         label="关联类型"
         v-if="
           activeObj.dataSource.columnName &&
-          relateObj.compName !== 'TreeMain' &&
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
           relateObj.compName !== 'CardMain'
         "
       >
@@ -215,7 +229,10 @@
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
       </el-form-item>
-      <el-form-item label="状态" v-if="relateObj.compName !== 'TreeMain'">
+      <el-form-item
+        label="状态"
+        v-if="!['TreeMain', 'MultiTree'].includes(relateObj.compName)"
+      >
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -324,7 +341,8 @@
         label="字体"
         class="font"
         v-if="
-          relateObj.compName !== 'TreeMain' && activeObj.labelShowStyle !== 2
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
+          activeObj.labelShowStyle !== 2
         "
       >
         <apiot-color-picker
@@ -349,7 +367,8 @@
         label="背景"
         class="font"
         v-if="
-          relateObj.compName !== 'TreeMain' && activeObj.labelShowStyle !== 2
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
+          activeObj.labelShowStyle !== 2
         "
       >
         <el-select v-model="activeObj.labelBg.style" class="m-r-8">
@@ -368,7 +387,8 @@
         style="margin-bottom: 0"
         v-show="activeObj.enableDict"
         v-if="
-          relateObj.compName !== 'TreeMain' && activeObj.labelShowStyle !== 2
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
+          activeObj.labelShowStyle !== 2
         "
       >
         <p class="switchBox">
@@ -385,7 +405,8 @@
       <el-form-item
         style="margin-bottom: 0"
         v-if="
-          relateObj.compName !== 'TreeMain' && activeObj.labelShowStyle !== 2
+          !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
+          activeObj.labelShowStyle !== 2
         "
       >
         <p class="switchBox">
@@ -479,6 +500,20 @@ export default {
       return [];
     },
     getMultiRelate() {
+      if (this.relateObj.compName === 'MultiTree') {
+        console.log(this.relateObj);
+        const arr = [];
+        this.relateObj.multiDataSource.forEach((item) => {
+          if (item.tableInfo.tableName) {
+            arr.push({
+              ...item.tableInfo,
+              relateName: item.tableInfo.nameAlias,
+              alias: item.tableInfo.nameAlias
+            });
+          }
+        });
+        return arr;
+      }
       return [
         {
           relateName: '主表'
@@ -487,14 +522,19 @@ export default {
       ];
     },
     getLabel() {
-      return (item) =>
-        (item.relateName === '主表'
+      return (item) => {
+        if (this.relateObj.compName === 'MultiTree') {
+          return item.tableName;
+        }
+        return item.relateName === '主表'
           ? item.relateName
-          : `${item.relateName}(${item.conditionArr[0][0].firstLineColumn.columnName})`);
+          : `${item.relateName}(${item.conditionArr[0][0].firstLineColumn.columnName})`;
+      };
     }
   },
 
   created() {
+    console.log(this.relateObj);
     this.initIcon();
     this.initLabel();
   },
@@ -506,7 +546,7 @@ export default {
         this.showLableType = true;
       } else if (this.relateObj.compName === 'MenuMain') {
         this.activeObj.width = '100%';
-      } else if (this.relateObj.compName === 'TreeMain') {
+      } else if (['TreeMain', 'MultiTree'].includes(this.relateObj.compName)) {
         this.activeObj.showLabelTitle = true;
         if (this.relateObj.isSidebar) {
           this.activeObj.width = '100%';
@@ -530,8 +570,9 @@ export default {
     // 关系选择切换
     relateChange(item) {
       this.tableArr = [];
-
-      if (item.relateName !== '主表') {
+      if (this.relateObj.compName === 'MultiTree') {
+        this.tableArr.push({ ...item });
+      } else if (item.relateName !== '主表') {
         this.tableArr.push({
           label: '关联表',
           relateName: this.getLabel(item),

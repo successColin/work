@@ -69,6 +69,7 @@ export default {
       try {
         const result = await getNodeAttr({ nodeId });
         const config = JSON.parse(result.attributes);
+        config.workflowVersionId = result.workflowVersionId;
         this.$store.commit('setProcessConfig', { nodeId, config });
       } catch (error) {
         console.error(error);
@@ -105,7 +106,7 @@ export default {
           this.current = 1;
           page = 1;
         }
-        const params = { current: page, size: pageSize };
+        const params = { current: page, size: pageSize, ...this.searchParam };
         const result = await getMyTodoList(params);
 
         let list = null;
@@ -129,6 +130,8 @@ export default {
   mounted() {},
 
   created() {
+    this.searchParam.beginDate = this.$apiot.getRecentDay({ n: 7 });
+    this.searchParam.endDate = this.$apiot.dateFormat();
     this.getData();
   }
 };

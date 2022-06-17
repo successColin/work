@@ -301,6 +301,21 @@ export default {
           columnTypeDict: 1
         },
         {
+          columnName: 'inspectMeasureValue1',
+          memo: 'X轴实际测量值',
+          columnTypeDict: 4
+        },
+        {
+          columnName: 'inspectMeasureValue2',
+          memo: 'Y轴实际测量值',
+          columnTypeDict: 4
+        },
+        {
+          columnName: 'inspectMeasureValue3',
+          memo: '温度实际测量值',
+          columnTypeDict: 4
+        },
+        {
           columnName: 'exvarchar1',
           memo: '扩展字符1',
           columnTypeDict: 2

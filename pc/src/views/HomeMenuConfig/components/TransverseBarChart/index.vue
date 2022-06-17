@@ -276,7 +276,8 @@ export default {
           dataZoom: [
             {
               type: 'slider',
-              show: enableData
+              show: enableData,
+              height: 15
             }
 
           ],

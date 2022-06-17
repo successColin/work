@@ -29,6 +29,7 @@
         background: `${colorIndex(userInfo)}`,
         width: `${size}rpx`,
         lineHeight: `${size}rpx`,
+        fontSize: `${fontSize}rpx`,
       }"
     >
       {{ firstLetter(userInfo) }}
@@ -46,6 +47,10 @@ export default {
     size: {
       type: Number,
       default: 100
+    },
+    fontSize: {
+      type: Number,
+      default: 40
     },
     userInfo: {
       type: Object

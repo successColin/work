@@ -48,15 +48,6 @@
       ]"
       configData="功能区"
     >
-      <!-- <div
-          class="menuMain__cardLeft"
-          v-if="!isConfig && configData.hasCardIcon"
-        >
-          <i
-            :class="`iconfont ${getCurDict(item, 1)}`"
-            :style="`color:${getCurDict(item, 2)}`"
-          ></i>
-        </div> -->
       <div class="menuMain__cardRight">
         <!-- 配置页 -->
         <draggable
@@ -101,6 +92,7 @@
               :moreOperateArr="[]"
               :btnTypesArr="[2, 3, 5]"
               :isSidebar="isSidebar"
+              :isMulTree="true"
             ></component> </transition-group
         ></draggable>
         <!-- 应用页 -->
@@ -185,7 +177,7 @@
 
 <script>
 import { throttle } from '@/utils/utils';
-import { getSidebarList, getSidebarPage, getSidebarSingle } from '@/api/menuConfig';
+import { listMultiTree, getSidebarPage, getSidebarSingle } from '@/api/menuConfig';
 import initAreaMixin from '../initAreaMixin';
 import SingleTree from './SingleTree';
 
@@ -255,47 +247,20 @@ export default {
       return index === -1 ? { children: [] } : this.configData.children[index];
     },
     getTreeBtnsArr() {
+      const arr = [];
       if (this.getFeatureArr.children.length) {
-        const obj = this.getFeatureArr.children.find((comp) => comp.compName === 'BtnsArea');
-        if (obj) {
-          return obj;
-        }
+        this.getFeatureArr.children.forEach((comp) => {
+          if (comp.compName === 'BtnsArea') {
+            arr.push(comp);
+          }
+        });
       }
-      return { children: [] };
+      return arr;
     },
     getButtonStyle() {
       return (i) => {
         if (this.getBtnsArr.children.length - this.getBtnsArr.rightIndex === i) {
           return 'margin-left: auto';
-        }
-        return '';
-      };
-    },
-    // 获取所有页码
-    getAllPage() {
-      return Math.ceil(this.total / this.configData.rowNum);
-    },
-    // 获取图标
-    getCurDict() {
-      return (item, flag) => {
-        let compId = this.configData.iconId;
-        if (flag === 2) {
-          compId = this.configData.iconColorId;
-        }
-        const index = this.getFeatureArr.children.findIndex((child) => child.compId === compId);
-        if (index !== -1) {
-          const comp = this.getFeatureArr.children[index];
-          const dict = comp.dataSource.dictObj;
-          const dictArr = this.$store.getters.getCurDict(dict.dictKey);
-          const res = dictArr.find((child) => child.value === item[compId]);
-          if (res && res.icon) {
-            if (flag === 1) {
-              return res.icon.icon;
-            }
-            if (flag === 2) {
-              return res.icon.color;
-            }
-          }
         }
         return '';
       };
@@ -309,15 +274,6 @@ export default {
         return this.getFeatureArr.children[index].compId;
       }
       return '';
-    },
-    // 是否选中
-    isItemActive() {
-      return (item) => {
-        if (this.getFeatureArr.form) {
-          return item[this.getIdCompId] === this.getFeatureArr.form[this.getIdCompId];
-        }
-        return false;
-      };
     },
     getEventName() {
       return this.showType && this.showType.type === 'flow'
@@ -340,6 +296,32 @@ export default {
         }
       });
       return obj;
+    },
+    getColumnStr() {
+      if (this.isConfig) {
+        return {};
+      }
+      const obj = {};
+      this.configData.multiDataSource.forEach((table, index) => {
+        let str = '';
+        this.getFeatureArr.children.forEach((item) => {
+          if (item.compName !== 'BtnsArea') {
+            if (item.dataSource.alias) {
+              if (item.dataSource.alias === table.tableInfo.nameAlias) {
+                str += `${table.tableInfo.tableName}.${item.dataSource.columnName} ${item.compId},`;
+              } else {
+                str += `'' ${item.compId},`;
+              }
+            } else if (item.dataSource.columnName === 'dataType') {
+              str += `'${index + 1}' dataType,`;
+            } else {
+              str += `${table.tableInfo.tableName}.${item.dataSource.columnName} ${item.compId},`;
+            }
+          }
+        });
+        obj[table.tableInfo.nameAlias] = str;
+      });
+      return obj;
     }
   },
 
@@ -350,6 +332,7 @@ export default {
   mounted() {
     if (this.isConfig) {
       // console.log(this.isConfig);
+      console.log(this.getColumnStr);
     } else {
       this.getMoreOperate();
       this.initFixData();
@@ -562,7 +545,7 @@ export default {
       return '';
     },
     // 获取列表数据
-    async getSidebarList(flag = true, nodeId = 1, needNext = true) {
+    async getSidebarList(flag = true, nodeId, needNext = true) {
       this.loading = true;
       this.showList = false;
       // flag true 是搜索 false 不是搜索
@@ -570,11 +553,26 @@ export default {
       let data = [];
       const { searchInfo } = this.configData;
       if (searchInfo && flag) {
+        console.log(searchInfo);
         if (this.backKey !== searchInfo.searchValue) {
           this.backKey = searchInfo.searchValue;
           this.current = 1;
           this.noMore = false;
         }
+        let searchStr = '';
+        searchInfo.columnsInfo.forEach((item, index) => {
+          if (index === 0) {
+            searchStr += '(';
+          }
+          const arr = item.name.split('.');
+          searchStr += `t.${arr[1]}='%${item.value || searchInfo.searchValue}%'`;
+          if (index !== searchInfo.columnsInfo.length - 1) {
+            searchStr += ' or ';
+          } else {
+            searchStr += ')';
+          }
+        });
+        console.log(searchStr);
         if (this.noMore) {
           return;
         }
@@ -586,17 +584,14 @@ export default {
 
         // 分页
         const params = {
-          dataPermissions: this.getDataPermissions,
-          compId: this.configData.compId,
           current: this.current,
           size: 50,
           compMap: filterMap,
           sysMenuDesignId: this.sysMenuDesignId(),
-          panelCompId: this.getValueFromFather('panelCompId'),
-          relationMenuDesignId: this.getValueFromFather('relationMenuDesignId'),
-          searchInfo: this.configData.searchInfo,
-          dataSource: this.configData.tableInfo.tableName,
-          isThisLevel: 3
+          multiDataSource: JSON.stringify(this.configData.multiDataSource),
+          selectColumn: JSON.stringify(this.getColumnStr),
+          dataPermissions: this.getDataPermissions,
+          searchValue: searchStr
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
         if (panelFilter) {
@@ -627,16 +622,18 @@ export default {
       } else {
         this.current = 1;
         this.noMore = false;
+        if (!nodeId) {
+          nodeId = this.configData.multiDataSource[0].selfLevelColumn.start;
+        }
         // 不分页
         const params = {
+          dataType: 1,
+          multiDataSource: JSON.stringify(this.configData.multiDataSource),
+          selectColumn: JSON.stringify(this.getColumnStr),
+          // filter: JSON.stringify(this.configData.multiDataSource),
           dataPermissions: this.getDataPermissions,
-          compId: this.configData.compId,
           compMap: filterMap,
           sysMenuDesignId: this.sysMenuDesignId(),
-          panelCompId: this.getValueFromFather('panelCompId'),
-          relationMenuDesignId: this.getValueFromFather('relationMenuDesignId'),
-          dataSource: this.configData.tableInfo.tableName,
-          isThisLevel: this.$store.state.userCenter.userInfo.isSupAdmin ? 1 : 2,
           nodeId
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
@@ -655,10 +652,11 @@ export default {
         if (this.showType && this.showType.type === 'flow') {
           this.makeFlowParams(params);
         }
-        data = await getSidebarList(params);
+        data = await listMultiTree(params);
         this.loading = false;
       }
       data.forEach((item) => {
+        item.treeId = `${item[this.getIdCompId]}${item.dataType}}`;
         if (!item.childCount) {
           item.isLeaf = true;
         } else {
@@ -677,14 +675,16 @@ export default {
             // 正常树打开第一个节点
             if (this.$refs.tree) {
               this.$refs.tree.getTree().setCurrentKey(this.selectKey);
-              this.$nextTick(() => {
-                document
-                  .querySelector(`.tree${this.configData.compId} .is-current`)
-                  .firstChild.click();
-              });
+              // this.$nextTick(() => {
+              //   document
+              //     .querySelector(`.tree${this.configData.compId} .is-current`)
+              //     .firstChild.click();
+              // });
             }
           }
         });
+      } else {
+        this.$bus.$emit('changeShowSkeleton');
       }
     },
     prevClick() {
@@ -770,7 +770,7 @@ export default {
     },
     // 按钮点击时，选中当前点击的
     selectTreeNode(data) {
-      this.selectKey = data[this.getIdCompId];
+      this.selectKey = data.treeId;
     },
     // 更改form的值
     changeForm(data) {
@@ -795,10 +795,10 @@ export default {
         ...item
       };
       if (flag) {
-        if (this.selectKey !== item[this.getIdCompId]) {
+        if (this.selectKey !== item.treeId) {
           this.$bus.$emit('returnFirst', this.onlyFlag());
         }
-        this.selectKey = item[this.getIdCompId];
+        this.selectKey = item.treeId;
       }
       // 触发其他区域数据的加载
       if (flag && this.configData.reloadArea.length) {
@@ -831,15 +831,14 @@ export default {
     // 获取下级的参数
     getListParams(node, callBack) {
       const filterMap = JSON.stringify(this.getFilterParams());
-
       const params = {
-        compId: this.configData.compId,
+        dataType: node.data.dataType,
+        multiDataSource: JSON.stringify(this.configData.multiDataSource),
+        selectColumn: JSON.stringify(this.getColumnStr),
+        // filter: JSON.stringify(this.configData.multiDataSource),
+        dataPermissions: this.getDataPermissions,
         compMap: filterMap,
         sysMenuDesignId: this.sysMenuDesignId(),
-        panelCompId: this.getValueFromFather('panelCompId'),
-        relationMenuDesignId: this.getValueFromFather('relationMenuDesignId'),
-        dataSource: this.configData.tableInfo.tableName,
-        isThisLevel: 2,
         nodeId: node.data[this.getIdCompId]
       };
       const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
@@ -868,14 +867,13 @@ export default {
       if (isAdd) {
         const node = this.$refs.tree.getTree().getNode(form);
         const params = {
+          dataType: form.dataType,
+          multiDataSource: JSON.stringify(this.configData.multiDataSource),
+          selectColumn: JSON.stringify(this.getColumnStr),
+          // filter: JSON.stringify(this.configData.multiDataSource),
           dataPermissions: this.getDataPermissions,
-          compId: this.configData.compId,
           compMap: filterMap,
           sysMenuDesignId: this.sysMenuDesignId(),
-          panelCompId: this.getValueFromFather('panelCompId'),
-          relationMenuDesignId: this.getValueFromFather('relationMenuDesignId'),
-          dataSource: this.configData.tableInfo.tableName,
-          isThisLevel: 2,
           nodeId: form[this.getIdCompId]
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
@@ -891,7 +889,7 @@ export default {
             }
           }
         }
-        const data = await getSidebarList(params);
+        const data = await listMultiTree(params);
         data.forEach((item) => {
           if (!item.childCount) {
             item.isLeaf = true;
@@ -925,7 +923,7 @@ export default {
     treeDelete() {
       const form = this.$refs.tree.getTree().getCurrentNode();
       const node = this.$refs.tree.getTree().getNode(this.selectKey);
-      if (form[this.getIdCompId] === this.selectKey) {
+      if (`${form[this.getIdCompId]}${form.dataType}` === this.selectKey) {
         this.$refs.tree.getTree().setCurrentKey(node.parent.data[this.getIdCompId]);
         const curForm = this.$refs.tree.getTree().getCurrentNode();
         this.selectItem(curForm);

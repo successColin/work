@@ -16,21 +16,24 @@
         v-if="showSinglebox && data[getIdCompId]"
       ></el-radio>
       <div class="treeNode__treeIcon">
-        <img
-          class="treeNode__treeIcon--img m-r-4"
-          :src="configData.treeIcon.imageUrl"
-          v-if="
-            configData.hasTreeIcon &&
-            configData.treeIcon.imageUrl &&
-            !showCurDict(data)
-          "
-        />
         <i
-          v-else
+          v-if="getCurDict(data, 1)"
           :class="`iconfont ${getCurDict(data, 1)} ${
             getCurDict(data, 1) && 'm-r-4'
           }`"
           :style="`color:${getCurDict(data, 2)}`"
+        ></i>
+        <img
+          v-else-if="getCurMulti.treeIcon.imageUrl"
+          class="treeNode__treeIcon--img m-r-4"
+          :src="getCurMulti.treeIcon.imageUrl"
+        />
+        <i
+          v-else
+          :class="`iconfont ${getCurMulti.treeIcon.icon} ${
+            getCurMulti.treeIcon.icon && 'm-r-4'
+          }`"
+          :style="`color:${getCurMulti.treeIcon.color}`"
         ></i>
       </div>
       <div
@@ -41,16 +44,17 @@
         {{ getTreeNodeText }}
       </div>
     </div>
+
     <BtnsArea
       class="treeNode__btns"
-      v-show="showBtns && isSidebar"
+      v-show="showBtns && isSidebar && false"
       :configData="configData"
       :activeObj="activeObj"
       :grandFather="configData"
       :hasTriggerComp="hasTriggerComp"
       :isSidebar="isSidebar"
       :isTree="true"
-      :getBtnsArr="getBtnsArr"
+      :getBtnsArr="getCurBtns"
       :getFeatureArr="getFeatureArr"
       :rowData="data"
       :fileDeleteIds="[]"
@@ -76,7 +80,7 @@ export default {
       type: Boolean
     },
     getBtnsArr: {
-      type: Object
+      type: Array
     },
     getFeatureArr: {
       type: Object
@@ -113,10 +117,28 @@ export default {
         return false;
       });
     },
+    getCurMulti() {
+      return this.configData.multiDataSource[this.data.dataType - 1];
+    },
+    getCurTableAlias() {
+      return this.getCurMulti.tableInfo.nameAlias;
+    },
+    getCurBtns() {
+      const obj = this.getBtnsArr.find((item) => item.dataSource.alias === this.getCurTableAlias);
+      if (obj) {
+        return obj;
+      }
+      return {
+        children: []
+      };
+    },
     getTreeNodeText() {
       let str = '';
-      this.getShowIds.forEach((item, i) => {
-        let tempStr = this.data[`${item.compId}_`] || this.data[item.compId];
+      this.getShowIds.forEach((item) => {
+        if (item.dataSource.alias !== this.getCurTableAlias) {
+          return;
+        }
+        let tempStr = this.data[item.compId];
         if (tempStr) {
           if (item.enableDict) {
             const dictArr = this.$store.getters.getCurDict(item.dataSource.dictObj.dictKey);
@@ -125,7 +147,7 @@ export default {
               tempStr = obj.name;
             }
           }
-          if (i !== 0) {
+          if (str !== '') {
             str += this.configData.linkSymbol;
           }
           str += tempStr;
@@ -136,37 +158,19 @@ export default {
       }
       return str;
     },
-    // 字典图标是否有值
-    showCurDict() {
-      return (item) => {
-        console.log(item);
-        const compId = this.configData.iconId;
-        const index = this.getFeatureArr.children.findIndex((child) => child.compId === compId);
-        if (index !== -1) {
-          const comp = this.getFeatureArr.children[index];
-          const dict = comp.dataSource.dictObj;
-          const dictArr = this.$store.getters.getCurDict(dict.dictKey);
-          const res = dictArr.find((child) => child.value === item[compId]);
-          if (res && res.icon) {
-            return true;
-          }
-        }
-        return false;
-      };
-    },
     // 获取图标
     getCurDict() {
       return (item, flag) => {
-        let compId = this.configData.iconId;
+        let compId = this.getCurMulti.iconId;
         if (flag === 2) {
-          compId = this.configData.iconColorId;
+          compId = this.getCurMulti.iconColorId;
         }
         const index = this.getFeatureArr.children.findIndex((child) => child.compId === compId);
         if (index !== -1) {
           const comp = this.getFeatureArr.children[index];
           const dict = comp.dataSource.dictObj;
           const dictArr = this.$store.getters.getCurDict(dict.dictKey);
-          const res = dictArr.find((child) => child.value === item[compId]);
+          const res = dictArr.find((child) => +child.value === +item[compId]);
           if (res && res.icon) {
             if (flag === 1) {
               return res.icon.icon;
@@ -174,14 +178,6 @@ export default {
             if (flag === 2) {
               return res.icon.color;
             }
-          }
-        }
-        if (this.configData.hasTreeIcon) {
-          if (flag === 1) {
-            return this.configData.treeIcon.icon;
-          }
-          if (flag === 2) {
-            return this.configData.treeIcon.color;
           }
         }
         return '';

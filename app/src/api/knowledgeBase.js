@@ -2,7 +2,7 @@
  * @Author: ytx
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: ytx
- * @Last Modified time: 2022-06-02 10:12:46
+ * @Last Modified time: 2022-06-16 09:07:18
  * 知识库管理
  */
 import FetchData from './axiosConfig';
@@ -130,5 +130,23 @@ export function moveFolder(data) {
     url: '/system/knowledge/moveFolder',
     method: 'post',
     data,
+  });
+}
+
+// 关联资料列表
+export function materialsListFiles(params) {
+  return FetchData.request({
+    url: '/system/materials/listFiles',
+    method: 'get',
+    params,
+  });
+}
+
+// 搜索关联资料
+export function materialsSearchFiles(params) {
+  return FetchData.request({
+    url: '/system/materials/searchFiles',
+    method: 'get',
+    params,
   });
 }

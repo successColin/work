@@ -7,9 +7,13 @@
 -->
 <template>
   <div class="prompt" :class="[position]" v-if="show" @touchmove.prevent>
-    <div class="prompt__layout"></div>
-    <div class="prompt__wrap">
-      <div class="prompt__wrap__content">
+    <div class="prompt__layout" :class="beijClass"></div>
+    <div class="prompt__wrap" @click.stop="cancleClick">
+      <div
+        class="prompt__wrap__content"
+        :class="animationClass"
+        @tap.stop="noop"
+      >
         <div
           class="prompt__wrap--title"
           v-if="modalObj.showTile"
@@ -57,7 +61,14 @@ export default {
       type: String,
       default: 'middle'
     },
-    titleStyle: Object,
+    titleStyle: {
+      type: Object,
+      default() {
+        return {
+          textAlign: 'center'
+        };
+      }
+    },
     cancelColor: {
       type: String,
       default: '#fff'
@@ -67,10 +78,17 @@ export default {
     return {
       promptValue: '',
       show: false,
-      modalObj: {}
+      modalObj: {},
+      animationClass: []
     };
   },
   computed: {
+    // 动画名称
+    aniName() {
+      const { position } = this;
+      if (position === 'bottom') return 'slide-up';
+      return 'fade';
+    },
     getThemeIndex() {
       return this.$store.getters.getThemeIndex;
     }
@@ -79,18 +97,38 @@ export default {
     //  确定按钮事件
     sureClick() {
       // 自己业务添加关闭
-      this.show = false;
-      this.modalObj.success({ confirm: true });
+      this.hideAni();
+
+      setTimeout(() => {
+        this.modalObj.success({ confirm: true });
+        this.show = false;
+      }, 300);
     },
     // 取消按钮事件
     cancleClick(e) {
       console.log('cancleClick====');
       console.log(e);
-      this.show = false;
-      this.modalObj.success({ cancel: true });
+      this.hideAni();
+      setTimeout(() => {
+        this.modalObj.success({ cancel: true });
+        this.show = false;
+      }, 300);
+      //
+    },
+    hideAni() {
+      const { aniName } = this;
+      this.beijClass = ['a-fade-leave', 'a-fade-leave-active'];
+      this.animationClass = [`a-${aniName}-leave`, `a-${aniName}-leave-active`];
+      this.$nextTick(() => {
+        this.beijClass = ['a-fade-leave-to', 'a-fade-leave-active'];
+        this.animationClass = [`a-${aniName}-leave-to`, `a-${aniName}-leave-active`];
+      });
     },
     // 显示
     showModal(modalObj = {}) {
+      const { aniName } = this;
+      this.animationClass = [`a-${aniName}-enter`, `a-${aniName}-enter-active`];
+      this.beijClass = ['a-fade-enter', 'a-fade-enter-active'];
       const baseObj = {
         showCancel: true,
         cancelTitle: this.$t('common.cancle'),
@@ -103,6 +141,10 @@ export default {
       this.modalObj = { ...baseObj, ...modalObj };
 
       this.show = true;
+      this.$nextTick(() => {
+        this.beijClass = ['a-fade-enter-to', 'a-fade-enter-active'];
+        this.animationClass = [`a-${aniName}-to`, `a-${aniName}-enter-active`];
+      });
     },
     // 显示
     showAsyncModal(modalObj = {}) {
@@ -117,7 +159,9 @@ export default {
         this.showModal(modalObj);
       });
     }
-  }
+  },
+
+  mounted() {}
 };
 </script>
 <style lang='scss' scoped>
@@ -178,6 +222,8 @@ export default {
       background: #ffffff;
       border-radius: 18rpx;
       overflow: hidden;
+      transition-duration: 300ms;
+      transition-timing-function: ease-out;
     }
     &--title {
       padding: 0 30rpx;

@@ -18,17 +18,17 @@ export default {
     // 为了解决遮罩层后底部滑动问题,建议放到滚动的最外面一层，避免引起里面的样式变化
     maskOverhiddenClass: '',
     isMask: false,
-    appVersion: '0.0.1', // app版本号
+    appVersion: '', // 服务器上app版本号
     baseVersion: '', // 当前基座版本号
-    baseLatestVersion: '915000', // 最新基座版本号
+    baseLatestVersion: '', // 最新基座版本号
     currentVersion: '', // 当前手机对应的版本号
     upgradeMode: 1, // 更新类型，1-更新包；2-安装包；3-手动下载
     appUploadUrl: {
       // app更新地址
-      installAtionPackAgeURL: 'http://47.110.141.124/eam/images/app/apioteam/APIoT915014001.wgt', // 手动更新地址
-      androidDownloadUrl: 'http://47.110.141.124/eam/images/app/apioteam/APIoT915011.apk', // 安卓安装包地址
-      iosDownloadUrl: 'https:www.pgyer.com/bijj', // ios安装包地址
-      upgradeURL: 'http://47.110.141.124/eam/images/app/apioteam/APIoT915014001.wgt', // 升级包地址
+      installAtionPackAgeURL: '', // 手动更新地址
+      androidDownloadUrl: '', // 安卓安装包地址
+      iosDownloadUrl: '', // ios安装包地址
+      upgradeURL: '', // 升级包地址
     },
   },
   getters: {
@@ -65,9 +65,17 @@ export default {
       else state.maskOverhiddenClass = '';
     },
     setAppVersion(state, appversions) {
-      state.currentVersion = appversions.currentVersion || ''; // app版本号
-      state.baseVersion = appversions.baseVersion || ''; // 基座版本号
+      state.appVersion = appversions.appVersion || ''; // app版本号
+      state.updateMode = appversions.updateMode || ''; // 更新类型
+      state.appUploadUrl.upgradeURL = appversions.upgradeURL || ''; // 更新包地址
+      state.appUploadUrl.androidDownloadUrl = appversions.androidDownloadUrl || ''; // 安卓安装包地址
+      state.appUploadUrl.iosDownloadUrl = appversions.iosDownloadUrl || ''; // ios安装包地址
+      state.appUploadUrl.installAtionPackAgeURL = appversions.installAtionPackAgeURL || ''; // 手动更新地址
     },
+    setAppBaseInfo(state, info) {
+      state.currentVersion = info.currentVersion || ''; // 当前手机对应的版本号
+      state.baseVersion = info.baseVersion || ''; // 当前基座版本号
+    }
   },
   actions: {},
 };

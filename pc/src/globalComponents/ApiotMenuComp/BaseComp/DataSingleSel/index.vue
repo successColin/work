@@ -166,6 +166,7 @@ export default {
           // console.log(this.configData);
           if (v && !this.parent.form[`${this.configData.compId}_`]) {
             let tempId = 'id';
+            let selectWhere = `${this.configData.dataSource.tableName}.${tempId}=${v}`;
             if (this.grandFather && this.grandFather.relateTableArr) {
               const relateName = this.configData.dataSource.relateName.split('(')[0];
               const index = this.grandFather.relateTableArr.findIndex(
@@ -175,12 +176,34 @@ export default {
                 const { secondLineColumn } =
                   this.grandFather.relateTableArr[index].conditionArr[0][0];
                 tempId = secondLineColumn.columnName;
+                selectWhere = '';
+                this.grandFather.relateTableArr[index].conditionArr.forEach((orArr, j) => {
+                  selectWhere += '';
+                  orArr.forEach((item, i) => {
+                    if (i === 0) {
+                      selectWhere += '(';
+                    }
+                    if (item.secondIsValue) {
+                      selectWhere += `${item.firstLineTable.nameAlias}.${item.firstLineColumn.columnName}=${item.secondLineValue}`;
+                    } else {
+                      selectWhere += `${item.secondLineTable.nameAlias}.${item.secondLineColumn.columnName}=${v}`;
+                    }
+                    if (i !== orArr.length - 1) {
+                      selectWhere += ' or ';
+                    } else {
+                      selectWhere += ')';
+                    }
+                  });
+                  if (j !== this.grandFather.relateTableArr[index].conditionArr.length - 1) {
+                    selectWhere += ' and ';
+                  }
+                });
               }
             }
             const params = {
               selectContent: `${tempId},${this.configData.dataSource.columnName}`,
               selectFrom: this.configData.dataSource.tableName,
-              selectWhere: `${this.configData.dataSource.tableName}.${tempId}=${v}`
+              selectWhere
             };
             const data = await selectList(params);
             if (data.length !== 0 && data[0][this.configData.dataSource.columnName]) {
@@ -214,7 +237,11 @@ export default {
 
         panelObj.panelFixData = {};
         panelObj.panelData.forEach((item) => {
-          panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          if (item.mainComp.type === 2) {
+            panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else {
+            panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          }
         });
 
         panelObj.panelCompId = this.configData.compId;

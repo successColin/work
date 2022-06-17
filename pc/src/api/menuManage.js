@@ -23,6 +23,14 @@ export function sysMenuPage(params) {
   });
 }
 
+// 获取菜单分页 排除主页
+export function pageWithOutHomePage(params) {
+  return FetchData.request({
+    url: '/system/sysMenu/pageWithOutHomePage',
+    params,
+  });
+}
+
 // 新增菜单管理 模块以及分组
 export function sysMenuAdd(data) {
   return FetchData.request({

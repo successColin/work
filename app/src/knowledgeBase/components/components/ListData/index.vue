@@ -46,7 +46,6 @@
 </template>
 
 <script>
-import { fileTypeImg } from '@/utils/index';
 import { PREVIEW_FILE } from '@/utils/preview.js';
 import nodata from '@/globalComponents/ApiotMenu/Common/nodata';
 
@@ -73,7 +72,7 @@ export default {
       default: ''
     }
   },
-  inject: ['getList', 'visitRecordFun'],
+  inject: ['getList', 'visitRecordFun', 'fileTypeImg'],
   data() {
     return {};
   },
@@ -81,7 +80,7 @@ export default {
   computed: {
     imgUrl() {
       return function(name) {
-        return fileTypeImg(name);
+        return this.fileTypeImg(name);
       };
     },
     computedHeight() {

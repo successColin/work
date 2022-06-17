@@ -181,5 +181,10 @@ export default {
 .apiotWangeditor {
   display: flex;
   flex-direction: column;
+  ::v-deep {
+    &.w-e-full-screen-container {
+      z-index: 2000;
+    }
+  }
 }
 </style>

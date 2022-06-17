@@ -111,7 +111,7 @@
                   type="text"
                   :placeholder="$t('inspection.inspection-enterMeasuredValue')"
                   placeholder-class="placeholder"
-                  @input="handleInput"
+                  @input="(e) => handleInput(e, obj.columnObj.columnName)"
                   v-model="item[obj.columnObj.columnName]"
                 /><!-- 中文：请输入测量值-->
               </view>
@@ -144,7 +144,7 @@
                 /><!-- 中文：请输入测量值-->
                 <i class="appIcon appIcon-celiangzhi"
                   :class="ismeasure"
-                  @click="handleMeasure(item, obj.columnObj.columnName)"></i>
+                  @click="handleMeasure(item)"></i>
               </view>
             </view>
             <!-- 润滑 -->
@@ -509,7 +509,7 @@ export default {
       }
       return arr;
     },
-    handleMeasure(item, columnName) {
+    handleMeasure(item) {
       const that = this;
       that.measureType = item.taskType;
       if (that.measure) {
@@ -539,7 +539,7 @@ export default {
       } else {
         setTimeout(() => {
           that.measure = true;
-          that.confirmMeasure(item, columnName);
+          that.confirmMeasure(item);
           that.openPointIndex = -1;
           closeMeaTem();
         }, 30);
@@ -740,7 +740,7 @@ export default {
       });
     },
     // 任务输入测量值变化时判断当前任务正常异常状态
-    handleInput(e) {
+    handleInput(e, columnName) {
       const that = this;
       const pointData = this.pointList[this.openPointIndex];
       const inspectMeasureValue = e.detail.value; // 界面展示数值
@@ -750,11 +750,11 @@ export default {
         if (inspectMeasureValue === '-') {
           val = 0;
         } else {
-          pointData.inspectMeasureValue = parseFloat(inspectMeasureValue);
+          pointData[columnName] = parseFloat(inspectMeasureValue);
           val = parseFloat(inspectMeasureValue);
         }
       } else {
-        pointData.inspectMeasureValue = 0;
+        pointData[columnName] = 0;
         val = 0;
       }
       const inspectTime = this.$apiot.dateFormat('', 'yyyy-MM-dd hh:mm:ss');
@@ -768,7 +768,7 @@ export default {
       }
       updateSql(
         'inspectionpointdo',
-        { inspectMeasureValue: val, inspectTime },
+        { [columnName]: val, inspectTime },
         { inspectionTaskId: pointData.inspectionTaskId },
         () => {
           that.$set(that.pointList, that.openPointIndex, pointData);
@@ -776,11 +776,11 @@ export default {
       );
     },
     // 确认测量
-    confirmMeasure(pointData, columnName) {
+    confirmMeasure(pointData) {
       const inspectTime = this.$apiot.dateFormat('', 'yyyy-MM-dd hh:mm:ss');
       if (
-        pointData[columnName] <= pointData.standardMeasureUpper &&
-        pointData[columnName] >= pointData.standardMeasureLower
+        pointData.inspectMeasureValue <= pointData.standardMeasureUpper &&
+        pointData.inspectMeasureValue >= pointData.standardMeasureLower
       ) {
         this.handleChangeState(this.openPointIndex, 1);
       } else {
@@ -789,7 +789,7 @@ export default {
       updateSql(
         'inspectionpointdo',
         {
-          [columnName]: pointData[columnName],
+          inspectMeasureValue: pointData.inspectMeasureValue,
           inspectTime,
         },
         { inspectionTaskId: pointData.inspectionTaskId }

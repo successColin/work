@@ -121,5 +121,52 @@ export default {
         return a.treeType - b.treeType;
       });
     },
+    fileTypeImg(obj) {
+      let fileName = 'OTHER.svg';
+      if (obj.sysKlTree && obj.sysKlTree.treeType === 1) {
+        fileName = 'FILE.svg';
+      }
+      if (obj.sysKlTree && obj.sysKlTree.treeType === 3) {
+        fileName = 'IMAG.svg';
+      }
+      if (obj.sysKlTree && obj.sysKlTree.treeType === 4) {
+        fileName = 'MP4.svg';
+      }
+      if (obj.sysKlTree && obj.sysKlTree.treeType === 5) {
+        fileName = 'MP3.svg';
+      }
+      if (obj.sysKlTree && obj.sysKlTree.treeType === 6) {
+        fileName = 'OTHER.svg';
+      }
+      if (obj.sysKlTree && obj.sysKlTree.treeType === 2) {
+        let url = '';
+        if (obj.sysKlTree && obj.sysKlTree.url) {
+          url = obj.sysKlTree.url;
+        } else {
+          url = obj.url;
+        }
+        const suffixArr = url.split('.');
+        const suffix = suffixArr[suffixArr.length - 1];
+        if ('txt'.indexOf(suffix) !== -1) {
+          fileName = 'TXT.svg';
+        }
+        if (['xls', 'xlsx'].indexOf(suffix) !== -1) {
+          fileName = 'XLS.svg';
+        }
+        if (['ppt', 'pptx'].indexOf(suffix) !== -1) {
+          fileName = 'PPT.svg';
+        }
+        if ('pdf'.indexOf(suffix) !== -1) {
+          fileName = 'PDF.svg';
+        }
+        if (['doc', 'docx'].indexOf(suffix) !== -1) {
+          fileName = 'DOC.svg';
+        }
+        if (['zip', 'rar'].indexOf(suffix) !== -1) {
+          fileName = 'ZIP.svg';
+        }
+      }
+      return require(`@/static/img/fileType/${fileName}`);
+    },
   },
 };

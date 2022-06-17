@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import ContBox from '@/globalComponents/Apiotknowledge';
+import ContBox from './components';
 
 export default {
   data() {

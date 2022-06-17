@@ -21,8 +21,16 @@
       { isTree: isTree },
       { isCard: isCard },
       { noChild: isConfig && getBtnsArr && getBtnsArr.children.length === 0 },
+      {
+        showTablename:
+          isConfig &&
+          isMulTree &&
+          getBtnsArr.dataSource &&
+          getBtnsArr.dataSource.tableName,
+      },
     ]"
     :configData="areaName"
+    :tablename="getBtnsArr.dataSource && getBtnsArr.dataSource.tableName"
   >
     <div v-if="isTableBtn" class="isTableBtn__title">操作</div>
     <!-- 配置 -->
@@ -204,6 +212,10 @@ export default {
     isCard: {
       type: Boolean,
       default: false
+    },
+    isMulTree: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -271,7 +283,7 @@ export default {
     }
   },
   watch: {
-    'getBtnsArr.children.length': function(v1, v2) {
+    'getBtnsArr.children.length': function (v1, v2) {
       if (v1 > v2) {
         // 表示新增
         const index = this.getBtnsArr.children.findIndex(
@@ -299,6 +311,19 @@ export default {
     box-sizing: border-box;
     // background-color: #fff;
     margin-bottom: 10px;
+    &.showTablename::before {
+      content: attr(tablename);
+      position: absolute;
+      font-size: 12px;
+      color: $--color-primary;
+      top: -20%;
+      left: 0;
+      right: 0;
+      height: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     &.isTree,
     &.isCard {
       width: 100%;

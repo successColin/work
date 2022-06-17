@@ -94,7 +94,7 @@
             activeObj.buttonStyle !== 'text' && activeObj.buttonStyle !== ''
           "
           class="buttonColor__res"
-          :style="`background:${activeObj.iconColor}`"
+          :style="`background:${activeObj.iconColor};`"
         ></div>
       </el-form-item>
       <el-form-item label="展示风格">
@@ -115,6 +115,7 @@
           v-show="activeObj.buttonForm !== 1"
           class="buttonColor buttonIcon"
           popper-class="buttonColor buttonIcon"
+          @dblclick.prevent.stop
           v-model="activeObj.iconFont"
           placeholder="请选择图标"
         >
@@ -678,6 +679,7 @@ export default {
             if (
               curComp.compName !== 'CardMain' &&
               curComp.compName !== 'TreeMain' &&
+              curComp.compName !== 'MultiTree' &&
               curComp.tabId === this.activeObj.tabId
             ) {
               curInfo.push(curComp);
@@ -691,7 +693,10 @@ export default {
     },
     // 是不是树的按钮
     isTreeBtn() {
-      if (this.getParentObj(3) && this.getParentObj(3).compName === 'TreeMain') {
+      if (
+        this.getParentObj(3) &&
+        ['TreeMain', 'MultiTree'].includes(this.getParentObj(3).compName)
+      ) {
         return true;
       }
       return false;
@@ -736,7 +741,10 @@ export default {
 
   methods: {
     initTreeBtn() {
-      if (this.getParentObj(3) && this.getParentObj(3).compName === 'TreeMain') {
+      if (
+        this.getParentObj(3) &&
+        ['TreeMain', 'MultiTree'].includes(this.getParentObj(3).compName)
+      ) {
         this.activeObj.buttonStyle = 'text';
         this.activeObj.buttonForm = 3;
       }
@@ -860,6 +868,7 @@ export default {
   .buttonColor {
     width: 100%;
     display: inline-flex;
+
     &__res {
       position: absolute;
       width: 20px;
@@ -871,6 +880,7 @@ export default {
     ::v-deep {
       .el-input__inner {
         color: transparent;
+        font-size: 0px;
       }
     }
   }

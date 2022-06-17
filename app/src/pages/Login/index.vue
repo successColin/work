@@ -117,17 +117,18 @@ export default {
         const { result } = qrResult;
         // 如果是服务器默认地址二维码1
         if (result.indexOf('APIoT_STATIC_SERVERURL') !== -1) {
-          const regex = /(?<=APIoT_STATIC_SERVERURL).*?(?=SERVERURL_END)/gi;
-          const serveUrl = result.match(regex);
-          if (serveUrl.length > 0) {
-            let servers = {};
-            serveUrl.forEach((item) => {
-              const serve = JSON.parse(item);
-              servers = { ...servers, ...serve };
-            });
-            this.$store.commit('setServerInfoAddress', servers);
-            uni.reLaunch({ url: '/pages/index/index' });
-          }
+          // const regex = /(?<=APIoT_STATIC_SERVERURL).*?(?=SERVERURL_END)/gi;
+          // const serveUrl = result.match(regex);
+          // console.log(serveUrl);
+          // if (serveUrl.length > 0) {
+          //   let servers = {};
+          //   serveUrl.forEach((item) => {
+          //     const serve = JSON.parse(item);
+          //     servers = { ...servers, ...serve };
+          //   });
+          //   this.$store.commit('setServerInfoAddress', servers);
+          //   uni.reLaunch({ url: '/pages/index/index' });
+          // }
 
           console.log(result);
         }

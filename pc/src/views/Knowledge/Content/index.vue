@@ -573,11 +573,16 @@ export default {
     isShowListContent() {
       return function () {
         if (
-          (this.active === 2 && this.groupType !== 10) ||
-          ([7, 8].includes(this.groupType) && this.active === 1)
+          (
+            (this.active === 2 && this.groupType !== 10)
+                ||
+                ([7, 8].includes(this.groupType) && this.active === 1)
+          ) && this.showType !== 3
         ) {
+          console.log(333);
           return true;
         }
+        console.log(4444);
         return false;
       };
     },

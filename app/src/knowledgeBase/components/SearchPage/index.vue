@@ -1,5 +1,5 @@
 <!--
- * @Descripttion: 最近搜索
+ * @Descripttion: 知识库搜索
  * @Author: ytx
  * @Date: 2022-01-06 17:06:56
  * @Last Modified by: ytx

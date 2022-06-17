@@ -21,7 +21,7 @@
       <div class="thead">
         <div style="width: 40px;">序号</div>
         <div style="width: 35%;">变量名</div>
-        <div style="width: 35%;">默认值</div>
+        <div style="width: 35%;">{{getValueName}}</div>
         <div style="flex: 1">操作</div>
       </div>
       <div class="noData" v-if="!tableData.length">
@@ -52,6 +52,12 @@ export default {
       default() {
         return [];
       }
+    },
+    valueNameType: { // 值显示名称类型
+      type: Number,
+      default() {
+        return 1;
+      }
     }
   },
   data() {
@@ -62,7 +68,13 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+    getValueName() {
+      if (this.valueNameType === 1) return '默认值';
+      if (this.valueNameType === 2) return '字段名';
+      return '默认值';
+    }
+  },
 
   mounted() {
     this.tableData = this.value;
@@ -174,7 +186,7 @@ export default {
     }
 
     .noData {
-      color: #FFFFFF;
+      color: #333333;
       text-align: center;
     }
   }

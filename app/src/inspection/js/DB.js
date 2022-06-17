@@ -103,6 +103,9 @@ const createInspectionPointDo = function(cb, cbe) {
     inspectOilQty decimal(12,4) DEFAULT NULL,
     inspectUserDesc VARCHAR(1000) DEFAULT NULL,
     inspectMeasureValue decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue1 decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue2 decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue3 decimal(12,4) DEFAULT NULL,
     inspectTime text DEFAULT NULL,
     inspectCondition int DEFAULT '0',
     qrCode VARCHAR(50) DEFAULT NULL,
@@ -268,13 +271,13 @@ const insertInspectionpointDo = function(inspectionpointdoData, cb, cbe) {
   const inspectionpointdoColumnName = ['id', 'routeCode', 'routeName', 'inspectionRouteId', 'deviceId', 'deviceCode', 'deviceName', 'taskCode', 'taskName',
     'inspectionPointId', 'inspectionTaskId', 'pointCode', 'pointName', 'taskType', 'taskStatus', 'inspectMethod', 'standardCondition', 'taskStartTime', 'taskMemo', 'devicePosition',
     'uploadstatus', 'standardMeasureLower', 'standardMeasureUpper', 'inspectOilQty', 'inspectUserDesc', 'inspectMeasureValue', 'inspectTime', 'inspectCondition',
-    'qrCode', 'rfidCode', 'inspectUserId', 'standardOilQty', 'imageIds', 'timeCost', 'hasAbnormal', 'uploadTime',
+    'qrCode', 'rfidCode', 'inspectUserId', 'standardOilQty', 'imageIds', 'timeCost', 'hasAbnormal', 'uploadTime', 'inspectMeasureValue1', 'inspectMeasureValue2', 'inspectMeasureValue3',
     'sno', 'rfid', 'exvarchar1', 'exvarchar2', 'exvarchar3', 'exint1', 'exint2', 'exint3', 'exdecimal1', 'exdecimal2', 'exdecimal3', 'exdate1', 'exdate2', 'exdate3'
   ];
   const resInspectiondoData = ['id', 'routeCode', 'routeName', 'inspectionRouteId', 'deviceId', 'deviceCode', 'deviceName', 'taskCode', 'taskName',
     'inspectionPointId', 'inspectionTaskId', 'pointCode', 'pointName', 'taskType', 'taskStatus', 'inspectMethod', 'standardCondition', 'taskStartTime', 'taskMemo', 'devicePosition',
     'uploadstatus', 'standardMeasureLower', 'standardMeasureUpper', 'inspectOilQty', 'inspectUserDesc', 'inspectMeasureValue', 'inspectTime', 'inspectCondition',
-    'qrCode', 'rfidCode', 'inspectUserId', 'standardOilQty', 'imageIds', 'timeCost', 'hasAbnormal', 'uploadTime',
+    'qrCode', 'rfidCode', 'inspectUserId', 'standardOilQty', 'imageIds', 'timeCost', 'hasAbnormal', 'uploadTime', 'inspectMeasureValue1', 'inspectMeasureValue2', 'inspectMeasureValue3',
     'sno', 'rfid', 'exvarchar1', 'exvarchar2', 'exvarchar3', 'exint1', 'exint2', 'exint3', 'exdecimal1', 'exdecimal2', 'exdecimal3', 'exdate1', 'exdate2', 'exdate3'
   ];
   inspectionpointdoData.forEach((item, index) => {
@@ -465,6 +468,9 @@ const selectPointDoListByCode = function(inspectionDoId, code, type, cb, cbe) {
     inspectionpointdo.taskMemo,
     inspectionpointdo.inspectUserDesc,
     inspectionpointdo.inspectMeasureValue,
+    inspectionpointdo.inspectMeasureValue1,
+    inspectionpointdo.inspectMeasureValue2,
+    inspectionpointdo.inspectMeasureValue3,
     inspectionpointdo.imageIds,
     inspectionpointdo.hasAbnormal,
     inspectionpointdo.timeCost,
@@ -526,6 +532,9 @@ const selectPointDoList = function(inspectionDoId, deviceCode, cb, cbe) {
       inspectionpointdo.taskMemo,
       inspectionpointdo.inspectUserDesc,
       inspectionpointdo.inspectMeasureValue,
+      inspectionpointdo.inspectMeasureValue1,
+      inspectionpointdo.inspectMeasureValue2,
+      inspectionpointdo.inspectMeasureValue3,
       inspectionpointdo.imageIds,
       inspectionpointdo.hasAbnormal,
       inspectionpointdo.uploadTime,
@@ -593,7 +602,7 @@ const selectPointsByInspectionDoId = function(cb, cbe) {
   const sql =
   `select 
       inspectionPointId, deviceCode, deviceId, deviceName, 
-      devicePosition, inspectMethod, inspectCondition, 
+      devicePosition, inspectMethod, inspectCondition, inspectMeasureValue1, inspectMeasureValue2, inspectMeasureValue3,
       inspectMeasureValue, inspectMethod, inspectOilQty, inspectTime, inspectUserDesc, 
       inspectUserId, pointCode, pointName, qrCode, rfidCode, routeCode, inspectionRouteId, 
       routeName, standardCondition, standardMeasureLower, standardMeasureUpper, 
@@ -617,7 +626,7 @@ const selectPointsResults = function(inspectionDoId, cb, cbe) {
   const sql =
     `select 
       inspectionPointId, deviceCode, deviceId, deviceName, 
-      devicePosition, inspectMethod, inspectCondition, 
+      devicePosition, inspectMethod, inspectCondition, inspectMeasureValue1, inspectMeasureValue2, inspectMeasureValue3, 
       inspectMeasureValue, inspectMethod, inspectOilQty, inspectTime, inspectUserDesc, 
       inspectUserId, pointCode, pointName, qrCode, rfidCode, routeCode, inspectionRouteId, 
       routeName, standardCondition, standardMeasureLower, standardMeasureUpper, 
@@ -756,6 +765,9 @@ const selectInspectionUpData = function (cb, cbe) {
     inspectionpointdo.devicePosition,
     inspectionpointdo.inspectCondition,
     inspectionpointdo.inspectMeasureValue,
+    inspectionpointdo.inspectMeasureValue1,
+    inspectionpointdo.inspectMeasureValue2,
+    inspectionpointdo.inspectMeasureValue3,
     inspectionpointdo.inspectMethod,
     inspectionpointdo.inspectOilQty,
     inspectionpointdo.inspectTime,

@@ -9,7 +9,15 @@
       { isCard: !isConfig && isCard },
       { isTable: isTable },
       { isConfigId: isConfig && configData.labelNotChange },
+      {
+        showTablename:
+          isConfig &&
+          isMultiTree &&
+          configData.dataSource &&
+          configData.dataSource.tableName,
+      },
     ]"
+    :tablename="configData.dataSource && configData.dataSource.tableName"
     v-if="showInput"
   >
     <span
@@ -322,6 +330,13 @@ export default {
         return false;
       });
       return obj;
+    },
+    // 是不是多表树下级
+    isMultiTree() {
+      if (this.grandFather && this.grandFather.compName === 'MultiTree') {
+        return true;
+      }
+      return false;
     }
   },
 
@@ -331,8 +346,8 @@ export default {
         this.unwatch = this.$watch(
           `parent.form.${this.configData.compId}`,
           async (v) => {
-            console.log(v);
             let tempId = 'id';
+            let selectWhere = '';
             if (this.grandFather && this.grandFather.relateTableArr) {
               const relateName = this.configData.dataSource.relateName.split('(')[0];
               const index = this.grandFather.relateTableArr.findIndex(
@@ -342,6 +357,35 @@ export default {
                 const { secondLineColumn } =
                   this.grandFather.relateTableArr[index].conditionArr[0][0];
                 tempId = secondLineColumn.columnName;
+                selectWhere = '';
+                this.grandFather.relateTableArr[index].conditionArr.forEach((orArr, j) => {
+                  selectWhere += '';
+                  orArr.forEach((item, i) => {
+                    if (i === 0) {
+                      selectWhere += '(';
+                    }
+                    if (item.secondIsValue) {
+                      selectWhere += `${item.firstLineTable.nameAlias}.${item.firstLineColumn.columnName}=${item.secondLineValue}`;
+                    } else if (this.configData.dataSource.relateName === '主表') {
+                      if (this.configData.enableMultiColumn) {
+                        // 数据多选框
+                        if (v && !this.parent.form[`${this.configData.compId}_`]) {
+                          selectWhere += `${item.secondLineTable.nameAlias}.${item.secondLineColumn.columnName} in (${v})`;
+                        }
+                      }
+                    } else {
+                      selectWhere += `${item.secondLineTable.nameAlias}.${item.secondLineColumn.columnName}=${v}`;
+                    }
+                    if (i !== orArr.length - 1) {
+                      selectWhere += ' or ';
+                    } else {
+                      selectWhere += ')';
+                    }
+                  });
+                  if (j !== this.grandFather.relateTableArr[index].conditionArr.length - 1) {
+                    selectWhere += ' and ';
+                  }
+                });
               }
             }
             if (this.configData.dataSource.relateName === '主表') {
@@ -351,7 +395,9 @@ export default {
                   const params = {
                     selectContent: `${this.configData.multiTable.column.columnName},${tempId}`,
                     selectFrom: this.configData.multiTable.table.tableName,
-                    selectWhere: `${this.configData.multiTable.table.tableName}.${tempId} in (${v})`
+                    selectWhere:
+                      selectWhere ||
+                      `${this.configData.multiTable.table.tableName}.${tempId} in (${v})`
                   };
                   const data = await selectList(params);
                   let str = '';
@@ -368,12 +414,13 @@ export default {
               const params = {
                 selectContent: `${this.configData.dataSource.columnName},${tempId}`,
                 selectFrom: this.configData.dataSource.tableName,
-                selectWhere: `${this.configData.dataSource.tableName}.${tempId}=${v}`
+                selectWhere: selectWhere || `${this.configData.dataSource.tableName}.${tempId}=${v}`
               };
-              console.log(this.parent.form[`${this.configData.compId}_`], this.configData.compId);
               const data = await selectList(params);
-              this.parent.form[`${this.configData.compId}_`] =
-                data[0][this.configData.dataSource.columnName];
+
+              this.parent.form[`${this.configData.compId}_`] = data[0]
+                ? data[0][this.configData.dataSource.columnName]
+                : '';
             }
           },
           {
@@ -413,7 +460,11 @@ export default {
 
         panelObj.panelFixData = {};
         panelObj.panelData.forEach((item) => {
-          panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          if (item.mainComp.type === 2) {
+            panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else {
+            panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          }
         });
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
@@ -503,6 +554,19 @@ export default {
   min-height: 44px;
   overflow: hidden;
   line-height: 1;
+  &.showTablename::before {
+    content: attr(tablename);
+    position: absolute;
+    font-size: 12px;
+    color: $--color-primary;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   &.noHover {
     min-height: 28px;
     padding: 0px 15px 0px 15px;

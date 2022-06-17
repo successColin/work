@@ -40,5 +40,6 @@ export default {
     limitFunc: '是否启用上下限功能',
     enforceCheck: '是否启用强制点检',
     taskColumn: '配置任务字段',
+    baseLatestVersion: '基座版本号',
   },
 };

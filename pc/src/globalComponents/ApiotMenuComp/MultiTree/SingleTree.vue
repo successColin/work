@@ -3,7 +3,7 @@
     ref="tree"
     class="elTree"
     :data="treeData"
-    :node-key="getIdCompId"
+    node-key="treeId"
     @node-drag-start="handleDragStart"
     @node-drop="handleDrop"
     @node-click="nodeClick"
@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { getSidebarList, singleSave } from '@/api/menuConfig';
+import { listMultiTree, singleSave } from '@/api/menuConfig';
 import TreeNode from './TreeNode.vue';
 
 export default {
@@ -116,8 +116,9 @@ export default {
         return;
       }
       this.$emit('getListParams', node, async (params) => {
-        const data = await getSidebarList(params);
+        const data = await listMultiTree(params);
         data.forEach((item) => {
+          item.treeId = `${item[this.getIdCompId]}${item.dataType}}`;
           if (!item.childCount) {
             item.isLeaf = true;
           } else {

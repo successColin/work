@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { sysMenuPage } from '@/api/menuManage';
+import { pageWithOutHomePage } from '@/api/menuManage';
 import IconSelect from '../../../../../../../../components/IconSelect';
 
 export default {
@@ -89,7 +89,7 @@ export default {
       this.$emit('update:visible', false);
     },
     async sysMenuPage() {
-      const data = await sysMenuPage({
+      const data = await pageWithOutHomePage({
         size: this.size,
         current: this.current,
         clientType: this.$route.query.isApp === '1' ? 2 : 1,

@@ -41,36 +41,24 @@
             >
               <el-option label="显隐" :value="1"></el-option>
               <el-option
-                v-show="
-                  ![16].includes(triggerCompMap[item.comp.compId].compType)
-                "
-                :label="
-                  [5].includes(triggerCompMap[item.comp.compId].compType)
-                    ? '禁用'
-                    : '只读'
-                "
+                v-show="![16].includes(getCurCompType(item))"
+                :label="[5].includes(getCurCompType(item)) ? '禁用' : '只读'"
                 :value="2"
               ></el-option>
               <el-option
                 label="是否必填"
                 :value="5"
-                v-show="
-                  ![5, 16].includes(triggerCompMap[item.comp.compId].compType)
-                "
+                v-show="![5, 16].includes(getCurCompType(item))"
               ></el-option>
               <el-option
                 label="固定值"
                 :value="3"
-                v-show="
-                  ![5, 16].includes(triggerCompMap[item.comp.compId].compType)
-                "
+                v-show="![5, 16].includes(getCurCompType(item))"
               ></el-option>
               <el-option
                 label="公式"
                 :value="4"
-                v-show="
-                  ![5, 16].includes(triggerCompMap[item.comp.compId].compType)
-                "
+                v-show="![5, 16].includes(getCurCompType(item))"
               ></el-option>
             </el-select>
           </span>
@@ -95,10 +83,7 @@
             </el-select>
             <el-date-picker
               v-show="item.affectType === 3"
-              v-if="
-                item.comp.compId &&
-                triggerCompMap[item.comp.compId].compType == 8
-              "
+              v-if="item.comp.compId && getCurCompType(item) == 8"
               type="date"
               :editable="false"
               value-format="yyyy-MM-dd"
@@ -108,10 +93,7 @@
             </el-date-picker>
             <el-date-picker
               v-show="item.affectType === 3"
-              v-else-if="
-                item.comp.compId &&
-                triggerCompMap[item.comp.compId].compType == 9
-              "
+              v-else-if="item.comp.compId && getCurCompType(item) == 9"
               type="datetime"
               :editable="false"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -212,6 +194,14 @@ export default {
         return this.triggerCompMap[this.triggerComp.compId].compType;
       }
       return '';
+    },
+    getCurCompType() {
+      return (item) => {
+        if (item.comp.compId && this.triggerCompMap[item.comp.compId]) {
+          return this.triggerCompMap[item.comp.compId].compType;
+        }
+        return '';
+      };
     }
   },
 

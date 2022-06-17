@@ -3,7 +3,7 @@ const padLeftZero = function (str) {
 };
 
 // yyyy-MM-dd hh:mm:ss
-const formatDate = (date, fmt) => {
+const formatDate = (date, fmt = 'yyyy-MM-dd hh:mm:ss') => {
   if (date) {
     date = typeof date === 'string' ? date.replace(/-/g, '/') : date;
     date = new Date(date);
@@ -33,15 +33,6 @@ const formatDate = (date, fmt) => {
       );
     }
   });
-  // for (const k in o) {
-  //   if (new RegExp(`(${k})`).test(fmt)) {
-  //     const str = `${o[k]}`;
-  //     fmt = fmt.replace(
-  //       RegExp.$1,
-  //       RegExp.$1.length === 1 ? str : this.padLeftZero(str)
-  //     );
-  //   }
-  // }
   return fmt;
 };
 

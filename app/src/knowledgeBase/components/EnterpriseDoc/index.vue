@@ -145,7 +145,8 @@ export default {
   provide() {
     return {
       getList: this.getList,
-      visitRecordFun: this.visitRecordFun
+      visitRecordFun: this.visitRecordFun,
+      fileTypeImg: this.fileTypeImg
     };
   },
   props: {

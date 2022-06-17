@@ -63,7 +63,11 @@
             v-if="getCurrentTab.multiDataSource.length === 2"
           ></i>
         </h2>
-        <el-collapse v-model="activeNames" class="contentConfig__box--collapse">
+        <el-collapse
+          v-model="activeNames"
+          class="contentConfig__box--collapse"
+          accordion
+        >
           <el-collapse-item
             :name="index"
             v-for="(item, index) in getCurrentTab.multiDataSource"
@@ -76,7 +80,7 @@
               <i
                 class="iconfont icon-shanchu"
                 v-if="index === 2"
-                @click.stop="getCurrentTab.multiDataSource.splice(2, 1)"
+                @click.stop="deleteMultiData"
               ></i>
             </template>
             <filterable-input
@@ -85,6 +89,7 @@
               v-if="index !== 0 && item.tableInfo.tableName"
               :tableName="item.tableInfo.tableName"
               :showInfo="item.lastLevelColumn"
+              columnTypes="1"
               :dialogType="2"
               @selectRes="selectColumnRes($event, item.lastLevelColumn)"
             ></filterable-input>
@@ -100,7 +105,7 @@
                 :dialogType="1"
                 :disabled="canChangeTable"
                 :showInfo="item.tableInfo"
-                @selectRes="selectTable($event, item.tableInfo)"
+                @selectRes="selectTable($event, item.tableInfo, index)"
               ></filterable-input>
             </div>
             <filterable-input
@@ -109,9 +114,22 @@
               v-if="item.tableInfo.tableName"
               :tableName="item.tableInfo.tableName"
               :showInfo="item.selfLevelColumn"
+              columnTypes="1"
               :dialogType="2"
               @selectRes="selectColumnRes($event, item.selfLevelColumn)"
             ></filterable-input>
+            <div
+              class="m-t-10 contentConfig__dataSource--start"
+              v-if="item.tableInfo.tableName && item.selfLevelColumn.columnName"
+            >
+              <apiot-input
+                class="input"
+                readonly
+                v-model="item.selfLevelColumn.start"
+                placeHolder="本表关联字段起始值"
+              ></apiot-input>
+              <i class="iconfont icon-jiahao" @click="showDialog(item)"></i>
+            </div>
             <apiot-button
               class="contentConfig__dataSource--addRelate"
               style="margin-left: 0"
@@ -123,6 +141,87 @@
             >
               <i class="iconfont icon-shaixuan m-r-4"></i>设置过滤条件
             </apiot-button>
+            <div
+              class="contentConfig__box"
+              v-if="getCardArea(item.tableInfo.nameAlias).length"
+            >
+              <h2>包含组件</h2>
+              <draggable
+                :value="getCardArea(item.tableInfo.nameAlias)"
+                group="tabs"
+                animation="300"
+                handle=".icon-zongxiangtuodong"
+              >
+                <transition-group class="contentConfig__hasTab--list" tag="ul">
+                  <li
+                    class="contentConfig__hasTab--tab"
+                    v-for="child in getCardArea(item.tableInfo.nameAlias)"
+                    :key="child.compId"
+                    v-show="child.compName !== 'BtnsArea'"
+                  >
+                    <i
+                      class="iconfont icon-zongxiangtuodong m-l-14 m-r-6"
+                      v-if="false"
+                    ></i>
+                    <span class="input">{{
+                      child.dataSource.columnName || child.name
+                    }}</span>
+                    <el-tooltip
+                      effect="dark"
+                      content="隐藏"
+                      :enterable="false"
+                      placement="bottom"
+                    >
+                      <i
+                        class="iconfont icon-mimaxianshi m-r-12"
+                        @click="child.showTreeText = false"
+                        v-show="
+                          !['id', 'dataType'].includes(
+                            child.dataSource.columnName
+                          ) &&
+                          child.compName !== 'BtnsArea' &&
+                          child.showTreeText
+                        "
+                      ></i
+                    ></el-tooltip>
+                    <el-tooltip
+                      effect="dark"
+                      content="显示"
+                      :enterable="false"
+                      placement="bottom"
+                    >
+                      <i
+                        class="iconfont icon-yincang m-r-12"
+                        @click="child.showTreeText = true"
+                        v-show="
+                          !['id', 'dataType'].includes(
+                            child.dataSource.columnName
+                          ) &&
+                          child.compName !== 'BtnsArea' &&
+                          !child.showTreeText
+                        "
+                      ></i
+                    ></el-tooltip>
+                    <el-tooltip
+                      effect="dark"
+                      content="删除"
+                      :enterable="false"
+                      placement="bottom"
+                    >
+                      <i
+                        class="iconfont icon-shanchu"
+                        @click="deleteLabel(child)"
+                        v-show="
+                          !['id', 'dataType'].includes(
+                            child.dataSource.columnName
+                          ) && child.compName !== 'BtnsArea'
+                        "
+                      ></i
+                    ></el-tooltip>
+                  </li>
+                </transition-group>
+              </draggable>
+            </div>
             <div class="contentConfig__box contentConfig__hasTab">
               <h2 class="contentConfig__hasTab--switchBox">
                 是否启用组件字典图标
@@ -141,7 +240,7 @@
                 <el-option
                   :label="item.name"
                   :value="item.compId"
-                  v-for="item in getDictLable"
+                  v-for="item in getDictLable(item.tableInfo.nameAlias)"
                   :key="item.compId"
                 ></el-option>
               </el-select>
@@ -152,7 +251,7 @@
                 <el-option
                   :label="item.name"
                   :value="item.compId"
-                  v-for="item in getDictLable"
+                  v-for="item in getDictLable(item.tableInfo.nameAlias)"
                   :key="item.compId"
                 ></el-option>
               </el-select>
@@ -202,76 +301,6 @@
           ></el-option>
         </el-select>
       </div>
-      <div class="contentConfig__box" v-if="getCardArea.children.length !== 1">
-        <h2>包含组件</h2>
-        <draggable
-          v-model="getCardArea.children"
-          group="tabs"
-          animation="300"
-          handle=".icon-zongxiangtuodong"
-        >
-          <transition-group class="contentConfig__hasTab--list" tag="ul">
-            <li
-              class="contentConfig__hasTab--tab"
-              v-for="(child, index) in getCardArea.children"
-              :key="child.compId"
-              v-show="child.compName !== 'BtnsArea'"
-            >
-              <i class="iconfont icon-zongxiangtuodong m-l-14 m-r-6"></i>
-              <span class="input">{{
-                child.dataSource.columnName || child.name
-              }}</span>
-              <el-tooltip
-                effect="dark"
-                content="隐藏"
-                :enterable="false"
-                placement="bottom"
-              >
-                <i
-                  class="iconfont icon-mimaxianshi m-r-12"
-                  @click="child.showTreeText = false"
-                  v-show="
-                    child.dataSource.columnName !== 'id' &&
-                    child.compName !== 'BtnsArea' &&
-                    child.showTreeText
-                  "
-                ></i
-              ></el-tooltip>
-              <el-tooltip
-                effect="dark"
-                content="显示"
-                :enterable="false"
-                placement="bottom"
-              >
-                <i
-                  class="iconfont icon-yincang m-r-12"
-                  @click="child.showTreeText = true"
-                  v-show="
-                    child.dataSource.columnName !== 'id' &&
-                    child.compName !== 'BtnsArea' &&
-                    !child.showTreeText
-                  "
-                ></i
-              ></el-tooltip>
-              <el-tooltip
-                effect="dark"
-                content="删除"
-                :enterable="false"
-                placement="bottom"
-              >
-                <i
-                  class="iconfont icon-shanchu"
-                  @click="deleteLabel(index)"
-                  v-show="
-                    child.dataSource.columnName !== 'id' &&
-                    child.compName !== 'BtnsArea'
-                  "
-                ></i
-              ></el-tooltip>
-            </li>
-          </transition-group>
-        </draggable>
-      </div>
 
       <!-- 筛选条件 -->
       <FilterTerm
@@ -282,6 +311,16 @@
         :triggerCompMap="triggerCompMap"
         :getCurrentTab="getCurrentTab"
       ></FilterTerm>
+
+      <!-- 初始值弹窗 -->
+      <StartDialog
+        :visible.sync="showStart"
+        v-if="showStart"
+        @btnSure="btnSure"
+        :tableInfo="curMulItem ? curMulItem.tableInfo : {}"
+        :selfLevelColumn="curMulItem ? curMulItem.selfLevelColumn : {}"
+      >
+      </StartDialog>
     </section>
   </div>
 </template>
@@ -291,6 +330,7 @@ import { createUnique } from '@/utils/utils';
 import propertyMixin from '../propertyMixin';
 import IconSelect from '../../../../../../components/IconSelect';
 import FilterTerm from '../ContentConfig/FilterTerm';
+import StartDialog from './StartDialog';
 
 export default {
   mixins: [propertyMixin],
@@ -339,13 +379,16 @@ export default {
           value: '/'
         }
       ],
-      activeNames: []
+      activeNames: '',
+      curMulItem: null,
+      showStart: false
     };
   },
 
   components: {
     IconSelect,
-    FilterTerm
+    FilterTerm,
+    StartDialog
   },
 
   computed: {
@@ -402,20 +445,27 @@ export default {
     },
     // 获取功能组件
     getCardArea() {
-      if (this.activeObj.children.length) {
-        const index = this.activeObj.children.findIndex((child) => child.areaType === 1);
-        if (index !== -1) {
-          return this.activeObj.children[index];
+      return (alias) => {
+        const arr = [];
+        if (this.activeObj.children[1]) {
+          this.activeObj.children[1].children.forEach((item) => {
+            if (item.compName !== 'BtnsArea') {
+              if (item.dataSource.tableName === '') {
+                arr.push(item);
+              } else if (item.dataSource.alias === alias) {
+                arr.push(item);
+              }
+            }
+          });
         }
-      }
-      return {
-        children: []
+        return arr;
       };
     },
     // 获取开启了字典的label
     getDictLable() {
-      // console.log();
-      return this.getCardArea.children.filter((child) => child.enableDict);
+      return (alias) =>
+        // console.log();
+        this.getCardArea(alias).filter((child) => child.enableDict);
     },
     // 获取所有的区域
     getArea() {
@@ -452,13 +502,13 @@ export default {
         this.getCurrentTab.iconId = '';
         this.getCurrentTab.iconColorId = '';
       } else {
-        const index1 = this.getDictLable.findIndex(
+        const index1 = this.getCurrentTab.children[1].children.findIndex(
           (label) => label.compId === this.getCurrentTab.iconId
         );
         if (index1 === -1) {
           this.getCurrentTab.iconId = '';
         }
-        const index2 = this.getDictLable.findIndex(
+        const index2 = this.getCurrentTab.children[1].children.findIndex(
           (label) => label.compId === this.getCurrentTab.iconColorId
         );
         if (index2 === -1) {
@@ -486,23 +536,15 @@ export default {
       return `${item.name}`;
     },
     // 选中表格
-    selectTable(table, tableInfo) {
+    selectTable(table, tableInfo, index) {
       // console.log(table);
       tableInfo.tableName = table.tableName;
       tableInfo.id = table.id;
-      // 更改id组件的表名
-      this.getCurrentTab.children.forEach((child) => {
-        child.children.forEach((comp) => {
-          // console.log(comp);
-          if (
-            comp.dataSource &&
-            comp.dataSource.relateName === '主表' &&
-            comp.dataSource.columnName === 'id'
-          ) {
-            comp.dataSource.tableName = table.tableName;
-          }
-        });
-      });
+      tableInfo.nameAlias = `alias_${createUnique()}`;
+      // 按钮区表名，别名回填
+      this.getCurrentTab.children[1].children[index].dataSource.tableName = tableInfo.tableName;
+      this.getCurrentTab.children[1].children[index].dataSource.alias = tableInfo.nameAlias;
+      // console.log(this.getCurrentTab.children[1].children[index]);
     },
     // 字段选择结果
     selectColumnRes(table, column) {
@@ -511,8 +553,14 @@ export default {
       column.columnTypeDict = table.columnTypeDict;
     },
     // 删除label
-    deleteLabel(index) {
-      this.getCardArea.children.splice(index, 1);
+    deleteLabel(item) {
+      console.log(item);
+      const index = this.getCurrentTab.children[1].children.findIndex(
+        (label) => label.compId === item.compId
+      );
+      if (index !== -1) {
+        this.getCurrentTab.children[1].children.splice(index, 1);
+      }
     },
     iconSelected(obj, item) {
       item.treeIcon.icon = obj.icon;
@@ -543,13 +591,31 @@ export default {
         selfLevelColumn: {
           id: '',
           columnName: '',
-          columnTypeDict: ''
+          columnTypeDict: '',
+          start: 0,
+          startId: ''
         },
         filterTermType: 1, // 1 是普通 2是sql
         filterTermStr: '', // 普通字符串
         filterTermSql: '', // sql字符串
         termParams: '' // 过滤条件需要的组件参数id
       });
+      this.getCurrentTab.children[1].children.splice(2, 0, {
+        name: '操作',
+        compName: 'BtnsArea',
+        compId: createUnique(),
+        children: [],
+        dataSource: {
+          columnName: '',
+          tableName: '',
+          alias: ''
+        }
+      });
+    },
+    // 删除多表
+    deleteMultiData() {
+      this.getCurrentTab.multiDataSource.splice(2, 1);
+      this.getCurrentTab.children[1].children.splice(2, 1);
     },
     // 添加label组件
     addLableComp() {
@@ -631,6 +697,16 @@ export default {
       console.log(this.activeObj);
       this.activeObj.children[1].form[idCompId] = '';
       this.activeObj.children[1].children.push(label);
+    },
+    // 展示本表关联字段初始值弹窗
+    showDialog(item) {
+      this.curMulItem = item;
+      this.showStart = true;
+    },
+    btnSure(obj) {
+      console.log(obj);
+      this.curMulItem.selfLevelColumn.startId = obj.id;
+      this.curMulItem.selfLevelColumn.start = obj[this.curMulItem.selfLevelColumn.columnName];
     }
   },
 
@@ -889,6 +965,36 @@ export default {
       margin-top: 10px;
       i {
         color: $--color-primary;
+      }
+    }
+    &--start {
+      position: relative;
+      .input {
+        &:hover + i {
+          border-left-color: #c0c4cc;
+        }
+        &:focus-within + i {
+          border-left-color: $--color-primary;
+        }
+      }
+      .icon-jiahao {
+        border-left: 1px solid #e9e9e9;
+        position: absolute;
+        margin-left: -32px;
+        margin-top: 1px;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        color: #aaaaaa;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        &:not(.disabled):hover {
+          color: $--color-primary;
+        }
+        &.disabled {
+          cursor: default;
+        }
       }
     }
   }

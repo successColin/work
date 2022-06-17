@@ -397,6 +397,7 @@ export default {
     const { panelConfig, skipMenuConfig } = this.getComponentInfo;
     const initObj = { dialogTitle: '', dialogName: 'PanelDialog' };
     this.activeObj = panelConfig ? panelConfig.activeObj || initObj : initObj;
+    console.log(skipMenuConfig, ',,,,');
     this.skipMenuConfig = skipMenuConfig || [];
   },
   watch: {

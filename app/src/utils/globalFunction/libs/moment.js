@@ -30,4 +30,60 @@ const getDifferDate = function (firstDate, secondDate, differ) {
   return dayNum;
 };
 
-export default { getDifferDate };
+const padLeftZero = function (str) {
+  return `00${str}`.substring(str.length);
+};
+const formatDate = function (date, fmt = 'yyyy-MM-dd hh:mm:ss') {
+  if (/(y+)/.test(fmt)) {
+    fmt = fmt.replace(RegExp.$1, `${date.y}`.substring(4 - RegExp.$1.length));
+  }
+  const o = {
+    'M+': date.M + 1,
+    'd+': date.d,
+    'h+': date.h,
+    'm+': date.m,
+    's+': date.s,
+    'MS+': date.ms,
+  };
+
+  Object.keys(o).forEach((k) => {
+    if (new RegExp(`(${k})`).test(fmt)) {
+      const str = `${o[k]}`;
+      fmt = fmt.replace(
+        RegExp.$1,
+        RegExp.$1.length === 1 ? str : padLeftZero(str)
+      );
+    }
+  });
+  return fmt;
+};
+
+// type 1=天；2=月；3=年
+// datetype before=之前；after=之后
+const getRecentDay = function ({ n = 1, type = 1, datetype = 'before', fmt }) {
+  const dd = new Date();
+
+  let _month = 0;
+  let _day = 0;
+  if (datetype === 'before' && type === 2) _month = dd.getMonth() - n;
+  else if (datetype === 'before' && type === 3) _month = dd.getMonth() - n * 12;
+  else if (datetype === 'after' && type === 2) _month = dd.getMonth() + n;
+  else if (datetype === 'after' && type === 3) _month = dd.getMonth() + n * 12;
+  else if (datetype === 'after' && type === 1) _day = dd.getDate() + n;
+  else _day = dd.getDate() - n;
+
+  if (type === 2 || type === 3) dd.setMonth(_month);
+  else dd.setDate(_day);
+
+  const y = dd.getFullYear();
+  const M = dd.getMonth();
+  const d = dd.getDate();
+  const h = dd.getHours();
+  const m = dd.getMinutes();
+  const s = dd.getSeconds();
+  const ms = dd.getMilliseconds();
+  const day = formatDate({ y, M, d, h, m, s, ms }, fmt);
+  return day;
+};
+
+export default { getDifferDate, getRecentDay };

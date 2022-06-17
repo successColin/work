@@ -720,7 +720,7 @@ export default {
           font-weight: 500;
           display: flex;
           align-items: center;
-          justify-content: start;
+          justify-content: flex-start;
           .img{
             width: 48rpx;
             height: 48rpx;

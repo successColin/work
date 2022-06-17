@@ -31,6 +31,7 @@ import ApiotTabs from './globalComponents/ApiotTabs';
 import ApiotTextarea from './globalComponents/ApiotTextarea';
 import ApiotTextTip from './globalComponents/ApiotTextTip';
 import ApiotToast from './globalComponents/ApiotToast';
+import ApiotTreePath from './globalComponents/ApiotTree/TreePath';
 import ApiotUpload from './globalComponents/ApiotUpload';
 import ApiotUploadCers from './globalComponents/ApiotUploadCers';
 import ApiotUserhead from './globalComponents/ApiotUserhead';
@@ -44,6 +45,7 @@ Vue.prototype._i18n = i18n;
 Vue.prototype.$store = store;
 Vue.prototype.$platformConfig = platformConfig;
 
+Vue.component('ApiotTreePath', ApiotTreePath);
 Vue.component('ApiotListNodata', ApiotListNodata);
 Vue.component('ApiotTabs', ApiotTabs);
 Vue.component('ApiotTextTip', ApiotTextTip);

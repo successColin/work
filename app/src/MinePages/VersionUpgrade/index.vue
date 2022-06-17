@@ -72,8 +72,8 @@ export default {
       }
     },
     versionUpdate(url, tipMsg) {
+      console.log(url);
       // 版本更新
-      const _this = this;
       if (!url) {
         this.showConfirm(`${tipMsg + this.$t('mine.installAtionPackAgeURL')}`);
         return;
@@ -97,7 +97,6 @@ export default {
               { force: true },
               () => {
                 uni.hideLoading();
-                _this.$http.post('logout');
                 plus.runtime.restart();
               },
               (e) => {
@@ -140,7 +139,6 @@ export default {
       // 升级app
       // 升级app分手动更新、基座更新、版本更新
       // 基座更新为强制更新
-      console.log(this.appUploadUrl);
       if (this.uplaodType === 3) this.manualUpdate();
       // 手动更新
       else if (this.uplaodType === 2) this.pdestalRenewal();

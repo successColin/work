@@ -7,9 +7,27 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="singleTextWrap" :id="`basicPie_${config.componentId}`" :style="getContentStyles">
+  <div
+      class="singleTextWrap"
+      :id="`basicPie_${config.componentId}`"
+      :style="getContentStyles"
+      v-loading="loading"
+  >
+    <div class="pathWrap" v-if="config.interactionType===4">
+      <CBreadcrumb
+          @change="changePath"
+          :color="color"
+          :pathArr="pathArr"/>
+    </div>
     <div class="singleTextContent" :id="config.componentId">
     </div>
+    <component
+        :is="panelConfig.activeObj.dialogName || 'PanelDialog'"
+        :showPanel="visible"
+        :visible.sync="visible"
+        :panelObj="panelObj"
+        v-if="JSON.stringify(panelConfig) !== '{}'"
+    ></component>
   </div>
 </template>
 
@@ -18,12 +36,20 @@ import * as echarts from 'echarts/core';
 // 引入柱状图图表，图表后缀都为 Chart
 import { BarChart, GraphChart } from 'echarts/charts';
 // 引入提示框，标题，直角坐标系组件，组件后缀都为 Component
-import { TitleComponent, TooltipComponent, LegendScrollComponent, DataZoomComponent, GridComponent } from 'echarts/components';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendScrollComponent,
+  DataZoomComponent,
+  GridComponent
+} from 'echarts/components';
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from 'echarts/renderers';
 import { isEqual } from 'lodash';
 import { getInfoById } from '@/api/design';
 import { supplementaryColor, returnChartPosition, getXAxisByKey } from '@/views/HomeMenuConfig/constants/common';
+import parser from '_u/formula';
+import { formatDate } from '_u/utils';
 // import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
 
 // 注册必须的组件
@@ -37,6 +63,9 @@ echarts.use([
   CanvasRenderer,
   LegendScrollComponent
 ]);
+
+let FIXED_OBJ = {}; // 保存
+
 export default {
   props: {
     config: {
@@ -58,6 +87,10 @@ export default {
   },
   data() {
     return {
+      visible: false,
+      panelConfig: {}, // 面板属性
+      loading: false,
+      isFinished: true,
       instance: null,
       observer: null,
       recordOldValue: { // 记录下旧的宽高数据，避免重复触发回调函数
@@ -65,7 +98,10 @@ export default {
         height: '0'
       },
       supplementaryColor: [], // 补充色
-      list: []
+      list: [],
+      color: '#666666',
+      params: {}, // 参数集合
+      pathArr: [], // 路径数组
     };
   },
 
@@ -74,8 +110,23 @@ export default {
   },
 
   computed: {
+    panelObj() {
+      const { activeObj, curPaneObj } = this.panelConfig;
+      return {
+        ...curPaneObj,
+        ...activeObj,
+        panelVarObj: {},
+        panelName: activeObj.dialogTitle
+      };
+    },
     getContentStyles() {
-      const { width, height, top, left, stylesObj } = this.config;
+      const {
+        width,
+        height,
+        top,
+        left,
+        stylesObj
+      } = this.config;
       return `width:${width}px;height:${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex};`;
     },
     getOption() {
@@ -158,10 +209,14 @@ export default {
           }
           return '';
         };
-        let supplementaryColorArr = []; let XAxis; let legendData; const series = []; let
-          list;
+        let supplementaryColorArr = [];
+        let XAxis;
+        let legendData;
+        const series = [];
+        let list;
         if (dataType === 1) {
           list = JSON.parse(staticValue);
+          this.list = list;
           XAxis = getXAxisByKey(list, dimension); // x轴的数据
           legendData = getXAxisByKey(list, dimension === 'x' ? 's' : 'x'); // 确定图例
           const ln = legendData.length;
@@ -247,7 +302,7 @@ export default {
                 backgroundColor: '#333'
               }
             },
-            position (point,) {
+            position(point,) {
               // 固定在顶部
               return point;
             }
@@ -255,7 +310,8 @@ export default {
           dataZoom: [
             {
               type: 'slider',
-              show: enableData
+              show: enableData,
+              height: 15
             }
           ],
           legend: {
@@ -362,6 +418,7 @@ export default {
   },
   mounted() {
     this.initDom();
+    this.initFunc();
   },
   watch: {
     otherParams: {
@@ -379,27 +436,40 @@ export default {
     }
   },
   methods: {
+    changePath(item, i) { // 修改路径
+      this.params = JSON.parse(JSON.stringify(item));
+      this.pathArr = this.pathArr.slice(0, i + 1);
+      this.$nextTick(() => {
+        this.fetchData();
+      });
+    },
     getParameters() {
-      const { id, componentId } = this.config;
+      const {
+        id,
+        componentId
+      } = this.config;
       const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
+        Object.keys(obj)
+          .map((item) => ({
+            name: item,
+            value: obj[item]
+          }));
 
       const { query } = this.$route;
       const satisfyParams = {};
       if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
-          }
-        });
+        Object.keys(this.otherParams)
+          .forEach((item) => {
+            if (item.indexOf(componentId) > -1) {
+              const key = item.replace(`${componentId}_`, '');
+              satisfyParams[key] = this.otherParams[item];
+            }
+          });
       }
       const currentParams = {
         ...satisfyParams,
-        ...query
+        ...query,
+        ...this.params
       };
       const arr = reduce(currentParams);
       return {
@@ -408,13 +478,101 @@ export default {
       };
     },
     initDom() {
-      const { componentId } = this.config;
+      const {
+        componentId,
+        dataType,
+        drillDownConfig = {},
+        SqlDataConfig: { variableConfig }
+      } = this.config;
+      if (dataType === 3) {
+        const pathObj = {};
+        const { pathColor } = drillDownConfig;
+        variableConfig.forEach((item) => {
+          const {
+            name,
+            value
+          } = item;
+          pathObj[name] = value;
+        });
+        pathObj.path_name = '全部';
+        this.color = pathColor || '#666666';
+        this.pathArr.push(pathObj);
+      }
       // eslint-disable-next-line max-len
       this.instance = Object.freeze({ myChart: echarts.init(document.getElementById(componentId)) });
+      this.instance.myChart.on('click', (params) => {
+        const {
+          interactionType,
+          panelConfig,
+          skipMenuConfig,
+          dimension
+        } = this.config;
+        if (interactionType === 1) return;
+        const {
+          name,
+          value,
+          seriesName
+        } = params;
+        // eslint-disable-next-line max-len
+        const currentObj = this.list.find((item) => {
+          const { x, y, s } = item;
+          if (seriesName.indexOf('series') > -1) {
+            return item[dimension] === name && `${y}` === `${value}`;
+          }
+          const keyValue = dimension === 'x' ? s : x;
+          return item[dimension] === name && `${y}` === `${value}` && keyValue === seriesName;
+        });
+        if (!currentObj) {
+          this.$message.error('没有找到对应的数据!');
+          this.isFinished = true;
+          return;
+        }
+        FIXED_OBJ = currentObj;
+        if (interactionType === 2) {
+          // 弹面板
+          console.log(panelConfig);
+          this.doSpringPanel(panelConfig);
+        }
+        if (interactionType === 3 && skipMenuConfig.length) {
+          // 跳菜单
+          this.doSkipMenu(skipMenuConfig);
+          return;
+        }
+        const { drillDownField = [], tripStopField, tripStopFieldValue } = drillDownConfig;
+        // eslint-disable-next-line max-len
+        if (interactionType === 4 && Array.isArray(drillDownField) && drillDownField.length && this.isFinished) {
+          // eslint-disable-next-line max-len
+          this.doDrill(params, drillDownField, dimension, tripStopField, tripStopFieldValue, currentObj);
+        }
+      });
       this.fetchData();
     },
-    async fetchData() {
+    // eslint-disable-next-line max-len
+    doDrill(params, drillDownField, dimension, tripStopField, tripStopFieldValue, currentObj) { // 下钻
+      const { name } = params;
+      this.isFinished = false;
+      if (tripStopField && `${currentObj[tripStopField]}` === `${tripStopFieldValue}`) {
+        this.isFinished = true;
+        return;
+      }
+      drillDownField.forEach((item) => {
+        const {
+          name: varName,
+          value: filed
+        } = item;
+        this.params[varName] = currentObj[filed];
+      });
+      this.fetchData(() => {
+        this.isFinished = true;
+        this.pathArr.push({
+          ...this.params,
+          path_name: name
+        });
+      });
+    },
+    async fetchData(callback) {
       if (!this.instance) {
+        if (callback) callback();
         return;
       }
       const { dataType } = this.config;
@@ -448,12 +606,17 @@ export default {
           option
         );
       }
-      // getInfoById
+      if (callback) {
+        console.log('执行1, callback');
+        callback();
+      }
     },
     async getApi() {
       const { apiDataConfig } = this.config;
       const params = this.getParameters();
+      this.loading = true;
       const res = await getInfoById(params) || [];
+      this.loading = true;
       if (res.length) {
         const obj = res[0] || {};
         const targetObj = obj.response || '{}';
@@ -505,7 +668,9 @@ export default {
         SQLUpdateTime = 1
       } = SqlDataConfig;
       const params = this.getParameters();
+      this.loading = true;
       const res = await getInfoById(params);
+      this.loading = false;
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
         // eslint-disable-next-line no-unused-expressions
@@ -536,9 +701,224 @@ export default {
         return;
       }
       this.list = res;
-    }
+    },
+    doSkipMenu(skipMenuConfig) { // 跳菜单
+      const menuConfig = skipMenuConfig.find((item) => {
+        if (!item.jumpTerm) { // 如果没有条件，默认跳
+          return true;
+        }
+        const isFlag = this.formulaConversion(item.jumpTerm);
+        return isFlag;
+      });
+      if (menuConfig) {
+        // 获取目标菜单
+        const menu = this.$store.getters.getCurMenu(menuConfig.id);
+        if (menu) {
+          const curMenu = JSON.parse(JSON.stringify(menu));
+          curMenu.path = `${curMenu.path}&isJump=1`;
+          menuConfig.menuVarObj = {};
+          menuConfig.menuFilter.forEach((item, index) => { // 将公式值处理成固定值
+            const { filterTermStr, filterTermSql, filterTermType } = item;
+            if (filterTermType === 1) { // 普通的过滤条件
+              const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
+              menuConfig.menuFilter[index].filterTermStr = JSON.stringify(newFilterTermStr);
+            }
+            if (filterTermType === 2) { // sql过滤条件
+              const str = this.reduceSqlFilter(filterTermSql);
+              menuConfig.menuFilter[index].filterTermSql = str;
+            }
+          });
+          const menuObj = {};
+          menuObj[menuConfig.id] = menuConfig;
+          sessionStorage.jumpMenuObj = JSON.stringify(menuObj);
+          this.$bus.$emit('changeMenuTab', curMenu);
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '您没有该跳转菜单的权限'
+          });
+        }
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '您没有符合条件的菜单'
+        });
+      }
+    },
+    reduceNormalFilter(filterTermStr) { // 处理普通的过滤条件
+      const newFilterTermStr = filterTermStr ? JSON.parse(filterTermStr) : {};
+      const { termArr = [] } = newFilterTermStr;
+      termArr.forEach((termItem) => {
+        termItem.forEach((term) => {
+          const { valueType, content } = term;
+          if (valueType === 2) {
+            const result = this.formulaConversion(content);
+            term.valueType = 1;
+            term.content = result;
+          }
+        });
+      });
+      if (JSON.stringify(newFilterTermStr) === '{}') {
+        return '';
+      }
+      return newFilterTermStr;
+    },
+    reduceSqlFilter(filterTermSql) { // 处理sql过滤条件
+      let str = this.regProcess(filterTermSql);
+      const reg = /GET_FIELD_VALUE\('[\w\d\s]+'\)/g;
+      str = str.replace(reg, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      return str;
+    },
+    doSpringPanel(panelConfig) {
+      const { curPaneObj } = panelConfig;
+      if (curPaneObj && curPaneObj.id) {
+        curPaneObj.panelFilter.forEach((item, index) => { // 将公式值处理成固定值
+          const { filterTermStr, filterTermSql, filterTermType } = item;
+          if (filterTermType === 1) { // 普通的过滤条件
+            const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
+            curPaneObj.panelFilter[index].filterTermStr = newFilterTermStr ? JSON.stringify(newFilterTermStr) : '';
+          }
+          if (filterTermType === 2) { // sql过滤条件
+            const str = this.reduceSqlFilter(filterTermSql);
+            curPaneObj.panelFilter[index].filterTermSql = str;
+          }
+        });
+        const { panelData } = curPaneObj;
+        const panelFixData = {};
+        if (panelData && panelData.length) {
+          panelData.forEach((item) => {
+            const { field, paneComp: { compId } } = item;
+            panelFixData[compId] = FIXED_OBJ[field] || field;
+          });
+        }
+        curPaneObj.panelFixData = panelFixData;
+        this.panelConfig = panelConfig;
+        this.$nextTick(() => {
+          this.visible = true;
+        });
+      }
+    },
+    regProcess(str = '') { // 将公式中的特殊字符去除
+      if (!str) return '';
+      let formulaRes = str
+        .replace(/\[|\]/g, '')
+        .replace(/!==/g, '<>')
+        .replace(/!=/g, '<>')
+        .replace(/===(?!=)/g, '=')
+        .replace(/==(?!=)/g, '=');
+      formulaRes = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, '');
+      const newStr = formulaRes.replace(
+        /\$\d+-(\d+)-([a-zA-Z0-9_\-\u4e00-\u9fa5]+)\$/g,
+        (...arr) => `${arr[1]}`
+      );
+      return newStr;
+    },
+    // 处理公式
+    formulaConversion(formulaStr) {
+      let str = this.regProcess(formulaStr);
+      let res = parser.parse(`${str}`);
+      if (res.error) {
+        str = str.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');
+        res = parser.parse(`${str}`);
+      }
+      // console.log(res);
+      // 最终错误把字符串返回
+      if (res.error) {
+        return false;
+      }
+      return res.result;
+    },
+    // 初始化自定的方法
+    initFunc() {
+      parser.setFunction('GET_VAR', (params) => {
+        if (params.length === 0) {
+          return '';
+        }
+        return params[0];
+      });
+      parser.setFunction('GET_USER_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.id;
+      });
+      parser.setFunction('GET_ORG_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.orgId;
+      });
+      parser.setFunction('GET_ROLES_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.roleIds;
+      });
+      parser.setFunction('GET_DATE', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return formatDate(new Date(), 'yyyy-MM-dd');
+      });
+      parser.setFunction('GET_DATETIME', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
+      });
+      parser.setFunction('GET_YEAR', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getFullYear();
+      });
+      parser.setFunction('GET_MONTH', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getMonth();
+      });
+      parser.setFunction('GET_WEEK', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getDay();
+      });
+      parser.setFunction('GET_DAY', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getDate();
+      });
+      parser.setFunction('GET_TIMESTAMP', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getTime();
+      });
+      parser.setFunction('GET_MENU_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取菜单id公式无参数');
+        }
+        return this.$route.query.id;
+      });
+      parser.setFunction('GET_FIELD_VALUE', (params) => {
+        if (!params.length) {
+          return new Error('获取控件字段值公式无参数');
+        }
+        const field = params[0];
+        return FIXED_OBJ[field];
+      });
+    },
   },
   beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    this.timer = null;
   },
   name: 'SingleLineText'
 };
@@ -551,6 +931,17 @@ export default {
   display: flex;
   align-items: center;
   box-sizing: border-box;
+
+  .pathWrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 24px;
+    white-space: nowrap;
+    overflow-y: hidden;
+    z-index: 1;
+  }
 
   .singleTextContent {
     width: calc(100%);

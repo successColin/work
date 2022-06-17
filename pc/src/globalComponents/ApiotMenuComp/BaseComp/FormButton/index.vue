@@ -185,7 +185,7 @@ export default {
     },
     getStyle() {
       if (this.configData.buttonStyle === 'text') {
-        return '';
+        return 'border:0 none';
       }
       if (this.configData.buttonStyle) {
         if (this.canReadonly || this.configData.canReadonly) {
@@ -835,6 +835,7 @@ export default {
       if (
         this.tableInfo.propertyCompName === 'MenuMainConfig' ||
         this.tableInfo.propertyCompName === 'TreeMainConfig' ||
+        this.tableInfo.propertyCompName === 'MultiTreeConfig' ||
         this.isTableBtn
       ) {
         params.batchInfo.push({
@@ -852,7 +853,25 @@ export default {
           return false;
         });
       }
+      // 表单区删除 || 表格区表格里面删除
+      if (this.tableInfo.propertyCompName === 'MultiTreeConfig') {
+        params.batchInfo.push({
+          compId: area.compId,
+          relation: area.relation || [],
+          saveInfo: this.resolveFormParams(area)
+        });
 
+        const { form } = this.featureArr;
+        params.tableName = this.tableInfo.multiDataSource[form.dataType - 1].tableInfo.tableName;
+        this.featureArr.children.findIndex((comp) => {
+          const columnValue = form[comp.compId] == null ? '' : form[comp.compId];
+          if (comp.dataSource.columnName === 'id') {
+            params.ids = columnValue;
+            return true;
+          }
+          return false;
+        });
+      }
       // 表格区按钮区的删除
       if (this.isTable && !this.isTableBtn) {
         params.batchInfo.push({
@@ -1104,7 +1123,9 @@ export default {
 
         panelObj.panelFixData = {};
         panelObj.panelData.forEach((item) => {
-          if (this.isTableBtn) {
+          if (item.mainComp.type === 2) {
+            panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (this.isTableBtn) {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           } else if (this.multiEntityArr[0] && this.multiEntityArr[0][item.mainComp.compId]) {
             panelObj.panelFixData[item.paneComp.compId] =

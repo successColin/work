@@ -424,6 +424,14 @@ export function selectList(params) {
   });
 }
 
+// 获取记录分页列表
+export function selectMulList(params) {
+  return FetchData.request({
+    url: '/system/multiTree/selectList',
+    params,
+  });
+}
+
 // 获取故障树
 export function listFaultTree(params) {
   return FetchData.request({
@@ -491,5 +499,13 @@ export function exportTemplate(data) {
     url: 'system/sysImportExport/exportTemplate',
     method: 'post',
     data,
+  });
+}
+
+// 多表树查询
+export function listMultiTree(params) {
+  return FetchData.request({
+    url: 'system/multiTree/listMultiTree',
+    params,
   });
 }

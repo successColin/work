@@ -40,7 +40,7 @@ module.exports = {
     {
       label: '消息',
       routeName: 'sysNotification',
-      url: '',
+      url: '/Message/index',
     },
     {
       label: '离线点检',

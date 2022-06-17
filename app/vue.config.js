@@ -38,6 +38,11 @@ module.exports = {
       ])
       .end();
 
+    config
+      .plugin('webpack-bundle-analyzer')
+      .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+      .end();
+
     config.when(process.env.NODE_ENV !== 'development', (curConfig) => {
       // 发行或运行时启用了压缩时会生效
       curConfig.optimization.minimizer('terser').tap((args) => {

@@ -381,7 +381,9 @@ export default {
                   },
                   selfLevelColumn: {
                     id: '',
-                    columnName: ''
+                    columnName: '',
+                    start: 0,
+                    startId: ''
                   },
                   filterTermType: 1, // 1 是普通 2是sql
                   filterTermStr: '', // 普通字符串
@@ -410,7 +412,9 @@ export default {
                   selfLevelColumn: {
                     id: '',
                     columnName: '',
-                    columnTypeDict: ''
+                    columnTypeDict: '',
+                    start: 0,
+                    startId: ''
                   },
                   filterTermType: 1, // 1 是普通 2是sql
                   filterTermStr: '', // 普通字符串

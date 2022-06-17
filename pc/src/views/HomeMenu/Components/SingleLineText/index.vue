@@ -150,88 +150,6 @@ export default {
     }
   },
   methods: {
-    // 初始化自定的方法
-    initFunc() {
-      parser.setFunction('GET_VAR', (params) => {
-        if (params.length === 0) {
-          return '';
-        }
-        return params[0];
-      });
-      parser.setFunction('GET_USER_ID', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取用户公式无参数');
-        }
-        return this.$store.state.userCenter.userInfo.id;
-      });
-      parser.setFunction('GET_ORG_ID', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取用户组织公式无参数');
-        }
-        return this.$store.state.userCenter.userInfo.orgId;
-      });
-      parser.setFunction('GET_ROLES_ID', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取用户组织公式无参数');
-        }
-        return this.$store.state.userCenter.userInfo.roleIds;
-      });
-      parser.setFunction('GET_DATE', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return formatDate(new Date(), 'yyyy-MM-dd');
-      });
-      parser.setFunction('GET_DATETIME', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
-      });
-      parser.setFunction('GET_YEAR', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return new Date().getFullYear();
-      });
-      parser.setFunction('GET_MONTH', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return new Date().getMonth();
-      });
-      parser.setFunction('GET_WEEK', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return new Date().getDay();
-      });
-      parser.setFunction('GET_DAY', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return new Date().getDate();
-      });
-      parser.setFunction('GET_TIMESTAMP', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取时间公式无参数');
-        }
-        return new Date().getTime();
-      });
-      parser.setFunction('GET_MENU_ID', (params) => {
-        if (params.length !== 0) {
-          return new Error('获取菜单id公式无参数');
-        }
-        return this.$route.query.id;
-      });
-      parser.setFunction('GET_FIELD_VALUE', (params) => {
-        if (!params.length) {
-          return new Error('获取控件字段值公式无参数');
-        }
-        const field = params[0];
-        return FIXED_OBJ[field];
-      });
-    },
     getParameters() {
       const { id, componentId } = this.config;
       const reduce = (obj) => // 将Object 处理成 Array
@@ -462,20 +380,23 @@ export default {
     },
     regProcess(str = '') { // 将公式中的特殊字符去除
       if (!str) return '';
-      const formulaRes = str
+      let formulaRes = str
         .replace(/\[|\]/g, '')
         .replace(/!==/g, '<>')
         .replace(/!=/g, '<>')
         .replace(/===(?!=)/g, '=')
         .replace(/==(?!=)/g, '=');
-      const newStr = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, '');
+      formulaRes = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, '');
+      const newStr = formulaRes.replace(
+        /\$\d+-(\d+)-([a-zA-Z0-9_\-\u4e00-\u9fa5]+)\$/g,
+        (...arr) => `${arr[1]}`
+      );
       return newStr;
     },
     // 处理公式
     formulaConversion(formulaStr) {
       let str = this.regProcess(formulaStr);
       let res = parser.parse(`${str}`);
-      console.log(res, 'res', str);
       if (res.error) {
         str = str.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');
         res = parser.parse(`${str}`);
@@ -487,7 +408,88 @@ export default {
       }
       return res.result;
     },
-
+    // 初始化自定的方法
+    initFunc() {
+      parser.setFunction('GET_VAR', (params) => {
+        if (params.length === 0) {
+          return '';
+        }
+        return params[0];
+      });
+      parser.setFunction('GET_USER_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.id;
+      });
+      parser.setFunction('GET_ORG_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.orgId;
+      });
+      parser.setFunction('GET_ROLES_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取用户组织公式无参数');
+        }
+        return this.$store.state.userCenter.userInfo.roleIds;
+      });
+      parser.setFunction('GET_DATE', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return formatDate(new Date(), 'yyyy-MM-dd');
+      });
+      parser.setFunction('GET_DATETIME', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
+      });
+      parser.setFunction('GET_YEAR', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getFullYear();
+      });
+      parser.setFunction('GET_MONTH', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getMonth();
+      });
+      parser.setFunction('GET_WEEK', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getDay();
+      });
+      parser.setFunction('GET_DAY', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getDate();
+      });
+      parser.setFunction('GET_TIMESTAMP', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取时间公式无参数');
+        }
+        return new Date().getTime();
+      });
+      parser.setFunction('GET_MENU_ID', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取菜单id公式无参数');
+        }
+        return this.$route.query.id;
+      });
+      parser.setFunction('GET_FIELD_VALUE', (params) => {
+        if (!params.length) {
+          return new Error('获取控件字段值公式无参数');
+        }
+        const field = params[0];
+        return FIXED_OBJ[field];
+      });
+    },
     hrefUrl() { // 点击操作
       const { interactionType, panelConfig, skipMenuConfig } = this.config;
       FIXED_OBJ = this.obj;
@@ -519,6 +521,7 @@ export default {
     height: 100%;
     -webkit-background-clip: text;
     color: transparent;
+    cursor: default;
   }
 }
 </style>

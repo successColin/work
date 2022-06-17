@@ -201,7 +201,7 @@ export default {
     },
     // 获取触发组件类型
     getCompType() {
-      if (this.triggerComp.compId) {
+      if (this.triggerComp.compId && this.triggerCompMap[this.triggerComp.compId]) {
         return this.triggerCompMap[this.triggerComp.compId].compType;
       }
       return '';

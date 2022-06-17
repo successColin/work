@@ -50,7 +50,6 @@ export default {
       this.$emit('setDataSel', arr);
     },
     initSelData(name, value, obj) {
-      // console.log(name, value);
       this.dataSelObj = {
         name,
         value,

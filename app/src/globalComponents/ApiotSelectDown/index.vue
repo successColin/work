@@ -10,7 +10,6 @@
     <view class="apiotSelectDown__value" @click.stop="showPopup">
       <view class="apiotSelectDown__value--content">
         <!-- <span v-else-if="value && !multiple">{{ showValue }}</span> -->
-
         <scroll-view v-if="multiple" scroll-x="true" class="scroll-Y">
           <view class="apiotSelectDown__value--multiple">
             <span
@@ -186,16 +185,18 @@ export default {
       else if (typeof checkValues === 'number') values = [checkValues];
       else values = checkValues;
       const list = [];
-      values.forEach((el) => {
-        const listItem = showList.find((item) => `${item[valueProp]}` === `${el}`) || '';
-        if (listItem) list.push(listItem);
-        else {
-          const obj = {};
-          obj[valueProp] = el;
-          obj[showProp] = el;
-          list.push(obj);
-        }
-      });
+      if (values && values.length > 0) {
+        values.forEach((el) => {
+          const listItem = showList.find((item) => `${item[valueProp]}` === `${el}`) || '';
+          if (listItem) list.push(listItem);
+          else if (el) {
+            const obj = {};
+            obj[valueProp] = el;
+            obj[showProp] = el;
+            list.push(obj);
+          }
+        });
+      }
       return list;
     },
     showIcon() {
@@ -300,6 +301,7 @@ export default {
   font-size: $form-el-fontSize;
   font-family: PingFangSC-Regular, PingFang SC;
   color: $form-el-valueColor;
+  text-align: left;
   &.disabled {
     .apiotSelectDown__value {
       background: $form-el-disabled;

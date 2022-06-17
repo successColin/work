@@ -32,17 +32,17 @@
           </el-form-item>
           <el-form-item
             class="form--child"
-            :label="$t('appconfig.updateMode')"
-            prop="upgradeMode"
+            :label="$t('appconfig.baseLatestVersion')"
+            prop="baseLatestVersion"
           >
-            <apiot-select
-              v-model="appInfo.upgradeMode"
-              :options="typeArr"
+            <apiot-input
+              v-model="appInfo.baseLatestVersion"
               :placeholder="
-                $t('placeholder.pleaseSelect', { any: $t('appconfig.updateMode') })
+                $t('placeholder.pleaseEnterAnyName', {
+                  any: $t('appconfig.baseLatestVersion'),
+                })
               "
-              @change="handleChangeType"
-            ></apiot-select>
+            ></apiot-input>
           </el-form-item>
         </div>
 
@@ -110,6 +110,22 @@
           </el-form-item>
         </div>
 
+        <div class="form--line half">
+          <el-form-item
+            class="form--child"
+            :label="$t('appconfig.updateMode')"
+            prop="upgradeMode"
+          >
+            <apiot-select
+              v-model="appInfo.upgradeMode"
+              :options="typeArr"
+              :placeholder="
+                $t('placeholder.pleaseSelect', { any: $t('appconfig.updateMode') })
+              "
+              @change="handleChangeType"
+            ></apiot-select>
+          </el-form-item>
+        </div>
         <div class="form--line">
           <el-form-item
             class="form--child"
@@ -427,6 +443,11 @@ $--name: 'update';
         }
       }
     }
+      .half{
+        width: 50%;
+        padding-right: 10px;
+        box-sizing: border-box;
+      }
   }
 }
 </style>

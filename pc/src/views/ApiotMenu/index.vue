@@ -6,6 +6,7 @@
         this.configDataArr[0] &&
         this.configDataArr[0].designOverallLayout
       "
+      :key="this.configDataArr[0].id"
       :is="configData.compName"
       :showType="showType"
       :configData.sync="configData"
@@ -220,6 +221,12 @@ export default {
     this.$bus.$on('setDataSel', this.setDataSel);
     this.$bus.$on('multiArrChange', this.multiArrChange);
     this.$bus.$on('changeShowSkeleton', this.changeShowSkeleton);
+    if (!this.panelObj) {
+      // 最多3秒 去除骨架屏
+      setTimeout(() => {
+        this.changeShowSkeleton();
+      }, 3000);
+    }
   },
   // beforeRouteUpdate(to, from, next) {
   //   next();
@@ -248,7 +255,6 @@ export default {
   methods: {
     // 更改骨架屏状态
     changeShowSkeleton() {
-      console.log(111);
       this.showSkeleton = false;
     },
     // 多选数组变化
@@ -302,7 +308,6 @@ export default {
                   selectFrom: params[2],
                   selectWhere: `${params[2]}.${relateColumn} in (${ids.join(',')})`
                 };
-                console.log(p);
                 return p;
               }
               return '';
@@ -347,7 +352,7 @@ export default {
         const keys = Object.keys(getAllPaneBack.formObj);
         let obj = {};
         keys.forEach((key) => {
-          obj = Object.assign(obj, this.getAllPane.formObj[key].form);
+          obj = Object.assign(obj, getAllPaneBack.formObj[key].form);
         });
         Object.keys(obj).forEach((key) => {
           if (Array.isArray(obj[key])) {
@@ -651,7 +656,7 @@ export default {
     findForm(comp) {
       const { formObj } = this.getAllPane;
       const formId = Object.keys(formObj).find((key) => {
-        if (Object.prototype.hasOwnProperty.call(formObj[key].form, comp.compId)) {
+        if (comp && Object.prototype.hasOwnProperty.call(formObj[key].form, comp.compId)) {
           return true;
         }
         return false;
@@ -713,6 +718,7 @@ export default {
                 // }
                 break;
               case '!=':
+                console.log(beforeValue, content, beforeValue !== `${content}`);
                 orTermRes = beforeValue !== `${content}`;
                 // if (tab.form[`${compId}_`] && !orTermRes) {
                 //   orTermRes = this.getFormValue(tab.form[`${compId}_`]) === content;
@@ -975,6 +981,7 @@ export default {
       });
       // console.log(str);
       let res = parser.parse(str);
+      // console.log(res);
       if (res.error) {
         str = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');
         res = parser.parse(`${str}`);
@@ -1079,13 +1086,17 @@ export default {
                   }
                   if (comp.compType === 2) {
                     if (comp.dropDownType === 1) {
-                      v = +v;
+                      if (v !== '') {
+                        v = +v;
+                      }
                     } else {
                       v = this.resolveRes(v);
                     }
                   }
                   if ([3].includes(comp.compType)) {
-                    v = +v;
+                    if (v !== '') {
+                      v = +v;
+                    }
                   }
                   if ([4].includes(comp.compType)) {
                     v = this.resolveRes(v);
@@ -1098,6 +1109,7 @@ export default {
                         this.$nextTick(() => {
                           tab.form[comp.compId] = v;
                         });
+                        return;
                       }
                     }
                   }
@@ -1377,14 +1389,18 @@ export default {
 
 <style lang='scss' scoped>
 .menu {
-  position: relative;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .skeleton {
   position: absolute;
   background-color: #fff;
-  left: 0;
-  right: 0;
-  top: 0;
+  left: 0px;
+  right: 0px;
+  top: 0px;
   bottom: 0;
   z-index: 2000;
   ::v-deep {

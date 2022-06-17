@@ -1029,7 +1029,7 @@ export default {
         sessionStorage.notInitMul = '';
         this.selectTableRow();
       }
-      this.$bus.$emit('changeShowSkeleton');
+      this.selectItem();
     },
     // 列表排序  ASC ascending升序  DESC descending降序
     sortChange(column) {
@@ -1192,13 +1192,13 @@ export default {
     //   }
     // },
     // 选择当前item
-    selectItem(item) {
+    selectItem() {
       if (this.isConfig) {
         return;
       }
-      this.getFeatureArr.form = {
-        ...item
-      };
+      // this.getFeatureArr.form = {
+      //   ...item
+      // };
       // 触发其他区域数据的加载
       if (this.configData.reloadArea.length) {
         this.$bus.$emit(this.getEventName, this.configData.reloadArea, this.onlyFlag());

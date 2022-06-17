@@ -111,6 +111,25 @@
           controls="controls"
         ></video>
       </apiot-dialog>
+      <image-zoom
+        v-if="previewVisible"
+        :previewObj="previewObj"
+        v-on:hideImgPreview="hideImgPreview"
+        :isShowDelBtn="false"
+        :isShowShareBtn="false"
+      ></image-zoom>
+      <apiot-dialog
+        width="68%"
+        :title="dialogFile.name"
+        :visible.sync="videoVisible"
+        :isShowSure="false"
+        v-on:cancle-click="cancelPreview"
+      >
+        <video-preview
+          :previewObj="previewObj"
+          v-if="videoVisible"
+        ></video-preview>
+      </apiot-dialog>
     </el-form-item>
     <config-manage
       v-if="isConfig"
@@ -125,6 +144,7 @@
 import axios from 'axios';
 import { batchUpload, getFileList } from '@/api/menuConfig';
 import compMixin from '../../compMixin';
+import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
 
 export default {
   props: {
@@ -152,12 +172,17 @@ export default {
       dialogVisible: false,
       idsArr: [],
       flag: true, // 控制是否要加载图片
-      unwatch: null
+      unwatch: null,
+      previewVisible: false,
+      videoVisible: false,
+      previewObj: {}
     };
   },
   mixins: [compMixin],
 
-  components: {},
+  components: {
+    imageZoom
+  },
 
   computed: {
     isVedio() {
@@ -304,7 +329,20 @@ export default {
     preview(file) {
       // console.log(file);
       this.dialogFile = file;
-      this.dialogVisible = true;
+      // this.dialogVisible = true;
+      this.previewObj.sysKlTree = this.dialogFile;
+      if (!this.isVedio(this.dialogFile.name)) {
+        this.previewVisible = true;
+      } else {
+        this.videoVisible = true;
+      }
+    },
+    hideImgPreview() {
+      // 关闭预览
+      this.previewVisible = false;
+    },
+    cancelPreview() {
+      this.previewObj = {};
     }
   },
 

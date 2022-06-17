@@ -5,8 +5,8 @@ export default {
   mutations: {
     // 个人信息详情
     setUserInfo(state, userInfo) {
-      // console.log(userInfo);
       state.userInfo = userInfo;
+      uni.setStorageSync('userCenter', userInfo);
     },
   },
   actions: {},

@@ -252,7 +252,7 @@ export default {
       }
     });
     uni.setNavigationBarTitle({
-      title: this.$t('page-mine') // 中文：我的
+      title: '我的' // 中文：我的
     });
   }
 };
@@ -396,8 +396,8 @@ export default {
           text-align: center;
           padding-right: 10rpx;
           box-sizing: border-box;
-          background: url('../../../../MinePages/images/version_image.svg')
-            center no-repeat;
+          // background: url('../../../../MinePages/images/version_image.svg')
+            // center no-repeat;
           background-size: 100% 100%;
         }
       }

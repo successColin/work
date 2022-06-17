@@ -30,7 +30,7 @@
       <!-- :class="[{ textDec: shouldOpenPanel }]" -->
       <div
         class="column__notEditable"
-        :class="[{ hasMenu: hasMenu }]"
+        :class="[{ hasMenu: showMenuColor }]"
         @click="labelClick"
         v-if="configData.labelShowStyle !== 2"
       >
@@ -167,7 +167,7 @@ export default {
     getStyle() {
       let style = '';
       if (this.configData.font) {
-        if (this.configData.font.color) {
+        if (this.configData.font.color && this.configData.font.color !== '#333333') {
           style += `color:${this.configData.font.color};`;
         }
         if (this.configData.font.size) {
@@ -232,6 +232,19 @@ export default {
         return true;
       }
       return false;
+    },
+    showMenuColor() {
+      if (this.isConfig) {
+        return false;
+      }
+      if (!this.getMenu()) {
+        return false;
+      }
+      const curMenuArr = this.getMenu()[this.configData.compId];
+      if (!curMenuArr) {
+        return false;
+      }
+      return true;
     },
     // 是否需要点击打开菜单
     hasMenu() {
@@ -301,7 +314,11 @@ export default {
 
         panelObj.panelFixData = {};
         panelObj.panelData.forEach((item) => {
-          panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          if (item.mainComp.type === 2) {
+            panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else {
+            panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          }
         });
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
@@ -386,6 +403,7 @@ export default {
   }
   &.hasMenu {
     cursor: pointer;
+    color: $--color-primary;
   }
   .appMenu__icon {
     margin-right: 4px;

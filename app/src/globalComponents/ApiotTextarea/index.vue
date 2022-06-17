@@ -28,7 +28,10 @@ export default {
 
   props: {
     value: [Number, String],
-    placeholder: String,
+    placeholder: {
+      type: String,
+      default: '请填写'
+    },
     maxlength: {
       type: Number,
       default: -1
@@ -64,6 +67,7 @@ export default {
 
 <style lang='scss' scoped>
 .apiotTextarea {
+  width: 100%;
   padding: 24rpx 20rpx;
   border: 1px solid #e9e9e9;
   border-radius: 12rpx;

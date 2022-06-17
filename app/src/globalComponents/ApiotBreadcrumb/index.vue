@@ -79,6 +79,7 @@ export default {
   overflow-x: auto;
   margin: 0 30rpx;
   height: 25rpx;
+  width: 100%;
   &__box {
     display: flex;
     white-space: nowrap;

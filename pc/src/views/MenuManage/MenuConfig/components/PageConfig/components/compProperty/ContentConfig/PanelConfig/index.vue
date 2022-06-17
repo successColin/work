@@ -73,14 +73,27 @@
               value="="
               :disabled="true"
             ></apiot-input>
+            <el-select
+              v-model="item.mainComp.type"
+              class="dataTransfer__item--comp5"
+            >
+              <el-option :value="1" label="组件">组件</el-option>
+              <el-option :value="2" label="固定值">固定值</el-option>
+            </el-select>
             <select-comp
-              v-if="!isCustomPage"
+              v-if="!isCustomPage && item.mainComp.type !== 2"
               class="dataTransfer__item--comp2"
               placeholder="请选择当前面板的控件"
               :configData="configData"
               :curTriggerComp="item.mainComp"
               :triggerCompMap="triggerCompMap"
             ></select-comp>
+            <apiot-input
+              class="dataTransfer__item--comp2"
+              v-if="!isCustomPage && item.mainComp.type === 2"
+              v-model="item.mainComp.fixedValue"
+              placeholder="请输入固定值"
+            ></apiot-input>
             <apiot-input
               class="dataTransfer__item--comp4"
               v-if="isCustomPage"
@@ -486,9 +499,11 @@ export default {
           compPath: ''
         },
         mainComp: {
+          type: 1,
           compId: '',
           name: '',
-          compPath: ''
+          compPath: '',
+          fixedValue: ''
         }
       });
     },
@@ -705,6 +720,10 @@ export default {
       &--comp3 {
         width: 80px;
         margin-left: 10px;
+        margin-right: 10px;
+      }
+      &--comp5 {
+        width: 100px;
         margin-right: 10px;
       }
       h1 {

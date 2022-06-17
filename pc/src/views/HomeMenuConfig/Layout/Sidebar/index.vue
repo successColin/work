@@ -509,6 +509,7 @@ export default {
               enableYAxis: true, // 启用y轴样式
               enableData: false, // 启用海量数据
               dimension: 'x', // 默认以x字段作为x轴为主，也可以用s字段作为x轴
+              interactionType: 1, // 交互 1、无；2、跳面板；3、菜单；4、下钻
               stylesObj: {
                 zIndex: 1,
                 gridLeft: 30, // 距离容器左边
@@ -570,7 +571,15 @@ export default {
               },
               SqlDataConfig: {
                 ...SqlDataConfig
-              }
+              },
+              panelConfig: {}, // 跳转面板配置
+              skipMenuConfig: [], // 跳菜单配置
+              drillDownConfig: {
+                drillDownField: [], // 下钻回调字段
+                pathColor: '#666666', // 路径颜色
+                tripStopField: '', // 下钻停止字段
+                tripStopFieldValue: '', // 下钻停止字段值
+              }, // 下钻配置
             },
             {
               componentName: 'BasicLineChart',

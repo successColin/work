@@ -9,11 +9,12 @@
   <section class="user" key="user">
     <u-image
       v-if="headImg && userInfo[headImg] && userInfo[headImg].imageUrl"
-      :image="userInfo[headImg].imageUrl"
-      :border-radius="size / 2"
-      :style="{
-        width: `${size}rpx`,
-      }"
+      :src="userInfo[headImg].imageUrl"
+      :radius="size / 2"
+      :width="`${size}rpx`"
+      :height="`${size}rpx`"
+      mode="widthFix"
+      :showError="false"
     ></u-image>
     <div
       v-else
@@ -114,6 +115,7 @@ export default {
   width: max-content;
   border-radius: 4px;
   display: flex;
+  align-items: center;
   background: #f1f3f6;
   border-radius: 12px;
   color: #333333;

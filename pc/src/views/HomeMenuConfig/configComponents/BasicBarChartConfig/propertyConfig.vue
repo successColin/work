@@ -388,6 +388,96 @@
           />
         </div>
       </el-collapse-item>
+      <el-collapse-item name="7" title="交互设置">
+        <div>
+          <div class="propsSetting">
+            <el-radio-group
+                class="radioGroup"
+                size="mini"
+                v-model="getComponentInfo.interactionType"
+                @change="(value) => changeTitle(value, 'interactionType')"
+            >
+              <el-radio-button :label="1">无</el-radio-button>
+              <el-radio-button :label="2">面板</el-radio-button>
+              <el-radio-button :label="3">菜单</el-radio-button>
+              <el-radio-button :label="4">下钻</el-radio-button>
+            </el-radio-group>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">下钻回调字段</p>
+            <VariableManage
+                :valueNameType="2"
+                :value="getComponentInfo.drillDownConfig.drillDownField"
+                @change="(value) => changeDrillDownConfig('drillDownField', value)"
+            ></VariableManage>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">路径颜色</p>
+            <div>
+              <c-color-picker
+                  size="small"
+                  :value="getDrillDownConfig('pathColor')"
+                  show-alpha
+                  @change="(value) => changeDrillDownConfig('pathColor', value)"
+                  :predefine="predefineColors">
+              </c-color-picker>
+            </div>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+              <p class="setTitle">下钻停止标识字段
+                <el-tooltip
+                    class="item"
+                    effect="dark"
+                    content="点击匹配下钻停止标识字段，不填写时一直允许下钻"
+                    placement="top-start"
+                >
+                 <span class="icon-bangzhu iconfont" style="cursor: pointer;"></span>
+                </el-tooltip>
+              </p>
+            <div>
+              <apiot-input
+                  :maxlength="16"
+                  :value="getComponentInfo.drillDownConfig.tripStopField"
+                  @input="(value) => changeDrillDownConfig('tripStopField', value)"/>
+            </div>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">下钻停止标识字段值
+              <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="点击时匹配到下钻停止标识字段值为填写值时，不允许继续下钻"
+                  placement="top-start"
+              >
+                <span class="icon-bangzhu iconfont" style="cursor: pointer;"></span>
+              </el-tooltip>
+            </p>
+            <div>
+              <apiot-input
+                  :maxlength="16"
+                  :value="getComponentInfo.drillDownConfig.tripStopFieldValue"
+                  @input="(value) => changeDrillDownConfig('tripStopFieldValue', value)"/>
+            </div>
+          </div>
+          <div class="btnWrap">
+            <apiot-button
+                class="panelBtn"
+                v-if="getComponentInfo.interactionType === 2"
+                @click="visible=true"
+            >
+              <i class="iconfont icon-shezhi m-r-4"></i>弹出面板配置
+            </apiot-button>
+            <apiot-button
+                class="panelBtn"
+                v-if="getComponentInfo.interactionType === 3"
+                @click="showMenuConfig=true"
+            >
+              <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
+            </apiot-button>
+          </div>
+        </div>
+      </el-collapse-item>
+
       <el-collapse-item title="其他" name="6">
         <div>
           <div class="ellipsisWrap flex propsSetting">
@@ -413,11 +503,38 @@
       </el-collapse-item>
 
     </el-collapse>
-
+    <PanelConfig
+        :visible.sync="visible"
+        :tabPaneConfig="tabPaneConfig"
+        :activeObj="activeObj"
+        :isSelPanel="false"
+        :showType="showType"
+        :otherParams="{ panelType: 5,
+                 unDesign: 1,
+                 panelClassify: 1,
+                 clientType: 1}"
+        @cancle-click="handleCancel"
+        :isCustomPage="true"
+        :treeType="5"
+        ref="panelConfig"
+    ></PanelConfig>
+    <ToMenuConfig
+        ref="ToMenuConfig"
+        @cancle-click="handleMenuCancel"
+        class="ToMenuConfig"
+        :visible.sync="showMenuConfig"
+        :activeObj="skipMenuConfig"
+        :sourceType="1"
+        :treeType="5"
+        :showType="showType"
+        :showContent="true"
+    ></ToMenuConfig>
   </div>
 </template>
 
 <script>
+import PanelConfig from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/PanelConfig';
+import ToMenuConfig from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/ToMenuConfig';
 import ChartLayOut from '../../Layout/ChartLayout/index';
 import TextStylesConfig from '../../Layout/TextStylesConfig/index';
 import DataColor from '../../basicWidgets/DataColor';
@@ -440,7 +557,12 @@ export default {
   },
   data() {
     return {
+      showType: [1, 5],
+      showMenuConfig: false,
+      visible: false,
       enable: true,
+      activeObj: { dialogTitle: '', dialogName: 'PanelDialog' },
+      skipMenuConfig: [], // 跳菜单
       dimensionOptions: [
         {
           label: 'x',
@@ -448,27 +570,6 @@ export default {
         }, {
           label: 's',
           value: 's'
-        }
-      ],
-      fontFamilyOptions: [
-        {
-          label: '微软雅黑',
-          value: '微软雅黑'
-        }, {
-          label: '苹方',
-          value: 'PingFangSC-Regular,PingFang SC'
-        }, {
-          label: '思源黑体',
-          value: 'Source Han Sans CN'
-        }
-      ],
-      boldTypeOptions: [
-        {
-          label: '常规体',
-          value: 'normal'
-        }, {
-          label: '加粗',
-          value: 'bold'
         }
       ],
       labelOptions: [
@@ -522,24 +623,6 @@ export default {
           value: 'bottom'
         }
       ],
-      layOutOptions: [
-        {
-          label: '水平',
-          value: 'horizontal'
-        }, {
-          label: '垂直',
-          value: 'vertical'
-        }
-      ],
-      valueTypeOptions: [
-        {
-          label: '默认值',
-          value: 1
-        }, {
-          label: '百分比',
-          value: 2
-        }
-      ],
       activeName: '',
       color1: '#ffffff',
       color2: '#ffffff',
@@ -565,10 +648,25 @@ export default {
     ChartLayOut,
     TextStylesConfig,
     LocationProperties,
-    DataColor
+    DataColor,
+    PanelConfig,
+    ToMenuConfig
   },
 
   computed: {
+    tabPaneConfig() {
+      const { panelConfig } = this.getComponentInfo;
+      const { curPaneObj } = panelConfig || {};
+      return curPaneObj || {};
+    },
+    getDrillDownConfig() {
+      return function (key) {
+        if (!this.getComponentInfo.drillDownConfig) {
+          return '';
+        }
+        return this.getComponentInfo.drillDownConfig[key];
+      };
+    },
     getComponentInfo() { // 获取控件详情信息
       const { componentId } = this.activeComponent;
       if (!componentId) {
@@ -579,11 +677,29 @@ export default {
     },
   },
 
-  mounted() {
+  created() {
+    const { panelConfig, skipMenuConfig } = this.getComponentInfo;
+    const initObj = { dialogTitle: '', dialogName: 'PanelDialog' };
+    this.activeObj = panelConfig ? panelConfig.activeObj || initObj : initObj;
+    console.log(skipMenuConfig, ',,,,');
+    this.skipMenuConfig = skipMenuConfig || [];
   },
   watch: {
   },
   methods: {
+    handleMenuCancel() {
+      const { menuList = [] } = this.$refs.ToMenuConfig;
+      console.log(menuList, 'menuList');
+      this.changeTitle(menuList, 'skipMenuConfig');
+    },
+    handleCancel() {
+      const { curPaneObj, activeObj } = this.$refs.panelConfig;
+      const value = {
+        curPaneObj,
+        activeObj
+      };
+      this.changeTitle(value, 'panelConfig');
+    },
     changeStyles(value, key) { // 样式修改
       const list = [...this.list];
       const index = this.reduceIndex();
@@ -612,7 +728,6 @@ export default {
         return -1;
       }
       const index = this.list.findIndex((item) => item.componentId === componentId);
-      console.log(index, 'index');
       return index;
     },
     changeTitle(value, key) { // 设置组件名称
@@ -623,7 +738,23 @@ export default {
         ...info,
         [key]: value
       };
-      console.log(111);
+      list.splice(index, 1, newInfo);
+      console.log(newInfo);
+      this.$emit('updateList', list);
+    },
+    changeDrillDownConfig(key, value) { // 改变下钻属性
+      const list = [...this.list];
+      const index = this.reduceIndex();
+      const info = this.getComponentInfo || {};
+      const { drillDownConfig = {} } = info;
+      const newInfo = {
+        ...info,
+        drillDownConfig: {
+          ...drillDownConfig,
+          [key]: value
+        }
+      };
+      console.log(newInfo, 'newInfo');
       list.splice(index, 1, newInfo);
       this.$emit('updateList', list);
     }
@@ -771,7 +902,18 @@ export default {
       }
     }
   }
-
+  .radioGroup {
+    display: flex;
+    width: 100%;
+    ::v-deep {
+      .el-radio-button {
+        flex: 1;
+        .el-radio-button__inner {
+          width: 100%;
+        }
+      }
+    }
+  }
   .ellipsisWrap {
     justify-content: space-between;
     align-items: center;
@@ -781,6 +923,42 @@ export default {
         width: 200px;
         margin: 0 auto;
       }
+    }
+  }
+
+  .btnWrap {
+    width: 100%;
+    margin: 10px auto;
+
+    .panelBtn {
+      width: 100%;
+    }
+  }
+  .ToMenuConfig {
+    ::v-deep{
+      .ToMenuConfig__li--select{
+        width: 200px;
+      }
+      .el-collapse-item__arrow{
+        margin: 0 8px 0 auto;
+      }
+      .el-collapse-item__header {
+        position: relative;
+        background: #f1f7ff;
+        border-radius: 4px;
+        border: 1px solid #e9e9e9;
+        height: 38px;
+        line-height: 38px;
+      }
+      .el-collapse-item__content {
+        padding: 0 0 8px 0;
+        background-color: #fff;
+      }
+    }
+  }
+  ::v-deep {
+    .action__term--liChild {
+      width: 100px;
     }
   }
 

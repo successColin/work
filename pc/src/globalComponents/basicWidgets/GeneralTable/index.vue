@@ -890,6 +890,7 @@ export default {
 .GeneralTableWrap {
   height: 100%;
   width: 100%;
+  cursor: default;
 
   .tableHeader {
     width: 100%;

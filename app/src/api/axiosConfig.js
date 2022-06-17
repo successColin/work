@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-06-17 14:46:02
  * @Last Modified by: sss
- * @Last Modified time: 2022-05-16 15:18:36
+ * @Last Modified time: 2022-06-11 13:57:23
  */
 import axios from 'axios';
 import axiosAdapterUniapp from 'axios-adapter-uniapp';
@@ -26,16 +26,13 @@ class FetchData {
     if (!data || !data.logData) {
       return data;
     }
-
     const userCenter = uni.getStorageSync('userCenter');
-    const { userInfo } = userCenter;
+    const { username, account } = userCenter;
     // 没有需要转换的logdata直接返回
     if (typeof data.logData !== 'object') {
-      const curMenuId = uni.getStorageSync('curMenuId');
+      const curMenuId = uni.getStorageSync('curMenuId') || -1;
       const tempObj = {
-        content: Encrypt(
-          `${userInfo.username}(${userInfo.account})${data.logData}`
-        ),
+        content: Encrypt(`${username}(${account})${data.logData}`),
         clientType: 'APP',
         curMenuId,
       };
@@ -89,7 +86,7 @@ class FetchData {
       operateStr = data.logData.operateStr;
       str = `(${data.logData.name}:${data.logData.switchName}),`;
     }
-    const result = `${userInfo.username}(${userInfo.account})${operateStr}:${str}`;
+    const result = `${username}(${account})${operateStr}:${str}`;
     const curMenuId = uni.getStorageSync('curMenuId');
     data.logData = {
       content: Encrypt(result.slice(0, -1)),

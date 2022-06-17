@@ -113,6 +113,13 @@
             "backgroundColor": "#F6F6F8",
             "navigationBarTextStyle": "black"
           }
+        },
+        {
+          "path": "components/SearchRelationpage/index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
         }
       ]
     },
@@ -151,7 +158,23 @@
       ]
     },
     {
+      "root": "Message",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
+    },
+    {
       "root": "PagesProcess",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
+    },
+    {
+      "root": "PagesSelectUser",
       "pages": [
         {
           "path": "index"
@@ -166,7 +189,11 @@
     },
     "menuConfigure/index": {
       "network": "all",
-      "packages": ["interfaceCommon"]
+      "packages": ["interfaceCommon", "PagesSelectUser"]
+    },
+    "PagesProcess/index": {
+      "network": "all",
+      "packages": ["interfaceCommon", "PagesSelectUser"]
     }
   },
   "globalStyle": {

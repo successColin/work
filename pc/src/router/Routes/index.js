@@ -111,7 +111,7 @@ export default [
           if (homeArr.length) {
             const current = homeArr[0];
             next({
-              path: `/homeMenu/${current.homePageId}`,
+              path: `/homePage/${current.homePageId}`,
             });
           } else {
             next();
@@ -152,8 +152,8 @@ export default [
       },
       // 主页配置
       {
-        path: '/homeMenu/:id',
-        name: 'homeMenu',
+        path: '/homePage/:id',
+        name: 'homePage',
         component: () => import('_v/HomeMenu'),
         meta: {
           isModulePage: true,

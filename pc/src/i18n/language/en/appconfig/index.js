@@ -40,5 +40,6 @@ export default {
     limitFunc: 'Enable Upper And Lower Limit Function',
     enforceCheck: 'Enable Mandatory Check',
     taskColumn: 'Configure Task Fields',
+    baseLatestVersion: 'Base version number',
   },
 };

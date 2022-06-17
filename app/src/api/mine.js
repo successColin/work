@@ -81,3 +81,11 @@ export function logout(data) {
     data,
   });
 }
+
+// 根据key获取对应参数信息
+export function getInfoByKey(params) {
+  return FetchData.request({
+    url: 'system/parameter/getInfoByKey',
+    params,
+  });
+}

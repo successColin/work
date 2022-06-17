@@ -43,6 +43,7 @@
 <script>
 import { getMenuConfig } from '@/api/menuConfig';
 import { getPersonalCenterUser } from '@/api/userCenter';
+import { getInfoByKey } from '@/api/mine';
 import { appRouteArr } from '@/config';
 // import Location from '@/utils/app/location';
 import VersionUpgrade from '@/MinePages/VersionUpgrade/index';
@@ -92,7 +93,13 @@ export default {
     swiperList() {
       const { enableRotation, rotateImg } = this.$store.state.menu.functionInterface;
       return enableRotation ? rotateImg.imgArr : [];
-    }
+    },
+    appVersion() {
+      return this.$store.state.base.appVersion;
+    },
+    baseLatestVersion() {
+      return this.$store.state.base.baseLatestVersion;
+    },
   },
 
   methods: {
@@ -112,10 +119,24 @@ export default {
     },
     // 获取版本信息
     async getSystemVersion() {
-      const res = await getPersonalCenterUser();
-      const versionInfo = res.list || [];
-      this.isGetVersion = true;
+      const res = await getInfoByKey({ key: 'UPGRADE_PROPERTIES' });
+      const versionInfo = res.parameterJson || [];
       this.$store.commit('setAppVersion', versionInfo);
+    },
+    // app升级
+    appUpdater() {
+      const _this = this;
+      plus.runtime.getProperty(plus.runtime.appid, (widgetInfo) => {
+        this.$store.commit('setAppBaseInfo', {
+          currentVersion: widgetInfo.version, // 当前app版本号
+          baseVersion: widgetInfo.versionCode, // 当前基座版本号
+        });
+        if (widgetInfo.version !== _this.appVersion ||
+          widgetInfo.versionCode !== _this.baseLatestVersion) {
+          // pp版本号不一致
+          _this.isGetVersion = true;
+        }
+      });
     },
     // 切换底部
     changeTab(index) {
@@ -165,7 +186,13 @@ export default {
   onShow() {
     this.currentNav = this.oldNav;
   },
-
+  async mounted() {
+    await this.getSystemVersion();
+    // #ifdef APP-PLUS
+    // 如果是app时监测更新，upgradeMode为3是不跳提醒
+    this.appUpdater();
+    // #endif
+  },
   onReady() {
     // #ifdef MP
     uni.setNavigationBarTitle({

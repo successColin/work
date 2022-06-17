@@ -11,11 +11,13 @@ import login from './login';
 import tabNavMenu from './tabNavMenu';
 import inspection from './inspection';
 import mine from './mine';
+import message from './message';
 
 export default {
   ...common,
   ...login,
   ...tabNavMenu,
   ...inspection,
-  ...mine
+  ...mine,
+  ...message
 };

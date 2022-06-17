@@ -133,7 +133,7 @@ export default {
         menuClientType: 'PC',
       };
       try {
-        state.allRouteName = ['home', 'homeMenu'];
+        state.allRouteName = ['home', 'homePage'];
         const data = await menuCenter(params);
         const arr = [];
         data.forEach((module) => {
@@ -158,7 +158,7 @@ export default {
         const res = await fetchHomeRoute();
         const newRes = res.map((item) => {
           const { homePageId } = item;
-          item.path = `/homeMenu/${homePageId}`;
+          item.path = `/homePage/${homePageId}`;
           return item;
         });
         commit('changeHomeArr', newRes);

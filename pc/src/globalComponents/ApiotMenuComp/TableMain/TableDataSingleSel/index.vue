@@ -67,7 +67,7 @@
       </div>
       <div
         class="column__notEditable"
-        :class="[{ hasMenu: hasMenu }]"
+        :class="[{ hasMenu: showMenuColor }]"
         v-else
         @click="jumpMenu"
       >
@@ -103,6 +103,19 @@ export default {
           .columnName;
       }
       return 'id';
+    },
+    showMenuColor() {
+      if (this.isConfig) {
+        return false;
+      }
+      if (!this.getMenu()) {
+        return false;
+      }
+      const curMenuArr = this.getMenu()[this.configData.compId];
+      if (!curMenuArr) {
+        return false;
+      }
+      return true;
     },
     // 是否需要点击打开菜单
     hasMenu() {
@@ -177,7 +190,11 @@ export default {
 
       panelObj.panelFixData = {};
       panelObj.panelData.forEach((item) => {
-        panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+        if (item.mainComp.type === 2) {
+          panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+        } else {
+          panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+        }
       });
 
       panelObj.panelCompId = this.configData.compId;
@@ -286,6 +303,7 @@ export default {
   align-items: center;
   &.hasMenu {
     cursor: pointer;
+    color: $--color-primary;
   }
   &:hover {
     ::v-deep {

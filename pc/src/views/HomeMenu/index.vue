@@ -355,7 +355,7 @@ export default {
     }
     console.log('beforeDestroy', this.$route.params);
   },
-  name: 'homeMenu'
+  name: 'homePage'
 };
 </script>
 

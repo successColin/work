@@ -47,11 +47,11 @@
 </template>
 
 <script>
-import { fileTypeImg } from '@/utils/index';
 // 接口
 import { listFiles, moveFolder } from '@/api/knowledgeBase';
 
 export default {
+  inject: ['fileTypeImg'],
   props: {
     // 是否显示
     show: {
@@ -104,7 +104,7 @@ export default {
     },
     imgUrl() {
       return function(name) {
-        return fileTypeImg(name);
+        return this.fileTypeImg(name);
       };
     }
   },

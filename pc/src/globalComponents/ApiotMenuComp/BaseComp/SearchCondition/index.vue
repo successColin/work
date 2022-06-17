@@ -541,7 +541,6 @@ export default {
       } else {
         this.tableInfo.searchInfo = null;
       }
-
       this.$bus.$emit('reloadArea', 'searchCurrent', this.onlyFlag(), this.tableInfo.compId);
     },
     // 清空高级搜索

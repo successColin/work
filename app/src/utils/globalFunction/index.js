@@ -43,7 +43,7 @@ const $apiot = {
   dateFormat,
   confirm,
   htmlReplace,
-  moment,
+  ...moment,
   scanCode,
 };
 

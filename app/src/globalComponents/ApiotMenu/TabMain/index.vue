@@ -91,9 +91,11 @@
               :menuHeight="menuHeight"
               @switchType="switchShowType"
             ></tree-device-pos>
-            <knowledge-base
+
+            <relation-knowledge
               v-else-if="area.compName === 'RelatedData'"
-            ></knowledge-base>
+              :funcConfig="area"
+            ></relation-knowledge>
           </div>
         </div>
       </template>
@@ -131,7 +133,7 @@ import configTree from '../ConfigTree';
 import TabBtns from '../ConfigBtns/TabBtns.vue';
 import TreeDevicePos from '../TreeDevicePos';
 import ProcessNodes from '../ProcessNodes';
-import KnowledgeBase from '../../Apiotknowledge';
+import RelationKnowledge from '../RelationKnowledge';
 
 import parser from '@/utils/formula';
 
@@ -174,7 +176,7 @@ export default {
     TabBtns,
     TreeDevicePos,
     ProcessNodes,
-    KnowledgeBase
+    RelationKnowledge
   },
 
   data() {

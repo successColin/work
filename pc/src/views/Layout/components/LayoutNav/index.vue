@@ -133,7 +133,7 @@ export default {
     },
     isShow() {
       return function (path) {
-        if (path && path.indexOf('homeMenu') > -1) {
+        if (path && path.indexOf('homePage') > -1) {
           return false;
         }
         return true;

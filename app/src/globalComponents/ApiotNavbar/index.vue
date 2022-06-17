@@ -32,7 +32,9 @@
         </div>
         <div class="apiotNavbar__content"><slot name="content"></slot></div>
         <div class="apiotNavbar__content--title" v-if="title">{{ title }}</div>
-        <div class="apiotNavbar__right"></div>
+        <div class="apiotNavbar__right">
+          <slot name="right"></slot>
+        </div>
       </div>
     </view>
     <!-- #ifndef MP-ALIPAY -->

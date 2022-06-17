@@ -140,7 +140,8 @@ export default {
       default: () => {}
     },
     getFilterIds: {
-      type: Array
+      type: Array,
+      default: () => []
     },
     isDialog: {
       type: Boolean,
@@ -284,7 +285,7 @@ export default {
     },
     //  鼠标移入
     cellMouseEnter(row) {
-      if (!this.getFilterIds.includes(row.sysKlTree.id)) {
+      if (!this.getFilterIds.includes(row.id || row.sysKlTree.id)) {
         row.showIndex = false;
       }
     },

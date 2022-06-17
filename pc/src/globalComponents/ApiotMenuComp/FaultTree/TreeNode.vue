@@ -308,7 +308,11 @@ export default {
 
         panelObj.panelFixData = {};
         panelObj.panelData.forEach((item) => {
-          panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          if (item.mainComp.type === 2) {
+            panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else {
+            panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
+          }
         });
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();

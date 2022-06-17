@@ -476,6 +476,8 @@ export default {
       this.$emit('showRight', this.sidebarData ? this.sidebarData.length !== 0 : false);
       if (data && data.length) {
         this.selectItem(data[this.currentIndex], this.currentIndex);
+      } else {
+        this.$bus.$emit('changeShowSkeleton');
       }
     },
     prevClick() {

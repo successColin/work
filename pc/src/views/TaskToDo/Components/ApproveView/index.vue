@@ -609,6 +609,11 @@ export default {
       }
 
       ::v-deep {
+        .menu {
+          position: unset;
+          width: 100%;
+          height: 100%;
+        }
         .tabMain__tabs {
           position: relative;
           left: unset;

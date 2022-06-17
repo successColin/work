@@ -75,22 +75,17 @@
     </template>
     <apiot-modal ref="apiotModal"></apiot-modal>
     <u-toast ref="uToast"></u-toast>
-    <apiot-modal
-      v-if="htmlConfig.isProcess"
-      ref="processModal"
-      position="bottom"
-      cancelColor="#F1F3F6"
-      :titleStyle="{ fontWeight: 600, textAlign: 'left' }"
-    >
-      <div class="processModal__textarea">
-        <p class="processModal__textarea--tip">审批意见</p>
-        <apiot-textarea></apiot-textarea>
-      </div>
-    </apiot-modal>
+    <process-op
+      v-if="htmlConfig.isProcess && showProcessOp"
+      :oprationInfo="btnInfo"
+      :config="processOpConfig"
+      @cancel="cancelProcessOP"
+    ></process-op>
   </view>
 </template>
 
 <script>
+import ProcessOp from './ProcessOP';
 import TabBtnsRow from './BtnsRow/TabBtnsRow.vue';
 import BtnsColumn from './BtnsColumn';
 import CheckBox from './Common/Checkbox.vue';
@@ -99,9 +94,15 @@ import btnMixin from './btnMixin';
 
 export default {
   name: 'tabBtns',
-  components: { TabBtnsRow, BtnsColumn, CheckBox },
+  components: { TabBtnsRow, BtnsColumn, CheckBox, ProcessOp },
 
   mixins: [compMixin, btnMixin],
+
+  provide() {
+    return {
+      getProcessForm: this.getProcessForm
+    };
+  },
 
   props: {
     // 是否显示tab区按钮
@@ -109,6 +110,12 @@ export default {
       type: Boolean,
       default: true
     }
+  },
+
+  data() {
+    return {
+      showProcessOp: false
+    };
   },
 
   computed: {
@@ -135,29 +142,42 @@ export default {
       if (!showTabBtn) return [];
       return this.list;
     },
+    // 流程操作基本配置信息
+    processOpConfig() {
+      const { instanceId, processNodeId } = this.htmlConfig;
+      const { workflowVersionId } = this.processConfig;
+      return { instanceId, nodeId: processNodeId, workflowVersionId };
+    },
     // 流程节点配置信息
     processConfig() {
       const { processNodeId, isProcess } = this.htmlConfig;
       if (!isProcess) return {};
-      console.log(`tabConfigBtns=================${processNodeId}`);
       const { processConfigs } = this.$store.state.process;
-      console.log(processConfigs);
       return processConfigs[processNodeId] || {};
     },
     // 流程节点按钮
     processBtns() {
-      const { buttonAttributes, allowReferral, allowAddCheck } = this.processConfig;
+      const { buttonAttributes, allowReferral, allowAddCheck, allowRejectTo, workflowVersionId } =
+        this.processConfig;
+      const { instanceId, processNodeId } = this.htmlConfig;
 
       const btnList = [];
+      const baseConfig = {
+        isProcess: true,
+        iconType: 1,
+        workflowVersionId,
+        instanceId,
+        processNodeId,
+        allowRejectTo
+      };
       // 是否允许转审
       if (allowReferral) {
         btnList.push({
           compId: 'static_zhuanshen',
           name: '转审',
           iconFont: 'appIcon-zhuanshen',
-          iconType: 1,
           iconColor: '#FAB71C',
-          isProcess: true
+          ...baseConfig
         });
       }
       // 是否允许加签
@@ -166,9 +186,8 @@ export default {
           compId: 'static_jiaqian',
           name: '加签',
           iconFont: 'appIcon-jiaqian',
-          iconType: 1,
           iconColor: '#FC8256',
-          isProcess: true
+          ...baseConfig
         });
       }
       // 通过，驳回按钮
@@ -179,18 +198,16 @@ export default {
           name: buttonAttributes.passText,
           reasonForRejectionRequired,
           iconFont: 'appIcon-tongguo',
-          iconType: 1,
           iconColor: '#34C7BE',
-          isProcess: true
+          ...baseConfig
         });
         btnList.push({
           compId: 'static_bohui',
           name: buttonAttributes.rejectText,
           reasonForRejectionRequired,
           iconFont: 'appIcon-bohui',
-          iconType: 1,
           iconColor: '#EE5E5E',
-          isProcess: true
+          ...baseConfig
         });
       }
 
@@ -217,17 +234,25 @@ export default {
 
   methods: {
     // 审批按钮点击1
-    async processClick() {
-      await this.$refs.processModal.showAsyncModal({
-        title: '审批通过'
-      });
+    processClick() {
+      const { compId } = this.btnInfo;
+      if (compId === 'static_jiaqian' || compId === 'static_zhuanshen') {
+        uni.navigateTo({
+          url: '/PagesSelectUser/index'
+        });
+        return;
+      }
+      this.showProcessOp = true;
+    },
+    cancelProcessOP() {
+      this.showProcessOp = false;
+    },
+    getProcessForm() {
+      return this.resolveBatchParams(this.getFuncAreas());
     }
   },
 
-  mounted() {
-    console.log('tabBtn=================');
-    console.log(this.$store.state.process.processConfigs);
-  }
+  mounted() {}
 };
 </script>
 
@@ -236,15 +261,4 @@ export default {
 
 $--name: 'tabBtns';
 @include setBtnStyle($--name);
-
-.processModal__textarea {
-  margin: 44rpx 0 275rpx 0;
-  &--tip {
-    margin-bottom: 16rpx;
-    font-size: 28rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
-    color: #555555;
-    text-align: left;
-  }
-}
 </style>
