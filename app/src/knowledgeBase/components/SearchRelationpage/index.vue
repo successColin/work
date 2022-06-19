@@ -19,7 +19,7 @@
           focus
           @getList="getListFun"
         ></apiot-input>
-        <div class="searchPage__nav" v-if="!isGetData">
+        <div class="" v-if="!isGetData">
           <div v-if="list.length !== 0">
             <div>最近搜索</div>
             <i class="appIcon appIcon-shanchu" @click="handleDelete"></i>

@@ -79,7 +79,7 @@ export default {
   components: { nodata },
   computed: {
     imgUrl() {
-      return function(name) {
+      return function (name) {
         return this.fileTypeImg(name);
       };
     },
@@ -112,7 +112,6 @@ export default {
             id: v.sysKlTree.id
           }
         ];
-        console.log(arr);
         this.$emit('update:pathArr', arr);
       } else {
         // 记录访问次

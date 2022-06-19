@@ -20,7 +20,7 @@
           focus
           @getList="getListFun"
         ></apiot-input>
-        <div class="searchPage__nav" v-if="!isGetData">
+        <div class="" v-if="!isGetData">
           <div v-if="list.length !== 0">
             <div>最近搜索</div>
             <i class="appIcon appIcon-shanchu" @click="handleDelete"></i>
@@ -45,6 +45,10 @@
               {{ item.name }}
             </div>
           </section>
+          <apiot-breadcrumb
+            :arr="pathArr"
+            @handlePathFun="handlePathFun"
+          ></apiot-breadcrumb>
         </div>
       </div>
     </u-sticky>
@@ -70,7 +74,11 @@
     </section>
     <!-- 查询列表 -->
     <section v-else>
-      <list-data class="searchPage__list" :dataArr="dataArr"></list-data>
+      <list-data
+        class="searchPage__list"
+        :dataArr="dataArr"
+        :pathArr.sync="pathArr"
+      ></list-data>
     </section>
   </section>
 </template>
@@ -84,7 +92,8 @@ export default {
   provide() {
     return {
       getList: this.getList,
-      visitRecordFun: this.visitRecordFun
+      visitRecordFun: this.visitRecordFun,
+      fileTypeImg: this.fileTypeImg
     };
   },
   data() {
@@ -125,7 +134,14 @@ export default {
       title: '搜索',
       list: [],
       keywords: '',
-      keywordValue: ''
+      keywordValue: '',
+      pathArr: [
+        {
+          name: '全部',
+          id: 0,
+          type: 0
+        }
+      ]
     };
   },
   components: {
@@ -206,6 +222,24 @@ export default {
         this.dataArr = [];
       }
       this.keywordValue = this.keywords;
+    },
+    handlePathFun(v, i) {
+      this.pathArr = this.pathArr.slice(0, i + 1);
+      const obj = this.screenArr.find((item) => item.state);
+      console.log(v, i, this.pathArr, obj);
+      if (obj.id === 1) {
+        const keywords = v.id === 0 ? this.keywords : '';
+        this.getList({
+          keywords,
+          parentId: v.id
+        });
+      } else {
+        // fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
+        this.getTypeList({
+          fileType: v.id,
+          keywords: this.keywords
+        });
+      }
     }
   }
 };
@@ -221,7 +255,7 @@ $--name: 'searchPage';
   display: flex;
   flex-direction: column;
   background: #fff;
-  height: 100vh;
+  height: 100%;
   &__nav {
     font-size: 34rpx;
     &--section {

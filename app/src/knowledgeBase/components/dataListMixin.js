@@ -32,7 +32,7 @@ export default {
       const res = await listFiles({
         classId: this.classId,
         isFolder: 0, // 是否只显示文件夹(1是 0否)
-        // keywords: '',
+        keywords: '',
         parentId: 0,
         ...params,
       });
@@ -46,7 +46,7 @@ export default {
         classId: this.classId,
         fileType: 2, // 文件类型（ 2文档 3图片 4视频 5 音频 6 其他）
         current: 1,
-        // keywords: '',
+        keywords: '',
         size: 99999,
         ...params,
       });

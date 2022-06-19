@@ -109,9 +109,7 @@ export default {
         // { name: '收藏', methods: this.handleCollection },
         { name: '重命名', methods: this.handleRename },
         { name: '移动', methods: this.handleMobile },
-        /* #ifdef APP-PLUS */
         { name: '下载', methods: this.handleDownload },
-        /* #endif */
         // { name: '更新版本', methods: this.handleUpdateV },
         { name: '删除', methods: this.handleDelete }
       ];
