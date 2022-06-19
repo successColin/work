@@ -25,6 +25,9 @@
     },
     {
       "path": "pages/MenuHome/applicationTab"
+    },
+    {
+      "path": "pages/webViewTemplate/index"
     }
   ],
   "subPackages": [

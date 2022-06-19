@@ -103,7 +103,7 @@ export default {
   mixins: [publicMixin],
   data() {
     return {
-      currentPage: 'search',
+      currentPage: 'searchPage',
       formObj: {},
       parentId: 0,
       funcConfig: {},
@@ -193,12 +193,12 @@ export default {
     // 查询历史数据
     handleHistory(name) {
       this.keywords = name;
-      this.getList();
+      this.getList(true);
     },
     // 搜索失去焦点方法
     async getListFun() {
       if (this.keywords) {
-        await this.getList();
+        await this.getList(true);
       } else {
         this.dataArr = [];
       }
@@ -212,23 +212,11 @@ export default {
           item.state = true;
         }
       });
-      this.getList();
+      this.getList(true);
     },
     // 删除历史
     handleDelete() {
       this.list = [];
-    },
-    handlePathFun(v, i) {
-      console.log(v, i);
-      this.pathArr = this.pathArr.slice(0, i + 1);
-      const lastArr = this.pathArr.length && this.pathArr[this.pathArr.length - 1];
-      this.parentId = lastArr.id;
-      // if (lastArr.type === 2) {
-      //   this.getKnowledgeList();
-      // } else {
-      //   this.getList();
-      // }
-      console.log(this.pathArr, this.parentId);
     }
   }
 };
@@ -242,7 +230,7 @@ $--name: 'searchPage';
   display: flex;
   flex-direction: column;
   background: #fff;
-  height: 100vh;
+  height: 100%;
   &__nav {
     font-size: 34rpx;
     padding-bottom: 0;

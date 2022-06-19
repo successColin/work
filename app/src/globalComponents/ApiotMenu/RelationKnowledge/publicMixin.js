@@ -36,8 +36,7 @@ export default {
 
   methods: {
     // 查询全部数据__本地上传
-    async getList() {
-      console.log(this.funcConfig, this.funcConfig.compId);
+    async getList(isSearch) {
       this.loading = true;
       const { relateBusiComp, relateDataComp } = this.funcConfig;
       const { tableName } = relateDataComp;
@@ -51,16 +50,7 @@ export default {
         tableId = this.formObj[relateDataComp.compId];
         relationTableId = this.formObj[relateBusiComp.compId];
       }
-      if (this.currentPage === 'list') {
-        res = await materialsListFiles({
-          parentId: this.parentId, // 节点父级id(根节点传0)
-          relationTableId,
-          relationTableName: tableName, // 业务关联表名
-          tableId,
-          tableName, // 表名
-          keywords: '',
-        });
-      } else {
+      if (isSearch) {
         res = await materialsSearchFiles({
           parentId: this.parentId,
           relationTableId,
@@ -68,6 +58,15 @@ export default {
           tableId,
           tableName,
           keywords: this.keywords,
+        });
+      } else {
+        res = await materialsListFiles({
+          parentId: this.parentId, // 节点父级id(根节点传0)
+          relationTableId,
+          relationTableName: tableName, // 业务关联表名
+          tableId,
+          tableName, // 表名
+          keywords: '',
         });
       }
       this.sortFun(res);
@@ -103,13 +102,17 @@ export default {
       this.dataArr = currentArr.sort((a, b) => a.treeType - b.treeType);
     },
     handlePathFun(v, i) {
-      console.log(v, i);
       this.pathArr = this.pathArr.slice(0, i + 1);
       const lastArr =
         this.pathArr.length && this.pathArr[this.pathArr.length - 1];
       this.parentId = lastArr.id;
       if (lastArr.type === 2) {
         this.getKnowledgeList();
+      } else if (
+        this.currentPage === 'searchPage' &&
+        this.pathArr.length === 1
+      ) {
+        this.getList(true);
       } else {
         this.getList();
       }

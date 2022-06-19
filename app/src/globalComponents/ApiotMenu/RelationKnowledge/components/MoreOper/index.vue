@@ -61,7 +61,6 @@ export default {
     },
     // 下载
     handleDownload() {
-      console.log('下载');
       // app文件下载
       uni.showModal({
         title: '提示',

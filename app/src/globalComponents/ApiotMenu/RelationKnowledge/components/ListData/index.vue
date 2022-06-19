@@ -57,7 +57,7 @@
             <i
               class="appIcon appIcon-gengduo"
               @click.stop="handleMoreOper(item)"
-              v-show="funcConfig.showDownload"
+              v-show="funcConfig.showDownload && item.treeType !== 1"
             ></i>
           </div>
         </section>
@@ -105,7 +105,7 @@ export default {
   components: { nodata },
   computed: {
     imgUrl() {
-      return function(v) {
+      return function (v) {
         return this.fileTypeImg(v);
       };
     },
@@ -113,7 +113,7 @@ export default {
       return '100%';
     },
     typeVal() {
-      return function(item) {
+      return function (item) {
         return (
           item.materialType ||
           (this.pathArr.length &&
@@ -127,12 +127,12 @@ export default {
       return this.$store.state.userCenter.userInfo.id;
     },
     isShowEle() {
-      return function(v) {
+      return function (v) {
         const obj =
           this.funcConfig &&
           this.funcConfig.tableColumn &&
           this.funcConfig.tableColumn.find((item) => item.column === v);
-        return (obj && obj.show) || true;
+        return obj && obj.show;
       };
     }
   },

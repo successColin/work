@@ -48,14 +48,23 @@ export const PREVIEW_FILE = (file, _this) => {
   const typeArray = name.split('.');
   let type = typeArray[typeArray.length - 1];
   const picTypes = ['jpg', 'jpeg', 'png'];
-  let previewTypes = [];
+  const previewTypes = [
+    'pdf',
+    'txt',
+    'doc',
+    'xls',
+    'ppt',
+    'docx',
+    'xlsx',
+    'pptx',
+  ];
   const video = {};
-  // #ifdef H5
-  previewTypes = ['pdf', 'txt'];
-  // #endif
-  // #ifndef H5
-  previewTypes = ['pdf', 'txt', 'doc', 'xls', 'ppt', 'docx', 'xlsx', 'pptx'];
-  // #endif
+  // // #ifdef H5
+  // previewTypes = ['pdf', 'txt', 'doc', 'xls', 'ppt', 'docx', 'xlsx', 'pptx'];
+  // // #endif
+  // // #ifndef H5
+  // previewTypes = ['pdf', 'txt', 'doc', 'xls', 'ppt', 'docx', 'xlsx', 'pptx'];
+  // // #endif
   if (type) type = type.toLowerCase();
   console.log(type);
   if (picTypes.indexOf(type) !== -1) {
@@ -65,7 +74,7 @@ export const PREVIEW_FILE = (file, _this) => {
     // 如果是直接可以预览的文件，比如pdf与txt
     // 如果是H5端，可以直接用webview打开
     // #ifdef H5
-    const filepreviewUrl = `/pages/templates/webViewTemplate?isPreview=true&url=${url}&fileName=${name}`;
+    const filepreviewUrl = `/pages/webViewTemplate/index?url=${url}&fileName=${name}`;
     uni.navigateTo({
       url: filepreviewUrl,
     });
@@ -93,7 +102,7 @@ export const PREVIEW_FILE = (file, _this) => {
 
 export const PREVIEW_DOWNLOAD_FILE = (file) => {
   // 文件下载
-  const { url } = file;
+  const { url, name } = file;
   if (!url) {
     uni.showModal({
       title: '提示', // 中文：'提示'
@@ -103,6 +112,20 @@ export const PREVIEW_DOWNLOAD_FILE = (file) => {
     });
     return;
   }
+  // #ifdef H5
+  const link = document.createElement('a');
+  const body = document.querySelector('body');
+
+  link.href = url;
+  link.download = name;
+  link.style.display = 'none';
+  body.appendChild(link);
+
+  link.click();
+  body.removeChild(link);
+
+  // #endif
+  // #ifndef H5
   uni.downloadFile({
     // 下载后文件会存在临时路径中，因为下次不想想再下载将文件存储到实际路径中，以便下次获取
     url,
@@ -112,10 +135,11 @@ export const PREVIEW_DOWNLOAD_FILE = (file) => {
       uni.saveFile({
         tempFilePath: filePath,
         success(saveRes) {
+          console.log(saveRes);
           const { savedFilePath } = saveRes;
           uni.showModal({
             title: '提示', // 中文：'提示'
-            content: `文件保存路径:${savedFilePath}`,
+            content: `下载成功，文件保存路径:${savedFilePath}`,
             confirmText: '确定',
             cancelText: '取消',
           });
@@ -123,4 +147,5 @@ export const PREVIEW_DOWNLOAD_FILE = (file) => {
       });
     },
   });
+  // #endif
 };

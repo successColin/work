@@ -8,13 +8,9 @@
 <template>
   <div class="apiotknowledge">
     <!-- 吸顶 -->
-    <u-sticky
-      :customNavHeight="customBar"
-      :offsetTop="44"
-      v-show="funcConfig.showSearch"
-    >
+    <u-sticky :customNavHeight="customBar" :offsetTop="44">
       <div class="apiotknowledge__sticky">
-        <search-button></search-button>
+        <search-button v-show="funcConfig.showSearch"></search-button>
         <apiot-breadcrumb
           :arr="pathArr"
           @handlePathFun="handlePathFun"
