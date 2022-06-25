@@ -14,7 +14,9 @@
         <div class="form-item-content">
           <SelectUsers
             v-bind="$attrs"
+            nodeType="approverObj"
             :params="params"
+            :flowData="flowData"
             :approverObj="sourceType"
             @select-flow-approval="appendUsers"
           ></SelectUsers>
@@ -332,6 +334,7 @@ export default {
       deep: true,
       handler() {
         this.init();
+        console.log(this.currentVersion, this.flowData);
         this.key += 1;
       }
     },
@@ -494,7 +497,9 @@ export default {
       this.configVisible = true;
     },
     appendUsers({ value, key }) {
+      console.log(value, key);
       this.sourceType[key] = value;
+      console.log(this.sourceType);
     }
   },
   name: 'index'

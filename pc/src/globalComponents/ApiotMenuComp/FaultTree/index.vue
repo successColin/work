@@ -358,7 +358,7 @@ export default {
     // 滚动事件
     scrollThing() {
       if (
-        this.$refs.searchList.scrollTop + this.$refs.searchList.offsetHeight <
+        this.$refs.searchList.scrollTop + this.$refs.searchList.offsetHeight >
           this.$refs.scroll.offsetHeight - 50 &&
         !this.loading
       ) {

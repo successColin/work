@@ -52,6 +52,7 @@
         :editObj="detialObj"
         @addAffectType="addAffectType"
         :triggerCompMap="triggerCompMap"
+        :showType="[1, 6]"
       />
     </transition>
   </div>

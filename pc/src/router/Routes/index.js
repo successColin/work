@@ -11,6 +11,15 @@ export default [
       notChangeTheme: true,
     },
   },
+  // 浙政钉关联用户
+  {
+    path: '/associatedUser',
+    name: 'associatedUser',
+    component: () => import('_v/Login/AssociatedUser'),
+    meta: {
+      notChangeTheme: true,
+    },
+  },
   // 注册
   {
     path: '/register',
@@ -106,7 +115,6 @@ export default [
         name: 'home',
         component: () => import('_v/Home'),
         beforeEnter: async (to, from, next) => {
-          await store.dispatch('getHomeRoute');
           const { homeArr } = store.state.base;
           if (homeArr.length) {
             const current = homeArr[0];
@@ -313,6 +321,16 @@ export default [
         component: () => import('_v/HomePageConfig'),
         meta: {
           title: '主页配置',
+          childrenPage: true,
+        },
+      },
+      // ureport 集成
+      {
+        path: 'ureport',
+        name: 'ureport',
+        component: () => import('_v/UReport'),
+        meta: {
+          title: 'UReport',
           childrenPage: true,
         },
       },

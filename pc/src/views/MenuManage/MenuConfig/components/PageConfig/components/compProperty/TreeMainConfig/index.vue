@@ -578,7 +578,13 @@ export default {
       this.getArea.forEach((comp) => {
         this.getAllcheck[`${comp.compId}_`].isTree = false;
         if (this.getCurrentTab.reloadArea.includes(comp.compId)) {
-          this.getAllcheck[`${comp.compId}_`].isTree = true;
+          if (
+            this.getAllcheck[`${comp.compId}_`].tableInfo.tableName ===
+            this.getCurrentTab.tableInfo.tableName
+          ) {
+            this.getAllcheck[`${comp.compId}_`].isTree = true;
+          }
+
           arr.push(comp.compId);
         }
       });

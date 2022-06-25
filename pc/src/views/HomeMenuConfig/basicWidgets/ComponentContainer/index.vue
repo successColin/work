@@ -56,6 +56,7 @@ const SingleLineTextHome = () => import('../../components/SingleLineTextHome/ind
 const BackgroundBox = () => import('../../components/BackgroundBox/index');
 const RealTime = () => import('../../components/RealTime/index');
 const HorizontalProgressBar = () => import('../../components/HorizontalProgressBar/index');
+const RadarChart = () => import('../../components/RadarChart/index');
 
 export default {
   props: {
@@ -104,7 +105,8 @@ export default {
     Dashboard,
     SingleLineTextHome,
     BackgroundBox,
-    HorizontalProgressBar
+    HorizontalProgressBar,
+    RadarChart
   },
 
   computed: {},

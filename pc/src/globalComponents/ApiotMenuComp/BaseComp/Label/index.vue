@@ -365,16 +365,16 @@ export default {
                       selectWhere += '(';
                     }
                     if (item.secondIsValue) {
-                      selectWhere += `${item.firstLineTable.nameAlias}.${item.firstLineColumn.columnName}=${item.secondLineValue}`;
+                      selectWhere += `${item.firstLineTable.tableName}.${item.firstLineColumn.columnName}=${item.secondLineValue}`;
                     } else if (this.configData.dataSource.relateName === '主表') {
                       if (this.configData.enableMultiColumn) {
                         // 数据多选框
                         if (v && !this.parent.form[`${this.configData.compId}_`]) {
-                          selectWhere += `${item.secondLineTable.nameAlias}.${item.secondLineColumn.columnName} in (${v})`;
+                          selectWhere += `${item.secondLineTable.tableName}.${item.secondLineColumn.columnName} in (${v})`;
                         }
                       }
                     } else {
-                      selectWhere += `${item.secondLineTable.nameAlias}.${item.secondLineColumn.columnName}=${v}`;
+                      selectWhere += `${item.secondLineTable.tableName}.${item.secondLineColumn.columnName}=${v}`;
                     }
                     if (i !== orArr.length - 1) {
                       selectWhere += ' or ';
@@ -520,7 +520,7 @@ export default {
               });
             }
           });
-          const menuObj = {};
+          const menuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : {};
           menuObj[obj.id] = obj;
           sessionStorage.jumpMenuObj = JSON.stringify(menuObj);
           this.$bus.$emit('changeMenuTab', curMenu);

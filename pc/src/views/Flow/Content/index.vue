@@ -73,6 +73,7 @@
         :destroy-on-close="true"
         :modal-append-to-body="false"
         v-on:sure-click="handleOk"
+        :loading="btnLoading"
     >
       <div>
         <el-form
@@ -83,6 +84,12 @@
             :model="flowObj"
             :rules="rules"
         >
+          <el-form-item
+              prop="workflowCode"
+              label="流程编码"
+          >
+            <apiot-input v-model="flowObj.workflowCode"></apiot-input>
+          </el-form-item>
           <el-form-item
               prop="workflowName"
               label="流程名称"
@@ -109,6 +116,7 @@ import FlowDesign from './Process/index';
 export default {
   data() {
     return {
+      btnLoading: false,
       flowVisible: false,
       keywords: '',
       selectKey: {},
@@ -169,6 +177,7 @@ export default {
     handleOk() {
       this.$refs.dynamicValidateForm.validate((valid) => {
         if (valid) {
+          this.btnLoading = true;
           this.add();
         } else {
           console.log('error submit!!');
@@ -182,6 +191,7 @@ export default {
         await this.$confirm('确定删除该流程吗？', this.$t('common.tip'), { type: 'warning' });
         await delFlow({ workflowInfoId: id });
         await this.getList();
+        this.$message.success('删除成功!');
       } catch (e) {
         console.warn(e);
       }
@@ -203,8 +213,11 @@ export default {
         });
         await this.getList();
         this.visible = false;
+        this.btnLoading = false;
+        this.$message.success('操作成功!');
       } catch (e) {
         this.loading = false;
+        this.btnLoading = false;
         this.$message.error('操作失败');
       }
     },
@@ -329,7 +342,7 @@ export default {
   }
   ::v-deep{
     .editOrAdd .el-dialog__body{
-      height: 95px;
+      height: 170px;
       padding: 20px;
     }
   }

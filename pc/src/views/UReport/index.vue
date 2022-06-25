@@ -1,0 +1,59 @@
+<!--
+ * @Descripttion: 集成 ureport
+ * @Author: ytx
+ * @Date: 2022-06-22 11:08:34
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-06-22 11:08:34
+-->
+<template>
+  <div class="ureport">
+    <el-skeleton v-show="loading" :rows="14" animated />
+    <iframe ref="Iframe" v-show="!loading" :src="url" frameborder="0"></iframe>
+  </div>
+</template>
+
+<script>
+// import { Decrypt } from '_u/utils';
+
+export default {
+  data() {
+    return {
+      loading: true
+    };
+  },
+  components: {},
+  computed: {
+    url() {
+      const { host } = window.location;
+      const ip = host.split(':')[0];
+      const currentUrl = `http://${ip}:8085/ureport/designer`;
+      console.log(currentUrl);
+      return currentUrl;
+      // return 'http://47.118.76.70:8085/ureport/designer';
+      // return `http://192.168.0.4:8080/ureport/designer?token=${Decrypt(
+      //   localStorage.getItem('token') || ''
+      // )}`;
+    }
+  },
+  watch: {},
+  mounted() {
+    this.loadingFun();
+  },
+  methods: {
+    loadingFun() {
+      this.loading = true;
+      const iframe = this.$refs.Iframe;
+      iframe.onload = () => {
+        this.loading = false;
+        console.log(this.loading);
+      };
+    }
+  }
+};
+</script>
+<style lang='scss' scoped>
+iframe {
+  width: 100%;
+  height: 100%;
+}
+</style>

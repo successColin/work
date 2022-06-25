@@ -23,5 +23,7 @@ export default {
       memo: 'memo',
       design: 'design',
     },
+    multiTreeTip:
+      'The amount of data under this node [%{any}] is too large, and currently only the first 500 pieces of data are displayed.',
   },
 };

@@ -17,23 +17,17 @@
 </template>
 
 <script>
-import { getLoginConfig } from '@/api/login';
-import { selectColorArr, stylePercentageArr } from '@/config';
+import { stylePercentageArr } from '@/config';
 import CardLogin from './CardLogin';
 import TiledLogin from './TiledLogin';
 
 export default {
   data() {
-    return {
-      configs: {}
-    };
+    return {};
   },
   components: {
     TiledLogin,
     CardLogin
-  },
-  beforeMount() {
-    this.fetchConfig();
   },
   computed: {
     styleWidthObj() {
@@ -41,27 +35,14 @@ export default {
         (item) => String(item.value) === this.configs.stylePercentage
       );
       return obj;
+    },
+    configs() {
+      const { loginConfig } = this.$store.state.base;
+      return loginConfig;
     }
   },
-  methods: {
-    async fetchConfig() {
-      const res = (await getLoginConfig()) || [];
-      // console.log(res);
-      const obj = {};
-      res.forEach((item) => {
-        const { attributeKey, attributeValue } = item;
-        obj[attributeKey] = attributeValue;
-        this.configs = obj;
-      });
-      const themeColor = this.configs.themeColor
-        ? selectColorArr[Number(this.configs.themeColor) - 1]
-        : '#4689f5';
-      console.log(themeColor);
-      if (themeColor) {
-        this.$store.commit('changeLoginThemeColor', themeColor);
-      }
-    }
-  }
+  methods: {},
+  mounted() {}
 };
 </script>
 <style lang='scss' scoped>

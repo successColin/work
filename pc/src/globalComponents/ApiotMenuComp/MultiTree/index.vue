@@ -177,7 +177,7 @@
 
 <script>
 import { throttle } from '@/utils/utils';
-import { listMultiTree, getSidebarPage, getSidebarSingle } from '@/api/menuConfig';
+import { listMultiTree, pageMultiTree, selectList } from '@/api/menuConfig';
 import initAreaMixin from '../initAreaMixin';
 import SingleTree from './SingleTree';
 
@@ -218,7 +218,8 @@ export default {
       backKey: '',
       showCheckbox: false, // 是否展示多选
       showSinglebox: false, // 是否展示单选
-      multiEntityArr: [] // 多选/单选值
+      multiEntityArr: [], // 多选/单选值
+      needSearch: false
     };
   },
 
@@ -257,6 +258,9 @@ export default {
       }
       return arr;
     },
+    getLastDataSource() {
+      return this.configData.multiDataSource[this.configData.multiDataSource.length - 1];
+    },
     getButtonStyle() {
       return (i) => {
         if (this.getBtnsArr.children.length - this.getBtnsArr.rightIndex === i) {
@@ -292,10 +296,24 @@ export default {
       const obj = {};
       this.getFeatureArr.children.forEach((item) => {
         if (item.dataSource && item.dataSource.columnName) {
-          obj[item.compId] = item.dataSource.columnName;
+          if (item.dataSource.columnName === 'id') {
+            obj[item.compId] = item.dataSource.columnName;
+          } else if (item.dataSource.alias === this.getLastDataSource.tableInfo.nameAlias) {
+            obj[item.compId] = item.dataSource.columnName;
+          }
         }
       });
       return obj;
+    },
+    // 获取datatype的组件id
+    getDataTypeCompId() {
+      const index = this.getFeatureArr.children.findIndex(
+        (comp) => comp.dataSource.columnName === 'dataType'
+      );
+      if (index !== -1) {
+        return this.getFeatureArr.children[index].compId;
+      }
+      return '';
     },
     getColumnStr() {
       if (this.isConfig) {
@@ -319,7 +337,54 @@ export default {
             }
           }
         });
+
         obj[table.tableInfo.nameAlias] = str;
+      });
+      this.configData.multiDataSource.forEach((table) => {
+        Object.keys(obj).forEach((key) => {
+          if (key === table.tableInfo.nameAlias) {
+            if (table.selfLevelColumn.columnName) {
+              obj[
+                key
+              ] += `${table.tableInfo.tableName}.${table.selfLevelColumn.columnName} ${table.selfLevelColumn.columnName},`;
+            }
+
+            if (table.lastLevelColumn.columnName) {
+              obj[
+                key
+              ] += `${table.tableInfo.tableName}.${table.lastLevelColumn.columnName} ${table.lastLevelColumn.columnName},`;
+            }
+          } else {
+            if (table.selfLevelColumn.columnName) {
+              obj[key] += `'' ${table.selfLevelColumn.columnName},`;
+            }
+
+            if (table.lastLevelColumn.columnName) {
+              obj[key] += `'' ${table.lastLevelColumn.columnName},`;
+            }
+          }
+        });
+      });
+      Object.keys(obj).forEach((key) => {
+        const arr = obj[key].split(',');
+        const tempObj = {};
+        arr.forEach((item) => {
+          if (item) {
+            const tempArr = item.split(' ');
+            if (Object.hasOwnProperty.call(tempObj, tempArr[1])) {
+              if (tempArr[0] !== "''") {
+                [tempObj[tempArr[1]]] = tempArr;
+              }
+            } else {
+              [tempObj[tempArr[1]]] = tempArr;
+            }
+          }
+        });
+        let str = '';
+        Object.keys(tempObj).forEach((tempKey) => {
+          str += `${tempObj[tempKey]} ${tempKey},`;
+        });
+        obj[key] = str;
       });
       return obj;
     }
@@ -332,7 +397,6 @@ export default {
   mounted() {
     if (this.isConfig) {
       // console.log(this.isConfig);
-      console.log(this.getColumnStr);
     } else {
       this.getMoreOperate();
       this.initFixData();
@@ -370,7 +434,9 @@ export default {
           let showCompId = '';
           if (showArr.length !== 0) {
             const index = this.getFeatureArr.children.findIndex(
-              (comp) => comp.dataSource.columnName === this.getSelData().showInfo.name
+              (comp) =>
+                comp.dataSource.columnName === this.getSelData().showInfo.name &&
+                comp.dataSource.alias === this.getLastDataSource.tableInfo.nameAlias
             );
             if (index !== -1) {
               showCompId = this.getFeatureArr.children[index].compId;
@@ -385,6 +451,7 @@ export default {
             }
             this.multiEntityArr.push(obj);
           });
+          // console.log(this.multiEntityArr);
         }
       } else {
         this.showCheckbox = false;
@@ -408,7 +475,9 @@ export default {
     // 获取字段组件id
     getCompId(coulumnName) {
       const index = this.getFeatureArr.children.findIndex(
-        (comp) => comp.dataSource.columnName === coulumnName
+        (comp) =>
+          comp.dataSource.columnName === coulumnName &&
+          comp.dataSource.alias === this.getLastDataSource.tableInfo.nameAlias
       );
       if (index !== -1) {
         return this.getFeatureArr.children[index].compId;
@@ -417,26 +486,36 @@ export default {
     },
     initMulti(form) {
       // console.log(2, form);
-      const keyArr = [];
-      form.keys.forEach((item) => {
-        if (this.getCompId(item)) {
-          keyArr.push(this.getCompId(item));
-        }
-      });
-      const arr = form.tagValue ? form.tagValue.split(',') : [];
-      const arr1 = form.tagValue_ ? form.tagValue_.split(',') : [];
+      // const keyArr = [];
+      // form.keys.forEach((item) => {
+      //   if (this.getCompId(item)) {
+      //     keyArr.push(this.getCompId(item));
+      //   }
+      // });
+      // const arr = form.tagValue ? form.tagValue.split(',') : [];
+      // const arr1 = form.tagValue_ ? form.tagValue_.split(',') : [];
+      // this.multiEntityArr = [];
+      // arr.forEach((item, index) => {
+      //   const obj = {};
+      //   obj[keyArr[0]] = +arr[index];
+      //   obj[keyArr[1]] = arr1[index];
+      //   this.multiEntityArr.push(obj);
+      // });
+      const arr = form.tagValue.split(',');
+      const arr1 = form.tagValue_.split(',');
       this.multiEntityArr = [];
       arr.forEach((item, index) => {
         const obj = {};
-        obj[keyArr[0]] = +arr[index];
-        obj[keyArr[1]] = arr1[index];
+        obj[this.getSelData().name] = +arr[index];
+        obj[this.getIdCompId] = +arr[index];
+        obj[this.getSelData().showInfo.name] = arr1[index];
         this.multiEntityArr.push(obj);
       });
     },
     // 滚动事件
     scrollThing() {
       if (
-        this.$refs.searchList.scrollTop + this.$refs.searchList.offsetHeight <
+        this.$refs.searchList.scrollTop + this.$refs.searchList.offsetHeight >
           this.$refs.scroll.offsetHeight - 50 &&
         !this.loading
       ) {
@@ -452,6 +531,7 @@ export default {
         (this.showList && areaArr === 'treeUpdate')
       ) {
         if (this.configData.shouldInit) {
+          this.needSearch = true;
           this.getSidebarList();
         }
         return;
@@ -514,7 +594,6 @@ export default {
     },
     makeFlowParams(params) {
       const { tableInfo } = this.configData;
-      console.log(this.configData, '3');
       params.workflowFilter = `${tableInfo.tableName}.id=${this.showType.dataId}`;
       params.dataPermissions = false;
     },
@@ -544,36 +623,54 @@ export default {
       }
       return '';
     },
+    getTableName(alias) {
+      const index = this.configData.multiDataSource.findIndex(
+        (item) => item.tableInfo.nameAlias === alias
+      );
+      if (index !== -1) {
+        return this.configData.multiDataSource[index].tableInfo.tableName;
+      }
+      return '';
+    },
     // 获取列表数据
     async getSidebarList(flag = true, nodeId, needNext = true) {
-      this.loading = true;
-      this.showList = false;
       // flag true 是搜索 false 不是搜索
       const filterMap = JSON.stringify(this.getFilterParams());
       let data = [];
       const { searchInfo } = this.configData;
       if (searchInfo && flag) {
-        console.log(searchInfo);
         if (this.backKey !== searchInfo.searchValue) {
           this.backKey = searchInfo.searchValue;
           this.current = 1;
           this.noMore = false;
         }
-        let searchStr = '';
-        searchInfo.columnsInfo.forEach((item, index) => {
-          if (index === 0) {
-            searchStr += '(';
-          }
+        if (this.needSearch) {
+          this.backKey = searchInfo.searchValue;
+          this.current = 1;
+          this.noMore = false;
+          this.needSearch = false;
+        }
+        const searchObj = {};
+        searchInfo.columnsInfo.forEach((item) => {
           const arr = item.name.split('.');
-          searchStr += `t.${arr[1]}='%${item.value || searchInfo.searchValue}%'`;
-          if (index !== searchInfo.columnsInfo.length - 1) {
-            searchStr += ' or ';
+          const alias = arr[0];
+          const tableName = this.getTableName(alias);
+          if (!searchObj[alias]) {
+            searchObj[alias] = '';
+          }
+          if (item.value) {
+            searchObj[alias] += `${tableName}.${arr[1]} = '${
+              item.value || searchInfo.searchValue
+            }' or `;
           } else {
-            searchStr += ')';
+            searchObj[alias] += `${tableName}.${arr[1]} like '%${searchInfo.searchValue}%' or `;
           }
         });
-        console.log(searchStr);
+        Object.keys(searchObj).forEach((key) => {
+          searchObj[key] = `(${searchObj[key].slice(0, -4)})`;
+        });
         if (this.noMore) {
+          this.loading = false;
           return;
         }
         if (this.current === 1) {
@@ -584,6 +681,7 @@ export default {
 
         // 分页
         const params = {
+          dataType: 1,
           current: this.current,
           size: 50,
           compMap: filterMap,
@@ -591,7 +689,7 @@ export default {
           multiDataSource: JSON.stringify(this.configData.multiDataSource),
           selectColumn: JSON.stringify(this.getColumnStr),
           dataPermissions: this.getDataPermissions,
-          searchValue: searchStr
+          searchInfo: JSON.stringify(searchObj)
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
         if (panelFilter) {
@@ -609,18 +707,24 @@ export default {
         if (this.showType && this.showType.type === 'flow') {
           this.makeFlowParams(params);
         }
-        const res = await getSidebarPage(params);
+        const res = await pageMultiTree(params);
         this.loading = false;
         if (res.records.length === 0) {
           this.noMore = true;
           return;
+        }
+        if (res.records.length < 50) {
+          this.noMore = true;
         }
         const tempData = JSON.parse(JSON.stringify(this.sidebarData));
         tempData.push(...res.records);
         data = tempData;
         this.total = res.total;
       } else {
+        this.loading = true;
+        this.showList = false;
         this.current = 1;
+        this.backKey = '';
         this.noMore = false;
         if (!nodeId) {
           nodeId = this.configData.multiDataSource[0].selfLevelColumn.start;
@@ -656,7 +760,7 @@ export default {
         this.loading = false;
       }
       data.forEach((item) => {
-        item.treeId = `${item[this.getIdCompId]}${item.dataType}}`;
+        item.treeId = `${item[this.getIdCompId]}${item.dataType}`;
         if (!item.childCount) {
           item.isLeaf = true;
         } else {
@@ -670,17 +774,19 @@ export default {
       });
       if (needNext && data.length) {
         this.$nextTick(() => {
-          this.selectItem(data[0]);
           if (!(searchInfo && flag)) {
             // 正常树打开第一个节点
             if (this.$refs.tree) {
+              this.selectKey = data[0].treeId;
               this.$refs.tree.getTree().setCurrentKey(this.selectKey);
-              // this.$nextTick(() => {
-              //   document
-              //     .querySelector(`.tree${this.configData.compId} .is-current`)
-              //     .firstChild.click();
-              // });
+              this.$nextTick(() => {
+                document
+                  .querySelector(`.tree${this.configData.compId} .is-current`)
+                  .firstChild.click();
+              });
             }
+          } else {
+            this.selectItem(data[0]);
           }
         });
       } else {
@@ -770,7 +876,9 @@ export default {
     },
     // 按钮点击时，选中当前点击的
     selectTreeNode(data) {
+      console.log(data);
       this.selectKey = data.treeId;
+      console.log(this.selectKey);
     },
     // 更改form的值
     changeForm(data) {
@@ -778,6 +886,7 @@ export default {
       this.getFeatureArr.form = {
         ...data
       };
+      this.getFeatureArr.form[this.getDataTypeCompId] = data.dataType;
       this.$nextTick(() => {
         this.changeTabChange(false);
       });
@@ -794,6 +903,7 @@ export default {
       this.getFeatureArr.form = {
         ...item
       };
+      this.getFeatureArr.form[this.getDataTypeCompId] = item.dataType;
       if (flag) {
         if (this.selectKey !== item.treeId) {
           this.$bus.$emit('returnFirst', this.onlyFlag());
@@ -891,6 +1001,7 @@ export default {
         }
         const data = await listMultiTree(params);
         data.forEach((item) => {
+          item.treeId = `${item[this.getIdCompId]}${item.dataType}`;
           if (!item.childCount) {
             item.isLeaf = true;
           } else {
@@ -904,18 +1015,18 @@ export default {
           node.isLeaf = false;
         }
       } else {
+        const { tableName, nameAlias } =
+          this.configData.multiDataSource[form.dataType - 1].tableInfo;
         const params = {
-          compId: this.configData.compId,
-          compMap: filterMap,
-          sysMenuDesignId: this.sysMenuDesignId(),
-          panelCompId: this.getValueFromFather('panelCompId'),
-          relationMenuDesignId: this.getValueFromFather('relationMenuDesignId'),
-          workflowFilter: `${this.configData.tableInfo.tableName}.id=${form[this.getIdCompId]}`
+          selectContent: this.getColumnStr[nameAlias].slice(0, -1),
+          selectFrom: tableName,
+          selectWhere: `${tableName}.id=${form[this.getIdCompId]}`
         };
-        const data = await getSidebarSingle(params);
-        Object.keys(data).forEach((key) => {
-          form[key] = data[key];
+        const data = await selectList(params);
+        Object.keys(data[0]).forEach((key) => {
+          form[key] = data[0][key];
         });
+        form.treeId = `${form[this.getIdCompId]}${form.dataType}`;
       }
       this.selectItem(form);
     },

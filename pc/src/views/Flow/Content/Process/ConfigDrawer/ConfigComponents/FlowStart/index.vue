@@ -303,7 +303,7 @@ export default {
 
   methods: {
     init() {
-      if (JSON.stringify(this.nodeInfo) !== '{}') {
+      if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.$nextTick(() => {
           this.value = this.nodeInfo.tableName || '';
           this.radio = this.nodeInfo.triggerCond.type || 'ONLYSAVE';

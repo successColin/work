@@ -116,6 +116,7 @@ const SingleLineTextHomeConfig = () => import('./configComponents/SingleLineText
 const GeneralTableConfig = () => import('./configComponents/GeneralTableConfig/index');
 const BackgroundBoxConfig = () => import('./configComponents/BackgroundBoxConfig/index');
 const RealTimeConfig = () => import('./configComponents/RealTimeConfig/index');
+const RadarChartConfig = () => import('./configComponents/RadarChartConfig/index');
 
 export default {
   data() {
@@ -152,7 +153,8 @@ export default {
     GeneralTableConfig,
     BackgroundBoxConfig,
     RealTimeConfig,
-    HorizontalProgressBarConfig
+    HorizontalProgressBarConfig,
+    RadarChartConfig
   },
 
   computed: {
@@ -336,6 +338,7 @@ export default {
       const designObj = { ...componentInfo, ...positionsObj, type: 0 };
       const newObj = JSON.parse(JSON.stringify(designObj));
       const data = await insertElement(newObj);
+      console.log({ ...newObj, id: data, homepageId: this.$route.params.id });
       this.list.push({ ...newObj, id: data, homepageId: this.$route.params.id });
       this.activeComponent = newObj;
       this.activateComponentKey = newObj.componentName;

@@ -274,7 +274,9 @@ export default {
   mounted() {
     if (!this.isConfig) {
       this.initHighForm();
-      this.listSearchRecords();
+      if (this.configData.shouldHigh && this.configData.hisSearch) {
+        this.listSearchRecords();
+      }
     }
   },
 

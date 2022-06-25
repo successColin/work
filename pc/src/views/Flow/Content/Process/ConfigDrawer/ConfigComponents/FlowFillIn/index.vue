@@ -13,8 +13,10 @@
         <div class="form-item-label">指定填写对象</div>
         <div class="form-item-content">
           <SelectUsers
+            nodeType="FillIn"
             v-bind="$attrs"
             :approverObj="sourceType"
+            :flowData="flowData"
             @select-flow-approval="appendUsers"
           ></SelectUsers>
         </div>
@@ -141,6 +143,12 @@ export default {
         return {};
       }
     },
+    flowData: {
+      type: Object,
+      default() {
+        return {};
+      }
+    }
   },
   data() {
     return {

@@ -509,3 +509,11 @@ export function listMultiTree(params) {
     params,
   });
 }
+
+// 多表树查询分页
+export function pageMultiTree(params) {
+  return FetchData.request({
+    url: 'system/multiTree/pageMultiTree',
+    params,
+  });
+}

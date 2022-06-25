@@ -236,6 +236,12 @@ export default {
           ]
         },
         {
+          name: '流程引擎函数',
+          children: [
+            { name: 'GET_FLOW_DATA_ID', isFormula: true, type: 6 },
+          ]
+        },
+        {
           name: '服务器函数',
           children: [
             // { name: 'GET_IP', isFormula: true },
@@ -509,6 +515,13 @@ export default {
       parser.setFunction('GET_SCAN_VALUE', (params) => {
         if (params.length !== 0) {
           return new Error('获取扫一扫结果公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_FLOW_DATA_ID', (params) => {
+        console.log(params);
+        if (params.length !== 0) {
+          return new Error('获取流程数据id公式无参数');
         }
         return '';
       });

@@ -32,7 +32,7 @@
             <div class="vessel__title">
               <div class="vessel__title--name">{{ $t('login.login') }}</div>
               <scan-login
-                v-if="configs.enableAppLogin === '1'"
+                v-if="+configs.scanType !== 1"
                 class="vessel__title--scan_login"
                 :showState="isShowLoginForm"
                 @click="handleSwitchLogin"
@@ -47,9 +47,11 @@
               v-if="isShowLoginForm"
               :configs="configs"
             ></login-form>
-            <login-scan v-else></login-scan>
+            <!-- 微信扫码 / 浙政钉扫码 -->
+            <!-- 1=无 2=APP扫码 3=浙政钉扫码 -->
+            <login-scan v-else :scanType="+configs.scanType"></login-scan>
           </div>
-          <!--          <div @click="wxlogin">微信登录</div>-->
+          <!-- <div @click="wxlogin">微信登录</div>-->
         </div>
         <!-- 浙江公安备案 -->
         <footer class="content__reference">

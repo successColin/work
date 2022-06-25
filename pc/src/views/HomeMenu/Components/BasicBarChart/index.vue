@@ -48,7 +48,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { isEqual } from 'lodash';
 import { getInfoById } from '@/api/design';
 import { supplementaryColor, returnChartPosition, getXAxisByKey } from '@/views/HomeMenuConfig/constants/common';
-import parser from '_u/formula';
+// import parser1 from '_u/formula';
 import { formatDate } from '_u/utils';
 // import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
 
@@ -65,6 +65,10 @@ echarts.use([
 ]);
 
 let FIXED_OBJ = {}; // 保存
+// const parser = cloneDeep(parser1);
+const FormulaParser = require('hot-formula-parser').Parser;
+
+const parser = new FormulaParser();
 
 export default {
   props: {
@@ -528,6 +532,7 @@ export default {
           return;
         }
         FIXED_OBJ = currentObj;
+        console.log(FIXED_OBJ, 'zz');
         if (interactionType === 2) {
           // 弹面板
           console.log(panelConfig);
@@ -607,7 +612,6 @@ export default {
         );
       }
       if (callback) {
-        console.log('执行1, callback');
         callback();
       }
     },
@@ -730,7 +734,10 @@ export default {
           });
           const menuObj = {};
           menuObj[menuConfig.id] = menuConfig;
-          sessionStorage.jumpMenuObj = JSON.stringify(menuObj);
+          const { jumpMenuObj = '{}' } = sessionStorage;
+          const newJumpMenuObj = JSON.parse(jumpMenuObj);
+          newJumpMenuObj[menuConfig.id] = menuConfig;
+          sessionStorage.jumpMenuObj = JSON.stringify(newJumpMenuObj);
           this.$bus.$emit('changeMenuTab', curMenu);
         } else {
           this.$message({
@@ -910,6 +917,7 @@ export default {
           return new Error('获取控件字段值公式无参数');
         }
         const field = params[0];
+        console.log(FIXED_OBJ, field, FIXED_OBJ[field]);
         return FIXED_OBJ[field];
       });
     },

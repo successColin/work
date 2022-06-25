@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2021-05-17 08:59:51
+ * @Last Modified time: 2022-06-20 10:18:21
  */
 export default {
   globalConfig: {
@@ -35,6 +35,7 @@ export default {
     supportAppCode: '是否支持APP扫码登录',
     forgetPassword: '是否启用忘记密码',
     enableMultilingual: '是否启用多语言',
+    enableZhejiangZhengpinLogin: '是否启用浙政钉登录',
     style: '登录页风格',
     styleBackgroundImage: '背景图',
     loginpagelogo: '登录页LOGO',

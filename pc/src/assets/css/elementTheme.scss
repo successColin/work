@@ -980,6 +980,7 @@ Helvetica, Arial, sans-serif;
         .flowDetailMemberNodeName {
           display: flex;
           position: relative;
+          max-width: 90px;
           z-index: 111;
           align-items: center;
           font-size: 12px;
@@ -990,6 +991,7 @@ Helvetica, Arial, sans-serif;
           padding: 0 10px;
           background: #E5F0FF;
           border-radius: 14px;
+          overflow: hidden;
           box-shadow: 0 0 0 2px #fff;
           box-sizing: border-box;
         }

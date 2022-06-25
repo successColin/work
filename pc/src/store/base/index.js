@@ -6,7 +6,9 @@
  * @Des:
  */
 import { fetchHomeRoute } from '@/api/design';
+import { getLoginConfig } from '@/api/login';
 import { menuCenter, menuCenterFav } from '@/api/menuManage';
+import { selectColorArr } from '@/config';
 import bus from '@/utils/bus';
 // import router from '@/router';
 
@@ -57,6 +59,7 @@ export default {
     curModuleId: -1, // 当前模块id
     curMenuId: -1, // 当前菜单id
     loginThemeColor: '#4689f5',
+    loginConfig: {},
   },
   getters: {
     getRouteArr(state) {
@@ -117,6 +120,9 @@ export default {
         .style.setProperty('--loginThemeColor', val);
       state.routeAuthArr = val;
     },
+    changeLoginConfig(state, val) {
+      state.loginConfig = val;
+    },
     // 更改当前路由id
     changeCurMenuId(state, id) {
       state.curMenuId = id;
@@ -126,6 +132,22 @@ export default {
     },
   },
   actions: {
+    // 获取登录配置
+    async getLoginConfigFun({ commit }) {
+      const res = (await getLoginConfig()) || [];
+      const obj = {};
+      res.forEach((item) => {
+        const { attributeKey, attributeValue } = item;
+        obj[attributeKey] = attributeValue;
+      });
+      const themeColor = obj.themeColor
+        ? selectColorArr[Number(obj.themeColor) - 1]
+        : '#4689f5';
+      if (themeColor) {
+        commit('changeLoginThemeColor', themeColor);
+      }
+      commit('changeLoginConfig', obj);
+    },
     //   获取服务器的路由
     async getRoute({ commit, state }) {
       const params = {

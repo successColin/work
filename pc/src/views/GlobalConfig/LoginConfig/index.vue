@@ -65,12 +65,29 @@
                 {{ changeBtnName(statement.isRecord) }}
               </apiot-button>
             </div>
+            <!-- 登录页风格 -->
+            <div v-if="i === 3" class="common">
+              <div v-if="!statement.isScanType">
+                {{ showValueName(scanTypeArr, scanType) }}
+              </div>
+              <div v-else>
+                <apiot-select
+                  style="width: 200px"
+                  v-if="statement.isScanType"
+                  v-model="scanType"
+                  :options="scanTypeArr"
+                ></apiot-select>
+              </div>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isScanType', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isScanType) }}
+              </apiot-button>
+            </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
-            <div
-              v-if="[2, 3, 4, 5].includes(i)"
-              style="flex: none"
-              class="common"
-            >
+            <div v-if="[2, 4, 5].includes(i)" style="flex: none" class="common">
               <apiot-radio
                 @change="(value) => changeRadio(value, item.key)"
                 v-model="params[item.key]"
@@ -84,8 +101,29 @@
                 >{{ $t('common.no') }}
               </apiot-radio>
             </div>
-            <!-- 登录页风格 -->
+            <!-- 单点登录 -->
             <div v-if="i === 6" class="common">
+              <div v-if="!statement.isSsoTypePc">
+                {{ showValueName(ssoTypePcArr, ssoTypePc, item.attributeKey) }}
+              </div>
+              <div v-else>
+                <apiot-select
+                  style="width: 200px"
+                  v-if="statement.isSsoTypePc"
+                  v-model="ssoTypePc"
+                  :options="ssoTypePcArr"
+                ></apiot-select>
+              </div>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isSsoTypePc', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isSsoTypePc) }}
+              </apiot-button>
+            </div>
+            <!-- 登录页风格 -->
+            <div v-if="i === 7" class="common">
               <div v-if="!statement.isLoginStyle">
                 {{
                   showValueName(loginStyleArr, loginStyle, item.attributeKey)
@@ -93,7 +131,7 @@
               </div>
               <div v-else>
                 <apiot-select
-                  style="width: 224px"
+                  style="width: 50%"
                   v-if="statement.isLoginStyle"
                   v-model="loginStyle"
                   :options="loginStyleArr"
@@ -101,7 +139,7 @@
                 ></apiot-select>
                 <apiot-select
                   class="m-l-10"
-                  style="width: 224px"
+                  style="width: 38%"
                   v-if="statement.isLoginStyle && loginStyle === 2"
                   v-model="stylePercentage"
                   :options="stylePercentageArr"
@@ -117,7 +155,7 @@
               </apiot-button>
             </div>
             <!-- 背景图 -->
-            <div v-if="i === 7" class="passwordConfig__logo common">
+            <div v-if="i === 8" class="passwordConfig__logo common">
               <div v-if="!statement.isBackgroundImage">
                 <el-image
                   fit="cover"
@@ -146,7 +184,7 @@
               </apiot-button>
             </div>
             <!-- 登录页主题色 -->
-            <div v-if="i === 8" class="common">
+            <div v-if="i === 9" class="common">
               <div class="colorWrap">
                 <div
                   class="colorBox"
@@ -166,7 +204,7 @@
               </div>
             </div>
             <!-- 登录页LOGO -->
-            <div v-if="i === 9" class="passwordConfig__logo common">
+            <div v-if="i === 10" class="passwordConfig__logo common">
               <div v-if="!statement.isRegistration">
                 <el-image
                   fit="cover"
@@ -195,7 +233,7 @@
             </div>
 
             <!-- 登录页轮播图 -->
-            <div v-if="i === 10" class="passwordConfig__logo common">
+            <div v-if="i === 11" class="passwordConfig__logo common">
               <div v-if="!statement.isLoopPics">
                 <el-image
                   v-for="(item, i) in loopMaps"
@@ -275,7 +313,9 @@ export default {
         isLoopPics: false, // l轮播图
         isClickErrorCount: false, // 错误次数点击
         isLoginStyle: false, // 登陆风格
-        isBackgroundImage: false // 背景图
+        isBackgroundImage: false, // 背景图
+        isScanType: false, // app类型
+        isSsoTypePc: false // 单点登录方式
       },
       loginObj: {}, // login url
       loginWidth: 20, // logo宽度
@@ -296,13 +336,15 @@ export default {
         }
       ],
       loginStyle: 1, // 登录风格
+      ssoTypePc: 1, // 单点登录
       loginStyleArr,
       stylePercentage: 2, // 卡片式轮播风格 的比例
       stylePercentageArr,
       backgroundImageObj: {}, // 背景图url
       themeColor: 1,
       themeStyleArr: [],
-      loopMaps: []
+      loopMaps: [],
+      scanType: 1
     };
   },
   components: { ImageAndChange },
@@ -315,6 +357,14 @@ export default {
     // this.initWebSocket();
   },
   computed: {
+    // 扫码类型
+    scanTypeArr() {
+      return this.$store.getters.getCurDict('SCAN_TYPE');
+    },
+    // 单点登录类型
+    ssoTypePcArr() {
+      return this.$store.getters.getCurDict('SSO_TYPE_PC');
+    },
     loginImg() {
       // eslint-disable-next-line max-len
       return (
@@ -352,10 +402,10 @@ export default {
           attributeKey: 'enableRegistration'
         },
         {
-          name: this.$t('globalConfig.supportAppCode'),
+          name: 'App 扫码类型',
           col: 12,
-          key: 'enableAppLogin',
-          attributeKey: 'enableAppLogin'
+          key: 'scanType',
+          attributeKey: 'scanType'
         },
         {
           name: this.$t('globalConfig.forgetPassword'),
@@ -370,8 +420,15 @@ export default {
           attributeKey: 'enableMultilingual'
         },
         {
+          name: '单点登录方式',
+          col: 12,
+          key: 'ssoTypePc',
+          attributeKey: 'ssoTypePc'
+        },
+        // 登录页风格
+        {
           name: this.$t('globalConfig.style'),
-          col: 24,
+          col: 12,
           key: 'style',
           attributeKey: 'style'
         },
@@ -544,6 +601,7 @@ export default {
     },
     async init() {
       this.loading = true;
+      this.$store.dispatch('getCurrentDict', 'SCAN_TYPE,SSO_TYPE_PC');
       const res = await getListByKey({ parameterKey: 'LOGIN' });
       this.loading = false;
       this.response = res;
@@ -552,13 +610,13 @@ export default {
       const recordObj = this.response.find((item) => item.attributeKey === 'record') || {};
       const enableRegistrationObj =
         this.response.find((item) => item.attributeKey === 'enableRegistration') || {};
-      const enableAppLoginObj =
-        this.response.find((item) => item.attributeKey === 'enableAppLogin') || {};
+      const scanType = this.response.find((item) => item.attributeKey === 'scanType') || {};
       const enableForgetPasswordObj =
         this.response.find((item) => item.attributeKey === 'enableForgetPassword') || {};
       const enableMultilingual =
         this.response.find((item) => item.attributeKey === 'enableMultilingual') || {};
       const styleObj = this.response.find((item) => item.attributeKey === 'style') || {};
+      const ssoTypePcObj = this.response.find((item) => item.attributeKey === 'ssoTypePc') || {};
       const themeColorObj = this.response.find((item) => item.attributeKey === 'themeColor') || {};
       const stylePercentage =
         this.response.find((item) => item.attributeKey === 'stylePercentage') || {};
@@ -579,12 +637,13 @@ export default {
       this.params = {
         ...this.params,
         enableRegistration: enableRegistrationObj.attributeValue,
-        enableAppLogin: enableAppLoginObj.attributeValue,
         enableForgetPassword: enableForgetPasswordObj.attributeValue,
         enableMultilingual: enableMultilingual.attributeValue
       };
       this.errorCount = Number(errorObj.attributeValue);
       this.loginStyle = Number(styleObj.attributeValue);
+      this.ssoTypePc = Number(ssoTypePcObj.attributeValue);
+      this.scanType = Number(scanType.attributeValue);
       this.stylePercentage = Number(stylePercentage.attributeValue);
       this.themeColor = Number(themeColorObj.attributeValue);
       this.record = recordObj.attributeValue;
@@ -712,6 +771,23 @@ export default {
             {
               ...this.response.find((item) => item.attributeKey === 'stylePercentage'),
               attributeValue: this.stylePercentage
+            }
+          ];
+        }
+        if (key === 'isSsoTypePc') {
+          // 单点登录方式
+          params = [
+            {
+              ...currentObj,
+              attributeValue: this.ssoTypePc
+            }
+          ];
+        }
+        if (key === 'isScanType') {
+          params = [
+            {
+              ...currentObj,
+              attributeValue: this.scanType
             }
           ];
         }

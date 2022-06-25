@@ -1,8 +1,8 @@
 /*
  * @Author: sss
  * @Date: 2021-06-17 18:40:09
- * @Last Modified by: sss
- * @Last Modified time: 2021-11-09 15:03:33
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-06-21 15:45:37
  */
 import FetchData from './axiosConfig';
 
@@ -57,5 +57,22 @@ export function getLoginConfig() {
   return FetchData.request({
     url: '/system/global/getGlobalLogin',
     method: 'get',
+  });
+}
+
+// 获取配置信息
+export function getGlobalAppLogin() {
+  return FetchData.request({
+    url: '/system/global/getGlobalAppLogin',
+    method: 'get',
+  });
+}
+
+// 浙政钉单点登录
+export function zwdingtalkLogin(data) {
+  return FetchData.request({
+    url: 'zwdingtalkLogin',
+    method: 'post',
+    data,
   });
 }

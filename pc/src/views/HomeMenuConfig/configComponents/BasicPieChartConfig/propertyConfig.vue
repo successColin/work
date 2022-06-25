@@ -149,11 +149,129 @@
           </div>
         </div>
       </el-collapse-item>
+      <el-collapse-item name="5" title="交互设置">
+        <div>
+          <div class="propsSetting">
+            <el-radio-group
+                class="radioGroup"
+                size="mini"
+                v-model="getComponentInfo.interactionType"
+                @change="(value) => changeTitle(value, 'interactionType')"
+            >
+              <el-radio-button :label="1">无</el-radio-button>
+              <el-radio-button :label="2">面板</el-radio-button>
+              <el-radio-button :label="3">菜单</el-radio-button>
+              <el-radio-button :label="4">下钻</el-radio-button>
+            </el-radio-group>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">下钻回调字段</p>
+            <VariableManage
+                :valueNameType="2"
+                :value="getComponentInfo.drillDownConfig.drillDownField"
+                @change="(value) => changeDrillDownConfig('drillDownField', value)"
+            ></VariableManage>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">路径颜色</p>
+            <div>
+              <c-color-picker
+                  size="small"
+                  :value="getDrillDownConfig('pathColor')"
+                  show-alpha
+                  @change="(value) => changeDrillDownConfig('pathColor', value)"
+                  :predefine="predefineColors">
+              </c-color-picker>
+            </div>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">下钻停止标识字段
+              <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="点击匹配下钻停止标识字段，不填写时一直允许下钻"
+                  placement="top-start"
+              >
+                <span class="icon-bangzhu iconfont" style="cursor: pointer;"></span>
+              </el-tooltip>
+            </p>
+            <div>
+              <apiot-input
+                  :maxlength="16"
+                  :value="getComponentInfo.drillDownConfig.tripStopField"
+                  @input="(value) => changeDrillDownConfig('tripStopField', value)"/>
+            </div>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.interactionType===4">
+            <p class="setTitle">下钻停止标识字段值
+              <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="点击时匹配到下钻停止标识字段值为填写值时，不允许继续下钻"
+                  placement="top-start"
+              >
+                <span class="icon-bangzhu iconfont" style="cursor: pointer;"></span>
+              </el-tooltip>
+            </p>
+            <div>
+              <apiot-input
+                  :maxlength="16"
+                  :value="getComponentInfo.drillDownConfig.tripStopFieldValue"
+                  @input="(value) => changeDrillDownConfig('tripStopFieldValue', value)"/>
+            </div>
+          </div>
+          <div class="btnWrap">
+            <apiot-button
+                class="panelBtn"
+                v-if="getComponentInfo.interactionType === 2"
+                @click="visible=true"
+            >
+              <i class="iconfont icon-shezhi m-r-4"></i>弹出面板配置
+            </apiot-button>
+            <apiot-button
+                class="panelBtn"
+                v-if="getComponentInfo.interactionType === 3"
+                @click="showMenuConfig=true"
+            >
+              <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
+            </apiot-button>
+          </div>
+        </div>
+      </el-collapse-item>
+
     </el-collapse>
+    <PanelConfig
+        :visible.sync="visible"
+        :tabPaneConfig="tabPaneConfig"
+        :activeObj="activeObj"
+        :isSelPanel="false"
+        :showType="showType"
+        :otherParams="{ panelType: 5,
+                 unDesign: 1,
+                 panelClassify: 1,
+                 clientType: 1}"
+        @cancle-click="handleCancel"
+        :isCustomPage="true"
+        :treeType="5"
+        ref="panelConfig"
+    ></PanelConfig>
+    <ToMenuConfig
+        ref="ToMenuConfig"
+        @cancle-click="handleMenuCancel"
+        class="ToMenuConfig"
+        :visible.sync="showMenuConfig"
+        :activeObj="skipMenuConfig"
+        :sourceType="1"
+        :treeType="5"
+        :showType="showType"
+        :showContent="true"
+    ></ToMenuConfig>
   </div>
 </template>
 
 <script>
+import ToMenuConfig from '_v/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/ToMenuConfig';
+import PanelConfig from '_v/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/PanelConfig';
 import TextStylesConfig from '../../Layout/TextStylesConfig/index';
 import LocationProperties from '../../basicWidgets/CLocationProperties/index';
 import CSelect from '../../basicWidgets/CSelect';
@@ -174,6 +292,9 @@ export default {
   },
   data() {
     return {
+      showType: [1, 5],
+      showMenuConfig: false,
+      visible: false,
       enable: true,
       fontFamilyOptions: [
         {
@@ -221,54 +342,6 @@ export default {
         {
           label: '名称(类型)',
           value: 'type'
-        }
-      ],
-      positionOptions: [
-        {
-          label: '左上',
-          value: 'leftTop'
-        },
-        {
-          label: '上中',
-          value: 'topCenter'
-        },
-        {
-          label: '右上',
-          value: 'rightTop'
-        },
-        {
-          label: '左中',
-          value: 'leftCenter'
-        },
-        {
-          label: '中间',
-          value: 'centerCenter'
-        },
-        {
-          label: '右中',
-          value: 'rightCenter'
-        },
-        {
-          label: '左下',
-          value: 'leftBottom'
-        },
-        {
-          label: '下中',
-          value: 'bottomCenter'
-        },
-        {
-          label: '右下',
-          value: 'rightBottom'
-        }
-      ],
-      layOutOptions: [
-        {
-          label: '水平',
-          value: 'horizontal'
-        },
-        {
-          label: '垂直',
-          value: 'vertical'
         }
       ],
       valueTypeOptions: [
@@ -326,10 +399,25 @@ export default {
     TextStylesConfig,
     LocationProperties,
     CSelect,
-    DataColor
+    DataColor,
+    PanelConfig,
+    ToMenuConfig
   },
 
   computed: {
+    tabPaneConfig() {
+      const { panelConfig } = this.getComponentInfo;
+      const { curPaneObj } = panelConfig || {};
+      return curPaneObj || {};
+    },
+    getDrillDownConfig() {
+      return function (key) {
+        if (!this.getComponentInfo.drillDownConfig) {
+          return '';
+        }
+        return this.getComponentInfo.drillDownConfig[key];
+      };
+    },
     getComponentInfo() {
       // 获取控件详情信息
       const { componentId } = this.activeComponent;
@@ -337,11 +425,15 @@ export default {
         return {};
       }
       const Obj = this.list.find((item) => item.componentId === componentId) || {};
-      console.log(Obj, '33');
       return Obj;
     }
   },
-
+  created() {
+    const { panelConfig, skipMenuConfig } = this.getComponentInfo;
+    const initObj = { dialogTitle: '', dialogName: 'PanelDialog' };
+    this.activeObj = panelConfig ? panelConfig.activeObj || initObj : initObj;
+    this.skipMenuConfig = skipMenuConfig || [];
+  },
   mounted() {},
   watch: {
     // getComponentInfo(val, oldVal) { // 普通的watch监听
@@ -349,6 +441,18 @@ export default {
     // },
   },
   methods: {
+    handleMenuCancel() {
+      const { menuList = [] } = this.$refs.ToMenuConfig;
+      this.changeTitle(menuList, 'skipMenuConfig');
+    },
+    handleCancel() {
+      const { curPaneObj, activeObj } = this.$refs.panelConfig;
+      const value = {
+        curPaneObj,
+        activeObj
+      };
+      this.changeTitle(value, 'panelConfig');
+    },
     changeStyles(value, key) {
       // 样式修改
       const list = [...this.list];
@@ -389,6 +493,22 @@ export default {
         ...info,
         [key]: value
       };
+      list.splice(index, 1, newInfo);
+      this.$emit('updateList', list);
+    },
+    changeDrillDownConfig(key, value) { // 改变下钻属性
+      const list = [...this.list];
+      const index = this.reduceIndex();
+      const info = this.getComponentInfo || {};
+      const { drillDownConfig = {} } = info;
+      const newInfo = {
+        ...info,
+        drillDownConfig: {
+          ...drillDownConfig,
+          [key]: value
+        }
+      };
+      console.log(newInfo, 'newInfo');
       list.splice(index, 1, newInfo);
       this.$emit('updateList', list);
     }
@@ -644,6 +764,53 @@ export default {
         width: 200px;
         margin: 0 auto;
       }
+    }
+  }
+  .radioGroup {
+    display: flex;
+    width: 100%;
+    ::v-deep {
+      .el-radio-button {
+        flex: 1;
+        .el-radio-button__inner {
+          width: 100%;
+        }
+      }
+    }
+  }
+  .btnWrap {
+    width: 100%;
+    margin: 10px auto;
+
+    .panelBtn {
+      width: 100%;
+    }
+  }
+  .ToMenuConfig {
+    ::v-deep{
+      .ToMenuConfig__li--select{
+        width: 200px;
+      }
+      .el-collapse-item__arrow{
+        margin: 0 8px 0 auto;
+      }
+      .el-collapse-item__header {
+        position: relative;
+        background: #f1f7ff;
+        border-radius: 4px;
+        border: 1px solid #e9e9e9;
+        height: 38px;
+        line-height: 38px;
+      }
+      .el-collapse-item__content {
+        padding: 0 0 8px 0;
+        background-color: #fff;
+      }
+    }
+  }
+  ::v-deep {
+    .action__term--liChild {
+      width: 100px;
     }
   }
 }

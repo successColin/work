@@ -17,6 +17,7 @@
             :is="activeData && activeData.type && activeData.type"
             :nodeInfo="nodeInfo"
             :currentVersion="currentVersion"
+            :flowData="flowData"
             :params="{versionId: currentVersion.id, nodeId: activeData.nodeId}"
             :ref="activeData && activeData.type && activeData.type"
         ></component>
@@ -196,7 +197,7 @@ export default {
   watch: {
     activeData: {
       handler(v) {
-        console.log(v);
+        console.log(v, this.flowData,);
       }
     },
     drawer: {
@@ -341,9 +342,10 @@ export default {
           ORG = [],
           USER = [],
           POST = [],
-          NODE = []
+          NODE = [],
+          FIELD = {}
         } = sourceType;
-        if (!ROLE.length && !ORG.length && !USER.length && !POST.length && !NODE.length) {
+        if (!ROLE.length && !ORG.length && !USER.length && !POST.length && !NODE.length && JSON.stringify(FIELD) === '{}') {
           this.$message.error('请选择添加审批人！');
           return;
         }
@@ -425,13 +427,14 @@ export default {
           return;
         }
         const {
-          ROLE,
-          ORG,
-          USER,
-          POST,
-          NODE
+          ROLE = [],
+          ORG = [],
+          USER = [],
+          POST = [],
+          NODE = [],
+          FIELD = {}
         } = sourceType;
-        if (!ROLE.length && !ORG.length && !USER.length && !POST.length && !NODE.length) {
+        if (!ROLE.length && !ORG.length && !USER.length && !POST.length && !NODE.length && JSON.stringify(FIELD) === '{}') {
           this.$message.error('请选择添加填写对象！');
           return;
         }

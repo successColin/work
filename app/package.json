@@ -68,6 +68,7 @@
     "core-js": "^3.16.4",
     "crypto-js": "^4.1.1",
     "flyio": "^0.6.2",
+    "gdt-jsapi": "^1.9.34",
     "hot-formula-parser": "^4.0.0",
     "qs": "^6.10.1",
     "regenerator-runtime": "^0.12.1",

@@ -51,7 +51,7 @@
       </el-form-item>
     </div>
     <!-- 记住密码 -->
-    <div class="loginForm__pswdLine">
+    <div class="loginForm__pswdLine" v-if="!isAssociated">
       <div class="loginForm__pswdLine--keep">
         <apiot-checkbox v-model="ruleForm.rememberMe" class="loginFontHover">
           <span class="loginForm__pswdLine--title">
@@ -63,7 +63,7 @@
         <div
           class="loginFontHover"
           @click="handleJump"
-          v-if="configs.enableForgetPassword === '1'"
+          v-if="configs && configs.enableForgetPassword === '1'"
         >
           {{ $t('login.forgotPassword') }}
         </div>
@@ -71,7 +71,7 @@
         <span
           class="loginFontHover"
           @click="handleJumpRegister"
-          v-if="configs.enableRegistration === '1'"
+          v-if="configs && configs.enableRegistration === '1'"
         >
           {{ $t('login.signUpNow') }}
         </span>
@@ -81,6 +81,7 @@
     <div
       class="loginForm__loginButton"
       :class="{ 'login__button--animation': !isBtnDisabled }"
+      v-if="!isAssociated"
     >
       <apiot-button
         type="primary"
@@ -88,7 +89,7 @@
         :disabled="isBtnDisabled"
         :isFull="true"
         :loading="loadingButton"
-        @click.prevent="handleSubmit('ruleForm')"
+        @click.prevent="handleSubmit"
       >
         {{ $t('login.login') }}
       </apiot-button>
@@ -109,6 +110,10 @@ export default {
     configs: {
       type: Object,
       default: () => {}
+    },
+    isAssociated: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -161,6 +166,10 @@ export default {
     SliderValidation // 拖动验证
     // SignUp // 注册组件
   },
+  beforeDestroy() {
+    this.$bus.$off('changeLange');
+    this.$bus.$off('handleAssociatedUser');
+  },
   mounted() {
     if (this.isShowValidation) {
       this.valiState.validation = false;
@@ -179,12 +188,17 @@ export default {
       this.ruleForm.rememberMe = false;
     }
     this.$nextTick(() => {
-      this.$refs.ruleForm.clearValidate();
+      if (this.$refs.ruleForm) {
+        this.$refs.ruleForm.clearValidate();
+      }
     });
     this.$bus.$on('changeLange', () => {
       this.$nextTick(() => {
         this.$refs.ruleForm.clearValidate();
       });
+    });
+    this.$bus.$on('handleAssociatedUser', () => {
+      this.handleSubmit();
     });
   },
   watch: {
@@ -192,18 +206,20 @@ export default {
       immediate: true,
       deep: true,
       handler(newValue) {
-        const { sliderErrorsCount } = newValue;
-        if (sliderErrorsCount === '1') {
-          this.isShowValidation = true;
-          this.isBtnDisabled = true;
-        }
-        if (sliderErrorsCount === '2') {
-          this.isShowValidation = false;
-          this.isBtnDisabled = false;
-        }
-        if (sliderErrorsCount === '3') {
-          this.isShowValidation = false;
-          this.isBtnDisabled = false;
+        if (newValue) {
+          const { sliderErrorsCount } = newValue;
+          if (sliderErrorsCount === '1') {
+            this.isShowValidation = true;
+            this.isBtnDisabled = true;
+          }
+          if (sliderErrorsCount === '2') {
+            this.isShowValidation = false;
+            this.isBtnDisabled = false;
+          }
+          if (sliderErrorsCount === '3') {
+            this.isShowValidation = false;
+            this.isBtnDisabled = false;
+          }
         }
       }
     }
@@ -221,10 +237,10 @@ export default {
       this.validateFun('validation', true);
     },
     // 点击按钮触发
-    handleSubmit(formName) {
+    handleSubmit() {
       // 表单验证
       this.$nextTick(() => {
-        this.$refs[formName].validate((valid) => {
+        this.$refs.ruleForm.validate((valid) => {
           if (valid) {
             this.postLoginFormFun();
           } else {
@@ -242,8 +258,13 @@ export default {
           ...this.ruleForm,
           password: Encrypt(this.ruleForm.password)
         };
+        if (this.isAssociated) {
+          const code = localStorage.getItem('zhezhengdingCode');
+          params.zwddBindCode = code;
+        }
         await postLoginForm(params);
         this.$store.dispatch('getRoute');
+        this.$store.dispatch('getHomeRoute');
         if (this.ruleForm.rememberMe) {
           localStorage.setItem('checked', 1);
           localStorage.setItem('username', Encrypt(this.ruleForm.username));

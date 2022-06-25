@@ -120,9 +120,10 @@
               :command="value"
               v-for="(value, key) in canAddArea"
               :key="key"
-              >{{ value.name }}({{
-                value.tableInfo.tableName
-              }})</el-dropdown-item
+              >{{ value.name
+              }}{{
+                value.tableInfo ? `(${value.tableInfo.tableName})` : ''
+              }}</el-dropdown-item
             >
           </el-dropdown-menu>
         </el-dropdown>
@@ -244,17 +245,6 @@ export default {
     canAddArea() {
       const obj = {};
       const keys = Object.keys(this.allArea);
-      // keys.forEach((key) => {
-      //   const index = this.curPaneObj.panelFilter.findIndex((panle) => {
-      //     if (panle.compId === key) {
-      //       return true;
-      //     }
-      //     return false;
-      //   });
-      //   if (index === -1) {
-      //     obj[key] = this.allArea[key];
-      //   }
-      // });
       keys.forEach((key) => {
         const area = this.allArea[key];
 
@@ -285,6 +275,14 @@ export default {
             return false;
           });
           if (index === -1) obj[`${key}-${area.tableInfo.tableName}`] = area;
+        } else {
+          const index = this.curPaneObj.panelFilter.findIndex((panle) => {
+            if (panle.compId === key) {
+              return true;
+            }
+            return false;
+          });
+          if (index === -1) obj[key] = area;
         }
       });
       return obj;

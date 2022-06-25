@@ -6,14 +6,20 @@
         :value="getChecked"
         @click.native.stop
         @input="changeCheck"
-        v-if="showCheckbox"
+        v-if="
+          showCheckbox && +data.dataType === configData.multiDataSource.length
+        "
       ></el-checkbox>
       <el-radio
         :value="multiEntityArr.length && +multiEntityArr[0][getIdCompId]"
         :label="data[getIdCompId]"
         @click.native.stop
         @input="changeCheck"
-        v-if="showSinglebox && data[getIdCompId]"
+        v-if="
+          showSinglebox &&
+          data[getIdCompId] &&
+          +data.dataType === configData.multiDataSource.length
+        "
       ></el-radio>
       <div class="treeNode__treeIcon">
         <i
@@ -38,6 +44,7 @@
       </div>
       <div
         class="treeNode__label"
+        :id="data.treeId"
         :title="getTreeNodeText"
         @click="changeCheck"
       >
@@ -47,7 +54,7 @@
 
     <BtnsArea
       class="treeNode__btns"
-      v-show="showBtns && isSidebar && false"
+      v-show="showBtns && isSidebar"
       :configData="configData"
       :activeObj="activeObj"
       :grandFather="configData"
@@ -222,6 +229,9 @@ export default {
     },
     // 修改checkout的值
     changeCheck() {
+      if (+this.data.dataType !== this.configData.multiDataSource.length) {
+        return;
+      }
       if (this.showCheckbox) {
         const index = this.getCheckedIndex();
         if (index === -1) {

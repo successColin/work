@@ -75,3 +75,18 @@ export const symbolOptions = [
     value: 'arrow'
   }
 ];
+
+// 线类型
+export const LineTYPE = [
+  {
+    label: '实线',
+    value: 'solid'
+  },
+  {
+    label: '虚线',
+    value: 'dashed'
+  }, {
+    label: '点线',
+    value: 'dotted'
+  }
+];

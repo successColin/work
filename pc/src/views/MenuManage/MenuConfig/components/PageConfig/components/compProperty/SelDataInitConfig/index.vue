@@ -27,8 +27,10 @@
           :disabled="curDrawerType === 2"
         >
           <el-option :value="1" label="列表"></el-option>
-          <el-option :value="2" label="树"></el-option>
-          <el-option :value="3" label="列表+树"></el-option>
+          <el-option :value="2" label="单表树"></el-option>
+          <el-option :value="3" label="列表+单表树"></el-option>
+          <el-option :value="4" label="多表树"></el-option>
+          <el-option :value="5" label="列表+多表树"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="描述" prop="memo">

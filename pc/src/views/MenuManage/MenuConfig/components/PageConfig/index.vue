@@ -34,9 +34,15 @@
       </div>
       <div class="pageConfig__wrapper--center">
         <ListOrTree
-          v-if="isSelect && configData[0] && configData[0].selShowType === 3"
+          v-if="
+            isSelect &&
+            configData[0] &&
+            [3, 5].includes(configData[0].selShowType)
+          "
           class="pageConfig__wrapper--btnArr"
           :class="[{ isApp: $route.query.isApp == 1 }]"
+          :disabled="configData[0].selShowType === 5"
+          :curTypeValue="configData[0].selShowType === 5 ? 2 : 1"
           @changeShowType="changeShowType"
         ></ListOrTree>
         <div
@@ -342,7 +348,6 @@ export default {
   },
 
   mounted() {
-    console.log(this.isSelect);
     // 获取事件字典
     this.$store.dispatch('getCurrentDict', 'TRIGGER_EVENT,PANEL_TYPE,REQUISITE_TYPE');
     // 更新字典项
@@ -432,19 +437,25 @@ export default {
         }
         // console.log(selData);
         this.$nextTick(() => {
-          // 防止刚开始渲染的时候触发多次
-          this.$bus.$on('changeCurActiveObj', (obj) => {
-            this.activeObj = obj;
-          });
           [, this.activeObj] = this.configData[0].children[0].children[0].children;
           this.activeObj.areaType = 1;
 
           if (this.curDrawerType === 1) {
             this.activeObj.compId = createUnique();
           }
+          setTimeout(() => {
+            // 防止刚开始渲染的时候触发多次
+            this.$bus.$on('changeCurActiveObj', (obj) => {
+              this.activeObj = obj;
+            });
+          }, 0);
           // 防止某些之前页面遗留的选中按钮区的问题
           if (this.$route.query.isApp === '1') {
             this.changeShowType(1);
+          }
+          // 如果是多表树列表切换的 改为多表树
+          if (this.configData[0].selShowType === 5) {
+            this.changeShowType(2);
           }
         });
 
@@ -528,6 +539,23 @@ export default {
         console.log(error);
       }
     },
+    replaceChildren(area) {
+      const arr = [];
+      area.children[1].backChildren = area.children[1].children;
+      area.children[1].backChildren.forEach((item) => {
+        if (
+          area.tableInfo.nameAlias === item.dataSource.alias ||
+          item.dataSource.columnName === 'id'
+        ) {
+          const comp = JSON.parse(JSON.stringify(item));
+          comp.dataSource.alias = '';
+          comp.dataSource.tableName = area.tableInfo.tableName;
+          comp.dataSource.relateName = '主表';
+          arr.push(comp);
+        }
+      });
+      area.children[1].children = arr;
+    },
     async saveSelConfig() {
       try {
         const res = this.checkDataSource();
@@ -545,9 +573,15 @@ export default {
         // 确保默认的是列表
         const configData = JSON.parse(JSON.stringify(this.configData));
         const area = configData[0].children[0].children[0].children[1];
-        area.compType = 1001;
-        area.compName = 'TableMain';
-        area.propertyCompName = 'TableMainConfig';
+        if (this.configData[0].selShowType !== 4 && this.configData[0].selShowType !== 2) {
+          area.compType = 1001;
+          area.compName = 'TableMain';
+          area.propertyCompName = 'TableMainConfig';
+          if (this.configData[0].selShowType === 5) {
+            area.tableInfo = area.multiDataSource[area.multiDataSource.length - 1].tableInfo;
+            this.replaceChildren(area);
+          }
+        }
         const a = {
           id: data.sysMenuDesignId,
           designOverallLayout: configData
@@ -798,6 +832,7 @@ export default {
     closePanle() {
       this.$emit('closePanle');
     },
+
     changeType(v) {
       const area = this.configData[0].children[0].children[0].children[1];
       // console.log(v, area);
@@ -822,6 +857,13 @@ export default {
         area.propertyCompName = 'TreeMainConfig';
         area.isTree = true;
       }
+      if (v === 4 || v === 5) {
+        area.compType = 1007;
+        area.compName = 'MultiTree';
+        area.propertyCompName = 'MultiTreeConfig';
+        area.isTree = true;
+      }
+      console.log(area);
       // 重置子节点
       area.tableInfo = {
         id: 0,
@@ -829,6 +871,56 @@ export default {
         tableName: ''
       };
       area.children[1].children.splice(1, area.children[1].children.length - 1);
+      area.form = {};
+      area.form[area.children[1].children[0].compId] = '';
+      if (v === 4 || v === 5) {
+        const dataTypeCompId = createUnique();
+        area.children[1].children.push({
+          areaType: 1,
+          backName: 'label控件',
+          canReadonly: false,
+          canShow: true,
+          compId: dataTypeCompId,
+          compName: 'Label',
+          compType: 15,
+          dataSource: {
+            alias: '',
+            columnName: 'dataType',
+            columnTypeDict: 1,
+            dictObj: null,
+            mainColumnInfo: null,
+            relateName: '主表',
+            tableName: ''
+          },
+          labelNotChange: true,
+          dragCard: true,
+          enableDict: false,
+          enableDictIcon: false,
+          enableIcon: false,
+          enableMultiColumn: false,
+          font: { color: '#333333', size: 14, style: 1 },
+          helpInfo: '',
+          icon: { icon: '', color: '', imageUrl: '' },
+          imgUrl: 'baseComp/Label.svg',
+          labelBg: { color: '#ffffff', style: 0 },
+          labelName: 'label',
+          multiTable: {
+            table: { tableName: '', id: '' },
+            column: { columnName: '', id: '', columnTypeDict: 0 }
+          },
+          name: 'dataType',
+          pane: { name: '', columnName: '', paramArr: [] },
+          placeholder: '请选择数据',
+          propertyCompName: 'LabelConfig',
+          shouldRequired: true,
+          showLabelTitle: true,
+          showTreeText: false,
+          singleStatus: 4,
+          submitType: 1,
+          width: '100%'
+        });
+        area.form[dataTypeCompId] = '';
+      }
       this.activeObj = {};
       this.$nextTick(() => {
         this.activeObj = area;
@@ -849,10 +941,20 @@ export default {
         area.isTree = false;
       }
       if (v === 2) {
-        area.compType = 1003;
-        area.compName = 'TreeMain';
-        area.propertyCompName = 'TreeMainConfig';
-        area.isTree = true;
+        if (this.configData[0].selShowType === 5) {
+          area.compType = 1007;
+          area.compName = 'MultiTree';
+          area.propertyCompName = 'MultiTreeConfig';
+          area.isTree = true;
+          if (area.children[1].backChildren && area.children[1].backChildren.length) {
+            area.children[1].children = area.children[1].backChildren;
+          }
+        } else {
+          area.compType = 1003;
+          area.compName = 'TreeMain';
+          area.propertyCompName = 'TreeMainConfig';
+          area.isTree = true;
+        }
       }
       this.activeObj = {};
       this.$nextTick(() => {

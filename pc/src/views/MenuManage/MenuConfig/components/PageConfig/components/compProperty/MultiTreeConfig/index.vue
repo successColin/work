@@ -38,14 +38,6 @@
         >
           <el-option label="数据库" :value="1"></el-option>
         </el-select>
-        <apiot-button
-          class="contentConfig__dataSource--addRelate"
-          style="margin-left: 0"
-          v-if="getCurrentTab && getCurrentTab.tableInfo.tableName && isSelect"
-          @click="addLableComp"
-        >
-          <i class="iconfont icon-xinzeng m-r-4"></i>添加label框
-        </apiot-button>
       </div>
       <div
         class="contentConfig__box contentConfig__dataSource"
@@ -301,6 +293,19 @@
           ></el-option>
         </el-select>
       </div>
+      <div
+        class="contentConfig__box contentConfig__dataSource"
+        v-if="getCurrentTab.children.length"
+      >
+        <apiot-button
+          class="contentConfig__dataSource--addRelate"
+          style="margin-left: 0"
+          v-if="getCurrentTab && isSelect"
+          @click="addLableComp"
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>添加label框
+        </apiot-button>
+      </div>
 
       <!-- 筛选条件 -->
       <FilterTerm
@@ -520,9 +525,7 @@ export default {
     resetReloadArea() {
       const arr = [];
       this.getArea.forEach((comp) => {
-        this.getAllcheck[`${comp.compId}_`].isTree = false;
         if (this.getCurrentTab.reloadArea.includes(comp.compId)) {
-          this.getAllcheck[`${comp.compId}_`].isTree = true;
           arr.push(comp.compId);
         }
       });
@@ -542,8 +545,11 @@ export default {
       tableInfo.id = table.id;
       tableInfo.nameAlias = `alias_${createUnique()}`;
       // 按钮区表名，别名回填
-      this.getCurrentTab.children[1].children[index].dataSource.tableName = tableInfo.tableName;
-      this.getCurrentTab.children[1].children[index].dataSource.alias = tableInfo.nameAlias;
+      if (!this.isSelect) {
+        this.getCurrentTab.children[1].children[index].dataSource.tableName = tableInfo.tableName;
+        this.getCurrentTab.children[1].children[index].dataSource.alias = tableInfo.nameAlias;
+      }
+
       // console.log(this.getCurrentTab.children[1].children[index]);
     },
     // 字段选择结果

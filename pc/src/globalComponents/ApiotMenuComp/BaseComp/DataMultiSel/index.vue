@@ -172,9 +172,9 @@ export default {
                       selectWhere += '(';
                     }
                     if (item.secondIsValue) {
-                      selectWhere += `${item.firstLineTable.nameAlias}.${item.firstLineColumn.columnName}=${item.secondLineValue}`;
+                      selectWhere += `${item.firstLineTable.tableName}.${item.firstLineColumn.columnName}=${item.secondLineValue}`;
                     } else {
-                      selectWhere += `${item.secondLineTable.nameAlias}.${item.secondLineColumn.columnName} in (${v})`;
+                      selectWhere += `${item.secondLineTable.tableName}.${item.secondLineColumn.columnName} in (${v})`;
                     }
                     if (i !== orArr.length - 1) {
                       selectWhere += ' or ';

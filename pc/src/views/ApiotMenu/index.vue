@@ -1284,6 +1284,7 @@ export default {
         this.onlyFlag === onlyFlag
       ) {
         // console.log(btn, this.btnClickTriggerMap);
+        this.getCompMap.CREATE_FLOW_STATE = btn.flowType;
         await this.resolveLink(this.btnClickTriggerMap, btn.compId);
       }
     },
@@ -1344,6 +1345,22 @@ export default {
     getNotInitArr() {
       return this.getAllReloadArea;
     },
+    replaceChildren(area) {
+      const arr = [];
+      area.children[1].backChildren.forEach((item) => {
+        if (
+          area.tableInfo.nameAlias === item.dataSource.alias ||
+          item.dataSource.columnName === 'id'
+        ) {
+          const comp = JSON.parse(JSON.stringify(item));
+          comp.dataSource.alias = '';
+          comp.dataSource.tableName = area.tableInfo.tableName;
+          comp.dataSource.relateName = '主表';
+          arr.push(comp);
+        }
+      });
+      area.children[1].children = arr;
+    },
     // 树跟列表切换
     changeShowType(v) {
       const area = this.configData.children[0].children[0].children[1];
@@ -1353,9 +1370,20 @@ export default {
         area.compName = 'TableMain';
         area.propertyCompName = 'TableMainConfig';
         area.isTree = false;
+        if (this.configData.selShowType === 5) {
+          this.replaceChildren(area);
+        }
       }
       if (v === 2) {
-        if (this.panelObj.id === 3) {
+        if (this.configData.selShowType === 5) {
+          area.compType = 1007;
+          area.compName = 'MultiTree';
+          area.propertyCompName = 'MultiTreeConfig';
+          area.isTree = true;
+          if (area.children[1].backChildren && area.children[1].backChildren.length) {
+            area.children[1].children = area.children[1].backChildren;
+          }
+        } else if (this.panelObj.id === 3) {
           area.compType = 1004;
           area.compName = 'DevicePosTree';
           area.propertyCompName = 'DevicePosTreeConfig';

@@ -30,6 +30,7 @@
           :configData="configData"
           :triggerCompMap="triggerCompMap"
           v-model="item.valueInfo"
+          :showType="[1,6]"
         ></select-formula>
       </div>
     </div>
@@ -145,6 +146,7 @@ export default {
 
   .headersBox {
     width: 100%;
+    margin-bottom: 10px;
     box-sizing: border-box;
 
     &:hover {

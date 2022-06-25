@@ -681,7 +681,6 @@ export default {
     const { panelConfig, skipMenuConfig } = this.getComponentInfo;
     const initObj = { dialogTitle: '', dialogName: 'PanelDialog' };
     this.activeObj = panelConfig ? panelConfig.activeObj || initObj : initObj;
-    console.log(skipMenuConfig, ',,,,');
     this.skipMenuConfig = skipMenuConfig || [];
   },
   watch: {
@@ -689,7 +688,6 @@ export default {
   methods: {
     handleMenuCancel() {
       const { menuList = [] } = this.$refs.ToMenuConfig;
-      console.log(menuList, 'menuList');
       this.changeTitle(menuList, 'skipMenuConfig');
     },
     handleCancel() {
@@ -718,7 +716,6 @@ export default {
           [key]: value
         }
       };
-      console.log(222, key);
       list.splice(index, 1, newInfo);
       this.$emit('updateList', list);
     },
@@ -739,7 +736,6 @@ export default {
         [key]: value
       };
       list.splice(index, 1, newInfo);
-      console.log(newInfo);
       this.$emit('updateList', list);
     },
     changeDrillDownConfig(key, value) { // 改变下钻属性

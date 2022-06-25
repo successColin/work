@@ -99,6 +99,7 @@
                   class="list__item--formula"
                   :triggerCompMap="triggerCompMap"
                   v-model="item.content"
+                  v-bind="$attrs"
               ></select-formula>
               <i
                   class="iconfont icon-shanchu"

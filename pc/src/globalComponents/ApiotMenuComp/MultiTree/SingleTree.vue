@@ -50,9 +50,13 @@ export default {
       props: {
         isLeaf: 'isLeaf'
       },
-      dragLevel: 0,
-      dragId: 0
+      dragLevel: 0
     };
+  },
+  computed: {
+    getMulData() {
+      return this.configData.multiDataSource;
+    }
   },
   mounted() {},
   components: {
@@ -67,28 +71,85 @@ export default {
     },
     handleDragStart(node) {
       this.dragLevel = node.level;
-      this.dragId = node.data[this.getIdCompId];
     },
-    async singleSave(parentId) {
+    async singleSave(draggingNode, dropNode, type) {
+      const dragDataType = draggingNode.data.dataType;
       const params = {
-        formInfo: [
-          {
-            columnName: 'id',
-            columnValue: this.dragId,
-            compType: 15
-          },
-          {
-            columnName: 'parent_id',
-            columnValue: parentId,
-            compType: 15
-          }
-        ],
+        formInfo: [],
         removeFileIds: [],
-        tableName: this.configData.tableInfo.tableName,
+        tableName: this.getMulData[dragDataType - 1].tableInfo.tableName,
         compMap: JSON.stringify(this.getAllForm()),
         isTree: 1,
         isMove: 1
       };
+
+      params.formInfo.push({
+        columnName: 'id',
+        columnValue: draggingNode.data[this.getIdCompId],
+        compType: 15
+      });
+      const selfColumn = this.getMulData[dragDataType - 1].selfLevelColumn.columnName;
+      if (type === 'inner') {
+        if (dragDataType === dropNode.data.dataType) {
+          params.formInfo.push({
+            columnName: selfColumn,
+            columnValue: dropNode.data[this.getIdCompId],
+            compType: 15
+          });
+        } else {
+          params.formInfo.push({
+            columnName: selfColumn,
+            columnValue: this.getMulData[dragDataType - 1].selfLevelColumn.start,
+            compType: 15
+          });
+        }
+      } else if (dragDataType === dropNode.data.dataType) {
+        // 同类型的 直接取相同的自相关字段
+        params.formInfo.push({
+          columnName: selfColumn,
+          columnValue: dropNode.data[selfColumn],
+          compType: 15
+        });
+      } else {
+        //  不同类型的 取初始值
+        params.formInfo.push({
+          columnName: selfColumn,
+          columnValue: this.getMulData[dragDataType - 1].selfLevelColumn.start,
+          compType: 15
+        });
+      }
+
+      if (dragDataType === '2' || dragDataType === '3') {
+        const lastColumn = this.getMulData[dragDataType - 1].lastLevelColumn.columnName;
+        if (type === 'inner') {
+          if (dragDataType === dropNode.data.dataType) {
+            params.formInfo.push({
+              columnName: lastColumn,
+              columnValue: dropNode.data[lastColumn] || dropNode.parent.data[this.getIdCompId],
+              compType: 15
+            });
+          } else {
+            params.formInfo.push({
+              columnName: lastColumn,
+              columnValue: dropNode.data[this.getIdCompId],
+              compType: 15
+            });
+          }
+        } else if (dragDataType === dropNode.data.dataType) {
+          params.formInfo.push({
+            columnName: lastColumn,
+            columnValue: dropNode.data[lastColumn] || dropNode.parent.data[this.getIdCompId],
+            compType: 15
+          });
+        } else {
+          params.formInfo.push({
+            columnName: lastColumn,
+            columnValue: dropNode.data[selfColumn],
+            compType: 15
+          });
+        }
+      }
+      // console.log(params);
       await singleSave(params);
       this.$message({
         type: 'success',
@@ -98,17 +159,69 @@ export default {
     },
     handleDrop(draggingNode, dropNode, type) {
       if (this.dragLevel !== dropNode.level || type === 'inner') {
-        console.log(dropNode);
-        this.singleSave(
-          type === 'inner' ? dropNode.data[this.getIdCompId] : dropNode.data.parent_id
-        );
+        // console.log(draggingNode, dropNode, type);
+        this.singleSave(draggingNode, dropNode, type);
       }
     },
     allowDrop(draggingNode, dropNode, type) {
-      if (dropNode.data[this.getIdCompId] === 1 && type !== 'inner') {
+      // console.log(draggingNode.data.dataType, dropNode.data.dataType, type);
+      if (this.dragLevel === dropNode.level && type !== 'inner') {
         return false;
       }
-      return true;
+      if (draggingNode.data.dataType === '1') {
+        if (dropNode.data.dataType === '1') {
+          return true;
+        }
+        if (dropNode.data.dataType === '2') {
+          if (
+            type !== 'inner' &&
+            dropNode.data[this.getMulData[1].selfLevelColumn.columnName] ===
+              this.getMulData[1].selfLevelColumn.start
+          ) {
+            return true;
+          }
+        }
+      }
+      if (draggingNode.data.dataType === '2') {
+        if (dropNode.data.dataType === '1') {
+          if (
+            type !== 'inner' &&
+            dropNode.data[this.getMulData[0].selfLevelColumn.columnName] ===
+              this.getMulData[0].selfLevelColumn.start
+          ) {
+            return false;
+          }
+          return true;
+        }
+        if (dropNode.data.dataType === '2') {
+          return true;
+        }
+        if (dropNode.data.dataType === '3') {
+          if (
+            type !== 'inner' &&
+            dropNode.data[this.getMulData[2].selfLevelColumn.columnName] ===
+              this.getMulData[2].selfLevelColumn.start
+          ) {
+            return true;
+          }
+        }
+        if (draggingNode.data.dataType === '3') {
+          if (dropNode.data.dataType === '2') {
+            if (
+              type !== 'inner' &&
+              dropNode.data[this.getMulData[1].selfLevelColumn.columnName] ===
+                this.getMulData[1].selfLevelColumn.start
+            ) {
+              return false;
+            }
+            return true;
+          }
+          if (dropNode.data.dataType === '3') {
+            return true;
+          }
+        }
+      }
+      return false;
     },
     loadNode(node, resolve) {
       if (node.level === 0) {
@@ -116,9 +229,18 @@ export default {
         return;
       }
       this.$emit('getListParams', node, async (params) => {
+        params.nodeInfo = document.getElementById(node.data.treeId).innerText;
         const data = await listMultiTree(params);
+        if (data.isMore) {
+          this.$message({
+            type: 'warning',
+            duration: 5000,
+            showClose: true,
+            message: this.$t('menuConfig.multiTreeTip', { any: params.nodeInfo })
+          });
+        }
         data.forEach((item) => {
-          item.treeId = `${item[this.getIdCompId]}${item.dataType}}`;
+          item.treeId = `${item[this.getIdCompId]}${item.dataType}`;
           if (!item.childCount) {
             item.isLeaf = true;
           } else {

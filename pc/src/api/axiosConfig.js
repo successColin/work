@@ -198,7 +198,11 @@ class FetchData {
           };
         }
         // token
-        if (config.url !== 'login') {
+        if (
+          config.url !== 'login' ||
+          config.url !== 'zwdingtalkScanLogin' ||
+          config.url !== 'zwdingtalkLogin'
+        ) {
           config.headers.token = Decrypt(localStorage.getItem('token') || '');
         }
         if (localStorage.apiotLanguage) {
@@ -213,7 +217,11 @@ class FetchData {
 
     instance.interceptors.response.use(
       (res) => {
-        if (res.config.url === 'login') {
+        if (
+          res.config.url === 'login' ||
+          res.config.url === 'zwdingtalkScanLogin' ||
+          res.config.url === 'zwdingtalkLogin'
+        ) {
           const token = res.headers.token || '';
           localStorage.setItem('token', Encrypt(token));
         }
@@ -236,6 +244,18 @@ class FetchData {
           }
           return res.data.data;
         }
+        if (codeNumber === '00001') {
+          // setTimeout(() => {
+          // resetMessage.warning({
+          //   showClose: true,
+          //   duration: 0,
+          //   message: res.data.message,
+          // });
+          // }, 2000);
+          // 树节点数据过多
+          res.data.data.isMore = true;
+          return res.data.data;
+        }
         if (codeNumber === 'B0001') {
           return Promise.reject(res.data.data);
         }
@@ -250,6 +270,9 @@ class FetchData {
       // 登录失效，账号禁用等处理
       (error) => {
         const errMsg = error.message || '';
+        if (error.code === 'DD002') {
+          return Promise.reject(error);
+        }
         if (errMsg.indexOf('401') !== -1) {
           const pathArr = window.location.pathname.split('/');
           const pathName = pathArr[pathArr.length - 1];

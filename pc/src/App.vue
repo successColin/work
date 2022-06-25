@@ -12,16 +12,25 @@
 </template>
 
 <script>
-import { whitePathName } from '@/config/index.js';
+import { whitePathName } from '@/config';
+import { zwdingtalkLogin } from '@/api/login';
+import { getDingDingCode } from '@/utils/dingding/index';
 
 export default {
+  data() {
+    return {
+      isSuccess: true
+    };
+  },
   created() {
-    const pathArr = window.location.pathname.split('/');
-    const pathName = pathArr[pathArr.length - 1];
-    if (!whitePathName.includes(pathName)) {
-      this.$store.dispatch('getRoute');
-    }
+    this.fetchConfig();
     window.addEventListener('beforeunload', this.beforeLoad);
+  },
+  computed: {
+    configs() {
+      const { loginConfig } = this.$store.state.base;
+      return loginConfig;
+    }
   },
   methods: {
     beforeLoad() {
@@ -35,6 +44,40 @@ export default {
       ) {
         window.event.returnValue = '刷什么新，快按“取消”吧！';
       }
+    },
+    // 获取配置
+    async fetchConfig() {
+      await this.$store.dispatch('getLoginConfigFun');
+      // 单点登录逻辑
+      if (+this.configs.ssoTypePc === 2) {
+        await this.ssoZheZhengDing();
+      }
+      // 获取到 token 才去获取路由或其他信息
+      const token = localStorage.getItem('token');
+      if (this.isSuccess && token) {
+        const pathArr = window.location.pathname.split('/');
+        const pathName = pathArr[pathArr.length - 1];
+        if (!whitePathName.includes(pathName)) {
+          this.$store.dispatch('getRoute');
+        }
+        this.$store.dispatch('getHomeRoute');
+      }
+    },
+    // 浙政钉单点登录
+    ssoZheZhengDing() {
+      getDingDingCode().then(async (code) => {
+        if (code) {
+          localStorage.setItem('zhezhengdingCode', code);
+          try {
+            await zwdingtalkLogin({ code });
+            window.vue.$router.push('/home');
+            this.isSuccess = true;
+          } catch (error) {
+            window.vue.$router.push('/AssociatedUser');
+            this.isSuccess = false;
+          }
+        }
+      });
     }
   }
 };

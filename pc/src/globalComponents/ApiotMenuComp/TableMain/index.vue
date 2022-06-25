@@ -792,8 +792,11 @@ export default {
             obj[this.getIdCompId] = +id;
             obj[showCompId] = showArr[i];
             obj.old = true;
-            this.multiEntityArr.push(obj);
-            this.$refs.tableMain.toggleRowSelection(obj, true);
+            const j = this.multiEntityArr.findIndex((item) => item[this.getIdCompId] === +id);
+            if (j === -1) {
+              this.multiEntityArr.push(obj);
+              this.$refs.tableMain.toggleRowSelection(obj, true);
+            }
           });
           // console.log(this.multiEntityArr);
         }
@@ -901,7 +904,7 @@ export default {
     // 获取当前菜单的
     getCurMenu(params) {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
-      console.log(jumpMenuObj, 'jumpMenuObj');
+      // console.log(jumpMenuObj, 'jumpMenuObj');
       if (jumpMenuObj) {
         const menu = jumpMenuObj[this.$route.params.id];
         if (menu && menu[params]) {
@@ -1311,7 +1314,7 @@ export default {
       return '';
     },
     initMulti(form) {
-      console.log(2);
+      // console.log(2);
       const keyArr = [];
       form.keys.forEach((item) => {
         if (this.getCompId(item)) {

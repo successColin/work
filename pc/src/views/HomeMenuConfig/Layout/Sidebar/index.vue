@@ -458,6 +458,7 @@ export default {
               isLock: false, // 是否锁定
               dataType: 1, // 1：静态；2：接口获取；3：SQL获取
               enableLegend: true, // 是否启用图例
+              interactionType: 1, // 1无2面板3菜单4下钻
               stylesObj: {
                 zIndex: 1,
                 legendPosition: 'lt', // 图例位置
@@ -487,7 +488,15 @@ export default {
               },
               SqlDataConfig: {
                 ...SqlDataConfig
-              }
+              },
+              panelConfig: {}, // 跳转面板配置
+              skipMenuConfig: [], // 跳菜单配置
+              drillDownConfig: {
+                drillDownField: [], // 下钻回调字段
+                pathColor: '#666666', // 路径颜色
+                tripStopField: '', // 下钻停止字段
+                tripStopFieldValue: '', // 下钻停止字段值
+              }, // 下钻配置
             },
             {
               componentName: 'BasicBarChart',
@@ -1047,6 +1056,98 @@ export default {
                 ...SqlDataConfig
               }
             },
+            {
+              componentName: 'RadarChart',
+              imgUrl: 'homePage/radarChart.svg',
+              name: '雷达图',
+              width: 500,
+              height: 280,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              enableLegend: true, // 是否启用图例
+              enableDimension: true, // 是否启用维度
+              enableGlobalAxisLine: true, // 是否启用坐标轴轴线相关设置
+              enableGlobalAxisTick: false, // 是否启用坐标轴刻度相关设置
+              enableGlobalAxisLabel: false, // 是否显示坐标标签
+              enableGlobalSplitLine: true, // 区域中的分隔线
+              enableGlobalSplitArea: true, // 区域中的填充色
+              stylesObj: {
+                zIndex: 1,
+                centerX: 50, // 水平中心点
+                centerY: 50, // 垂直中心点
+                radius: 75, // 雷达图半径
+                nameGap: 15, // 指示器名称和指示器轴的距离。
+                splitNumber: 5, // 指示器轴的分割段数。
+                shape: 'polygon', // 雷达图绘制类型
+                legendPosition: 'lt', // 图例位置
+                legendFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
+                legendFontWeight: 'normal', // 图例文字粗细
+                legendFontSize: 12, // 图例文字大小
+                legendColor: '#333333', // 图例字体颜色
+                // legendOrient: 'horizontal', // 图例布局， 默认水平，选项水平， 垂直
+                // 轴线
+                axisColor: '#333', // 坐标轴线颜色
+                axisWidth: 1, // 坐标轴线线宽。
+                axisType: 'solid', // 线的类型
+
+                axisTickLength: 5, // 刻度长度
+                axisTickColor: '#333', // 刻度颜色
+                axisTickWidth: 1, // 刻度线宽。
+                axisTickType: 'solid', // 线的类型
+
+                axisLabelRotate: 0, // 标签旋转角度
+                axisLabelMargin: 8, // 刻度标签与轴线之间的距离。
+                axisLabelColor: '#fff', // 刻度标签文字的颜色
+                axisLabelFontWeight: 'normal', // 文字字体的粗细
+                axisLabelFontFamily: 'sans-serif', // 文字的字体系列
+                axisLabelFontSize: 12, // 文字的字体大小。
+
+                splitLineColor: [], // 分割线颜色
+                splitLineWidth: 1, // 分割线线宽。
+                splitLineType: 'solid', // 分割线的类型
+
+                axisNameColor: '#333333', // 标注字体颜色
+                axisNameFontSize: 12, // 图例文字大小
+                axisNameFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
+                axisNameFontWeight: 'normal', // 图例文字粗细
+                dataField: 'type', // 维度数据字段
+                colorArr: [{ c1: 'rgba(250,250,250,0.3)' }, { c1: 'rgba(200,200,200,0.3)' }] // 区域填充色
+              },
+              customStyle: [], // 自定义样式
+              indicator: [
+                { name: '数学', max: 100, enable: true, fieldValue: 1 },
+                { name: '语文', max: 100, enable: true, fieldValue: 2 },
+                { name: '英语', max: 100, enable: true, fieldValue: 3 },
+                { name: '物理', max: 100, enable: true, fieldValue: 4 },
+                { name: '化学', max: 100, enable: true, fieldValue: 5 },
+                { name: '其他', max: 100, enable: true, fieldValue: 6 }
+              ], // 维度配置
+              dataConfig: {
+                staticValue: '[\n' +
+        '  { "x": "小明", "value":  98, "type": 1},\n' +
+        '  { "x": "小明", "value":  68, "type": 2},\n' +
+        '  { "x": "小明", "value":  76, "type": 3},\n' +
+        '  { "x": "小明", "value":  88, "type": 4},\n' +
+        '  { "x": "小明", "value":  92, "type": 5},\n' +
+        '  { "x": "小明", "value":  99, "type": 6},\n' +
+        '  { "x": "小张", "value":  97, "type": 1},\n' +
+        '  { "x": "小张", "value":  88, "type": 2},\n' +
+        '  { "x": "小张", "value":  86, "type": 3},\n' +
+        '  { "x": "小张", "value":  89, "type": 4},\n' +
+        '  { "x": "小张", "value":  95, "type": 5},\n' +
+        '  { "x": "小张", "value":  79, "type": 6}\n' +
+        ']' // 静态值
+              },
+              SqlDataConfig: {
+                ...SqlDataConfig
+              }
+            },
+
           ]
         },
         {

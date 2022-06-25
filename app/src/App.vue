@@ -51,7 +51,8 @@ export default {
   onShow() {
     // document.body.addEventListener('touchstart', () => {});
   },
-  onHide() {}
+  onHide() {},
+  watch: {}
 };
 </script>
 

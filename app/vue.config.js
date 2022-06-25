@@ -9,10 +9,10 @@ module.exports = {
     }, // 错误在页面弹出、警告不在页面弹出
     proxy: {
       '/api': {
-        target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
+        // target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
         // target: 'http://192.168.0.20:8080', // cl
         // target: 'http://192.168.0.136:8080', // lf
-        // target: 'http://192.168.0.136:8080', // zs
+        target: 'http://192.168.0.136:8080', // zs
         // target: 'http://192.168.0.138:8080', // lf
         // target: 'http://192.168.0.21:8080', // zs
         // target: 'http://47.99.87.62:84/',

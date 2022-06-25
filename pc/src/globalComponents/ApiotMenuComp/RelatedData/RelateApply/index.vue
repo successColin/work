@@ -619,6 +619,7 @@ export default {
   },
 
   mounted() {
+    console.log(111);
     this.pathArr = [initPath];
     if (!this.getNotInitArr().includes(this.configData.compId)) {
       this.init();
@@ -676,7 +677,7 @@ export default {
       if (this.getFatherPanel()) {
         const { relateDataComp } = this.getFatherPanel();
         const { relateBusiComp } = this.getFatherPanel();
-        if (relateDataComp[this.configData.compId]) {
+        if (relateDataComp && relateDataComp[this.configData.compId]) {
           if (
             relateDataComp[this.configData.compId].value &&
             relateDataComp[this.configData.compId].tableName
@@ -685,7 +686,7 @@ export default {
             this.relateDataComp.tableName = relateDataComp[this.configData.compId].tableName;
           }
         }
-        if (relateBusiComp[this.configData.compId]) {
+        if (relateBusiComp && relateBusiComp[this.configData.compId]) {
           if (
             relateBusiComp[this.configData.compId].value &&
             relateBusiComp[this.configData.compId].tableName

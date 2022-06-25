@@ -215,34 +215,36 @@ export default {
     },
     // 控制显示的tabs
     tabHidden(onlyFlag) {
+      if (this.onlyFlag() !== onlyFlag) {
+        return;
+      }
       // console.log(onlyFlag);
       const tempShow = [];
-      if (this.onlyFlag() === onlyFlag) {
-        this.tabsArr = [];
-        if (!this.configData.showTab || this.configData.children.length === 1) {
-          this.tabsArr = this.configData.children;
-          tempShow.push(this.tabsArr[0].compId);
-          // 没有启用多个tab，不往下执行
-          return;
-        }
-        const hiddenTabsArr = [];
-        // 取出所有需要隐藏的tab
-        this.configData.hiddenRules.forEach((rule) => {
-          const res = this.resolveFormula(true, rule.content);
-          if (res) {
-            hiddenTabsArr.push(...rule.tabs);
-          }
-        });
-        // 所有需要隐藏的tab去重
-        const result = Array.from(new Set(hiddenTabsArr));
-        this.configData.children.forEach((tab) => {
-          // 不存在需要隐藏的数组中
-          if (!result.includes(tab.compId)) {
-            this.tabsArr.push(tab);
-            tempShow.push(tab.compId);
-          }
-        });
+      this.tabsArr = [];
+      if (!this.configData.showTab || this.configData.children.length === 1) {
+        this.tabsArr = this.configData.children;
+        tempShow.push(this.tabsArr[0].compId);
+        // 没有启用多个tab，不往下执行
+        return;
       }
+      const hiddenTabsArr = [];
+      // 取出所有需要隐藏的tab
+      this.configData.hiddenRules.forEach((rule) => {
+        const res = this.resolveFormula(true, rule.content);
+        if (res) {
+          hiddenTabsArr.push(...rule.tabs);
+        }
+      });
+      // 所有需要隐藏的tab去重
+      const result = Array.from(new Set(hiddenTabsArr));
+      this.configData.children.forEach((tab) => {
+        // 不存在需要隐藏的数组中
+        if (!result.includes(tab.compId)) {
+          this.tabsArr.push(tab);
+          tempShow.push(tab.compId);
+        }
+      });
+
       if (!tempShow.includes(this.configData.firstShowTabId)) {
         [this.configData.firstShowTabId] = tempShow;
       }

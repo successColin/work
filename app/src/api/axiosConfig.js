@@ -1,8 +1,8 @@
 /*
  * @Author: sss
  * @Date: 2021-06-17 14:46:02
- * @Last Modified by: sss
- * @Last Modified time: 2022-06-11 13:57:23
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-06-22 11:48:10
  */
 import axios from 'axios';
 import axiosAdapterUniapp from 'axios-adapter-uniapp';
@@ -53,7 +53,7 @@ class FetchData {
             const name = tempObj.key || 'name';
 
             const index = tempObj.transFormArr.findIndex(
-              (item) => item[value] === data[key]
+              (item) => item[value] === data[key],
             );
             if (index !== -1) {
               str += `${tempObj.name}:${tempObj.transFormArr[index][name]},`;
@@ -126,7 +126,7 @@ class FetchData {
           config.headers['Cache-Control'] = 'no-cache';
           config.headers.Pragma = 'no-cache';
           // config.url = `${config.url}?${qs.stringify(config.params, {})}`;
-          config.paramsSerializer = function (params) {
+          config.paramsSerializer = function(params) {
             return qs.stringify(params, {
               arrayFormat: 'indices',
               allowDots: true,
@@ -146,7 +146,7 @@ class FetchData {
           config.url = buildURL(
             config.url,
             config.params,
-            config.paramsSerializer
+            config.paramsSerializer,
           );
           if (config.params) delete config.params;
         }
@@ -160,7 +160,7 @@ class FetchData {
 
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     );
 
     instance.interceptors.response.use(
@@ -170,7 +170,10 @@ class FetchData {
           // 兼容钉钉小程序返回的头信息，钉钉小程序返回的头信息为数组，需要将数组转换为对象
           res.header = Object.assign({}, ...res.header);
         }
-        if (res.config.url === 'login') {
+        if (
+          res.config.url === 'login' ||
+          res.config.url === 'zwdingtalkLogin'
+        ) {
           const token = res.header.token || '';
           uni.setStorageSync('token', Encrypt(token));
         }
@@ -198,7 +201,7 @@ class FetchData {
           return;
         }
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -251,7 +254,7 @@ class FetchData {
       config.header.token = Decrypt(uni.getStorageSync('token') || '');
       config.url = `${baseURL || this.baseURL}${config.url}`;
       config.name = config.name || 'files';
-      config.success = function (uploadFileRes) {
+      config.success = function(uploadFileRes) {
         let uploadData = uploadFileRes.data;
         if (uploadData && typeof uploadData === 'string') {
           uploadData = JSON.parse(uploadData);
@@ -274,7 +277,7 @@ class FetchData {
       //     allowDots: true,
       //   });
       // }
-      config.error = function (error) {
+      config.error = function(error) {
         reject(error);
       };
       uni.uploadFile(config);

@@ -446,6 +446,7 @@ export default {
           this.$bus.$emit('reloadArea', 'current', this.onlyFlag(), this.tableInfo.compId);
         } else if (this.configData.refreshType === 6) {
           const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
+          console.log(123);
           // 更新当前树
           this.$bus.$emit(
             'reloadArea',
@@ -835,7 +836,6 @@ export default {
       if (
         this.tableInfo.propertyCompName === 'MenuMainConfig' ||
         this.tableInfo.propertyCompName === 'TreeMainConfig' ||
-        this.tableInfo.propertyCompName === 'MultiTreeConfig' ||
         this.isTableBtn
       ) {
         params.batchInfo.push({
@@ -978,13 +978,15 @@ export default {
         //  有id先走删除接口
         if (params.ids) {
           if (area.isTree || (this.getFatherPanel() && this.getFatherPanel().isTree)) {
-            params.isTree = 1;
-            if (+params.ids === 1) {
-              this.$message({
-                type: 'error',
-                message: '不能删除根节点'
-              });
-              return Promise.reject();
+            if (area.compName !== 'MultiTree') {
+              params.isTree = 1;
+              if (+params.ids === 1) {
+                this.$message({
+                  type: 'error',
+                  message: '不能删除根节点'
+                });
+                return Promise.reject();
+              }
             }
           }
           this.deleteShouldReload = true;
@@ -1034,13 +1036,15 @@ export default {
         //  有id先走删除接口
         if (params.ids) {
           if (this.tableInfo.isTree || (this.getFatherPanel() && this.getFatherPanel().isTree)) {
-            params.isTree = 1;
-            if (+params.ids === 1) {
-              this.$message({
-                type: 'error',
-                message: '不能删除根节点'
-              });
-              return Promise.reject();
+            if (this.tableInfo.compName !== 'MultiTree') {
+              params.isTree = 1;
+              if (+params.ids === 1) {
+                this.$message({
+                  type: 'error',
+                  message: '不能删除根节点'
+                });
+                return Promise.reject();
+              }
             }
           }
           this.deleteShouldReload = true;
@@ -1137,7 +1141,8 @@ export default {
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
         panelObj.onlyFlag = this.onlyFlag();
-        if (this.tableInfo.isTree) {
+        console.log(this.tableInfo);
+        if (this.tableInfo.isTree && this.tableInfo.compName !== 'MultiTree') {
           panelObj.isTree = true;
         }
         if (this.configData.dialogTitle) {
@@ -1244,7 +1249,7 @@ export default {
               });
             }
           });
-          const menuObj = {};
+          const menuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : {};
           menuObj[obj.id] = obj;
           sessionStorage.jumpMenuObj = JSON.stringify(menuObj);
           this.$bus.$emit('changeMenuTab', curMenu);
@@ -1498,7 +1503,10 @@ export default {
           }
         });
       });
-      const { tableName } = area.tableInfo;
+      let { tableName } = area.tableInfo;
+      if (!tableName) {
+        tableName = area.multiDataSource[area.multiDataSource.length - 1].tableInfo.tableName;
+      }
       const params = {
         selectContent: '*',
         selectFrom: tableName,

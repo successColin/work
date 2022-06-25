@@ -60,9 +60,53 @@ pipeline {
             }
         }
         
+        stage('sonar检查') {
+            steps{
+                script {
+                  sonarqubeScannerHome = tool name: 'sonar-scanner'
+                }
+                withSonarQubeEnv('sonarqube') {
+                    sh "${sonarqubeScannerHome}/bin/sonar-scanner -X "+
+                    "-Dsonar.host.url=${SONAR_HOST_URL} " +
+                    "-Dsonar.projectKey=eam-10-web " +
+                    "-Dsonar.projectName=EAM10-WEB端 " +
+                    "-Dsonar.branch.name=$BRANCH_NAME " +
+                    "-Dsonar.projectVersion=$BUILD_NUMBER " +
+                    "-Dsonar.sources=src " +
+                    "-Dsonar.sourceEncoding=UTF-8 " +
+                    "-Dsonar.exclusions=**tests/** "
+                }
+            }
+        }
+        
+        stage("等待检查结果") {
+            steps {
+                timeout(time: 5, unit: "MINUTES") {
+                waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube'
+                    script {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                            dingtalk (
+                                robot: 'jizhi-dingtalk',
+                                type: 'LINK',
+                                atAll: false,
+                                title: 'Jenkins自动构建通知',
+                                text: ['### EAM10-WEB端 ','构建：$BUILD_DISPLAY_NAME ','Sonar检查未通过！'],
+                                messageUrl: 'http://192.168.0.123:8088/dashboard?id=eam-10-web',
+                                picUrl: 'https://tse2-mm.cn.bing.net/th/id/OIP-C.IbVusx6FAKfSwx_1qYvfRwAAAA?pid=ImgDet&rs=1',
+                                hideAvatar: false
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        
         stage('制品归档') {
             steps {
-                sh label: "压缩dist", script: "tar cvf ${env.WORKSPACE}@2/dist.tar ${env.WORKSPACE}@2/dist/**"
+                sh label: "压缩dist", script: "tar cvf dist.tar ${env.WORKSPACE}@2/dist/**"
                 archiveArtifacts artifacts: 'dist.tar', followSymlinks: false
             }
         }

@@ -70,7 +70,7 @@ export default {
       if (this.panelObj) {
         if (this.panelObj.pageConfig) {
           if (this.panelObj.pageConfig[0].designOverallLayout) {
-            if (this.panelObj.pageConfig[0].designOverallLayout[0].selShowType === 3) {
+            if ([3, 5].includes(this.panelObj.pageConfig[0].designOverallLayout[0].selShowType)) {
               return true;
             }
           }
@@ -113,7 +113,7 @@ export default {
     },
     changeShowType(v) {
       this.$refs.menu.changeShowType(v);
-      if (!this.dataSelObj.showInfo) {
+      if (!this.dataSelObj || !this.dataSelObj.showInfo) {
         return;
       }
       this.notTouch = true;
@@ -174,7 +174,7 @@ export default {
     showPanel(v) {
       if (v) {
         this.$nextTick(() => {
-          if (this.$refs.ListOrTree) {
+          if (this.$refs.ListOrTree && this.dataSelObj) {
             this.$refs.ListOrTree.changeCurType(this.curTypeValue);
           }
           if (this.dataSelObj && !this.dataSelObj.value) {

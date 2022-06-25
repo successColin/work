@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2021-07-14 17:25:17
+ * @Last Modified time: 2022-06-20 10:19:32
  */
 export default {
   globalConfig: {
@@ -35,6 +35,7 @@ export default {
     supportAppCode: 'Supposrt scanning QR code',
     forgetPassword: 'Enable forget password',
     enableMultilingual: 'Enable Multilingual',
+    enableZhejiangZhengpinLogin: 'Enable Zhejiang Zhengpin login',
     style: 'Landing Page Style',
     styleBackgroundImage: 'Style Background Image',
     loginpagelogo: 'Login page logo',

@@ -231,7 +231,8 @@ export default {
       backKey: '',
       showCheckbox: false, // 是否展示多选
       showSinglebox: false, // 是否展示单选
-      multiEntityArr: [] // 多选/单选值
+      multiEntityArr: [], // 多选/单选值
+      needSearch: false
     };
   },
 
@@ -479,7 +480,7 @@ export default {
     // 滚动事件
     scrollThing() {
       if (
-        this.$refs.searchList.scrollTop + this.$refs.searchList.offsetHeight <
+        this.$refs.searchList.scrollTop + this.$refs.searchList.offsetHeight >
           this.$refs.scroll.offsetHeight - 50 &&
         !this.loading
       ) {
@@ -496,6 +497,7 @@ export default {
         (this.showList && areaArr === 'treeUpdate')
       ) {
         if (this.configData.shouldInit) {
+          this.needSearch = true;
           this.getSidebarList();
         }
         return;
@@ -618,6 +620,14 @@ export default {
           this.pageFlag = 0;
           this.pageCount = 0;
           this.noMore = false;
+        }
+        if (this.needSearch) {
+          this.backKey = searchInfo.searchValue;
+          this.current = 1;
+          this.pageFlag = 0;
+          this.pageCount = 0;
+          this.noMore = false;
+          this.needSearch = false;
         }
         if (this.noMore) {
           this.loading = false;

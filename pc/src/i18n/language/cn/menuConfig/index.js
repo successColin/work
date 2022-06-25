@@ -23,5 +23,6 @@ export default {
       memo: '描述',
       design: '设计',
     },
+    multiTreeTip: '该节点【%{any}】下数据量过大，当前仅显示前500条数据。',
   },
 };

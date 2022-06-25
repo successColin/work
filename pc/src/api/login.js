@@ -75,7 +75,7 @@ export function postPerfectInformation(data) {
 export function getLoginConfig() {
   return FetchData.request({
     url: '/system/global/getGlobalLogin',
-    method: 'get'
+    method: 'get',
   });
 }
 
@@ -84,6 +84,27 @@ export function auth(data) {
   return FetchData.request({
     url: '/oauth2Login',
     method: 'post',
-    data
+    data,
+  });
+}
+
+// 浙政钉扫码登录
+export function zwdingtalkScanLogin(data) {
+  return FetchData.request({
+    url: 'zwdingtalkScanLogin',
+    method: 'post',
+    data,
+  });
+}
+
+// 浙政钉单点登录
+export function zwdingtalkLogin(data) {
+  return FetchData.request({
+    url: 'zwdingtalkLogin',
+    method: 'post',
+    data,
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+    },
   });
 }

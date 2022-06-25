@@ -327,12 +327,12 @@ function addNodeButton(ctx, data, h, isBranch = false) {
       color: '#FAB71C',
       icon: 'icon-houtaishuju'
     },
-    // {
-    //   name: '存储过程',
-    //   eventName: 'addProcedureNode',
-    //   color: '#FAB71C',
-    //   icon: 'icon-cunchuguocheng'
-    // },
+    {
+      name: '存储过程',
+      eventName: 'addProcedureNode',
+      color: '#FAB71C',
+      icon: 'icon-cunchuguocheng'
+    },
     {
       name: '消息通知',
       eventName: 'addMessageNode',

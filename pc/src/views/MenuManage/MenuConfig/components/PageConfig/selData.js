@@ -187,6 +187,68 @@ const configData = [
                 // hasCardIcon: false, // 是否有卡片图标
                 // iconId: '', // 卡片图标来源的组件id
                 // iconColorId: '', // 卡片图标颜色来源的组件id
+                multiDataSource: [
+                  {
+                    name: '一级表',
+                    treeIcon: {
+                      icon: '',
+                      color: '',
+                      imageUrl: '',
+                    },
+                    hasCardIcon: false, // 是否启用组件字典图标
+                    iconId: '', // 组件字典图标来源的组件id
+                    iconColorId: '', // 组件字典图标颜色来源的组件id
+                    tableInfo: {
+                      id: '',
+                      tableName: '',
+                    },
+                    lastLevelColumn: {
+                      id: '',
+                      columnName: '',
+                    },
+                    selfLevelColumn: {
+                      id: '',
+                      columnName: '',
+                      start: 0,
+                      startId: '',
+                    },
+                    filterTermType: 1, // 1 是普通 2是sql
+                    filterTermStr: '', // 普通字符串
+                    filterTermSql: '', // sql字符串
+                    termParams: '', // 过滤条件需要的组件参数id
+                  },
+                  {
+                    name: '二级表',
+                    treeIcon: {
+                      icon: '',
+                      color: '',
+                      imageUrl: '',
+                    },
+                    hasCardIcon: false, // 是否启用组件字典图标
+                    iconId: '', // 组件字典图标来源的组件id
+                    iconColorId: '', // 组件字典图标颜色来源的组件id
+                    tableInfo: {
+                      id: '',
+                      tableName: '',
+                    },
+                    lastLevelColumn: {
+                      id: '',
+                      columnName: '',
+                      columnTypeDict: '',
+                    },
+                    selfLevelColumn: {
+                      id: '',
+                      columnName: '',
+                      columnTypeDict: '',
+                      start: 0,
+                      startId: '',
+                    },
+                    filterTermType: 1, // 1 是普通 2是sql
+                    filterTermStr: '', // 普通字符串
+                    filterTermSql: '', // sql字符串
+                    termParams: '', // 过滤条件需要的组件参数id
+                  },
+                ], // 数据多选框数据源
               },
             ],
             tabBtnPos: 2,
@@ -259,6 +321,7 @@ const area = {
       width: '100%',
     },
   ],
+  backChildren: [],
   areaType: 1,
 };
 area.form[idCompId] = '';

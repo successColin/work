@@ -46,6 +46,18 @@
             固定人员
           </div>
           <div class="select__split"></div>
+          <div class="select__memo">使用触发表源中的人员</div>
+          <filterable-input
+              style="margin: 0 20px;"
+              class="list__item--column"
+              placeholder="请选择字段"
+              :tableName="tableName"
+              :showInfo="approverObj.FIELD"
+              :dialogType="2"
+              :notShowSys="false"
+              @selectRes="selectColumnRes"
+          ></filterable-input>
+          <div class="select__split"></div>
           <div class="select__memo">使用流程节点对象下的人员</div>
           <el-menu
               :default-active="active"
@@ -153,6 +165,12 @@
                 @handleClear="deleteUser"
             />
           </span>
+        </div>
+      </div>
+      <div v-show="approverObj.FIELD && JSON.stringify(approverObj.FIELD) !== '{}'">
+        <div class="selected-title fieldWrap">{{ text }}：
+          {{ approverObj.FIELD ? approverObj.FIELD.columnName : '' }}
+          <span class="iconfont icon-guanbi" @click="deleteField"></span>
         </div>
       </div>
 
@@ -413,6 +431,16 @@ export default {
   },
 
   props: {
+    nodeType: {
+      type: String,
+      default: ''
+    },
+    flowData: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
     params: {
       type: Object,
       default() {
@@ -447,6 +475,17 @@ export default {
   },
 
   computed: {
+    text() {
+      if (this.nodeType === 'approverObj') return '审批人字段';
+      if (this.nodeType === 'FillIn') return '填写人字段';
+      return '';
+    },
+    tableName() {
+      if (this.flowData.type === 'start') {
+        return this.flowData.properties.tableName;
+      }
+      return '';
+    },
     isShowEnd() {
       return function (superiorType, postId) {
         if (postId) {
@@ -497,8 +536,29 @@ export default {
   },
   mounted() {
     this.init();
+    console.log(this.approverObj);
+    document.addEventListener('click', this.hideUserList, false);
+    document.querySelector('.flowConfigWrap').addEventListener('click', this.hideUserList, false);
   },
   methods: {
+    deleteField() {
+      this.$emit('select-flow-approval', {
+        value: {},
+        key: 'FIELD'
+      });
+      this.updateKey += 1;
+    },
+    selectColumnRes(res) {
+      this.$emit('select-flow-approval', {
+        value: res,
+        key: 'FIELD'
+      });
+      this.updateKey += 1;
+      this.hidePopover();
+    },
+    hideUserList() {
+      this.isShowSearchBox = false;
+    },
     deleteCharge(i) {
       const { NODE } = this.approverObj;
       NODE.splice(i, 1);
@@ -701,11 +761,16 @@ export default {
       }
     }
   },
-
   created() {
     this.debouncedSearch = debounce(() => {
       this.doSearch();
     });
+  },
+  beforeDestroy() {
+    if (document) {
+      document.removeEventListener('click', this.hideUserList);
+      document.querySelector('.flowConfigWrap').removeEventListener('click', this.hideUserList);
+    }
   }
 };
 </script>
@@ -886,6 +951,22 @@ export default {
       }
     }
 
+    .fieldWrap {
+      display: flex;
+
+      .icon-guanbi {
+        display: none;
+        cursor: pointer;
+      }
+      .icon-guanbi:hover {
+        color: #4689F5;
+      }
+    }
+    .fieldWrap:hover .icon-guanbi {
+      display: block;
+      margin-left: 10px;
+    }
+
     .ellipsis {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -908,6 +989,7 @@ export default {
         .flowDetailMemberNodeName {
           display: flex;
           position: relative;
+          max-width: 90px;
           z-index: 111;
           align-items: center;
           font-size: 12px;
@@ -917,6 +999,7 @@ export default {
           height: 30px;
           padding: 0 10px;
           background: #E5F0FF;
+          overflow: hidden;
           border-radius: 14px;
           box-shadow: 0 0 0 2px #fff;
           box-sizing: border-box;
@@ -1030,10 +1113,12 @@ export default {
       margin-top: 4px;
       margin-left: 5px;
       cursor: pointer;
+
       .icon-guanbi {
         font-size: 14px;
         color: #BBC3CD;
       }
+
       .icon-guanbi:hover {
         color: #4689f5;
       }
@@ -1102,7 +1187,7 @@ export default {
     background: #ffffff;
     box-shadow: 0px 4px 14px 0px rgba(0, 0, 0, 0.14);
     border-radius: 8px;
-    z-index: 3;
+    z-index: 111;
 
     .searchResulet {
       height: 36px;

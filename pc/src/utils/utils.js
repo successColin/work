@@ -1,6 +1,15 @@
 import cnchar from 'cnchar';
 import 'cnchar-poly';
 import CryptoJS from 'crypto-js';
+import qs from 'qs';
+
+// 获取url参数
+export function getQueryObj() {
+  const url = window.location.href;
+  const queryString = url.split('?')[1];
+  const queryObject = qs.parse(queryString);
+  return queryObject;
+}
 
 // 获取el当前位子
 export function getElPos(element) {
@@ -97,9 +106,7 @@ export function randint(n, m) {
   const c = m - n + 1;
   const num = Math.random() * c + Number(n);
   if (typeof n === 'string') {
-    return Math.floor(num)
-      .toString()
-      .padStart(2, '0');
+    return Math.floor(num).toString().padStart(2, '0');
   }
   return Math.floor(num);
 }
@@ -130,7 +137,7 @@ export function getQueryString(name, str) {
 // 防抖函数
 export function debounce(fn, delay = 200) {
   let timer = null;
-  return function(...args) {
+  return function (...args) {
     if (timer) {
       clearTimeout(timer);
     }
@@ -146,7 +153,7 @@ export function debounce(fn, delay = 200) {
 // 节流函数
 export function throttle(fn, delay = 200) {
   let timer = null;
-  return function(...args) {
+  return function (...args) {
     if (timer) {
       return;
     }
@@ -271,7 +278,7 @@ export function getBlob({ url, token, method = 'get', contentType }, cb) {
   if (contentType) {
     xhr.setRequestHeader('content-type', contentType);
   }
-  xhr.onload = function() {
+  xhr.onload = function () {
     if (xhr.status === 200) {
       console.log(xhr.response);
       cb(xhr.response);
@@ -330,7 +337,7 @@ export function makeUrlToBase64(url, callback) {
   const ctx = canvas.getContext('2d');
   const img = new Image();
   img.crossOrigin = 'Anonymous';
-  img.onload = function() {
+  img.onload = function () {
     canvas.height = img.height;
     canvas.width = img.width;
     ctx.drawImage(img, 0, 0);

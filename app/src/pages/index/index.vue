@@ -11,29 +11,60 @@
 </template>
 
 <script>
-import { postLoginForm } from '@/api/login.js';
+import { postLoginForm, getGlobalAppLogin } from '@/api/login.js';
 import { Decrypt } from '@/utils';
+import { getDingDingCode } from '@/utils/dingding';
+import { zwdingtalkLogin } from '@/api/login';
 
 export default {
   data() {
     return {
       show: false,
       mode: 'date',
-      title: 'Hello'
+      title: 'Hello',
+      configs: {}
     };
   },
   onLoad() {
     console.log('onLoad');
-    // 是否需要自动登录
-    const automatic = uni.getStorageSync('automatic');
-    if (automatic) this.login();
-    else uni.reLaunch({ url: '/pages/Login/index' });
-    // uni.reLaunch({ url: '/pages/Login/index' });
+    this.getConfig();
   },
   onReady() {
     console.log('onReady');
   },
+  mounted() {},
   methods: {
+    async getConfig() {
+      const res = await getGlobalAppLogin();
+      const obj = {};
+      res.forEach((item) => {
+        const { attributeKey, attributeValue } = item;
+        obj[attributeKey] = attributeValue;
+      });
+      this.configs = obj;
+
+      let code = '';
+      // #ifdef H5
+      code = await getDingDingCode();
+      // #endif
+
+      const automatic = uni.getStorageSync('automatic');
+      // ssoType： 1是请选择   2是浙政钉
+      if (+this.configs.ssoType === 2 && code) {
+        // 专有钉钉单点登录
+        try {
+          await zwdingtalkLogin({ code });
+          uni.reLaunch({ url: '/pages/MenuHome/index' });
+        } catch (error) {
+          uni.reLaunch({ url: '/pages/Login/index' });
+        }
+      } else if (automatic) {
+        // 是否需要自动登录
+        this.login();
+      } else {
+        uni.reLaunch({ url: '/pages/Login/index' });
+      }
+    },
     async login() {
       try {
         const username = uni.getStorageSync('username');

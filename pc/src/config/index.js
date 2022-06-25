@@ -68,6 +68,7 @@ module.exports = {
   whitePathName: [
     'dataA',
     'login',
+    'associatedUser',
     'form',
     'info',
     'verifyway',

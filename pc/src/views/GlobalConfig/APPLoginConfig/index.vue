@@ -47,8 +47,31 @@
               </apiot-radio>
             </div>
 
-            <!-- 登录页风格 -->
+            <!-- 单点登录方式 -->
             <div v-if="i === 4" class="common">
+              <div v-if="!statement.isSsoType">
+                {{ showValueName(ssoTypeArr, ssoType, item.attributeKey) }}
+              </div>
+              <div v-else>
+                <apiot-select
+                  style="width: 200px"
+                  v-if="statement.isSsoType"
+                  v-model="ssoType"
+                  :options="ssoTypeArr"
+                  @change="handleChangeSelectVal('ssoType', $event)"
+                ></apiot-select>
+              </div>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isSsoType', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isSsoType) }}
+              </apiot-button>
+            </div>
+
+            <!-- 登录页风格 -->
+            <div v-if="i === 5" class="common">
               <div v-if="!statement.isLoginStyle">
                 {{
                   showValueName(loginStyleArr, loginStyle, item.attributeKey)
@@ -56,7 +79,7 @@
               </div>
               <div v-else>
                 <apiot-select
-                  style="width: 224px"
+                  style="width: 200px"
                   v-if="statement.isLoginStyle"
                   v-model="loginStyle"
                   :options="loginStyleArr"
@@ -72,7 +95,7 @@
               </apiot-button>
             </div>
             <!-- 登录页主题色 -->
-            <div v-if="i === 5" class="common">
+            <div v-if="i === 6" class="common">
               <div class="colorWrap">
                 <div
                   class="colorBox"
@@ -91,7 +114,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="[6].includes(i)" class="common">
+            <div v-if="[7].includes(i)" class="common">
               <div v-if="!statement.isUpload">
                 <span v-if="params.agreementUrl">{{
                   $t('globalConfig.UploadProtocol')
@@ -145,7 +168,7 @@
             </div>
             <!-- 登录页轮播图 -->
             <div
-              v-if="i === 7"
+              v-if="i === 8"
               class="passwordConfig__logo common"
               style="line-height: 48px"
             >
@@ -204,7 +227,7 @@
             </div>
             <!-- 登录页LOGO -->
             <div
-              v-if="i === 8"
+              v-if="i === 9"
               class="passwordConfig__logo common"
               style="line-height: 48px"
             >
@@ -289,7 +312,8 @@ export default {
         isRegistration: false, // 登录页
         isLoopPics: false, // l轮播图
         isClickErrorCount: false, // 错误次数点击
-        isLoginStyle: false // 登陆风格
+        isLoginStyle: false, // 登陆风格
+        isSsoType: false // 是否单点登录
       },
       loginObj: {}, // login url
       loopMaps: [],
@@ -306,6 +330,7 @@ export default {
           value: 2
         }
       ],
+      ssoType: 1,
       themeColor: 1,
       themeStyleArr: []
     };
@@ -317,6 +342,10 @@ export default {
     this.init();
   },
   computed: {
+    // 类型数组
+    ssoTypeArr() {
+      return this.$store.getters.getCurDict('SSO_TYPE');
+    },
     fileUrl() {
       return function (url) {
         if (!url) return '';
@@ -370,8 +399,14 @@ export default {
           attributeKey: 'enableMultilingual'
         },
         {
+          name: '单点登录方式',
+          col: 12,
+          key: 'ssoType',
+          attributeKey: 'ssoType'
+        },
+        {
           name: this.$t('globalConfig.style'),
-          col: 24,
+          col: 12,
           key: 'style',
           attributeKey: 'style'
         },
@@ -515,6 +550,7 @@ export default {
     },
     async init() {
       this.loading = true;
+      this.$store.dispatch('getCurrentDict', 'SSO_TYPE');
       const res = await getListByKey({ parameterKey: 'APPLOGIN' });
       this.loading = false;
       this.response = res;
@@ -528,6 +564,8 @@ export default {
       const loginLogo = this.loginObj.attributeValue;
       const styleObj = this.response.find((item) => item.attributeKey === 'style') || {};
       this.loginStyle = Number(styleObj.attributeValue);
+      const ssoType = this.response.find((item) => item.attributeKey === 'ssoType') || {};
+      this.ssoType = Number(ssoType.attributeValue);
       const themeColorObj = this.response.find((item) => item.attributeKey === 'themeColor') || {};
       this.themeColor = Number(themeColorObj.attributeValue);
       const makeUrlArr = (value, key) => {
@@ -630,13 +668,21 @@ export default {
           this.statement[key] = !this.statement[key];
           return;
         }
-        if (key === 'isLoginStyle') {
+        if (key === 'isLoginStyle' || key === 'isSsoType') {
           const currentObj = this.response.find((item) => item.attributeKey === attr);
           // 登录logo保存
-          const params = {
-            ...currentObj,
-            attributeValue: this.loginStyle
-          };
+          let params = {};
+          if (key === 'isLoginStyle') {
+            params = {
+              ...currentObj,
+              attributeValue: this.loginStyle
+            };
+          } else if (key === 'isSsoType') {
+            params = {
+              ...currentObj,
+              attributeValue: this.ssoType
+            };
+          }
 
           try {
             await commonUpdate({ list: [params] });

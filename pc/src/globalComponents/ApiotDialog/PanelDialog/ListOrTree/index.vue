@@ -1,6 +1,7 @@
 <template>
   <el-button-group class="btn__tab">
     <apiot-button
+      :disabled="disabled && curType !== 1"
       class="btn__tab--item"
       :class="[{ active: curType === 1 }]"
       @click="changeShowType(1)"
@@ -8,6 +9,7 @@
       <i class="iconfont icon-liebiaozhanshi"></i>
     </apiot-button>
     <apiot-button
+      :disabled="disabled && curType !== 2"
       class="btn__tab--item"
       :class="[{ active: curType === 2 }]"
       @click="changeShowType(2)"
@@ -22,7 +24,12 @@ export default {
   name: '',
   props: {
     curTypeValue: {
-      type: Number
+      type: Number,
+      default: 1
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -40,6 +47,17 @@ export default {
     },
     changeCurType(v) {
       this.curType = v;
+      this.$nextTick(() => {
+        this.changeShowType(v);
+      });
+    }
+  },
+  watch: {
+    curTypeValue: {
+      handler(v) {
+        this.curType = v;
+      },
+      immediate: true
     }
   }
 };

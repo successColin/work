@@ -30,11 +30,14 @@
 
 <script>
 import { isEqual } from 'lodash';
-import parser from '@/utils/formula';
+// import parser from '@/utils/formula';
 import { getInfoById } from '@/api/design';
 import { formatDate } from '@/utils/utils';
 
 let FIXED_OBJ = {}; // 保存
+const FormulaParser = require('hot-formula-parser').Parser;
+
+const parser = new FormulaParser();
 
 export default {
   props: {
@@ -307,7 +310,10 @@ export default {
           });
           const menuObj = {};
           menuObj[menuConfig.id] = menuConfig;
-          sessionStorage.jumpMenuObj = JSON.stringify(menuObj);
+          const { jumpMenuObj = '{}' } = sessionStorage;
+          const newJumpMenuObj = JSON.parse(jumpMenuObj);
+          newJumpMenuObj[menuConfig.id] = menuConfig;
+          sessionStorage.jumpMenuObj = JSON.stringify(newJumpMenuObj);
           this.$bus.$emit('changeMenuTab', curMenu);
         } else {
           this.$message({

@@ -7,21 +7,22 @@
     &__content {
       display: flex;
       padding: 30px;
+      overflow: auto;
       .form {
         width: 100%;
       }
-      .form--line{
+      .form--line {
         width: 100%;
         display: flex;
       }
-      .form--child{
+      .form--child {
         flex: 1;
-        &:nth-child(2n){
+        &:nth-child(2n) {
           margin-left: 20px;
         }
-        ::v-deep{
+        ::v-deep {
           .apiotInput {
-            .el-select{
+            .el-select {
               width: 85px;
             }
           }
