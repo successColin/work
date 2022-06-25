@@ -652,7 +652,13 @@ export default {
           positionDesignRegionalTabInfoVO: this.configData.positionFilter,
           compMap: JSON.stringify(this.getFilterParams())
         };
-
+        const panelFilter = this.getCurAreaTerm(
+          this.getValueFromFather('panelFilter'),
+          'sys_device'
+        );
+        if (panelFilter) {
+          params.deviceDesignRegionalTabInfoVO = panelFilter;
+        }
         // 最外层的才会有菜单跳转条件
         if (this.getFatherPanel && !this.getFatherPanel()) {
           if (+this.$route.query.isJump === 1) {
@@ -751,7 +757,13 @@ export default {
           positionDesignRegionalTabInfoVO: this.configData.positionFilter,
           compMap: JSON.stringify(this.getFilterParams())
         };
-
+        const panelFilter = this.getCurAreaTerm(
+          this.getValueFromFather('panelFilter'),
+          'sys_device'
+        );
+        if (panelFilter) {
+          params.deviceDesignRegionalTabInfoVO = panelFilter;
+        }
         // 最外层的才会有菜单跳转条件
         if (this.getFatherPanel && !this.getFatherPanel()) {
           if (+this.$route.query.isJump === 1) {
@@ -962,6 +974,10 @@ export default {
         positionDesignRegionalTabInfoVO: this.configData.positionFilter,
         compMap: JSON.stringify(this.getFilterParams())
       };
+      const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'), 'sys_device');
+      if (panelFilter) {
+        params.deviceDesignRegionalTabInfoVO = panelFilter;
+      }
       // 最外层的才会有菜单跳转条件
       if (this.getFatherPanel && !this.getFatherPanel()) {
         if (+this.$route.query.isJump === 1) {
@@ -1001,7 +1017,13 @@ export default {
           positionDesignRegionalTabInfoVO: this.configData.positionFilter,
           compMap: JSON.stringify(this.getFilterParams())
         };
-
+        const panelFilter = this.getCurAreaTerm(
+          this.getValueFromFather('panelFilter'),
+          'sys_device'
+        );
+        if (panelFilter) {
+          params.deviceDesignRegionalTabInfoVO = panelFilter;
+        }
         // 最外层的才会有菜单跳转条件
         if (this.getFatherPanel && !this.getFatherPanel()) {
           if (+this.$route.query.isJump === 1) {

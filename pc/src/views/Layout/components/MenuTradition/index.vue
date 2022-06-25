@@ -124,7 +124,7 @@ export default {
     },
     itemClick(item) {
       this.changeSelect(item);
-      this.$bus.$emit('showMenu', false);
+      // this.$bus.$emit('showMenu', false);
       bus.$emit('changeMenuTab', item);
     },
     // 获取收藏的菜单

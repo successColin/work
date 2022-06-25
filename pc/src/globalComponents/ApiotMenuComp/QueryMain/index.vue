@@ -1,6 +1,6 @@
 <template>
   <div
-    class="menuMain"
+    class="queryMain"
     :class="[
       { flexReserve: configData.pageType === 3 },
       { notConfig: !isConfig },
@@ -31,7 +31,7 @@
     <section
       ref="contentArea"
       v-if="configData.children.length !== 0"
-      class="menuMain__feature"
+      class="queryMain__feature"
       v-loading="loading"
       element-loading-background="hsla(0,0%,100%,.9)"
       :class="[
@@ -69,7 +69,7 @@
           :move="featDragMove"
           :disabled="!isConfig"
         >
-          <transition-group class="menuMain__feature--compList" tag="ul">
+          <transition-group class="queryMain__feature--compList" tag="ul">
             <component
               v-for="(child, i) in getFeatureArr.children"
               :class="[{ notMove: child.labelNotChange }]"
@@ -85,7 +85,7 @@
               :showType="showType"
             ></component> </transition-group
         ></draggable>
-        <div class="menuMain__feature--compList" v-else>
+        <div class="queryMain__feature--compList" v-else>
           <component
             v-for="(child, i) in getFeatureArr.children"
             :key="child.compId"
@@ -105,7 +105,7 @@
     </section>
     <section
       v-if="configData.children.length === 0"
-      class="menuMain__wz"
+      class="queryMain__wz"
       :class="[
         { borderType: isConfig },
         {
@@ -113,7 +113,7 @@
         },
       ]"
     >
-      表单区
+      查询区
     </section>
   </div>
 </template>
@@ -215,7 +215,7 @@ export default {
     }
   },
   created() {
-    this.configData.isTree = false;
+    // this.configData.isTree = false;
   },
   mounted() {
     if (!this.isConfig) {
@@ -567,7 +567,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.menuMain {
+.queryMain {
   box-sizing: border-box;
   // height: calc(100% - 20px);
   height: 300px;
@@ -639,7 +639,7 @@ export default {
     height: auto;
     min-height: min-content;
 
-    .menuMain__feature {
+    .queryMain__feature {
       padding: 0;
     }
   }

@@ -47,9 +47,6 @@ export default {
     },
     changeCurType(v) {
       this.curType = v;
-      this.$nextTick(() => {
-        this.changeShowType(v);
-      });
     }
   },
   watch: {

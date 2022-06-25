@@ -340,12 +340,15 @@ export default {
       panelObj.panelCompId = this.configData.compId;
       panelObj.relationMenuDesignId = this.sysMenuDesignId();
       panelObj.onlyFlag = this.onlyFlag();
+      panelObj.panelName = `请选择${this.configData.name}`;
       return panelObj;
     },
     showPanelDialog() {
       // this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);
       if (this.configData.panelObj) {
         this.panelObj = this.resolveFilterVar(this.configData.panelObj);
+      } else {
+        this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);
       }
       // console.log(this.panelObj);
       if (this.panelObj && this.panelObj.panelName) {

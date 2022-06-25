@@ -249,6 +249,8 @@ export default {
         panelObj.onlyFlag = this.onlyFlag();
         if (this.configData.dialogTitle) {
           panelObj.panelName = this.configData.dialogTitle;
+        } else {
+          panelObj.panelName = `请选择${this.configData.name}`;
         }
         return panelObj;
       }

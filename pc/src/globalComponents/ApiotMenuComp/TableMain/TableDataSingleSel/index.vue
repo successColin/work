@@ -202,6 +202,8 @@ export default {
       panelObj.onlyFlag = this.onlyFlag();
       if (this.configData.dialogTitle) {
         panelObj.panelName = this.configData.dialogTitle;
+      } else {
+        panelObj.panelName = `请选择${this.configData.name}`;
       }
       return panelObj;
     },
@@ -230,7 +232,7 @@ export default {
         return;
       }
       const curMenuArr = this.getMenu()[this.configData.compId];
-      if (curMenuArr) {
+      if (!curMenuArr) {
         return;
       }
       const obj = curMenuArr.find((menu) => {
@@ -244,9 +246,7 @@ export default {
         }
         return false;
       });
-
       if (obj) {
-        console.log(obj);
         const menu = this.$store.getters.getCurMenu(obj.id);
         if (menu) {
           const curMenu = JSON.parse(JSON.stringify(menu));
@@ -301,10 +301,7 @@ export default {
 .column__editable {
   display: flex;
   align-items: center;
-  &.hasMenu {
-    cursor: pointer;
-    color: $--color-primary;
-  }
+
   &:hover {
     ::v-deep {
       .icon-jiahao {
@@ -383,6 +380,12 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+}
+.column__notEditable {
+  &.hasMenu {
+    cursor: pointer;
+    color: $--color-primary;
   }
 }
 </style>

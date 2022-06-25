@@ -166,7 +166,6 @@ export default {
         const keys = Object.keys(this.allArea(item));
         keys.forEach((key) => {
           const area = this.allArea(item)[key];
-
           // 设备位子表
           if (area.compName === 'DevicePosTree') {
             ['sys_device', 'sys_position'].forEach((tableName) => {
@@ -186,6 +185,26 @@ export default {
                 };
               }
             });
+          } else if (area.compName === 'MultiTree') {
+            area.multiDataSource.forEach((data) => {
+              const { tableName } = data.tableInfo;
+              const res = item.menuFilter.findIndex((panle) => {
+                if (panle.tableInfo.tableName === tableName && panle.compId === key) {
+                  return true;
+                }
+                return false;
+              });
+              if (res === -1) {
+                obj[`${key}-${tableName}`] = {
+                  name: '多表树区',
+                  compId: area.compId,
+                  tableInfo: {
+                    tableName,
+                    nameAlias: data.tableInfo.nameAlias
+                  }
+                };
+              }
+            });
           } else if (area.tableInfo && area.tableInfo.tableName) {
             const index = item.menuFilter.findIndex((panle) => {
               if (panle.compId === key) {
@@ -194,6 +213,14 @@ export default {
               return false;
             });
             if (index === -1) obj[`${key}-${area.tableInfo.tableName}`] = area;
+          } else {
+            const index = item.menuFilter.findIndex((panle) => {
+              if (panle.compId === key) {
+                return true;
+              }
+              return false;
+            });
+            if (index === -1) obj[key] = area;
           }
         });
         return obj;

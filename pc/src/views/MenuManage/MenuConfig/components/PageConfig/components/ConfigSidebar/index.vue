@@ -37,6 +37,7 @@
                 sort: false,
               }"
               animation="300"
+              dragType="comp"
               @start="dragAreaStart($event, index)"
               @end="dragAreaEnd($event, index, areaArr)"
               :move="dragAreaMove"
@@ -122,6 +123,7 @@
                 sort: false,
               }"
               animation="300"
+              dragType="comp"
               @start="dragAreaStart($event, index)"
               @end="dragAreaEnd($event, index, busiArr)"
               :move="dragAreaMove"
@@ -1405,6 +1407,41 @@ export default {
               showDownload: true // 是否允许下载
             }
           ]
+        },
+        {
+          name: '查询组件',
+          isClose: false,
+          children: [
+            {
+              name: '查询区',
+              compType: 1008,
+              propertyCompName: 'QueryMainConfig',
+              imgUrl: 'areaComp/MenuMain.svg',
+              compId: createUnique(),
+              compName: 'QueryMain',
+              pageType: 1,
+              shouldTab: true,
+              areaType: 1,
+              showTitle: false, // 显示标题
+              canChangeName: true, // 标记名字是否可以变更，用于组件树上名字的替换
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
+              },
+              relateTableArr: [],
+              relateTableIndex: 0,
+              children: [],
+              layoutStyle: 1, // 1 是上下布局 2是左右布局
+              filterTermType: 1, // 1 是普通 2是sql
+              filterTermStr: '', // 普通字符串
+              filterTermSql: '', // sql字符串
+              termParams: '', // 过滤条件需要的组件参数id
+              shouldInit: true, // 是否初始化
+              reloadArea: [], // 要刷新的区域
+              isTree: false // 是否是树区
+            }
+          ]
         }
       ],
       showTree: true,
@@ -1575,11 +1612,14 @@ export default {
       const relateElement = e.relatedContext.element;
       const dragElement = e.draggedContext.element;
       const { component } = e.relatedContext;
+      if (component.$attrs.dragType === 'comp') {
+        return false;
+      }
       if (this.$route.query.isApp !== '1') {
         // pc 端
         if (!component.$attrs.isSidebar) {
           // 不是侧边 不是表单 跟表格 不允许拖进
-          if (![1000, 1001, 1006].includes(dragElement.compType)) {
+          if (![1000, 1001, 1006, 1008].includes(dragElement.compType)) {
             return false;
           }
         } else {

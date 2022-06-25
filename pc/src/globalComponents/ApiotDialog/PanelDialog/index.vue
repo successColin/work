@@ -174,7 +174,7 @@ export default {
     showPanel(v) {
       if (v) {
         this.$nextTick(() => {
-          if (this.$refs.ListOrTree && this.dataSelObj) {
+          if (this.$refs.ListOrTree) {
             this.$refs.ListOrTree.changeCurType(this.curTypeValue);
           }
           if (this.dataSelObj && !this.dataSelObj.value) {

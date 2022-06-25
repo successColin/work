@@ -23,61 +23,64 @@ export default {
   },
   methods: {
     initArea() {
-      const idCompId = createUnique();
       const area = {
         name: '功能区',
         compId: createUnique(),
         form: {},
         rules: {},
-        children: [
-          {
-            areaType: 1,
-            backName: 'label控件',
-            canReadonly: false,
-            canShow: true,
-            compId: idCompId,
-            compName: 'Label',
-            compType: 15,
-            dataSource: {
-              alias: '',
-              columnName: 'id',
-              columnTypeDict: 1,
-              dictObj: null,
-              mainColumnInfo: null,
-              relateName: '主表',
-              tableName: '',
-            },
-            labelNotChange: true,
-            dragCard: true,
-            enableDict: false,
-            enableDictIcon: false,
-            enableIcon: false,
-            enableMultiColumn: false,
-            font: { color: '#333333', size: 14, style: 1 },
-            helpInfo: '',
-            icon: { icon: '', color: '', imageUrl: '' },
-            imgUrl: 'baseComp/Label.svg',
-            labelBg: { color: '#ffffff', style: 0 },
-            labelName: 'label',
-            multiTable: {
-              table: { tableName: '', id: '' },
-              column: { columnName: '', id: '', columnTypeDict: 0 },
-            },
-            name: 'id',
-            pane: { name: '', columnName: '', paramArr: [] },
-            placeholder: '请选择数据',
-            propertyCompName: 'LabelConfig',
-            shouldRequired: true,
-            showLabelTitle: true,
-            showTreeText: false,
-            singleStatus: 4,
-            submitType: 1,
-            width: '100%',
-          },
-        ],
+        children: [],
         areaType: 1,
       };
-      area.form[idCompId] = '';
+      const idCompId = createUnique();
+      const id = {
+        areaType: 1,
+        backName: 'label控件',
+        canReadonly: false,
+        canShow: true,
+        compId: idCompId,
+        compName: 'Label',
+        compType: 15,
+        dataSource: {
+          alias: '',
+          columnName: 'id',
+          columnTypeDict: 1,
+          dictObj: null,
+          mainColumnInfo: null,
+          relateName: '主表',
+          tableName: '',
+        },
+        labelNotChange: true,
+        dragCard: true,
+        enableDict: false,
+        enableDictIcon: false,
+        enableIcon: false,
+        enableMultiColumn: false,
+        font: { color: '#333333', size: 14, style: 1 },
+        helpInfo: '',
+        icon: { icon: '', color: '', imageUrl: '' },
+        imgUrl: 'baseComp/Label.svg',
+        labelBg: { color: '#ffffff', style: 0 },
+        labelName: 'label',
+        multiTable: {
+          table: { tableName: '', id: '' },
+          column: { columnName: '', id: '', columnTypeDict: 0 },
+        },
+        name: 'id',
+        pane: { name: '', columnName: '', paramArr: [] },
+        placeholder: '请选择数据',
+        propertyCompName: 'LabelConfig',
+        shouldRequired: true,
+        showLabelTitle: true,
+        showTreeText: false,
+        singleStatus: 4,
+        submitType: 1,
+        width: '100%',
+      };
+      if (this.configData.compType !== 1008) {
+        area.children.push(id);
+        area.form[idCompId] = '';
+      }
+
       // 如果是设备位置树，还需要加入设备位置区分字段
       if (this.configData.compType === 1004) {
         const dataTypeCompId = createUnique();
@@ -350,7 +353,9 @@ export default {
           this.configData.children[0].rightIndex = 1;
         });
       }
+
       this.configData.children.push(area);
+
       if (this.configData.compType === 1003 && this.isSidebar) {
         // 下面插入按钮区
         this.configData.children[1].children.unshift({

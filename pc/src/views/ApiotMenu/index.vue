@@ -330,7 +330,7 @@ export default {
         const arr = [];
         params.forEach((compId) => {
           const comp = getAllPaneBack.compObj[compId];
-          if (comp && comp.compType === 7) {
+          if (comp) {
             arr.push(compId);
           }
         });
@@ -341,7 +341,8 @@ export default {
         const arr = [];
         params.forEach((compId) => {
           const comp = getAllPaneBack.compObj[compId];
-          if (comp && comp.compType === 7) {
+          // if (comp && comp.compType === 7) {
+          if (comp) {
             arr.push(compId);
           }
         });
@@ -388,6 +389,50 @@ export default {
         }
         return '';
       });
+
+      parser.setFunction('GET_TIME_GAP', (params) => {
+        const start = new Date(params[0]).getTime();
+        const end = new Date(params[1]).getTime();
+        if (!Number.isNaN(start) && !Number.isNaN(end)) {
+          const dis = (end - start) / 1000; // 间隔为秒
+          let res = 0;
+          if (
+            params[2] &&
+            ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'].includes(params[2])
+          ) {
+            switch (params[2]) {
+              case 'seconds':
+                res = dis;
+                break;
+              case 'minutes':
+                res = dis / 60;
+                break;
+              case 'hours':
+                res = dis / 60 / 60;
+                break;
+              case 'days':
+                res = dis / 60 / 60 / 24;
+                break;
+              case 'weeks':
+                res = dis / 60 / 60 / 24 / 7;
+                break;
+              case 'months':
+                res = dis / 60 / 60 / 24 / 30;
+                break;
+              case 'years':
+                res = dis / 60 / 60 / 24 / 365;
+                break;
+              default:
+                res = dis / 60 / 60 / 24;
+            }
+          } else {
+            res = dis / (1 * 24 * 3600);
+          }
+          return res.toFixed(1);
+        }
+        return '';
+      });
+
       parser.setFunction('CREATE_UNIQUE', (params) => {
         const obj = {};
         [obj.compId] = params;
@@ -503,13 +548,20 @@ export default {
               currentRule.forEach((ruleConfig) => {
                 ruleConfig.required = config.shouldRequired;
               });
-            } else {
+            } else if (rules[compId]) {
               rules[compId].push({
                 flag: 'requiredRule',
                 required: config.shouldRequired,
                 message: `请输入${name}`,
                 trigger: 'change'
               });
+            } else {
+              rules[compId] = [{
+                flag: 'requiredRule',
+                required: config.shouldRequired,
+                message: `请输入${name}`,
+                trigger: 'change'
+              }];
             }
           }
           if (isExistInObj(config, 'canEdit') && isExistInObj(item, 'singleStatus')) {
@@ -996,6 +1048,7 @@ export default {
     // 处理影响数组
     resolveAfffetComp(action) {
       const termRes = this.resolveTerm(action.effectiveConditions);
+      console.log(termRes, 'termRes');
       const affectingComponents = JSON.parse(action.affectingComponents.replace(/\\/g, ''));
       if (termRes) {
         affectingComponents.forEach(async (item) => {
@@ -1003,6 +1056,19 @@ export default {
           if (!comp) {
             return;
           }
+          const { checkFormConfig = [] } = this.nodeConfig;
+          let isTrue = false;
+          if (this.showType && this.showType.type === 'flow') {
+            const targetComp = checkFormConfig.find((Config) => Config.compId === comp.compId);
+            if (targetComp && [1, 2, 5].includes(item.affectType)) {
+              isTrue = true;
+            }
+          }
+          if (isTrue) {
+            // console.log('已经退出循环', comp);
+            return;
+          }
+          // console.log(comp, 111);
           let tab = null;
           if (comp) {
             // console.log(item.affectType);

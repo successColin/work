@@ -144,6 +144,7 @@ import WebviewConfig from './components/compProperty/WebviewConfig';
 import RelatedDataConfig from './components/compProperty/RelatedDataConfig';
 import TextTipConfig from './components/compProperty/TextTipConfig';
 import RichTextConfig from './components/compProperty/RichTextConfig';
+import QueryMainConfig from './components/compProperty/QueryMainConfig';
 
 export default {
   props: {
@@ -226,7 +227,8 @@ export default {
     WebviewConfig,
     RelatedDataConfig,
     TextTipConfig,
-    RichTextConfig
+    RichTextConfig,
+    QueryMainConfig
   },
   provide() {
     return {
@@ -574,9 +576,15 @@ export default {
         const configData = JSON.parse(JSON.stringify(this.configData));
         const area = configData[0].children[0].children[0].children[1];
         if (this.configData[0].selShowType !== 4 && this.configData[0].selShowType !== 2) {
-          area.compType = 1001;
-          area.compName = 'TableMain';
-          area.propertyCompName = 'TableMainConfig';
+          if (this.$route.query.isApp === '1') {
+            area.compType = 1002;
+            area.compName = 'CardMain';
+            area.propertyCompName = 'CardMainConfig';
+          } else {
+            area.compType = 1001;
+            area.compName = 'TableMain';
+            area.propertyCompName = 'TableMainConfig';
+          }
           if (this.configData[0].selShowType === 5) {
             area.tableInfo = area.multiDataSource[area.multiDataSource.length - 1].tableInfo;
             this.replaceChildren(area);

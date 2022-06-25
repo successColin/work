@@ -150,6 +150,12 @@ export default {
   props: {
     fileDeleteIds: {
       type: Array
+    },
+    showType: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -286,9 +292,10 @@ export default {
 
       const formData = new FormData();
       formData.append('files', file);
+      console.log(this.showType.menuId);
       // eslint-disable-next-line max-len
       const menuId =
-        this.showType && this.showType.menuId ? this.showType.menuId : this.$route.params.id;
+        this.showType && this.showType.type === 'flow' ? 0 : this.$route.params.id;
       formData.append('menuId', menuId);
       const res = await batchUpload(
         formData,

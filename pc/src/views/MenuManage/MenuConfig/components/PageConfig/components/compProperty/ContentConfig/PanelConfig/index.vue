@@ -267,6 +267,27 @@ export default {
               };
             }
           });
+          // } else if (area.multiDataSource && area.multiDataSource.length) {
+        } else if (area.compName === 'MultiTree') {
+          area.multiDataSource.forEach((data) => {
+            const { tableName } = data.tableInfo;
+            const res = this.curPaneObj.panelFilter.findIndex((panle) => {
+              if (panle.tableInfo.tableName === tableName && panle.compId === key) {
+                return true;
+              }
+              return false;
+            });
+            if (res === -1) {
+              obj[`${key}-${tableName}`] = {
+                name: '多表树区',
+                compId: area.compId,
+                tableInfo: {
+                  tableName,
+                  nameAlias: data.tableInfo.nameAlias
+                }
+              };
+            }
+          });
         } else if (area.tableInfo && area.tableInfo.tableName) {
           const index = this.curPaneObj.panelFilter.findIndex((panle) => {
             if (panle.compId === key) {

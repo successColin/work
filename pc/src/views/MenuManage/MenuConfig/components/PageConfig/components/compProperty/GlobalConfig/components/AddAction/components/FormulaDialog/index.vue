@@ -214,7 +214,8 @@ export default {
             { name: 'CREATE_UNIQUE', isFormula: true, type: 3 },
             { name: 'GET_SCAN_VALUE', isFormula: true, type: 4 },
             { name: 'GET_SHOW_VALUE', isFormula: true, type: 1 },
-            { name: 'GET_TABLE_VALUE', isFormula: true, type: 1 }
+            { name: 'GET_TABLE_VALUE', isFormula: true, type: 1 },
+            { name: 'GET_TIME_GAP', isFormula: true, type: 1 }
           ]
         },
         {
@@ -231,15 +232,11 @@ export default {
         },
         {
           name: '自定义页面函数',
-          children: [
-            { name: 'GET_FIELD_VALUE', isFormula: true, type: 5 },
-          ]
+          children: [{ name: 'GET_FIELD_VALUE', isFormula: true, type: 5 }]
         },
         {
           name: '流程引擎函数',
-          children: [
-            { name: 'GET_FLOW_DATA_ID', isFormula: true, type: 6 },
-          ]
+          children: [{ name: 'GET_FLOW_DATA_ID', isFormula: true, type: 6 }]
         },
         {
           name: '服务器函数',
@@ -419,8 +416,14 @@ export default {
         return '';
       });
       parser.setFunction('GET_TABLE_VALUE', (params) => {
-        if (params.length !== 1 || params.length !== 1) {
+        if (![1, 2].includes(params.length)) {
           return new Error('获取列表值，需要1个或2个参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TIME_GAP', (params) => {
+        if (![1, 2, 3].includes(params.length)) {
+          return new Error('获取列表值，需要1个,2个或3个参数');
         }
         return '';
       });

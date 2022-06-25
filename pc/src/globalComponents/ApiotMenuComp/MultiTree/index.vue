@@ -606,11 +606,15 @@ export default {
     },
     // 获取该区域的过滤条件
     getCurAreaTerm(filterArr) {
+      const arr = [];
       if (filterArr) {
-        const obj = filterArr.find((filter) => filter.compId === this.configData.compId);
-        return obj;
+        filterArr.forEach((filter) => {
+          if (filter.compId === this.configData.compId) {
+            arr.push(filter);
+          }
+        });
       }
-      return '';
+      return arr;
     },
     // 获取当前菜单的
     getCurMenu(params) {
@@ -631,6 +635,31 @@ export default {
         return this.configData.multiDataSource[index].tableInfo.tableName;
       }
       return '';
+    },
+    replaceTerm(params, filterArr) {
+      const multiDataSource = JSON.parse(params.multiDataSource);
+      filterArr.forEach((filter) => {
+        multiDataSource.findIndex((data) => {
+          if (filter.tableInfo.nameAlias) {
+            if (data.tableInfo.nameAlias === filter.tableInfo.nameAlias) {
+              data.filterTermType = filter.filterTermType;
+              data.filterTermStr = filter.filterTermStr;
+              data.filterTermSql = filter.filterTermSql;
+              data.termParams = filter.termParams;
+              return true;
+            }
+          } else if (data.tableInfo.tableName === filter.tableInfo.tableName) {
+            data.filterTermType = filter.filterTermType;
+            data.filterTermStr = filter.filterTermStr;
+            data.filterTermSql = filter.filterTermSql;
+            data.termParams = filter.termParams;
+            return true;
+          }
+          return false;
+        });
+      });
+
+      params.multiDataSource = JSON.stringify(multiDataSource);
     },
     // 获取列表数据
     async getSidebarList(flag = true, nodeId, needNext = true) {
@@ -693,14 +722,14 @@ export default {
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
         if (panelFilter) {
-          params.panelFilter = [panelFilter];
+          this.replaceTerm(params, panelFilter);
         }
         // 最外层的才会有菜单跳转条件
         if (this.getFatherPanel && !this.getFatherPanel()) {
           if (+this.$route.query.isJump === 1) {
             const menuFilter = this.getCurAreaTerm(this.getCurMenu('menuFilter'));
             if (menuFilter) {
-              params.panelFilter = [menuFilter];
+              this.replaceTerm(params, menuFilter);
             }
           }
         }
@@ -742,14 +771,15 @@ export default {
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
         if (panelFilter) {
-          params.panelFilter = [panelFilter];
+          this.replaceTerm(params, panelFilter);
         }
         // 最外层的才会有菜单跳转条件
         if (this.getFatherPanel && !this.getFatherPanel()) {
           if (+this.$route.query.isJump === 1) {
             const menuFilter = this.getCurAreaTerm(this.getCurMenu('menuFilter'));
+            console.log(menuFilter);
             if (menuFilter) {
-              params.panelFilter = [menuFilter];
+              this.replaceTerm(params, menuFilter);
             }
           }
         }
@@ -953,14 +983,14 @@ export default {
       };
       const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
       if (panelFilter) {
-        params.panelFilter = [panelFilter];
+        this.replaceTerm(params, panelFilter);
       }
       // 最外层的才会有菜单跳转条件
       if (this.getFatherPanel && !this.getFatherPanel()) {
         if (+this.$route.query.isJump === 1) {
           const menuFilter = this.getCurAreaTerm(this.getCurMenu('menuFilter'));
           if (menuFilter) {
-            params.panelFilter = [menuFilter];
+            this.replaceTerm(params, menuFilter);
           }
         }
       }
@@ -988,14 +1018,14 @@ export default {
         };
         const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
         if (panelFilter) {
-          params.panelFilter = [panelFilter];
+          this.replaceTerm(params, panelFilter);
         }
         // 最外层的才会有菜单跳转条件
         if (this.getFatherPanel && !this.getFatherPanel()) {
           if (+this.$route.query.isJump === 1) {
             const menuFilter = this.getCurAreaTerm(this.getCurMenu('menuFilter'));
             if (menuFilter) {
-              params.panelFilter = [menuFilter];
+              this.replaceTerm(params, menuFilter);
             }
           }
         }
