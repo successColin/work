@@ -7,7 +7,8 @@
 -->
 <template>
   <div id="app">
-    <router-view />
+    11111
+    <!-- <router-view /> -->
   </div>
 </template>
 
