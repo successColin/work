@@ -15,6 +15,7 @@
 import { whitePathName } from '@/config';
 import { zwdingtalkLogin } from '@/api/login';
 import { getDingDingCode } from '@/utils/dingding/index';
+// import store from '@/store';
 
 export default {
   data() {
@@ -48,6 +49,7 @@ export default {
     // 获取配置
     async fetchConfig() {
       await this.$store.dispatch('getLoginConfigFun');
+      await this.$store.dispatch('getHomeRoute');
       // 单点登录逻辑
       if (+this.configs.ssoTypePc === 2) {
         await this.ssoZheZhengDing();
@@ -60,7 +62,16 @@ export default {
         if (!whitePathName.includes(pathName)) {
           this.$store.dispatch('getRoute');
         }
-        this.$store.dispatch('getHomeRoute');
+        await this.publicJump();
+      }
+    },
+    async publicJump() {
+      const { homeArr } = this.$store.state.base;
+      const pathArr = window.location.pathname.split('/');
+      const pathName = pathArr[pathArr.length - 1];
+      if (homeArr.length && (!pathName || pathName === 'home')) {
+        const current = homeArr[0];
+        await this.$router.push(`/homePage/${current.homePageId}`);
       }
     },
     // 浙政钉单点登录
@@ -70,7 +81,12 @@ export default {
           localStorage.setItem('zhezhengdingCode', code);
           try {
             await zwdingtalkLogin({ code });
-            window.vue.$router.push('/home');
+            const { homeArr } = this.$store.state.base;
+            if (!homeArr.length) {
+              window.vue.$router.push('/home');
+            } else {
+              await this.publicJump();
+            }
             this.isSuccess = true;
           } catch (error) {
             window.vue.$router.push('/AssociatedUser');
@@ -78,7 +94,7 @@ export default {
           }
         }
       });
-    }
+    },
   }
 };
 </script>

@@ -88,7 +88,7 @@
                 <el-option
                   v-for="item in fieldOptions"
                   :key="item.columnName"
-                  :label="item.memo"
+                  :label="`${item.columnName}(${item.memo})`"
                   :value="item.columnName"
                 >
                 </el-option>

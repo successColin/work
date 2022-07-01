@@ -22,6 +22,12 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
+      <!-- 数据源  -->
+      <el-form-item label="关联数据源" v-if="!isShow">
+        <el-select :value="1" placeholder="请选择数据源" :disabled="true">
+          <el-option label="数据库" :value="1"></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item
         label="关联数据源"
         v-if="this.relateObj.tableInfo.tableName && getSingleRelate.length"
@@ -30,9 +36,38 @@
           <el-option label="数据表" :value="1"></el-option>
         </el-select>
       </el-form-item>
+      <!-- 业务表 -->
+      <el-form-item label="业务表" v-if="!isShow">
+        <filterable-input
+          placeholder="请选择关联表"
+          title="关联表"
+          :dialogType="1"
+          :showInfo="activeObj.tableInfo"
+          @selectRes="selectTable"
+        ></filterable-input>
+      </el-form-item>
+      <!-- 关联表 -->
+      <el-form-item label="关联表" v-if="!isShow">
+        <apiot-button
+          class="relateBox__AssociationTable"
+          style="margin-bottom: 10px"
+          v-if="activeObj && activeObj.tableInfo.tableName"
+          @click="
+            currentRadioObj = null;
+            relateDialog = true;
+          "
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>配置关联表
+        </apiot-button>
+      </el-form-item>
       <el-form-item
         label="关系"
-        v-if="this.relateObj.tableInfo.tableName && getSingleRelate.length"
+        v-if="
+          (this.relateObj.tableInfo.tableName && getSingleRelate.length) ||
+          (!isShow &&
+            this.activeObj.tableInfo.tableName &&
+            getSingleRelate.length)
+        "
       >
         <el-select
           class="relateBox__relate"
@@ -149,7 +184,7 @@
           <i class="iconfont icon-shezhi m-r-4"></i>弹出扫一扫过滤条件
         </apiot-button>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" v-if="isShow">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -177,7 +212,7 @@
       <el-form-item
         label="默认值"
         class="defaultValue"
-        v-if="relateObj && relateObj.compName !== 'TableMain'"
+        v-if="relateObj && relateObj.compName !== 'TableMain' && isShow"
       >
         <el-select
           v-model="activeObj.defaultValueType"
@@ -270,7 +305,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证">
+      <el-form-item label="验证" v-if="isShow">
         <p class="switchBox">
           是否必填
           <el-switch
@@ -283,7 +318,7 @@
           </el-switch>
         </p>
       </el-form-item>
-      <el-form-item label="提交类型">
+      <el-form-item label="提交类型" v-if="isShow">
         <el-select
           v-model="activeObj.submitType"
           placeholder="请选择类型"
@@ -319,10 +354,16 @@
       :activeObj="activeObj"
       :triggerCompMap="triggerCompMap"
     ></ToMenuConfig>
+    <!-- 配置关联表弹窗 -->
+    <RelateTableDialog
+      :visible.sync="relateDialog"
+      :getCurrentTab="activeObj"
+    ></RelateTableDialog>
   </div>
 </template>
 
 <script>
+import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
 import propertyMixin from '../propertyMixin';
 import SelectFormula from '../GlobalConfig/components/AddAction/components/SelectFormula';
 import PanelConfig from '../ContentConfig/PanelConfig';
@@ -339,6 +380,7 @@ export default {
         id: '', // 面板id
         panelName: '', // 面板名称
         sysMenuDesignId: '', // 设计组id
+        panelClassify: 1,
         relationMenuDesignId: '', // 外层设计组id
         panelType: '', // 类型
         panelData: [], // 面板传递参数
@@ -346,7 +388,8 @@ export default {
       },
       showPanelConfig: false, // 面板配置弹窗是否显示
       showMenuConfig: false,
-      showScanConfig: false
+      showScanConfig: false,
+      relateDialog: false
     };
   },
 
@@ -354,16 +397,24 @@ export default {
     SelectFormula,
     PanelConfig,
     ToMenuConfig,
-    ScanConfig
+    ScanConfig,
+    RelateTableDialog
   },
 
   computed: {
     getSingleRelate() {
-      return this.relateObj.relateTableArr.filter(
-        (item) =>
-          item.conditionArr[0][0].firstLineColumn.columnName &&
-          item.conditionArr[0][0].secondLineColumn.columnName
-      );
+      console.log(this.relateObj);
+      return this.isShow
+        ? this.relateObj.relateTableArr.filter(
+          (item) =>
+            item.conditionArr[0][0].firstLineColumn.columnName &&
+              item.conditionArr[0][0].secondLineColumn.columnName
+        )
+        : this.activeObj.relateTableArr.filter(
+          (item) =>
+            item.conditionArr[0][0].firstLineColumn.columnName &&
+              item.conditionArr[0][0].secondLineColumn.columnName
+        );
     },
     getLabel() {
       return (item) =>
@@ -388,6 +439,12 @@ export default {
   },
 
   methods: {
+    // 选中表格
+    selectTable(table) {
+      this.activeObj.tableInfo.tableName = table.tableName;
+      this.activeObj.tableInfo.id = table.id;
+      this.activeObj.tableInfo.nameAlias = table.tableName;
+    },
     // 关系选择切换
     relateChange(item) {
       this.tableArr = [];
@@ -504,6 +561,12 @@ export default {
 .relateBox {
   &__relate {
     margin-bottom: 10px;
+  }
+  &__AssociationTable {
+    width: 100%;
+    i {
+      color: $--color-primary;
+    }
   }
 }
 

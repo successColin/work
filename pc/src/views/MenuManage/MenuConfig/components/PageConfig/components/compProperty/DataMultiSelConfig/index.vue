@@ -22,7 +22,23 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
-      <el-form-item v-if="this.relateObj.tableInfo.tableName">
+      <!-- 业务表 -->
+      <el-form-item label="业务表" v-if="!isShow">
+        <filterable-input
+          placeholder="请选择关联表"
+          title="关联表"
+          :dialogType="1"
+          :showInfo="activeObj.tableInfo"
+          @selectRes="selectTable"
+        ></filterable-input>
+      </el-form-item>
+      <!-- 关联数据源  -->
+      <el-form-item
+        v-if="
+          this.relateObj.tableInfo.tableName ||
+          (this.activeObj.tableInfo.tableName && !isShow)
+        "
+      >
         <span slot="label">
           <span class="span-box">
             <span> 关联数据源 </span>
@@ -34,7 +50,7 @@
         </el-select>
         <filterable-input
           class="m-t-8"
-          :showInfo="relateObj.tableInfo"
+          :showInfo="relateObj.tableInfo || activeObj.tableInfo"
           :dialogType="1"
           :disabled="true"
         ></filterable-input>
@@ -283,6 +299,12 @@ export default {
   },
 
   methods: {
+    // 选中表格
+    selectTable(table) {
+      this.activeObj.tableInfo.tableName = table.tableName;
+      this.activeObj.tableInfo.id = table.id;
+      this.activeObj.tableInfo.nameAlias = table.tableName;
+    },
     // 关系选择切换
     relateChange(item) {
       this.tableArr = [];

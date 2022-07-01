@@ -353,6 +353,7 @@ export default {
         sysMenuDesignId: '', // 设计组id
         relationMenuDesignId: '', // 外层设计组id
         panelType: '', // 类型
+        panelClassify: 1,
         panelData: [], // 面板传递参数
         panelFilter: [] // 面板过滤条件
       },
@@ -520,6 +521,7 @@ export default {
           sysMenuDesignId: '', // 设计组id
           relationMenuDesignId: '', // 外层设计组id
           panelType: '', // 类型
+          panelClassify: 1,
           panelData: [], // 面板传递参数
           panelFilter: [] // 面板过滤条件
         };
@@ -543,6 +545,7 @@ export default {
         this.curPaneObj.panelType = pane.panelType;
         this.curPaneObj.panelData = [];
         this.curPaneObj.panelFilter = [];
+        this.curPaneObj.panelClassify = pane.panelClassify;
         this.configData[0].paneObj[this.getCurButtonId] = this.curPaneObj;
         const data = await getSysDesignMenu({
           sysMenuDesignId: pane.sysMenuDesignId

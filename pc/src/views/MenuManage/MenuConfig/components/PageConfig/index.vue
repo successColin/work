@@ -522,7 +522,7 @@ export default {
           });
           return Promise.reject();
         }
-
+        console.log(this.configData, ' this.configData');
         const a = {
           id: this.isPanel ? this.sysMenuDesignId : this.$route.query.id,
           designOverallLayout: this.configData
@@ -627,7 +627,10 @@ export default {
               console.log(tempObj);
               break;
             }
-
+            if (tempObj.compName === 'QueryMain') {
+              console.log(tempObj);
+              break;
+            }
             if (!tempObj.tableInfo.tableName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未配置数据源`;
@@ -678,7 +681,11 @@ export default {
           case 14:
           case 17:
           case 21:
-            if (!tempObj.dataSource.columnName) {
+            if (!tempObj.dataSource.tableName && !tempObj.fieldName) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未填写字段`;
+              break;
+            } else if (tempObj.dataSource.tableName && !tempObj.dataSource.columnName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择字段`;
               break;
@@ -687,7 +694,12 @@ export default {
           case 2:
           case 3:
           case 4:
-            if (!tempObj.dataSource.columnName) {
+            if (!tempObj.dataSource.tableName && !tempObj.fieldName) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未填写字段`;
+              break;
+            }
+            if (tempObj.dataSource.tableName && !tempObj.dataSource.columnName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择字段`;
               break;
@@ -699,6 +711,7 @@ export default {
             }
             break;
           case 6:
+            console.log(tempObj);
             if (!tempObj.dataSource.relateName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择关系`;
@@ -750,6 +763,7 @@ export default {
             }
             break;
           case 15:
+            console.log(tempObj);
             if (!tempObj.dataSource.relateName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择关系`;
@@ -981,6 +995,7 @@ export default {
   watch: {
     configData: {
       handler(v) {
+        console.log(v);
         if (!this.isPanel) {
           sessionStorage.configData = JSON.stringify(v);
         }

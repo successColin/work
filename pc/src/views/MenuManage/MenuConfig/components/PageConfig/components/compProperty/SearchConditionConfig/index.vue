@@ -249,6 +249,7 @@ export default {
             sysMenuDesignId: '', // 设计组id
             relationMenuDesignId: '', // 外层设计组id
             panelType: '', // 类型
+            panelClassify: 1,
             panelData: [], // 面板传递参数
             panelFilter: [] // 面板过滤条件
           }
@@ -271,6 +272,7 @@ export default {
         child.panelObj.panelType = pane.panelType;
         child.panelObj.panelData = [];
         child.panelObj.panelFilter = [];
+        child.panelObj.panelClassify = pane.panelClassify;
       }
       console.log(child);
     }

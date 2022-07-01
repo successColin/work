@@ -236,6 +236,7 @@
       v-model="activeName"
       :activeName="activeName"
       @tab-click="handleTabsClick"
+      @changeMessage="allCount"
     />
     <apiot-drawer
       :visible.sync="showMessage"
@@ -244,7 +245,7 @@
       :title="$t('messageShow.MessageNotification')"
       :hasFooter="false"
     >
-      <message-show />
+      <message-show  @readCountChanged="allCount"/>
     </apiot-drawer>
   </div>
 </template>
@@ -260,6 +261,8 @@ import userAvatar from '@/views/orgManage/components/userAvatar/index';
 import { getPersonalCenterUser } from '@/api/userCenter';
 import { getMyTodoList } from '@/api/flow';
 import { getMailCount } from '@/api/messageShow.js';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 import TaskToDo from '@/views/TaskToDo/index';
 import MessageShow from '@/views/MessageShow/index';
 import HeaderMenu from '../HeaderMenu';
@@ -495,19 +498,107 @@ export default {
     this.setCurLangIndex();
     // this.getUserCenterInfo();
     window.addEventListener('resize', debounce(this.pageResize));
-    if (this.$store.state.globalConfig.themeConfig.enableMessage === '1') {
-      this.initMessage();
+    // if (this.$store.state.globalConfig.themeConfig.enableMessage === '1') {
+    //   this.initMessage();
+    // }
+    // if (this.$store.state.globalConfig.themeConfig.enableApprovalProcess === '1') {
+    //   this.initTask();
+    // }
+    this.allCount();
+    // if (this.timer2) {
+    //   clearInterval(this.timer2);
+    // }
+    // this.timer2 = setInterval(() => {
+    //   this.initTask();
+    // }, 60 * 1000);
+    const { enableMessage, enableApprovalProcess } = this.$store.state.globalConfig.themeConfig;
+    if (enableMessage === '1' || enableApprovalProcess === '1') {
+      this.initWebSocket();
     }
-    this.initTask();
-    if (this.timer2) {
-      clearInterval(this.timer2);
-    }
-    this.timer2 = setInterval(() => {
-      this.initTask();
-    }, 60 * 1000);
   },
 
   methods: {
+    allCount() {
+      const { enableMessage, enableApprovalProcess } = this.$store.state.globalConfig.themeConfig;
+      if (enableMessage === '1') {
+        this.initMessage();
+      }
+      if (enableApprovalProcess === '1') {
+        this.initTask();
+      }
+    },
+    initWebSocket() {
+      this.connection();
+      const that = this;
+      // 断开重连机制,尝试发送消息,捕获异常发生时重连
+      this.timer2 = setInterval(() => {
+        try {
+          that.stompClient.send('test');
+        } catch (err) {
+          that.connection();
+        }
+      }, 5000);
+    },
+    connection() {
+      // 建立连接对象
+      const { socketUrl } = this.$store.state.globalConfig.themeConfig;
+      const socket = new SockJS(`${socketUrl}/welcome`);
+      // 获取STOMP子协议的客户端对象
+      this.stompClient = Stomp.over(socket);
+      // 定义客户端的认证信息,按需求配置
+      const headers = {
+        // token: Decrypt(localStorage.getItem('token') || '')
+      };
+      const that = this;
+      // 向服务器发起websocket连接
+      this.stompClient.connect(headers, () => {
+        // console.log('链接成功');
+        const { account } = this.$store.state.userCenter.userInfo;
+        // eslint-disable-next-line no-unused-vars
+        this.stompClient.subscribe(`/user/${account}/msg`, (msg) => { // 订阅服务端提供的某个topic
+          // console.log('广播成功');
+          that.allCount();
+          // console.log(msg); // msg.body存放的是服务端发送给我们的信息
+        }, headers);
+        // this.stompClient.send('/app/chat.addUser', headers, JSON.stringify({
+        //   sender: '',
+        //   chatType: 'JOIN'
+        // })); // 用户加入接口
+      }, (err) => {
+        // 连接发生错误时的处理函数
+        // console.log('失败');
+        console.log(err);
+      });
+    }, // 连接后台
+    disconnect() {
+      if (this.stompClient) {
+        this.stompClient.disconnect();
+      }
+    }, // 断开连接
+    setSocket(path) {
+      const that = this;
+      // 链接次数
+      let number = 1;
+      // 连接地址
+      const url = '';
+      // 建立连接对象（还未发起连接）
+      const socket = new SockJS(url);
+      // 获取 STOMP 子协议的客户端对象
+      const stompClient = Stomp.over(socket);
+      stompClient.debug = null; // 浏览器不console信息日志
+      // 向服务器发起websocket连接并发送CONNECT帧
+      stompClient.connect({}, (frame) => {
+        stompClient.subscribe(`/user/${path}/consultationImageUpdateNotify`, (data) => {
+          console.log('))))收到后台推送的数据', frame, data);
+        });
+      }, function (error) {
+        number += 1;
+        if (number < 6) {
+          this.setSocket(`${that.expertSysid}/${that.consultationSysid}`);
+        }
+        console.log('))))收到后台推送的数据错误回调', error);
+      });
+    },
     filterHelp(arr) {
       const { helpCenterMenu } = this.$store.state.globalConfig.themeConfig;
       const a = helpCenterMenu ? helpCenterMenu.split(',') : [];
@@ -640,6 +731,7 @@ export default {
     this.timer1 = null;
     this.timer = null;
     this.timer2 = null;
+    this.disconnect();
   }
 };
 </script>

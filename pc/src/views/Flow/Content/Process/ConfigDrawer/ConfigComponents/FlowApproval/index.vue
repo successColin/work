@@ -137,8 +137,24 @@
       @cancle-click="handleCancel"
     >
       <div class="user-appover-content">
+        <div class="user-appover-tabs">
+          <div class="form-item-label">面板选择</div>
+          <div class="form-item-content">
+            <apiot-select
+                v-model="panelActive"
+                @change="changeConfig"
+            >
+              <el-option
+                  v-for="item in panelOptions"
+                  :value="item.value"
+                  :key="item.index"
+                  :label="item.name"
+              ></el-option>
+            </apiot-select>
+          </div>
+        </div>
         <el-table
-          :height="513"
+          :height="466"
           :data="configData"
           style="width: 100%; margin-bottom: 20px"
           row-key="compId"
@@ -225,6 +241,8 @@ export default {
   },
   data() {
     return {
+      panelOptions: [], // 面板下拉
+      panelActive: '', // 选中的面板
       key: 0,
       curPaneObj: {},
       configData: [], // 页面配置
@@ -463,43 +481,49 @@ export default {
         this.checkFormConfigJSON.push({ [key]: value, compId: obj.compId });
       }
     },
-    // changeAbstractCheck(value, { compId, name, compType, dataSource }) {
-    //   const dictKey = dataSource.dictObj ? dataSource.dictObj.dictKey : null;
-    //   const index = this.nodeAbstractConfig.findIndex((item) => item.compId === compId);
-    //   const obj = {
-    //     compId,
-    //     name,
-    //     compType,
-    //     dictKey,
-    //     columnName: dataSource.columnName,
-    //     tableName: dataSource.tableName
-    //   };
-    //   if (this.nodeAbstractConfig.length >= 3) {
-    //     if (index !== -1) {
-    //       this.nodeAbstractConfig.splice(index, 1);
-    //       return;
-    //     }
-    //     this.nodeAbstractConfig.splice(2, 1, obj);
-    //   } else {
-    //     if (index !== -1) {
-    //       this.nodeAbstractConfig.splice(index, 1);
-    //       return;
-    //     }
-    //     this.nodeAbstractConfig.push(obj);
-    //   }
-    // },
     async pageSet(key) {
       if (!key) return;
-      const { globalAttributes: { pcPanelId, appPanelId } } = this.currentVersion;
+      const { globalAttributes: {
+        pcPanelId, appPanelId, appPanelName, pcPanelName } } = this.currentVersion;
+      if (key === 'app' && !appPanelId) {
+        this.$message.error('请在全局属性中配置app面板!');
+        return;
+      }
+      if (key === 'pc' && !pcPanelId) {
+        this.$message.error('请在全局属性中配置PC面板!');
+        return;
+      }
       const res = await getDesignMenu({ panelId: key === 'pc' ? pcPanelId : appPanelId });
       this.configData = res[0].designOverallLayout || [];
+      this.panelActive = res[0].panelId;
+      const paneObj = this.configData[0].paneObj || {};
+      const options = [{
+        name: key === 'app' ? appPanelName : pcPanelName,
+        value: this.panelActive
+      }];
+      console.log(res[0], 'paneObj', this.currentVersion.globalAttributes);
+      Object.keys(paneObj).forEach((item, i) => {
+        const { panelName, id, panelClassify } = paneObj[item] || {};
+        // eslint-disable-next-line no-shadow
+        if (panelName && panelClassify !== 2 && !options.find((item) => item.value === id)) {
+          options.push({
+            value: id,
+            name: panelName,
+            key: i
+          });
+        }
+      });
+      this.panelOptions = options;
       this.checkType = key;
       this.configVisible = true;
     },
+    async changeConfig(v) { // 获取其他面板的配置
+      const res = await getDesignMenu({ panelId: v });
+      this.configData = res[0].designOverallLayout || [];
+      this.panelActive = res[0].panelId;
+    },
     appendUsers({ value, key }) {
-      console.log(value, key);
       this.sourceType[key] = value;
-      console.log(this.sourceType);
     }
   },
   name: 'index'
@@ -647,6 +671,16 @@ export default {
   }
 
   .user-appover-content {
+    width: 100%;
+    height: 100%;
+    .user-appover-tabs{
+      height: 46px;
+      display: flex;
+      align-items: center;
+      .form-item-label{
+        margin-right: 10px;
+      }
+    }
     .name-component {
       & > img {
         width: 20px;

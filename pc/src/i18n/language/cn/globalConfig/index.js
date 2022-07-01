@@ -41,7 +41,7 @@ export default {
     loginpagelogo: '登录页LOGO',
     loginCarousel: '登录轮播图',
     homePageMessage: '是否启用主页消息功能',
-    homepageApproval: '是否启用审批流程',
+    homepageApproval: '是否启用审批功能',
     enableMultilingualism: '是否启用多语言',
     enableHelpCenter: '是否启用帮助中心',
     enableFullScreen: '是否启用全屏',
@@ -72,5 +72,6 @@ export default {
     enableLink: '是否启用三方连接',
     topHeight: '系统顶部高度',
     topStyle: '系统顶部风格',
+    socketAddress: '消息推送链接地址(WebSocket)'
   },
 };

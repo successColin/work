@@ -169,29 +169,31 @@ export default {
       }
     };
     // 手机号码
-    const phoneNumber = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error(this.$t('placeholder.pleaseEnterThePhoneNumber')));
-      } else {
-        const regTel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
-        if (!regTel.test(value)) {
-          callback(new Error(this.$t('placeholder.pleaseEnterRightPhoneNumber')));
-        }
-        callback();
-      }
-    };
+    // const phoneNumber = (rule, value, callback) => {
+    //   if (value === '') {
+    //     callback(new Error(this.$t('placeholder.pleaseEnterThePhoneNumber')));
+    //   } else {
+    // eslint-disable-next-line max-len
+    //     const regTel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
+    //     if (!regTel.test(value)) {
+    //       callback(new Error(this.$t('placeholder.pleaseEnterRightPhoneNumber')));
+    //     }
+    //     callback();
+    //   }
+    // };
     // 邮箱
-    const email = (rule, value, callback) => {
-      if (!value) {
-        callback(this.$t('placeholder.pleaseEnterYourUsualEmail'));
-      } else {
-        const checkEmail = /^[a-z0-9]+([._-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-        if (!checkEmail.test(value)) {
-          callback(this.$t('placeholder.pleaseEnterRightEmail'));
-        }
-        callback();
-      }
-    };
+    // const email = (rule, value, callback) => {
+    //   if (!value) {
+    //     callback(this.$t('placeholder.pleaseEnterYourUsualEmail'));
+    //   } else {
+    // eslint-disable-next-line max-len
+    //     const checkEmail = /^[a-z0-9]+([._-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+    //     if (!checkEmail.test(value)) {
+    //       callback(this.$t('placeholder.pleaseEnterRightEmail'));
+    //     }
+    //     callback();
+    //   }
+    // };
     // 组织
     const orgid = (rule, value, callback) => {
       if (!this.formData.orgObj || !this.formData.orgObj.id) {
@@ -311,20 +313,20 @@ export default {
             validator: validAccount
           }
         ],
-        telephone: [
-          {
-            required: true,
-            trigger: 'blur',
-            validator: phoneNumber
-          }
-        ],
-        email: [
-          {
-            required: true,
-            trigger: 'change',
-            validator: email
-          }
-        ],
+        // telephone: [
+        //   {
+        //     required: true,
+        //     trigger: 'blur',
+        //     validator: phoneNumber
+        //   }
+        // ],
+        // email: [
+        //   {
+        //     required: true,
+        //     trigger: 'change',
+        //     validator: email
+        //   }
+        // ],
         orgid: [
           {
             required: true,

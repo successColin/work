@@ -55,6 +55,7 @@ const Dashboard = () => import('../../components/Dashboard/index');
 const SingleLineTextHome = () => import('../../components/SingleLineTextHome/index');
 const BackgroundBox = () => import('../../components/BackgroundBox/index');
 const RealTime = () => import('../../components/RealTime/index');
+const AuxiliaryLine = () => import('../../components/Line/index');
 const HorizontalProgressBar = () => import('../../components/HorizontalProgressBar/index');
 const RadarChart = () => import('../../components/RadarChart/index');
 
@@ -106,7 +107,8 @@ export default {
     SingleLineTextHome,
     BackgroundBox,
     HorizontalProgressBar,
-    RadarChart
+    RadarChart,
+    AuxiliaryLine
   },
 
   computed: {},

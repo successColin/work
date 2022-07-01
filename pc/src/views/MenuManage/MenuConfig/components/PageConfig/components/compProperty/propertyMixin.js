@@ -39,6 +39,9 @@ export default {
         ...this.relateObj.relateTableArr,
       ];
     },
+    isShow() {
+      return this.relateObj.compName !== 'QueryMain';
+    },
   },
   inject: ['isConfig'],
 

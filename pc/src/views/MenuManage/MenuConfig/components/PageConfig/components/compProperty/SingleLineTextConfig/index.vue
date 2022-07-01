@@ -39,6 +39,12 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
+      <el-form-item label="字段名" v-if="!isShow">
+        <apiot-input
+          v-model="activeObj.fieldName"
+          placeholder="请输入字段名"
+        ></apiot-input>
+      </el-form-item>
       <el-form-item v-if="this.relateObj.tableInfo.tableName">
         <span slot="label">
           <span class="span-box">
@@ -66,7 +72,7 @@
           @selectRes="selectColumnRes"
         ></filterable-input>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" v-if="isShow">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -177,7 +183,7 @@
         </el-button-group>
       </el-form-item>
 
-      <el-form-item label="验证" v-if="activeObj.singleType === 1">
+      <el-form-item label="验证" v-if="activeObj.singleType === 1 && isShow">
         <p class="switchBox">
           是否必填
           <!-- :value="activeObj.showTab"
@@ -222,7 +228,7 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item v-if="false && activeObj.singleType === 1">
+      <el-form-item v-if="false && activeObj.singleType === 1 && isShow">
         <span class="span-box switchBox" slot="label">
           <span> 高级验证 </span>
           <el-tooltip content="高级验证将会去除长度限制" placement="top">
@@ -265,7 +271,7 @@
           </el-option-group>
         </el-select>
       </el-form-item>
-      <el-form-item label="提交类型">
+      <el-form-item label="提交类型" v-if="isShow">
         <el-select v-model="activeObj.submitType" placeholder="请选择类型">
           <el-option label="始终提交" :value="1"></el-option>
           <el-option label="仅显示时提交" :value="2"></el-option>

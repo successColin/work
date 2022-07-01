@@ -9,6 +9,7 @@
       :key="this.configDataArr[0].id"
       :is="configData.compName"
       :showType="showType"
+      :nodeConfig="nodeConfig"
       :configData.sync="configData"
     ></component>
     <el-skeleton
@@ -521,10 +522,11 @@ export default {
     reduceData(list = [], parentNode = {}) {
       const { checkFormConfig = [] } = this.nodeConfig;
       if (!checkFormConfig.length) return;
-      // console.log(checkFormConfig, 'checkFormConfig');
+      // console.log(checkFormConfig, 'checkFormConfig', list);
       list.forEach((item) => {
         const { compId, children, name } = item;
         const index = checkFormConfig.findIndex((config) => config.compId === compId);
+        // console.log(index, 'index', item);
         if (index !== -1) {
           const config = checkFormConfig[index];
           // 如果流程配置中 和当前控件中都存在必填属性，将控件属性修改成配置的值
@@ -594,6 +596,7 @@ export default {
     },
     // 获取所有设计
     async getDesignMenu(menuId) {
+      console.log(2345);
       let data = null;
       const isTrue =
         this.showType && JSON.stringify(this.showType) !== '{}' && this.showType.type === 'flow';
@@ -603,6 +606,7 @@ export default {
         } else {
           data = await getDesignMenu({ panelId: this.panelObj.id });
           if (isTrue && data.length && data[0].designOverallLayout) {
+            console.log(4444444);
             const { children } = data[0].designOverallLayout[0];
             if (children && Array.isArray(children)) {
               this.reduceData(children, data[0].designOverallLayout[0]);
@@ -611,6 +615,7 @@ export default {
         }
       } else {
         data = await getDesignMenu({ sysMenuId: isTrue ? this.menuId : menuId });
+        console.log(5555555);
         if (isTrue && data.length && data[0].designOverallLayout) {
           const { children } = data[0].designOverallLayout[0];
           if (children && Array.isArray(children)) {
@@ -648,6 +653,21 @@ export default {
         return false;
       }
       const data = await getDesignMenu({ panelId: paneIds.join(',') });
+      console.log(data, '套娃');
+      const isTrue =
+          this.showType && JSON.stringify(this.showType) !== '{}' && this.showType.type === 'flow';
+      if (isTrue && data.length) {
+        console.log(23);
+        data.forEach((dataObj) => {
+          if (dataObj && dataObj.designOverallLayout) {
+            const { children } = dataObj.designOverallLayout[0];
+            if (children && Array.isArray(children)) {
+              console.log(3);
+              this.reduceData(children, data[0].designOverallLayout[0]);
+            }
+          }
+        });
+      }
       const obj = {};
       let dictArr = [];
       data.forEach((v) => {
@@ -1048,7 +1068,6 @@ export default {
     // 处理影响数组
     resolveAfffetComp(action) {
       const termRes = this.resolveTerm(action.effectiveConditions);
-      console.log(termRes, 'termRes');
       const affectingComponents = JSON.parse(action.affectingComponents.replace(/\\/g, ''));
       if (termRes) {
         affectingComponents.forEach(async (item) => {

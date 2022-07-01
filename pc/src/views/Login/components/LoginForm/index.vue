@@ -263,8 +263,8 @@ export default {
           params.zwddBindCode = code;
         }
         await postLoginForm(params);
-        this.$store.dispatch('getRoute');
-        this.$store.dispatch('getHomeRoute');
+        await this.$store.dispatch('getRoute');
+        await this.$store.dispatch('getHomeRoute');
         if (this.ruleForm.rememberMe) {
           localStorage.setItem('checked', 1);
           localStorage.setItem('username', Encrypt(this.ruleForm.username));
@@ -276,9 +276,15 @@ export default {
         }
         // 登录成功
         this.$nextTick(() => {
-          this.$router.push('/home');
           sessionStorage.removeItem('navTabArr');
           sessionStorage.removeItem('delTabArr');
+          const { homeArr } = this.$store.state.base;
+          if (homeArr.length) {
+            const current = homeArr[0];
+            this.$router.push(`/homePage/${current.homePageId}`);
+          } else {
+            this.$router.push('/home');
+          }
         });
       } catch (error) {
         this.$message.error(error.message);

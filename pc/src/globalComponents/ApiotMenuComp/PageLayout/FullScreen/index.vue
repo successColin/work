@@ -5,6 +5,7 @@
       :activeObj.sync="activeObj"
       :hasTriggerComp="hasTriggerComp"
       :showType="showType"
+      :nodeConfig="nodeConfig"
     ></tab-main>
   </section>
 </template>
@@ -21,10 +22,14 @@ export default {
     hasTriggerComp: {
       type: Object
     },
-    showType: {
+    showType: { // 用于流程
       type: Object,
       default: () => {}
     },
+    nodeConfig: { // 用于流程
+      type: Object,
+      default: () => {}
+    }
   },
   data() {
     return {};

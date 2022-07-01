@@ -24,6 +24,11 @@ export default {
     i: {
       type: Number,
     },
+    // 是否在查询区
+    isQuery: {
+      type: Boolean,
+      default: false,
+    },
     // 是否在卡片区
     isCard: {
       type: Boolean,
@@ -40,6 +45,13 @@ export default {
       default: false,
     },
     showType: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+    nodeConfig: {
+      // 流程中组件的显示隐藏的控制
       type: Object,
       default() {
         return {};
@@ -249,6 +261,9 @@ export default {
         return true;
       }
       return false;
+    },
+    isLayoutStyle() {
+      return this.isQuery;
     },
   },
 

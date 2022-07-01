@@ -47,7 +47,10 @@
       infinite-scroll-immediate="false"
     >
       <li class="content__item" v-for="item in messageArr" :key="item.id">
-        <message-item :type="type" :message="item"></message-item>
+        <message-item
+            :type="type"
+            :message="item"
+            @singleRead="messageChanged"/>
       </li>
     </ul>
     <div v-else class="apiotNoData" placeholder="暂无数据"></div>
@@ -105,6 +108,9 @@ export default {
   computed: {},
 
   methods: {
+    messageChanged() {
+      this.$emit('readCountChanged');
+    },
     changeOnlyUnread() {
       this.messageArr = [];
       this.page = 1;
@@ -183,8 +189,7 @@ export default {
       return result;
     },
     markAllRead() {
-      markMailAllRead().then((res) => {
-        console.log(res);
+      markMailAllRead({ innerMailCategory: this.type }).then(() => {
         const arr = this.messageArr.map((item) => {
           const obj = {
             ...item,
@@ -193,6 +198,7 @@ export default {
           return obj;
         });
         this.messageArr = arr;
+        this.messageChanged();
       });
     }
   },

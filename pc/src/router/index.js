@@ -56,7 +56,7 @@ router.beforeEach(async (to, from, next) => {
     // } else {
     //   next();
     // }
-    console.log(pathName, 'route');
+    // console.log(pathName, 'route');
     next();
   } else {
     next('/404');

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { selectColorArr } from '@/config';
+import { userColorArr } from '@/config';
 import {
   getFlowVersion,
   addFlowVersion,
@@ -123,7 +123,7 @@ export default {
     getColor() {
       return function(index) {
         const i = index % 5;
-        return `color: ${selectColorArr[i]}`;
+        return `color: ${userColorArr[i]}`;
       };
     }
   },

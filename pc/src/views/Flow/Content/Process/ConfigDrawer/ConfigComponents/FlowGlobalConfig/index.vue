@@ -494,7 +494,6 @@ export default {
           font-size: 13px;
           line-height: 36px;
           color: grey;
-          font-size: 14px;
           font-family: PingFangSC-Regular, PingFang SC;
           font-weight: 400;
           white-space: nowrap;

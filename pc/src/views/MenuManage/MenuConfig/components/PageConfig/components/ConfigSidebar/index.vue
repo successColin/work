@@ -346,7 +346,7 @@ export default {
               name: '多表树',
               compType: 1007,
               propertyCompName: 'MultiTreeConfig',
-              imgUrl: 'areaComp/TreeMain.svg',
+              imgUrl: 'areaComp/MultiTableTreeMain.svg',
               compId: createUnique(),
               compName: 'MultiTree',
               pageType: 2,
@@ -441,6 +441,37 @@ export default {
               hasCardIcon: false, // 是否启用组件字典图标
               iconId: '', // 组件字典图标来源的组件id
               iconColorId: '' // 组件字典图标颜色来源的组件id
+            },
+            // 查询区
+            {
+              name: '查询区',
+              compType: 1008,
+              propertyCompName: 'QueryMainConfig',
+              imgUrl: 'areaComp/QueryMain.svg',
+              compId: createUnique(),
+              compName: 'QueryMain',
+              pageType: 1,
+              shouldTab: true,
+              areaType: 1,
+              showTitle: false, // 显示标题
+              canChangeName: true, // 标记名字是否可以变更，用于组件树上名字的替换
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
+              },
+              relateTableArr: [],
+              relateTableIndex: 0,
+              children: [],
+              layoutStyle: 1, // 1 是上下布局 2是左右布局
+              displayStyle: 1, // 1 默认样式 2是间隔样式
+              filterTermType: 1, // 1 是普通 2是sql
+              filterTermStr: '', // 普通字符串
+              filterTermSql: '', // sql字符串
+              termParams: '', // 过滤条件需要的组件参数id
+              shouldInit: true, // 是否初始化
+              reloadArea: [], // 要刷新的区域
+              isTree: false // 是否是树区
             }
           ]
         }
@@ -464,6 +495,7 @@ export default {
               singleType: 1, // 单行文本类型
               placeholder: '请输入单行文本', // 占位符
               helpInfo: '',
+              fieldName: '', // 字段名
               dataSource: {
                 relateName: '主表', // 关系名称
                 tableName: '', // 表名
@@ -498,6 +530,7 @@ export default {
               dropDownType: 1, // 下拉组件类型
               placeholder: '请选择下拉框',
               helpInfo: '', // 帮助信息
+              fieldName: '', // 字段名
               filterable: false, // 能否搜索
               dataSource: {
                 relateName: '主表', // 关系名称
@@ -664,6 +697,7 @@ export default {
                 dictObj: null, // 字典表数据
                 mainColumnInfo: null // 主表相关信息
               },
+              relateTableArr: [],
               pane: {
                 name: '', // 面板名称
                 columnName: '', // 面板字段
@@ -676,6 +710,11 @@ export default {
                   //   formula: '' // 公式
                   // }
                 ]
+              },
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
               },
               enableDict: false, // 是否字典值
               relateType: 1, // 弹窗类型 1是面板 2是菜单
@@ -739,6 +778,12 @@ export default {
                   //   formula: '' // 公式
                   // }
                 ]
+              },
+              relateTableArr: [],
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
               },
               enableDict: false, // 是否字典值
               relateType: 1, // 弹窗类型 1是面板 2是菜单
@@ -804,7 +849,9 @@ export default {
               tableCompName: 'TableDateTimePickerCol',
               propertyCompName: 'DateTimePickerBoxConfig',
               labelName: '日期时间框',
-              placeholder: '请选择日期时间框',
+              placeholder: '请选择日期时间',
+              startPlaceholder: '请选择开始日期时间',
+              endPlaceholder: '请选择结束日期时间',
               helpInfo: '',
               dataSource: {
                 relateName: '主表',
@@ -822,6 +869,7 @@ export default {
               width: '50%',
               tableWidth: '0.1',
               shouldRequired: false,
+              timeInterval: false, // 是否选择区间
               minTimeObj: {
                 type: 1,
                 minTime: '',
@@ -1407,41 +1455,6 @@ export default {
               showDownload: true // 是否允许下载
             }
           ]
-        },
-        {
-          name: '查询组件',
-          isClose: false,
-          children: [
-            {
-              name: '查询区',
-              compType: 1008,
-              propertyCompName: 'QueryMainConfig',
-              imgUrl: 'areaComp/MenuMain.svg',
-              compId: createUnique(),
-              compName: 'QueryMain',
-              pageType: 1,
-              shouldTab: true,
-              areaType: 1,
-              showTitle: false, // 显示标题
-              canChangeName: true, // 标记名字是否可以变更，用于组件树上名字的替换
-              tableInfo: {
-                tableName: '',
-                id: 0,
-                nameAlias: ''
-              },
-              relateTableArr: [],
-              relateTableIndex: 0,
-              children: [],
-              layoutStyle: 1, // 1 是上下布局 2是左右布局
-              filterTermType: 1, // 1 是普通 2是sql
-              filterTermStr: '', // 普通字符串
-              filterTermSql: '', // sql字符串
-              termParams: '', // 过滤条件需要的组件参数id
-              shouldInit: true, // 是否初始化
-              reloadArea: [], // 要刷新的区域
-              isTree: false // 是否是树区
-            }
-          ]
         }
       ],
       showTree: true,
@@ -1602,7 +1615,6 @@ export default {
       }
     },
     dragEnd(e, index) {
-      // console.log(33333, e);
       this.compArr[index].children[e.oldDraggableIndex].compId = createUnique();
     },
     dragAreaStart() {

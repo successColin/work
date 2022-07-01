@@ -500,6 +500,7 @@ export default {
         this.curPaneObj.panelType = pane.panelType;
         this.curPaneObj.panelData = [];
         this.curPaneObj.panelFilter = [];
+        this.curPaneObj.panelClassify = pane.panelClassify;
         if (!this.isCustomPage) {
           this.configData[0].paneObj[this.activeObj.compId] = this.curPaneObj;
         }

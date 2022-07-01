@@ -18,6 +18,7 @@
           com="LeaveItToMe"
           ref="LeaveItToMe"
           :activeName="activeName"
+          @closeApproval="close"
           :tabsCount="tabsCount"
       />
     </template>
@@ -26,6 +27,7 @@
           com="IInitiatedIt"
           ref="IInitiatedIt"
           :activeName="activeName"
+          @closeApproval="close"
           :tabsCount="tabsCount"
       />
     </template>
@@ -35,6 +37,7 @@
           com="Completed"
           ref="Completed"
           :activeName="activeName"
+          @closeApproval="close"
           :tabsCount="tabsCount"
       />
     </template>
@@ -121,6 +124,9 @@ export default {
   },
 
   methods: {
+    close() {
+      this.$emit('changeMessage');
+    },
     changeTabsTitle(arr) {
       this.tabsCount = arr;
     }

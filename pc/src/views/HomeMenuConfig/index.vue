@@ -117,6 +117,7 @@ const GeneralTableConfig = () => import('./configComponents/GeneralTableConfig/i
 const BackgroundBoxConfig = () => import('./configComponents/BackgroundBoxConfig/index');
 const RealTimeConfig = () => import('./configComponents/RealTimeConfig/index');
 const RadarChartConfig = () => import('./configComponents/RadarChartConfig/index');
+const AuxiliaryLineConfig = () => import('./configComponents/LineConfig/index');
 
 export default {
   data() {
@@ -154,7 +155,8 @@ export default {
     BackgroundBoxConfig,
     RealTimeConfig,
     HorizontalProgressBarConfig,
-    RadarChartConfig
+    RadarChartConfig,
+    AuxiliaryLineConfig
   },
 
   computed: {

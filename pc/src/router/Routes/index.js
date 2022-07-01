@@ -1,4 +1,4 @@
-import store from '@/store/index';
+// import store from '@/store/index';
 import AppConfig from '../AppConfig';
 import GlobalConfig from '../GlobalConfig';
 
@@ -115,15 +115,16 @@ export default [
         name: 'home',
         component: () => import('_v/Home'),
         beforeEnter: async (to, from, next) => {
-          const { homeArr } = store.state.base;
-          if (homeArr.length) {
-            const current = homeArr[0];
-            next({
-              path: `/homePage/${current.homePageId}`,
-            });
-          } else {
-            next();
-          }
+          // const { homeArr } = store.state.base;
+          // console.log(homeArr, 'sssss');
+          // if (homeArr.length) {
+          //   const current = homeArr[0];
+          //   next({
+          //     path: `/homePage/${current.homePageId}`,
+          //   });
+          // } else {
+          //   next();
+          // }
           next();
         },
         meta: {

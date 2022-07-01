@@ -53,14 +53,12 @@
         <el-form-item :label="$t('user.telephone')" prop="telephone">
           <el-input
             :placeholder="$t('user.placeEnterPhone')"
-            :disabled="!!formData.id"
             v-model="formData.telephone"
             maxlength="11"
             show-word-limit
             class="tellphone"
           >
             <el-select
-              :disabled="!!formData.id"
               value="86"
               slot="prepend"
               :placeholder="$t('placeholder.pleaseSelect')"
@@ -75,7 +73,6 @@
       <el-col :span="12">
         <el-form-item :label="$t('user.userEmail')" prop="email">
           <apiot-input
-            :disabled="!!formData.id"
             :placeholder="$t('user.placeEnterEmail')"
             v-model="formData.email"
           >
@@ -284,15 +281,16 @@ export default {
     border: none;
 
     &:active {
-      background: #ee5e5e;
+      background: #ee5e5e !important;
     }
 
     &:focus {
-      background: #ee5e5e;
+      background: #ee5e5e !important;
     }
 
     &:hover {
-      background: #ee5e5e;
+      background: #ee5e5e !important;
+      color: #ffffff !important;
       opacity: 0.8;
     }
   }

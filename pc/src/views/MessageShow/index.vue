@@ -17,13 +17,25 @@
       @tab-click="tabClick"
     >
       <template v-slot:Workflow>
-        <message-list v-bind="$attrs" type="WORK_FLOW" ref="Workflow"></message-list>
+        <message-list
+            v-on="$listeners"
+            v-bind="$attrs"
+            type="WORK_FLOW"
+            ref="Workflow"/>
       </template>
       <template v-slot:SystemMessage>
-        <message-list v-bind="$attrs" type="SYSTEM" ref="SystemMessage"></message-list>
+        <message-list
+            v-bind="$attrs"
+            v-on="$listeners"
+            type="SYSTEM"
+            ref="SystemMessage"/>
       </template>
       <template v-slot:Communication>
-        <message-list v-bind="$attrs" type="P2P" ref="Communication"></message-list>
+        <message-list
+            v-on="$listeners"
+            v-bind="$attrs"
+            type="P2P"
+            ref="Communication"/>
       </template>
     </page-tabs>
   </div>

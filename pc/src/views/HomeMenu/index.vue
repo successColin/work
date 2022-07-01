@@ -369,7 +369,8 @@ export default {
   //background-color: #202020;
 
   .equalWidthRatio, .design {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 
     & > .previewWrap {
       left: 0 !important;

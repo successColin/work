@@ -112,6 +112,7 @@ export default {
       };
       markMailRead(param).then((res) => {
         console.log(res);
+        this.$emit('singleRead');
         this.message.hasRead = true;
       });
     }

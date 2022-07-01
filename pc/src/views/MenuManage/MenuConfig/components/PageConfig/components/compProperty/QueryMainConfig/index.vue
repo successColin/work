@@ -41,11 +41,8 @@
           </li>
         </ul>
       </div>
-      <div
-        class="contentConfig__box contentConfig__dataSource"
-        v-if="$route.query.isApp === '1'"
-      >
-        <h2>布局样式</h2>
+      <div class="contentConfig__box contentConfig__dataSource">
+        <h2>控件布局</h2>
         <el-select
           placeholder="请选择布局样式"
           v-model="getCurrentTab.layoutStyle"
@@ -53,6 +50,17 @@
         >
           <el-option label="上下布局" :value="1"></el-option>
           <el-option label="左右布局" :value="2"></el-option>
+        </el-select>
+      </div>
+      <div class="contentConfig__box contentConfig__dataSource">
+        <h2>展示样式</h2>
+        <el-select
+          placeholder="请选择布局样式"
+          v-model="getCurrentTab.displayStyle"
+          class="contentConfig__dataSource--select"
+        >
+          <el-option label="默认样式" :value="1"></el-option>
+          <el-option label="间隔样式" :value="2"></el-option>
         </el-select>
       </div>
     </section>
@@ -115,52 +123,9 @@ export default {
           imgUrl: 'FullFeatArea.svg',
           compId: 0,
           areaType: 1,
-          tableInfo: {
-            tableName: '',
-            id: 0,
-            nameAlias: ''
-          },
           relateTableArr: [],
           relateTableIndex: 0,
           children: [
-            {
-              name: '功能区',
-              compId: 0,
-              form: {
-                id: ''
-              },
-              rules: {},
-              children: [],
-              areaType: 1
-            }
-          ]
-        },
-        {
-          name: '按钮功能区',
-          compName: 'MenuMain',
-          propertyCompName: 'ContentConfig',
-          pageType: 2,
-          shouldTab: true,
-          imgUrl: 'BtnsFeatArea.svg',
-          compId: 0,
-          areaType: 1,
-          tableInfo: {
-            tableName: '',
-            id: 0,
-            nameAlias: ''
-          },
-          relateTableArr: [],
-          relateTableIndex: 0,
-          children: [
-            {
-              name: '按钮区',
-              compId: 0,
-              children: [],
-              areaType: 2,
-              rightIndex: 0,
-              appSort: 1, // 按钮区排列
-              appStyle: 1 // 按钮区风格
-            },
             {
               name: '功能区',
               compId: 0,
@@ -177,16 +142,11 @@ export default {
           name: '功能按钮区',
           compName: 'MenuMain',
           propertyCompName: 'ContentConfig',
-          pageType: 3,
+          pageType: 2,
           shouldTab: true,
-          imgUrl: 'FeatBtnsArea.svg',
+          imgUrl: 'funBtnsArea.svg',
           compId: 0,
           areaType: 1,
-          tableInfo: {
-            tableName: '',
-            id: 0,
-            nameAlias: ''
-          },
           relateTableArr: [],
           relateTableIndex: 0,
           children: [
@@ -235,6 +195,7 @@ export default {
     },
     // 获取当前的tab
     getCurrentTab() {
+      console.log(this.activeObj);
       return this.activeObj;
     },
     // 是否可以更改主表
@@ -396,14 +357,15 @@ export default {
           const temp = obj.children.shift();
           obj.children.push(JSON.parse(JSON.stringify(temp)));
         }
-      } else if (obj.pageType === 3) {
-        if (newPageType === 2) {
-          const temp = obj.children.shift();
-          obj.children.push(JSON.parse(JSON.stringify(temp)));
-        } else if (newPageType === 1) {
-          obj.children.pop();
-        }
       }
+      // else if (obj.pageType === 3) {
+      //   if (newPageType === 2) {
+      //     const temp = obj.children.shift();
+      //     obj.children.push(JSON.parse(JSON.stringify(temp)));
+      //   } else if (newPageType === 1) {
+      //     obj.children.pop();
+      //   }
+      // }
       obj.pageType = newPageType;
     },
     // 添加tab
