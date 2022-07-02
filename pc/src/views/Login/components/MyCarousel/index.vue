@@ -76,7 +76,7 @@ export default {
     },
     getLogoUrl() {
       const url = this.configs.loginLogo;
-      return url ? url.substr(0, url.length - 1) : this.loginUrl;
+      return url ? url.substr(0, url.length - 1) : ''; // this.loginUrl
     },
     getLoops() {
       const urls = this.configs.loginLoopMaps;

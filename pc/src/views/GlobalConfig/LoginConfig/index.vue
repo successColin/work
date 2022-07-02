@@ -292,9 +292,6 @@
 <script>
 import { getListByKey, commonUpdate, updateImages } from '@/api/globalConfig';
 import { selectColorArr, stylePercentageArr, loginStyleArr } from '@/config';
-// import { makeUrlToBase64, dataURLtoFile } from '@/utils/utils';
-// import SockJS from 'sockjs-client';
-// import Stomp from 'stompjs';
 import ImageAndChange from '../components/ImageAndChange';
 
 export default {
@@ -344,7 +341,9 @@ export default {
       themeColor: 1,
       themeStyleArr: [],
       loopMaps: [],
-      scanType: 1
+      scanType: 1,
+      scanTypeArr: [], // 扫码类型
+      ssoTypePcArr: [] // 单点登录类型
     };
   },
   components: { ImageAndChange },
@@ -357,14 +356,14 @@ export default {
     // this.initWebSocket();
   },
   computed: {
-    // 扫码类型
-    scanTypeArr() {
-      return this.$store.getters.getCurDict('SCAN_TYPE');
-    },
-    // 单点登录类型
-    ssoTypePcArr() {
-      return this.$store.getters.getCurDict('SSO_TYPE_PC');
-    },
+    // // 扫码类型
+    // scanTypeArr() {
+    //   return this.$store.getters.getCurDict('SCAN_TYPE');
+    // },
+    // // 单点登录类型
+    // ssoTypePcArr() {
+    //   return this.$store.getters.getCurDict('SSO_TYPE_PC');
+    // },
     loginImg() {
       // eslint-disable-next-line max-len
       return (
@@ -465,7 +464,7 @@ export default {
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
       return function (options, val) {
-        const obj = options.find((item) => item.value === Number(val));
+        const obj = options && options.find((item) => item.value === Number(val));
         return obj && obj.name;
       };
     }
@@ -528,80 +527,15 @@ export default {
         resolve(file);
       });
     },
-    // initWebSocket() {
-    //   this.connection();
-    //   const that = this;
-    //   // 断开重连机制,尝试发送消息,捕获异常发生时重连
-    //   this.timer = setInterval(() => {
-    //     try {
-    //       that.stompClient.send('test');
-    //     } catch (err) {
-    //       that.connection();
-    //     }
-    //   }, 5000);
-    // },
-    // connection() {
-    //   // 建立连接对象
-    //   const socket = new SockJS('http://192.168.0.138:8080/welcome');
-    //   // 获取STOMP子协议的客户端对象
-    //   this.stompClient = Stomp.over(socket);
-    //   // 定义客户端的认证信息,按需求配置
-    //   const headers = {
-    //     token: Decrypt(localStorage.getItem('token') || '')
-    //   };
-    //   // 向服务器发起websocket连接
-    //   this.stompClient.connect(headers, () => {
-    //     // console.log('链接成功');
-    //     this.stompClient.subscribe('/user/admin/msg', (msg) => { // 订阅服务端提供的某个topic
-    //       // console.log('广播成功');
-    //       // console.log(msg); // msg.body存放的是服务端发送给我们的信息
-    //     }, headers);
-    //     this.stompClient.send('/app/chat.addUser', headers, JSON.stringify({
-    //       sender: '',
-    //       chatType: 'JOIN'
-    //     })); // 用户加入接口
-    //   }, (err) => {
-    //     // 连接发生错误时的处理函数
-    //     // console.log('失败');
-    //     // console.log(err);
-    //   });
-    // }, // 连接后台
-    // disconnect() {
-    //   if (this.stompClient) {
-    //     this.stompClient.disconnect();
-    //   }
-    // }, // 断开连接
-    // setSocket(path) {
-    //   const that = this;
-    //   // 链接次数
-    //   let number = 1;
-    //   // 连接地址
-    //   const url = '';
-    //   // 建立连接对象（还未发起连接）
-    //   const socket = new SockJS(url);
-    //   // 获取 STOMP 子协议的客户端对象
-    //   const stompClient = Stomp.over(socket);
-    //   stompClient.debug = null; // 浏览器不console信息日志
-    //   // 向服务器发起websocket连接并发送CONNECT帧
-    //   stompClient.connect({}, (frame) => {
-    //     stompClient.subscribe(`/user/${path}/consultationImageUpdateNotify`, (data) => {
-    //       // console.log('))))收到后台推送的数据', frame, data);
-    //     });
-    //   }, function (error) {
-    //     number += 1;
-    //     if (number < 6) {
-    //       this.setSocket(`${that.expertSysid}/${that.consultationSysid}`);
-    //     }
-    //     // console.log('))))收到后台推送的数据错误回调', error);
-    //   });
-    // },
     changeWidth(value) {
       // 改变logo宽度
       this.loginWidth = value;
     },
     async init() {
       this.loading = true;
-      this.$store.dispatch('getCurrentDict', 'SCAN_TYPE,SSO_TYPE_PC');
+      await this.$store.dispatch('getCurrentDict', 'SCAN_TYPE,SSO_TYPE_PC');
+      this.scanTypeArr = this.$store.getters.getCurDict('SCAN_TYPE'); // 扫码类型
+      this.ssoTypePcArr = this.$store.getters.getCurDict('SSO_TYPE_PC'); // 单点登录类型
       const res = await getListByKey({ parameterKey: 'LOGIN' });
       this.loading = false;
       this.response = res;

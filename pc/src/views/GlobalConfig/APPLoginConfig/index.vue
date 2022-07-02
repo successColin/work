@@ -332,7 +332,8 @@ export default {
       ],
       ssoType: 1,
       themeColor: 1,
-      themeStyleArr: []
+      themeStyleArr: [],
+      ssoTypeArr: [] // 类型数组
     };
   },
   components: {},
@@ -342,10 +343,10 @@ export default {
     this.init();
   },
   computed: {
-    // 类型数组
-    ssoTypeArr() {
-      return this.$store.getters.getCurDict('SSO_TYPE');
-    },
+    // // 类型数组
+    // ssoTypeArr() {
+    //   return this.$store.getters.getCurDict('SSO_TYPE');
+    // },
     fileUrl() {
       return function (url) {
         if (!url) return '';
@@ -445,7 +446,7 @@ export default {
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
       return function (options, val) {
-        const obj = options.find((item) => item.value === Number(val));
+        const obj = options && options.find((item) => item.value === Number(val));
         return obj && obj.name;
       };
     }
@@ -550,7 +551,8 @@ export default {
     },
     async init() {
       this.loading = true;
-      this.$store.dispatch('getCurrentDict', 'SSO_TYPE');
+      await this.$store.dispatch('getCurrentDict', 'SSO_TYPE');
+      this.ssoTypeArr = this.$store.getters.getCurDict('SSO_TYPE');
       const res = await getListByKey({ parameterKey: 'APPLOGIN' });
       this.loading = false;
       this.response = res;

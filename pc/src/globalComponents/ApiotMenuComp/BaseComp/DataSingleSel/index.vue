@@ -8,10 +8,15 @@
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
       { disabled: configData.canReadonly },
+      { onelineCalss: isLayoutStyle },
     ]"
     v-if="showInput"
   >
-    <el-form-item :prop="`${configData.compId}`" v-if="!isTable">
+    <el-form-item
+      :prop="`${configData.compId}`"
+      v-if="!isTable"
+      :class="[{ onelineCalss__form: isLayoutStyle }]"
+    >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
         <el-tooltip
@@ -342,6 +347,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+@import '../index';
 .dataSingleSel {
   position: relative;
   box-sizing: border-box;

@@ -424,7 +424,7 @@ export default {
         value = '';
       }
       if (['color1', 'color2'].includes(key) && !value) {
-        value = '#fff';
+        value = null;
       }
       const newInfo = {
         ...info,

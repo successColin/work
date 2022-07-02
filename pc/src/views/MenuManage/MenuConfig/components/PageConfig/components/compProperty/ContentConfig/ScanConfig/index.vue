@@ -305,6 +305,7 @@ export default {
         relationMenuDesignId: '', // 外层设计组id
         panelType: '', // 类型
         panelData: [], // 面板传递参数
+        panelClassify: 1,
         panelFilter: [] // 面板过滤条件
       },
       // 弹窗类型数组
@@ -401,6 +402,7 @@ export default {
         this.curPaneObj.panelType = pane.panelType;
         this.curPaneObj.panelData = [];
         this.curPaneObj.panelFilter = [];
+        this.curPaneObj.panelClassify = pane.panelClassify;
         this.configData[0].paneObj[this.activeObj.compId] = this.curPaneObj;
         const data = await getSysDesignMenu({
           sysMenuDesignId: pane.sysMenuDesignId

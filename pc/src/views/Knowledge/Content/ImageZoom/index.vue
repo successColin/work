@@ -76,7 +76,7 @@
           "
         >
           <img
-            :style="'transform: rotate(' + rotationAngle + 'deg)'"
+            :style="'transform: rotate(' + rotationAngle + 'deg);width:100%;'"
             :src="previewObj.sysKlTree.url"
             alt=""
           />
@@ -189,7 +189,7 @@ export default {
     },
     download(url, filename) {
       // 下载
-      getBlob(url, (blob) => {
+      getBlob({ url }, (blob) => {
         saveAs(blob, filename);
       });
     },

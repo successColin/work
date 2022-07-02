@@ -8,7 +8,7 @@
     </div>
     <div class="filesContent">
       <div
-        v-if="!list.length"
+        v-if="!list.length && !loading"
         class="apiotNoData"
         :placeholder="$t('common.noData')"
       ></div>
@@ -32,7 +32,7 @@
             @mouseenter="moveKey = item.sysKlTree.id"
             @mouseleave="moveKey = ''"
             class="contentBox__item"
-            :class="{ hasShowdow: isShow(item) }"
+            :class="{ hasShowdow: isShow(item), imgHover: index === hoverImgIndex }"
             @click.prevent="chooseFile(item)"
           >
             <div
@@ -126,6 +126,10 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -335,6 +339,17 @@ export default {
       &.hasShowdow {
         box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.14);
         border-radius: 4px;
+      }
+      &.imgHover {
+        & .contentBox__imageBox img {
+          width: 56px;
+          height: 56px;
+          margin-top: 17px;
+          transition: width .2s, height .2s;
+        }
+        & .contentBox__fileName span {
+          text-decoration: underline;
+        }
       }
 
       .contentBox__imageBox {

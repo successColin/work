@@ -21,7 +21,7 @@
         >
           <div class="form--line">
             <el-form-item
-              label="正式环境"
+              label="正式环境(例如：47.99.87.62:93)"
               class="form--child"
               prop="production"
             >
@@ -53,7 +53,7 @@
           </div>
           <div class="form--line">
             <el-form-item
-              label="外网测试环境"
+              label="外网测试环境(例：47.118.76.70)"
               class="form--child"
               prop="testExtranet"
             >
@@ -85,7 +85,7 @@
           </div>
           <div class="form--line">
             <el-form-item
-              label="内网测试环境"
+              label="内网测试环境(例：47.118.76.70)"
               class="form--child"
               prop="testIntranet"
             >
@@ -194,7 +194,7 @@ export default {
     getParamsInfoByKey() {
       try {
         const param = {
-          key: 'SYSTEM_ENVIRONMENT',
+          key: 'SYSTEM_ENVIRONMENT'
         };
         getInfoByKey(param).then((res) => {
           this.formData = res.parameterJson;
@@ -216,7 +216,7 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    },
+    }
   },
 
   mounted() {

@@ -37,7 +37,13 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
-      <p class="switchBox m-b-10 p-t-6">
+      <el-form-item label="字段名" v-if="!isShow">
+        <apiot-input
+          v-model="activeObj.fieldName"
+          placeholder="请填写字段名"
+        ></apiot-input>
+      </el-form-item>
+      <p class="switchBox m-b-10 p-t-6" v-if="isShow">
         <span class="switchBox__label">是否支持搜索</span>
         <el-switch
           v-model="activeObj.filterable"
@@ -72,7 +78,9 @@
       </el-form-item>
       <el-form-item
         label="字典表"
-        v-if="activeObj.dataSource.id && relateObj.tableInfo.tableName"
+        v-if="
+          (activeObj.dataSource.id && relateObj.tableInfo.tableName) || !isShow
+        "
       >
         <filterable-input
           class="m-t-10"
@@ -238,7 +246,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证">
+      <el-form-item label="验证" v-if="isShow">
         <p class="switchBox">
           是否必填
           <el-switch
@@ -251,7 +259,7 @@
           </el-switch>
         </p>
       </el-form-item>
-      <el-form-item label="提交类型">
+      <el-form-item label="提交类型" v-if="isShow">
         <el-select v-model="activeObj.submitType" placeholder="请选择类型">
           <el-option label="始终提交" :value="1"></el-option>
           <el-option label="仅显示时提交" :value="2"></el-option>
@@ -284,6 +292,9 @@ export default {
         tempData.reverse();
       }
       return tempData || [];
+    },
+    isShow() {
+      return this.relateObj.compName !== 'QueryMain';
     }
   },
 

@@ -25,6 +25,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       :showType="showType"
+      :nodeConfig="nodeConfig"
       @click.native="changeCurActiveObj(2, $event)"
       :btnTypesArr="[1, 2, 5, 6]"
     ></BtnsArea>
@@ -82,7 +83,6 @@
               :hasTriggerComp="hasTriggerComp"
               :configData="child"
               :fileDeleteIds="fileDeleteIds"
-              :showType="showType"
             ></component> </transition-group
         ></draggable>
         <div class="menuMain__feature--compList" v-else>
@@ -98,6 +98,7 @@
             :configData="child"
             :fileDeleteIds="fileDeleteIds"
             :showType="showType"
+            :nodeConfig="nodeConfig"
             :getIdCompId="getIdCompId"
           ></component>
         </div>
@@ -125,6 +126,10 @@ import initAreaMixin from '../initAreaMixin';
 export default {
   props: {
     showType: {
+      type: Object,
+      default: () => {}
+    },
+    nodeConfig: {
       type: Object,
       default: () => {}
     },

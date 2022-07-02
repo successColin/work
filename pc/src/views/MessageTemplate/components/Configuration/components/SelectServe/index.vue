@@ -66,7 +66,7 @@ export default {
       options: [
         {
           value: '',
-          name: '无数据请新增'
+          serverName: '无数据请新增'
         }
       ]
     };
@@ -103,11 +103,31 @@ export default {
     async getList() {
       this.showLoading = true;
       const { messageType } = this;
-      const list = await getServeList({
-        messageType
-      });
-      this.options = [...list];
-      this.showLoading = false;
+      try {
+        let list = await getServeList({
+          messageType
+        });
+
+        if (list.length === 0) {
+          list = [
+            {
+              value: '',
+              serverName: '无数据请新增'
+            }
+          ];
+        }
+        this.options = [...list];
+        this.showLoading = false;
+      } catch (error) {
+        console.error(error);
+        this.options = [
+          {
+            value: '',
+            serverName: '无数据请新增'
+          }
+        ];
+        this.showLoading = false;
+      }
     }
   },
 

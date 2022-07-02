@@ -68,6 +68,8 @@
       :visible.sync="showPanel"
       :showPanel="showPanel"
       :panelObj="panelObj"
+      :showType="showType"
+      :nodeConfig="nodeConfig"
     ></component>
     <!-- </transition> -->
 
@@ -139,6 +141,12 @@ export default {
       type: [String, Number]
     },
     showType: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    nodeConfig: {
       type: Object,
       default() {
         return {};
@@ -469,6 +477,15 @@ export default {
             this.configData.buttonType,
             isAdd
           );
+        }
+        console.log(this.showType, 'zzz', this.nodeConfig);
+        if (this.showType && this.showType.type === 'flow') {
+          const { checkFormConfig = [] } = this.nodeConfig;
+          // eslint-disable-next-line max-len
+          const currentObj = checkFormConfig.find((item) => item.compId === this.configData.compId && !!item.isRelation);
+          if (currentObj) { // g关联提交按钮
+            this.$bus.$emit('do_flow_submit', 1);
+          }
         }
       } catch (error) {
         console.log(error);

@@ -158,5 +158,29 @@ pipeline {
                 }
             }
         }
+        
+        stage("部署到v10ERP演示环境") {
+            steps {
+                sh "scp -r ${env.WORKSPACE}@2/dist/** UAT:/var/lib/docker/volumes/erp_web-home/_data/dist/"
+            }
+            post {
+                success {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','已成功部署到v10ERP演示环境！！！'],
+                    )
+                }
+                failure {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','v10ERP演示环境！！！'],
+                    )
+                }
+            }
+        }
     }
 }

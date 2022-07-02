@@ -1,0 +1,17 @@
+.onelineCalss {
+  min-height: 60px !important;
+  &__form {
+    display: flex;
+    align-items: center;
+    ::v-deep {
+      .el-form-item__label {
+        padding-bottom: 0;
+        padding-right: 10px;
+      }
+      .el-form-item__content {
+        flex: 1;
+        padding-right: 40px;
+      }
+    }
+  }
+}

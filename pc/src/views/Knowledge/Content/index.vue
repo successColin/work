@@ -151,6 +151,7 @@
       <block-content
         :list="list"
         :edit="edit"
+        :loading="loading"
         :selectKeys="selectKeys"
         v-if="active === 1 && showType !== 3 && ![7, 8, 10].includes(groupType)"
         v-on:checkall="chooseFile"
@@ -1239,6 +1240,7 @@ export default {
             size: 99999999
           };
         }
+        this.list = [];
         const treeData = await api(data);
         const newTreeData = ['all', 9, 10, 7, 8].includes(this.groupType)
           ? treeData

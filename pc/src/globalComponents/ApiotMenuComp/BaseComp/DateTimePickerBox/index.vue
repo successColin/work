@@ -7,10 +7,15 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
+      { onelineCalss: isLayoutStyle },
     ]"
     v-if="showInput"
   >
-    <el-form-item :prop="`${configData.compId}`" v-if="!isTable">
+    <el-form-item
+      :prop="`${configData.compId}`"
+      v-if="!isTable"
+      :class="[{ onelineCalss__form: isLayoutStyle }]"
+    >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
         <el-tooltip
@@ -23,8 +28,11 @@
       </span>
 
       <el-date-picker
-        type="datetime"
+        :type="pickerType"
         :placeholder="configData.placeholder"
+        range-separator="至"
+        :start-placeholder="configData.startPlaceholder"
+        :end-placeholder="configData.endPlaceholder"
         value-format="yyyy-MM-dd HH:mm:ss"
         :editable="false"
         v-model="parent.form[configData.compId]"
@@ -94,7 +102,11 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+    pickerType() {
+      return this.configData.timeInterval ? 'datetimerange' : 'datetime';
+    }
+  },
 
   mounted() {
     this.initTime();
@@ -113,6 +125,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+@import '../index';
 .singleBox {
   position: relative;
   box-sizing: border-box;
@@ -162,6 +175,14 @@ export default {
       }
       .el-input__inner {
         cursor: pointer;
+      }
+      .el-input__inner {
+        width: 100%;
+      }
+      .el-range-editor .el-range-input {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }

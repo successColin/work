@@ -14,20 +14,6 @@
     :title="isConfig ? configData.name : ''"
     v-show="showMenu"
   >
-    <BtnsArea
-      v-if="isShowBtn"
-      :configData="configData"
-      :activeObj="activeObj"
-      :hasTriggerComp="hasTriggerComp"
-      :isSidebar="isSidebar"
-      :getBtnsArr="getBtnsArr"
-      :getFeatureArr="getFeatureArr"
-      :fileDeleteIds="fileDeleteIds"
-      :moreOperateArr="moreOperateArr"
-      :showType="showType"
-      @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[1, 2, 5, 6]"
-    ></BtnsArea>
     <section
       ref="contentArea"
       v-if="configData.children.length !== 0"
@@ -44,7 +30,6 @@
             activeObj.areaType === 1,
         },
         { useStyle: !isConfig },
-        { hiddenBtnArea: configData.pageType === 1 },
       ]"
       configData="功能区"
     >
@@ -68,6 +53,7 @@
           @end="featDragEnd"
           :move="featDragMove"
           :disabled="!isConfig"
+          :isQuery="true"
         >
           <transition-group class="queryMain__feature--compList" tag="ul">
             <component
@@ -83,6 +69,7 @@
               :configData="child"
               :fileDeleteIds="fileDeleteIds"
               :showType="showType"
+              :isQuery="true"
             ></component> </transition-group
         ></draggable>
         <div class="queryMain__feature--compList" v-else>
@@ -103,6 +90,22 @@
         </div>
       </el-form>
     </section>
+    <BtnsArea
+      class="queryMain__btn"
+      v-if="isShowBtn"
+      :configData="configData"
+      :activeObj="activeObj"
+      :hasTriggerComp="hasTriggerComp"
+      :isSidebar="isSidebar"
+      :getBtnsArr="getBtnsArr"
+      :getFeatureArr="getFeatureArr"
+      :fileDeleteIds="fileDeleteIds"
+      :moreOperateArr="moreOperateArr"
+      :showType="showType"
+      @click.native="changeCurActiveObj(2, $event)"
+      :btnTypesArr="[1, 2, 5, 6]"
+      :isQuery="true"
+    ></BtnsArea>
     <section
       v-if="configData.children.length === 0"
       class="queryMain__wz"
@@ -570,12 +573,11 @@ export default {
 .queryMain {
   box-sizing: border-box;
   // height: calc(100% - 20px);
-  height: 300px;
+  height: 164px;
   margin: 10px;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  // flex-direction: column;
   &.isApp {
     // height: auto;
   }
@@ -597,6 +599,7 @@ export default {
     flex-direction: column-reverse;
   }
   &__feature {
+    flex: 1;
     min-height: calc(100% - 76px);
     overflow-y: auto;
     overflow-x: hidden;
@@ -605,9 +608,6 @@ export default {
       border-width: 1px !important;
       border-style: solid !important;
       border-image: url(../../../assets/img/border-blue.svg) 1 round !important;
-    }
-    &.hiddenBtnArea {
-      height: 100%;
     }
     ::v-deep {
       .el-form {
@@ -627,6 +627,12 @@ export default {
       //   margin-bottom: 10px;
       // }
     }
+  }
+  &__btn {
+    height: 100% !important;
+    margin-bottom: 0px;
+    margin-left: 10px;
+    width: 88px;
   }
   &__wz {
     text-align: center;

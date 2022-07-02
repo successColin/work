@@ -79,7 +79,7 @@ export default {
     getTextStyles() {
       return function () {
         // eslint-disable-next-line max-len
-        const { stylesObj = {}, gradientType, enableBackground, width, height, interactionType, enableEllipsis } = this.config;
+        const { stylesObj = {}, gradientType, width, height, interactionType, enableEllipsis, enableBackground } = this.config;
         const {
           color1,
           color2,
@@ -100,10 +100,14 @@ export default {
           }
           styles += `${singStyle}${singStyle ? ';' : ''}`;
         });
-        if (gradientType === 1) { // 左右渐变
+        if (gradientType === 1 && color1 && color2) { // 左右渐变
           styles += `background-image: linear-gradient(to right, ${color1}, ${color2});`;
-        } else if (gradientType === 2) {
+        } else if (gradientType === 2 && color1 && color2) {
           styles += `background-image: -webkit-gradient(linear,0 0,0 bottom,from(${color1}),to(${color2}));`;
+        } else if (color1 || color2) {
+          styles += `color: ${color1 || color2};`;
+        } else {
+          styles += 'color: rgba(255, 255, 255, 0);';
         }
         if (enableBackground) {
           styles += `text-shadow:${hShadow}px ${vShadow}px ${blur}px ${shadowColor};`;

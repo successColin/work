@@ -10,9 +10,21 @@
           @blur="nameBlur"
         ></apiot-input>
       </el-form-item>
-      <el-form-item label="占位提示">
+      <el-form-item label="占位提示" v-if="!intervalTimeShow">
         <el-input
           v-model="activeObj.placeholder"
+          placeholder="请输入占位提示"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="开始占位符提示" v-if="intervalTimeShow">
+        <el-input
+          v-model="activeObj.startPlaceholder"
+          placeholder="请输入占位提示"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="结束占位符提示" v-if="intervalTimeShow">
+        <el-input
+          v-model="activeObj.endPlaceholder"
           placeholder="请输入占位提示"
         ></el-input>
       </el-form-item>
@@ -65,6 +77,12 @@
           v-model="fatherObj.form[activeObj.compId]"
         >
         </el-date-picker>
+      </el-form-item>
+      <el-form-item label="字段名" v-if="!isShow">
+        <apiot-input
+          v-model="activeObj.fieldName"
+          placeholder="请填写字段名"
+        ></apiot-input>
       </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
@@ -167,11 +185,24 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证">
+      <el-form-item label="验证" v-if="isShow">
         <p class="switchBox">
           是否必填
+          <!-- @change="setRequiredRule" -->
           <el-switch
             v-model="activeObj.shouldRequired"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
+      <el-form-item v-if="!isShow">
+        <p class="switchBox">
+          是否选择区间
+          <el-switch
+            v-model="activeObj.timeInterval"
             class="switchBox__switch"
             active-text="是"
             inactive-text="否"
@@ -232,7 +263,7 @@
           v-model="activeObj.maxTimeObj.formula"
         ></select-formula>
       </el-form-item>
-      <el-form-item label="提交类型">
+      <el-form-item label="提交类型" v-if="isShow">
         <el-select v-model="activeObj.submitType" placeholder="请选择类型">
           <el-option label="始终提交" :value="1"></el-option>
           <el-option label="仅显示时提交" :value="2"></el-option>
@@ -277,7 +308,11 @@ export default {
     SelectFormula
   },
 
-  computed: {},
+  computed: {
+    intervalTimeShow() {
+      return this.activeObj.timeInterval;
+    }
+  },
 
   created() {
     // 需要在内部组件渲染之前初始化数据

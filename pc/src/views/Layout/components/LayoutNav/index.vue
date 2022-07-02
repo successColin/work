@@ -253,6 +253,7 @@ export default {
       }
       sessionStorage.navTabArr = JSON.stringify(this.tabArr);
     },
+
     closeTab(item) {
       const res = this.tabArr.findIndex((tab) => tab.path === item.path);
       this.$emit('clearCacheBefore');
@@ -269,7 +270,14 @@ export default {
         item.path.indexOf(this.$route.path) !== -1
       ) {
         if (this.tabArr.length === 0) {
-          this.$router.push('/home');
+          const { homeArr } = this.$store.state.base;
+          if (homeArr.length) {
+            const current = homeArr[0];
+            this.$router.push(`/homePage/${current.homePageId}`);
+          } else {
+            this.$router.push('/home');
+          }
+          // this.$router.push('/home');
         } else {
           this.$router.push(this.tabArr[this.tabArr.length - 1].path);
         }

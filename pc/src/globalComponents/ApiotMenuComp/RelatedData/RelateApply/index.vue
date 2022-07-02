@@ -119,6 +119,7 @@
       <block-content
         :list="list"
         :edit="edit"
+        :loading="loading"
         :selectKeys="selectKeys"
         v-if="active === 1 && showType !== 3 && ![7, 8, 10].includes(groupType)"
         v-on:checkall="chooseFile"

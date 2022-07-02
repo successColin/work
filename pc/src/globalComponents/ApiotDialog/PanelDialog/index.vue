@@ -30,6 +30,8 @@
       :dataSelObj="dataSelObj"
       v-if="showPanel"
       @closePanle="closePanle"
+      :showType="showType"
+      :nodeConfig="nodeConfig"
       @setDataSel="setDataSel"
       @multiArrChange="multiArrChange"
       ref="menu"
@@ -49,7 +51,21 @@ export default {
     showPanel: {
       type: Boolean,
       default: false
-    }
+    },
+    showType: {
+      // 流程中的参数
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    nodeConfig: {
+      // 流程中的参数
+      type: Object,
+      default() {
+        return {};
+      }
+    },
   },
   data() {
     return {

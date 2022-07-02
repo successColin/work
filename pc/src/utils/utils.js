@@ -445,5 +445,6 @@ export const toFixed = (num, s) => {
   return `${des}`;
 };
 
+// 判断对象中是否存在对应的key
 export const isExistInObj = (obj, keyName) =>
   Object.prototype.hasOwnProperty.call(obj, keyName);

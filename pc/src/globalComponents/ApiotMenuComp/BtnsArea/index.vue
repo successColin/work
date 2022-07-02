@@ -117,6 +117,7 @@
         @btnPosChange="btnPosChange"
         @selectTreeNode="selectTreeNode"
         :showType="showType"
+        :nodeConfig="nodeConfig"
       ></component>
     </ul>
     <div class="btnMask" v-if="isSelect && isTabBtn"></div>
@@ -128,6 +129,13 @@ export default {
   name: '',
   props: {
     showType: {
+      // 流程中的参数
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    nodeConfig: {
       // 流程中的参数
       type: Object,
       default() {

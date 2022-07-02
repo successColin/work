@@ -435,6 +435,31 @@ export default {
                 zIndex: 1,
                 showType: 'YYYY-MM-DD HH:mm:ss'
               }
+            },
+            {
+              name: '线条',
+              componentName: 'AuxiliaryLine',
+              imgUrl: 'homePage/homeLine.svg',
+              width: 300,
+              height: 50,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              gradientType: 1, // 渐变色类型
+              enableBackground: false,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              stylesObj: {
+                lineStyleType: 'solid',
+                opacity: 100,
+                rotationAngle: 0,
+                height: 1,
+                color: '#43DBFF',
+                color1: '#43DBFF',
+                zIndex: 1
+              }
             }
           ]
         }

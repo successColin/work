@@ -767,7 +767,7 @@ export default {
     });
   },
   beforeDestroy() {
-    if (document) {
+    if (document && document.querySelector('.flowConfigWrap')) {
       document.removeEventListener('click', this.hideUserList);
       document.querySelector('.flowConfigWrap').removeEventListener('click', this.hideUserList);
     }

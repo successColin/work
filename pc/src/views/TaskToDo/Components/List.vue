@@ -383,9 +383,13 @@ export default {
         if (!v) {
           this.current = 1;
           this.init(this.selectValue);
+          this.$emit('closeApproval');
         }
       }
     }
+  },
+  beforeDestroy() {
+    this.$bus.$off(`${this.com}_End_of_operation`);
   },
   name: 'list'
 };

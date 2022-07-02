@@ -50,6 +50,7 @@
             "
             @click.native="selectActive(item.children[0], $event)"
             :showType="showType"
+            :nodeConfig="nodeConfig"
             :btnTypesArr="[1, 2, 3, 5, 6]"
           ></BtnsArea>
           <!-- 配置 -->
@@ -78,6 +79,7 @@
                 :pos="index"
                 :parent="item"
                 :showType="showType"
+                :nodeConfig="nodeConfig"
                 @getTableMaxHeight="getTableMaxHeight"
               ></component>
             </transition-group>
@@ -100,6 +102,7 @@
               :pos="index"
               :parent="item"
               :showType="showType"
+              :nodeConfig="nodeConfig"
               @getTableMaxHeight="getTableMaxHeight"
             ></component>
           </div>
@@ -120,7 +123,11 @@ import { createUnique } from '@/utils/utils';
 
 export default {
   props: {
-    showType: {
+    showType: { // 用于流程
+      type: Object,
+      default: () => {}
+    },
+    nodeConfig: { // 用于流程
       type: Object,
       default: () => {}
     },

@@ -8,7 +8,7 @@
     </div>
     <div class="filesContent">
       <div
-        v-if="!list.length"
+        v-if="!list.length && !loading"
         class="apiotNoData"
         :placeholder="$t('common.noData')"
       ></div>
@@ -24,14 +24,14 @@
       >
         <transition-group>
           <div
-            v-for="item in list"
+            v-for="(item, listI) in list"
             :key="item.sysKlTree.id"
             :data-id="item.sysKlTree.id"
             :data-treeType="item.sysKlTree.treeType"
             @mouseenter="moveKey = item.sysKlTree.id"
             @mouseleave="moveKey = ''"
             class="contentBox__item"
-            :class="{ hasShowdow: isShow(item) }"
+            :class="{ hasShowdow: isShow(item), imgHover: moveI === listI }"
             @click.prevent="chooseFile(item)"
           >
             <div
@@ -40,6 +40,8 @@
               :data-treeType="item.sysKlTree.treeType"
             >
               <img
+                @mouseenter="moveI = listI"
+                @mouseleave="moveI = -1"
                 :data-id="item.sysKlTree.id"
                 :data-treeType="item.sysKlTree.treeType"
                 :src="getFileUrl(item)"
@@ -53,6 +55,8 @@
               :data-treeType="item.sysKlTree.treeType"
             >
               <span
+                @mouseenter="moveI = listI"
+                @mouseleave="moveI = -1"
                 v-if="!isEdit(item)"
                 @click.stop="preView(item)"
                 :title="item.sysKlTree.name"
@@ -73,7 +77,7 @@
             </div>
             <apiot-checkbox
               :value="isChecked(item)"
-              v-show="isShow(item)"
+              v-show="isShow(item) && moveI !== listI"
               @change="chooseFile(item)"
               class="contentBox__checkbox"
             >
@@ -109,10 +113,15 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
+      moveI: -1,
       moveKey: '',
       dom: {},
       isDrag: false,
@@ -291,6 +300,7 @@ export default {
 
   .filesContent {
     padding: 15px;
+    width: 100%;
     height: calc(100% - 40px);
     box-sizing: border-box;
 
@@ -309,7 +319,17 @@ export default {
         box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.14);
         border-radius: 4px;
       }
-
+      &.imgHover {
+        & .contentBox__imageBox img {
+          width: 56px;
+          height: 56px;
+          margin-top: 17px;
+          transition: width .2s, height .2s;
+        }
+        & .contentBox__fileName span {
+          text-decoration: underline;
+        }
+      }
       .contentBox__imageBox {
         height: 90px;
         text-align: center;
@@ -333,7 +353,6 @@ export default {
         white-space: nowrap;
 
         & > span:hover {
-          text-decoration: underline;
           transition: all 0.5s ease-in;
         }
 

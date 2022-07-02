@@ -108,18 +108,14 @@
           <el-row class="form_el_row_wrap" style="margin: 0 !important">
             <el-col :span="24">
               <el-form-item
-                :label="operationType === 3 ? '转审描述' : '审批意见'"
+                :label="getLabel"
                 prop="memo"
               >
                 <apiot-input
                   v-forbid
                   v-model="info.memo"
                   type="textarea"
-                  :placeholder="
-                    [1, 3, 4].includes(operationType)
-                      ? '填写审批意见'
-                      : '填写否决意见'
-                  "
+                  :placeholder="getPlaceholder"
                 ></apiot-input>
               </el-form-item>
             </el-col>
@@ -187,6 +183,7 @@ import {
 } from '@/api/flow';
 import ApiotMenu from '@/views/ApiotMenu/index';
 // import DiscussionArea from '../DiscussionArea/index';
+import { Message } from 'element-ui';
 import Flow from '../Flow/index';
 
 export default {
@@ -232,6 +229,27 @@ export default {
   },
 
   computed: {
+    getLabel() {
+      if (this.operationType === 3) {
+        return '转审描述';
+      }
+      if (this.operationType === 5) {
+        return '描述';
+      }
+      return '审批意见';
+    },
+    getPlaceholder() {
+      if ([1, 4].includes(this.operationType)) {
+        return '填写审批意见';
+      }
+      if (this.operationType === 3) {
+        return '请填写转审描述';
+      }
+      if (this.operationType === 5) {
+        return '请填写描述';
+      }
+      return '填写审批意见';
+    },
     getPanelObj() {
       return {
         id: this.approvalInfo.pcPanelId,
@@ -345,7 +363,14 @@ export default {
     //   this.fetchNodeInfo(nodeId);
     // }
   },
-  mounted() {},
+  mounted() {
+    this.$bus.$off('do_flow_submit').$on('do_flow_submit', () => {
+      if (this.isShowPasBtn) {
+        Message.closeAll();
+        this.showModal(5);
+      }
+    });
+  },
 
   methods: {
     handleSelectUser(list) {
@@ -507,6 +532,9 @@ export default {
       }
       return {};
     }
+  },
+  beforeDestroy() {
+    this.$bus.$off('do_flow_submit');
   },
   name: 'index'
 };

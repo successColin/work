@@ -84,14 +84,19 @@ export default {
       const code = e.data && e.data.code;
       console.log(code);
       if (code) {
-        await zwdingtalkScanLogin({
-          code
-        });
-        this.$nextTick(() => {
-          this.$router.push('/home');
-          sessionStorage.removeItem('navTabArr');
-          sessionStorage.removeItem('delTabArr');
-        });
+        try {
+          await zwdingtalkScanLogin({
+            code
+          });
+          this.$nextTick(() => {
+            this.$router.push('/home');
+            sessionStorage.removeItem('navTabArr');
+            sessionStorage.removeItem('delTabArr');
+          });
+        } catch (error) {
+          localStorage.setItem('zhezhengdingCode', code);
+          window.vue.$router.push('/AssociatedUser');
+        }
       }
     }
   }

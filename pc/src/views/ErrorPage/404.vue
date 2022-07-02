@@ -39,7 +39,7 @@
           Please check that the URL you entered is correct, or click the button
           below to return to the homepage.
         </div>
-        <a @click="$router.push('/home')" class="bullshit__return-home"
+        <a @click="back" class="bullshit__return-home"
           >Back to home</a
         >
       </div>
@@ -53,6 +53,17 @@ export default {
   computed: {
     message() {
       return 'The webmaster said that you can not enter this page...';
+    }
+  },
+  methods: {
+    back() {
+      const { homeArr } = this.$store.state.base;
+      if (homeArr.length) {
+        const current = homeArr[0];
+        this.$router.push(`/homePage/${current.homePageId}`);
+      } else {
+        this.$router.push('/home');
+      }
     }
   }
 };

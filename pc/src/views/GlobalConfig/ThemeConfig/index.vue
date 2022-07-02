@@ -213,6 +213,25 @@
                 {{ changeBtnName(statement.isRegistration) }}
               </apiot-button>
             </div>
+            <!-- socket地址 -->
+            <div v-else-if="i === 12" class="passwordConfig__logo common">
+              <div v-if="!statement.isSocketUrl" style="line-height: 48px;">
+                {{ $store.state.globalConfig.themeConfig.socketUrl }}
+              </div>
+              <apiot-input
+                  style="width: 224px"
+                  v-else
+                  :isForbid="false"
+                  v-model="$store.state.globalConfig.themeConfig.socketUrl"
+              ></apiot-input>
+              <apiot-button
+                  type="text"
+                  class="passwordConfig__operation"
+                  @click="handleChangeCount('isSocketUrl')"
+              >
+                {{ changeBtnName(statement.isSocketUrl) }}
+              </apiot-button>
+            </div>
           </li>
         </el-col>
       </el-row>
@@ -240,7 +259,8 @@ export default {
         isLoopPics: false,
         isMenuStyle: false,
         isTopHeight: false,
-        istopStyle: false
+        istopStyle: false,
+        isSocketUrl: false
       },
       themeStyleArr: [
         {
@@ -377,7 +397,13 @@ export default {
           name: this.$t('globalConfig.homePageLogo'),
           col: 24,
           attr: 'homePageLogo'
-        }
+        },
+        {
+          name: this.$t('globalConfig.socketAddress'),
+          col: 24,
+          key: 'socketAddress',
+          attr: 'socketUrl'
+        },
       ];
     },
     // 修改 button 状态
@@ -444,7 +470,7 @@ export default {
     async handleChangeCount(key) {
       if (!this.statement[key]) {
         this.statement[key] = !this.statement[key];
-        return false;
+        return;
       }
       // 滑块显示设置
       if (key === 'isMenuStyle' && this.statement[key]) {
@@ -468,6 +494,9 @@ export default {
       }
       if (key === 'istopStyle') {
         this.changeRadio(this.$store.state.globalConfig.themeConfig.topStyle, 'topStyle');
+      }
+      if (key === 'isSocketUrl') {
+        await this.changeRadio(this.$store.state.globalConfig.themeConfig.socketUrl, 'socketUrl');
       }
       this.statement[key] = !this.statement[key];
     },
@@ -646,6 +675,7 @@ $borderColor: 1px solid #e9e9e9;
   &__logo {
     & > div {
       height: 48px;
+      line-height: 48px;
 
       & .el-upload-list__item div {
         height: 48px;
