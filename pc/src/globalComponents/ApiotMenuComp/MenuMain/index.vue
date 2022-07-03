@@ -28,6 +28,7 @@
       :nodeConfig="nodeConfig"
       @click.native="changeCurActiveObj(2, $event)"
       :btnTypesArr="[1, 2, 5, 6]"
+      :isForm="true"
     ></BtnsArea>
     <section
       ref="contentArea"
@@ -69,6 +70,7 @@
           @end="featDragEnd"
           :move="featDragMove"
           :disabled="!isConfig"
+          :isForm="true"
         >
           <transition-group class="menuMain__feature--compList" tag="ul">
             <component
@@ -83,6 +85,7 @@
               :hasTriggerComp="hasTriggerComp"
               :configData="child"
               :fileDeleteIds="fileDeleteIds"
+              :isForm="true"
             ></component> </transition-group
         ></draggable>
         <div class="menuMain__feature--compList" v-else>

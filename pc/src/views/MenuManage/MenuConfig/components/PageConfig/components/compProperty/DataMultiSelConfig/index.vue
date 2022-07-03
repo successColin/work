@@ -50,7 +50,7 @@
         </el-select>
         <filterable-input
           class="m-t-8"
-          :showInfo="relateObj.tableInfo || activeObj.tableInfo"
+          :showInfo="dataTableInfo"
           :dialogType="1"
           :disabled="true"
         ></filterable-input>
@@ -273,6 +273,9 @@ export default {
   },
 
   computed: {
+    dataTableInfo() {
+      return this.isShow ? this.relateObj.tableInfo : this.activeObj.tableInfo;
+    },
     getSingleRelate() {
       return this.relateObj.relateTableArr.filter(
         (item) =>
@@ -304,6 +307,9 @@ export default {
       this.activeObj.tableInfo.tableName = table.tableName;
       this.activeObj.tableInfo.id = table.id;
       this.activeObj.tableInfo.nameAlias = table.tableName;
+
+      this.activeObj.dataSource.tableName = table.tableName;
+      this.activeObj.dataSource.id = table.id;
     },
     // 关系选择切换
     relateChange(item) {
