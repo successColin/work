@@ -245,14 +245,14 @@
       :title="$t('messageShow.MessageNotification')"
       :hasFooter="false"
     >
-      <message-show  @readCountChanged="allCount"/>
+      <message-show @readCountChanged="allCount" />
     </apiot-drawer>
   </div>
 </template>
 
 <script>
 import cnImg from '@/assets/img/cn.png';
-import enImg from '@/assets/img/en.png';
+// import enImg from '@/assets/img/en.png';
 import { fontChange, debounce } from '@/utils/utils';
 import UserCenter from '@/views/UserCenter/index';
 import SwitchTenant from '@/views/UserCenter/components/SwitchTenant/index';
@@ -284,12 +284,12 @@ export default {
           name: '中文',
           val: 'zhCN',
           url: cnImg
-        },
-        {
-          name: 'EN',
-          val: 'enUS',
-          url: enImg
         }
+        // {
+        //   name: 'EN',
+        //   val: 'enUS',
+        //   url: enImg
+        // }
       ],
       helpCenter: [
         {
@@ -551,24 +551,33 @@ export default {
       };
       const that = this;
       // 向服务器发起websocket连接
-      this.stompClient.connect(headers, () => {
-        // console.log('链接成功');
-        const { account } = this.$store.state.userCenter.userInfo;
-        // eslint-disable-next-line no-unused-vars
-        this.stompClient.subscribe(`/user/${account}/msg`, (msg) => { // 订阅服务端提供的某个topic
-          // console.log('广播成功');
-          that.allCount();
-          // console.log(msg); // msg.body存放的是服务端发送给我们的信息
-        }, headers);
-        // this.stompClient.send('/app/chat.addUser', headers, JSON.stringify({
-        //   sender: '',
-        //   chatType: 'JOIN'
-        // })); // 用户加入接口
-      }, (err) => {
-        // 连接发生错误时的处理函数
-        // console.log('失败');
-        console.log(err);
-      });
+      this.stompClient.connect(
+        headers,
+        () => {
+          // console.log('链接成功');
+          const { account } = this.$store.state.userCenter.userInfo;
+          // eslint-disable-next-line no-unused-vars
+          this.stompClient.subscribe(
+            `/user/${account}/msg`,
+            () => {
+              // 订阅服务端提供的某个topic
+              // console.log('广播成功');
+              that.allCount();
+              // console.log(msg); // msg.body存放的是服务端发送给我们的信息
+            },
+            headers
+          );
+          // this.stompClient.send('/app/chat.addUser', headers, JSON.stringify({
+          //   sender: '',
+          //   chatType: 'JOIN'
+          // })); // 用户加入接口
+        },
+        (err) => {
+          // 连接发生错误时的处理函数
+          // console.log('失败');
+          console.log(err);
+        }
+      );
     }, // 连接后台
     disconnect() {
       if (this.stompClient) {
@@ -587,17 +596,21 @@ export default {
       const stompClient = Stomp.over(socket);
       stompClient.debug = null; // 浏览器不console信息日志
       // 向服务器发起websocket连接并发送CONNECT帧
-      stompClient.connect({}, (frame) => {
-        stompClient.subscribe(`/user/${path}/consultationImageUpdateNotify`, (data) => {
-          console.log('))))收到后台推送的数据', frame, data);
-        });
-      }, function (error) {
-        number += 1;
-        if (number < 6) {
-          this.setSocket(`${that.expertSysid}/${that.consultationSysid}`);
+      stompClient.connect(
+        {},
+        (frame) => {
+          stompClient.subscribe(`/user/${path}/consultationImageUpdateNotify`, (data) => {
+            console.log('))))收到后台推送的数据', frame, data);
+          });
+        },
+        function (error) {
+          number += 1;
+          if (number < 6) {
+            this.setSocket(`${that.expertSysid}/${that.consultationSysid}`);
+          }
+          console.log('))))收到后台推送的数据错误回调', error);
         }
-        console.log('))))收到后台推送的数据错误回调', error);
-      });
+      );
     },
     filterHelp(arr) {
       const { helpCenterMenu } = this.$store.state.globalConfig.themeConfig;

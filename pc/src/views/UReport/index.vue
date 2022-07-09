@@ -24,15 +24,11 @@ export default {
   components: {},
   computed: {
     url() {
-      const { host } = window.location;
-      const ip = host.split(':')[0];
-      const currentUrl = `http://${ip}:8085/ureport/designer`;
-      console.log(currentUrl);
-      return currentUrl;
-      // return 'http://47.118.76.70:8085/ureport/designer';
-      // return `http://192.168.0.4:8080/ureport/designer?token=${Decrypt(
-      //   localStorage.getItem('token') || ''
-      // )}`;
+      // const { host } = window.location;
+      // const ip = host.split(':')[0];
+      // const currentUrl = `http://${ip}:8085/ureport/designer`;
+      // console.log(currentUrl);
+      return `${this.$store.state.globalConfig.themeConfig.ureportUrl}/ureport/designer`;
     }
   },
   watch: {},

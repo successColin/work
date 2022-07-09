@@ -110,6 +110,7 @@ export default {
       }
     },
     async refresh() {
+      this.$store.commit('changeIsNoodQuery', false);
       try {
         const arr = ['/appConfig/funcPage', '/appConfig/mine'];
         const { pathname } = window.location;

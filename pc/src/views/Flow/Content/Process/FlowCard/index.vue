@@ -511,7 +511,7 @@ export default {
   },
   render(h) {
     return (
-        <div class="cardMain" style={{ width: 'calc(100% - 340px)', overflow: 'auto' }}>
+        <div class="cardMain">
           <div style={{ transform: `scale(${this.scaleVal / 100})` }}>
             <div style="display: inline-flex; flex-direction: column; align-items: center;transform-origin: 0 0;">
               {this.data && NodeFactory.call(this, this, this.data, h)}
@@ -526,6 +526,12 @@ export default {
 
 <style lang="scss" scoped>
 @import 'index';
+.cardMain {
+  width: calc(100% - 310px);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+}
 .cardMain::-webkit-scrollbar {
   //width: 0 !important;
 }

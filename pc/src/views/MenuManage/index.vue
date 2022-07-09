@@ -252,7 +252,8 @@ export default {
       });
       this.transitionName = 'move-right';
       this.menuArr.splice(index, 1);
-      this.$store.dispatch('getRoute');
+      await this.$store.dispatch('getRoute');
+      await this.$store.dispatch('getHomeRoute');
     },
     // 改变分组
     changeGroup(item) {

@@ -22,9 +22,16 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
+      <!-- <el-form-item label="字段名" v-if="!isShow">
+        <apiot-input
+          v-model="activeObj.fieldName"
+          placeholder="请填写字段名"
+        ></apiot-input>
+      </el-form-item> -->
       <!-- 业务表 -->
       <el-form-item label="业务表" v-if="!isShow">
         <filterable-input
+          :disabled="!!activeObj.tableInfo.tableName"
           placeholder="请选择关联表"
           title="关联表"
           :dialogType="1"
@@ -127,7 +134,7 @@
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" v-if="isShow">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -204,16 +211,28 @@
             >1/4</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '66.67%' }]"
             @click="activeObj.width = '66.67%'"
             >2/3</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-else
+            :class="[{ active: activeObj.width === '20%' }]"
+            @click="activeObj.width = '20%'"
+            >1/5</el-button
+          >
+          <el-button
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '75%' }]"
             @click="activeObj.width = '75%'"
             >3/4</el-button
+          >
+          <el-button
+            v-else
+            :class="[{ active: activeObj.width === '16.66%' }]"
+            @click="activeObj.width = '16.66%'"
+            >1/6</el-button
           >
           <el-button
             :class="[{ active: activeObj.width === '100%' }]"
@@ -222,7 +241,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证">
+      <el-form-item label="验证" v-if="isShow">
         <p class="switchBox">
           是否必填
           <el-switch
@@ -235,7 +254,7 @@
           </el-switch>
         </p>
       </el-form-item>
-      <el-form-item label="提交类型">
+      <el-form-item label="提交类型" v-if="isShow">
         <el-select v-model="activeObj.submitType" placeholder="请选择类型">
           <el-option label="始终提交" :value="1"></el-option>
           <el-option label="仅显示时提交" :value="2"></el-option>

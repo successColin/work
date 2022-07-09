@@ -154,6 +154,7 @@
           </div>
         </div>
         <el-table
+          class="tableWrap"
           :height="466"
           :data="configData"
           style="width: 100%; margin-bottom: 20px"
@@ -172,34 +173,66 @@
               >
             </template>
           </el-table-column>
-          <el-table-column prop="address" label="显示">
+          <el-table-column prop="address" label="显示" :key="key1">
+            <template slot="header">
+              <apiot-checkbox
+                  :value="isShowCheckAll"
+                  :indeterminate="isShowTitle"
+                  @change="handleCheckAllChange($event,'canShowCheckbox', 'canShow')"
+              >
+              </apiot-checkbox>
+              显示
+            </template>
             <template slot-scope="scope">
               <apiot-checkbox
+                :compId="scope.row.compId"
+                class="canShowCheckbox"
                 v-if="isShowCheckbox(scope.row, 'canShow')"
                 :value="getIsHide(scope.row, 'canShow')"
-                @change="(value) => changeCheck(value, scope.row, 'canShow')"
+                @change="changeCommonCheck($event, scope.row, 'canShow', 'canShowCheckbox')"
               >
               </apiot-checkbox>
             </template>
           </el-table-column>
           <el-table-column prop="address" label="编辑">
+            <template slot="header">
+              <apiot-checkbox
+                  :value="isEditCheckAll"
+                  :indeterminate="isEditTitle"
+                  @change="handleCheckAllChange($event,'canEditCheckbox', 'canEdit')"
+              >
+              </apiot-checkbox>
+              编辑
+            </template>
             <template slot-scope="scope">
               <apiot-checkbox
+                :compId="scope.row.compId"
+                class="canEditCheckbox"
                 v-if="isShowCheckbox(scope.row, 'canReadonly')"
                 :value="getIsEdit(scope.row, 'canEdit')"
-                @change="(value) => changeCheck(value, scope.row, 'canEdit')"
+                @change="changeCommonCheck($event, scope.row, 'canEdit', 'canEditCheckbox')"
               >
               </apiot-checkbox>
             </template>
           </el-table-column>
           <el-table-column prop="address" label="必填">
+            <template slot="header">
+              <apiot-checkbox
+                  :value="isRequireCheckAll"
+                  :indeterminate="isRequireTitle"
+                  @change="handleCheckAllChange($event,'canRequireCheckbox', 'shouldRequired')"
+              >
+              </apiot-checkbox>
+              必填
+            </template>
             <template slot-scope="scope">
               <apiot-checkbox
+                :compId="scope.row.compId"
+                class="canRequireCheckbox"
                 :value="getIsCheck(scope.row, 'shouldRequired')"
                 v-if="isShowCheckbox(scope.row, 'shouldRequired')"
-                @change="
-                  (value) => changeCheck(value, scope.row, 'shouldRequired')
-                "
+                @change="changeCommonCheck($event, scope.row,
+                'shouldRequired', 'canRequireCheckbox')"
               >
               </apiot-checkbox>
             </template>
@@ -241,9 +274,19 @@ export default {
   },
   data() {
     return {
+      isShowTitle: false, // 显示表头全选
+      isShowCheckAll: false, // 显示表头全选
+
+      isEditTitle: false, // 编辑全选
+      isEditCheckAll: false, // 编辑表头全选
+
+      isRequireTitle: false, // 必填全选
+      isRequireCheckAll: false, // 必填全选
+
       panelOptions: [], // 面板下拉
       panelActive: '', // 选中的面板
       key: 0,
+      key1: 0,
       curPaneObj: {},
       configData: [], // 页面配置
       checkFormConfigJSON: [], // 审批人页面配置
@@ -281,6 +324,19 @@ export default {
   },
 
   computed: {
+    returnDomLength() { // 查找选中的dom和所有的的dom节点
+      return function (classKey) {
+        const dom = document.querySelectorAll(`.tableWrap .${classKey}`);
+        const domChecked = document.querySelectorAll(`.tableWrap .${classKey}.is-checked`);
+        const obj = {
+          all: dom.length,
+          checked: domChecked.length,
+          dom,
+          domChecked,
+        };
+        return obj;
+      };
+    },
     isShowCheckbox() {
       return function(obj, key) {
         return Object.prototype.hasOwnProperty.call(obj, key);
@@ -369,6 +425,31 @@ export default {
   },
 
   methods: {
+    handleCheckAllChange(v, key, key2) {
+      if (key === 'canShowCheckbox') {
+        this.isShowCheckAll = v;
+        this.isShowTitle = false;
+        this.key1 += 1;
+      }
+      if (key === 'canEditCheckbox') {
+        this.key1 += 1;
+        this.isEditTitle = false;
+        this.isEditCheckAll = v;
+      }
+      if (key === 'canRequireCheckbox') {
+        this.key1 += 1;
+        this.isRequireTitle = false;
+        this.isRequireCheckAll = v;
+      }
+      this.reduceData(key, key2, v);
+    },
+    reduceData(key, key2, v) {
+      const { dom } = this.returnDomLength(key);
+      dom.forEach(async (domKey) => {
+        const compId = domKey.getAttribute('compid');
+        await this.changeCheck(v, { compId }, key2);
+      });
+    },
     init() {
       if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.sourceType = this.nodeInfo.checkUsers;
@@ -461,7 +542,51 @@ export default {
       this.configVisible = false;
       this.resetCheckType();
     },
-    changeCheck(value, obj, key) {
+    async changeCommonCheck(value, obj, key, key2) {
+      await this.changeCheck(value, obj, key);
+      await this.initShow(key2);
+    },
+    initShow(key2) {
+      const { all, checked } = this.returnDomLength(key2);
+      if (key2 === 'canShowCheckbox') {
+        if (checked > 0 && checked < all) {
+          this.isShowTitle = true;
+          this.isShowCheckAll = false;
+        } else if (checked === all) {
+          this.isShowTitle = false;
+          this.isShowCheckAll = true;
+        } else {
+          this.isShowTitle = false;
+          this.isShowCheckAll = false;
+        }
+      }
+      if (key2 === 'canEditCheckbox') {
+        if (checked > 0 && checked < all) {
+          this.isEditTitle = true;
+          this.isEditCheckAll = false;
+        } else if (checked === all) {
+          this.isEditTitle = false;
+          this.isEditCheckAll = true;
+        } else {
+          this.isEditTitle = false;
+          this.isEditCheckAll = false;
+        }
+      }
+      if (key2 === 'canRequireCheckbox') {
+        if (checked > 0 && checked < all) {
+          this.isRequireTitle = true;
+          this.isRequireCheckAll = false;
+        } else if (checked === all) {
+          this.isRequireTitle = false;
+          this.isRequireCheckAll = true;
+        } else {
+          this.isRequireTitle = false;
+          this.isRequireCheckAll = false;
+        }
+      }
+      this.key1 += 1;
+    },
+    async changeCheck(value, obj, key) {
       // 修改属性
       const isTrue = this.checkType === 'app';
       const arr = isTrue ? this.appCheckFormConfigJSON : this.checkFormConfigJSON;
@@ -501,7 +626,6 @@ export default {
         name: key === 'app' ? appPanelName : pcPanelName,
         value: this.panelActive
       }];
-      console.log(res[0], 'paneObj', this.currentVersion.globalAttributes);
       Object.keys(paneObj).forEach((item, i) => {
         const { panelName, id, panelClassify } = paneObj[item] || {};
         // eslint-disable-next-line no-shadow
@@ -516,15 +640,26 @@ export default {
       this.panelOptions = options;
       this.checkType = key;
       this.configVisible = true;
+      this.$nextTick(() => {
+        this.initThead();
+      });
     },
     async changeConfig(v) { // 获取其他面板的配置
       const res = await getDesignMenu({ panelId: v });
       this.configData = res[0].designOverallLayout || [];
       this.panelActive = res[0].panelId;
+      this.$nextTick(() => {
+        this.initThead();
+      });
     },
     appendUsers({ value, key }) {
       this.sourceType[key] = value;
-    }
+    },
+    initThead() { // 初始化表头
+      this.initShow('canShowCheckbox');
+      this.initShow('canEditCheckbox');
+      this.initShow('canRequireCheckbox');
+    },
   },
   name: 'index'
 };

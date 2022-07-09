@@ -22,7 +22,7 @@
     <template>
       <section class="content">
         <!-- 多语言 -->
-        <header class="content__lang">
+        <header class="content__lang" v-if="+configs.enableMultilingual === 1">
           <my-lang></my-lang>
         </header>
         <!-- 登录内容：账号密码 -->
@@ -49,7 +49,11 @@
             ></login-form>
             <!-- 微信扫码 / 浙政钉扫码 -->
             <!-- 1=无 2=APP扫码 3=浙政钉扫码 -->
-            <login-scan v-else :scanType="+configs.scanType"></login-scan>
+            <login-scan
+              v-else
+              :scanType="+configs.scanType"
+              :configs="configs"
+            ></login-scan>
           </div>
           <!-- <div @click="wxlogin">微信登录</div>-->
         </div>

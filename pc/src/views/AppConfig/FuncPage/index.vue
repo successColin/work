@@ -8,9 +8,9 @@
         <div class="appBox__phone">
           <div class="appBox__phone--wrapper appFunc">
             <div class="appFunc__header" v-if="configData.type !== 3">
-              <span class="appFunc__header--pos" v-show="configData.enablePos"
+              <!-- <span class="appFunc__header--pos" v-show="configData.enablePos"
                 >上海区工厂</span
-              >
+              > -->
               <div
                 class="appFunc__header--rightFunc"
                 v-show="configData.enableRightFunc"

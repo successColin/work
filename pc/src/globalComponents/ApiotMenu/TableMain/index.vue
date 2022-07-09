@@ -24,7 +24,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       :grandFather="configData"
-      :btnTypesArr="[1, 2, 3, 4, 5, 6, 7, 8]"
+      :btnTypesArr="[1, 2, 3, 4, 5, 6, 7, 8, 14]"
       :isTable="true"
       :canSearch="true"
       :multiEntityArr="multiEntityArr"
@@ -400,6 +400,9 @@ export default {
     // 是否需要数据权限
     getDataPermissions() {
       if (this.$store.state.userCenter.userInfo.isSupAdmin) {
+        return false;
+      }
+      if (this.showType && this.showType.type === 'flow') {
         return false;
       }
       return true;

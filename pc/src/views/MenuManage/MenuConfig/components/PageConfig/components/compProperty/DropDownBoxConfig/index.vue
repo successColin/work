@@ -37,12 +37,12 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
-      <el-form-item label="字段名" v-if="!isShow">
+      <!-- <el-form-item label="字段名" v-if="!isShow">
         <apiot-input
           v-model="activeObj.fieldName"
           placeholder="请填写字段名"
         ></apiot-input>
-      </el-form-item>
+      </el-form-item> -->
       <p class="switchBox m-b-10 p-t-6" v-if="isShow">
         <span class="switchBox__label">是否支持搜索</span>
         <el-switch
@@ -145,7 +145,7 @@
           >
         </el-select>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" v-if="isShow">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -228,16 +228,28 @@
             >1/4</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '66.67%' }]"
             @click="activeObj.width = '66.67%'"
             >2/3</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-else
+            :class="[{ active: activeObj.width === '20%' }]"
+            @click="activeObj.width = '20%'"
+            >1/5</el-button
+          >
+          <el-button
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '75%' }]"
             @click="activeObj.width = '75%'"
             >3/4</el-button
+          >
+          <el-button
+            v-else
+            :class="[{ active: activeObj.width === '16.66%' }]"
+            @click="activeObj.width = '16.66%'"
+            >1/6</el-button
           >
           <el-button
             :class="[{ active: activeObj.width === '100%' }]"

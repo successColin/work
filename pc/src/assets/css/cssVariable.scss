@@ -24,7 +24,8 @@ $userImageHeader: 34px; // 34px
 $tabsHeaderToHeader: 250px; // 250px
 
 // 登录主题色
-$loginThemeColor: var(--loginThemeColor, #4689f5); // 50px
+$loginThemeColor: var(--loginThemeColor, #4689f5);
+$loginThemeLighten: var(--loginThemeLighten, #4689f5); // 登录主题色 淡化
 
 @mixin leftTriangle($w, $h,$color, $color1, $color2) {
   width: $w;

@@ -10,6 +10,7 @@ import { getLoginConfig } from '@/api/login';
 import { menuCenter, menuCenterFav } from '@/api/menuManage';
 import { selectColorArr } from '@/config';
 import bus from '@/utils/bus';
+import { lighten } from '@/utils/varyColor';
 // import router from '@/router';
 
 function resolveMenu(module, state) {
@@ -48,6 +49,23 @@ function arrToObj(arr, obj) {
     });
   }
 }
+
+// 字符串转 HEX
+// function formatColor(value) {
+//   console.log(value);
+//   const nameToHex = {
+//     red: '#ff0000',
+//     green: '#00ff00',
+//     blue: '#0000ff',
+//   }[value.toLowerCase()];
+//   value = nameToHex || value;
+//   return [
+//     parseInt(`0x${value.slice(1, 3)}`, 0),
+//     parseInt(`0x${value.slice(3, 5)}`, 0),
+//     parseInt(`0x${value.slice(5, 7)}`, 0),
+//   ];
+// }
+
 export default {
   state: {
     allRouteName: ['home'], // 所有路由的名字,默认路由名字home必须包含
@@ -118,6 +136,9 @@ export default {
       document
         .getElementsByTagName('body')[0]
         .style.setProperty('--loginThemeColor', val);
+      document
+        .getElementsByTagName('body')[0]
+        .style.setProperty('--loginThemeLighten', lighten(val, 0.3));
       state.routeAuthArr = val;
     },
     changeLoginConfig(state, val) {

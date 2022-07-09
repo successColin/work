@@ -50,5 +50,22 @@ export default {
   .el-button--primary {
     background-color: $loginThemeColor;
   }
+  .el-button--primary.is-disabled {
+    background-color: $loginThemeLighten !important;
+    border-color: $loginThemeLighten !important;
+  }
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: $loginThemeColor;
+    border-color: $loginThemeColor;
+  }
+  .el-input__inner:focus {
+    border-color: $loginThemeColor;
+  }
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: $loginThemeColor !important;
+  }
+  .icon-mimayincang:hover {
+    color: $loginThemeColor !important;
+  }
 }
 </style>

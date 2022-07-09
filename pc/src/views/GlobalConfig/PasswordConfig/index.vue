@@ -75,6 +75,7 @@
             v-model="onlineTimeVal"
             :options="onlineTimeOptions"
             @change="handleChangeSelectVal('onlineTime', $event)"
+            :style="selectWidth"
           ></apiot-select>
           <apiot-button
             type="text"
@@ -111,6 +112,12 @@ import ChangePassword from '../components/ChangePassword';
 import HistoryPassword from '../components/HistoryPassword';
 
 export default {
+  props: {
+    selectWidth: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       response: [],
@@ -177,7 +184,7 @@ export default {
     },
     // 修改 button 状态
     changeBtnName() {
-      return function(state) {
+      return function (state) {
         return state ? this.$t('common.save') : this.$t('common.modify');
       };
     },
@@ -191,7 +198,7 @@ export default {
     },
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
-      return function(options, val) {
+      return function (options, val) {
         const obj = options.find((item) => item.value === val);
         return obj && obj.name;
       };

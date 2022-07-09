@@ -22,6 +22,12 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
+      <!-- <el-form-item label="字段名" v-if="!isShow">
+        <apiot-input
+          v-model="activeObj.fieldName"
+          placeholder="请填写字段名"
+        ></apiot-input>
+      </el-form-item> -->
       <!-- 数据源  -->
       <el-form-item label="关联数据源" v-if="!isShow">
         <el-select :value="1" placeholder="请选择数据源" :disabled="true">
@@ -39,6 +45,7 @@
       <!-- 业务表 -->
       <el-form-item label="业务表" v-if="!isShow">
         <filterable-input
+          :disabled="canChangeTable"
           placeholder="请选择关联表"
           title="关联表"
           :dialogType="1"
@@ -47,7 +54,10 @@
         ></filterable-input>
       </el-form-item>
       <!-- 关联表 -->
-      <el-form-item label="关联表" v-if="!isShow">
+      <el-form-item
+        label="关联表"
+        v-if="!isShow && activeObj && activeObj.tableInfo.tableName"
+      >
         <apiot-button
           class="relateBox__AssociationTable"
           style="margin-bottom: 10px"
@@ -287,16 +297,28 @@
             >1/4</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '66.67%' }]"
             @click="activeObj.width = '66.67%'"
             >2/3</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-else
+            :class="[{ active: activeObj.width === '20%' }]"
+            @click="activeObj.width = '20%'"
+            >1/5</el-button
+          >
+          <el-button
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '75%' }]"
             @click="activeObj.width = '75%'"
             >3/4</el-button
+          >
+          <el-button
+            v-else
+            :class="[{ active: activeObj.width === '16.66%' }]"
+            @click="activeObj.width = '16.66%'"
+            >1/6</el-button
           >
           <el-button
             :class="[{ active: activeObj.width === '100%' }]"
@@ -402,6 +424,15 @@ export default {
   },
 
   computed: {
+    // 是否可以更改主表
+    canChangeTable() {
+      let flag = false;
+      const { relateTableArr } = this.activeObj;
+      if (relateTableArr && relateTableArr.length !== 0) {
+        flag = true;
+      }
+      return flag;
+    },
     getSingleRelate() {
       console.log(this.relateObj);
       return this.isShow

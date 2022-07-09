@@ -24,7 +24,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       :grandFather="configData"
-      :btnTypesArr="[1, 2, 3, 4, 5, 6, 7, 8]"
+      :btnTypesArr="[1, 2, 3, 4, 5, 6, 7, 8, 14]"
       :isTable="true"
       :canSearch="true"
       :multiEntityArr="multiEntityArr"
@@ -400,6 +400,9 @@ export default {
     // 是否需要数据权限
     getDataPermissions() {
       if (this.$store.state.userCenter.userInfo.isSupAdmin) {
+        return false;
+      }
+      if (this.showType && this.showType.type === 'flow') {
         return false;
       }
       return true;
@@ -811,7 +814,7 @@ export default {
           this.currentRadioObj = null;
           this.multiEntityArr = [];
           this.$refs.tableMain.clearSelection();
-          this.getSidebarList();
+          this.getSidebarList(null, 'all');
         }
         return;
       }
@@ -914,7 +917,7 @@ export default {
       return '';
     },
     // 获取列表数据
-    async getSidebarList(sortStr) {
+    async getSidebarList(sortStr, type) {
       // console.log(this.getFatherPanel());
       // console.log(this.onlyFlag());
       this.loading = true;
@@ -946,6 +949,10 @@ export default {
               params.panelFilter = [menuFilter];
             }
           }
+        }
+        if (type === 'all') {
+          delete params.panelFilter;
+          delete params.compMap;
         }
         if (this.configData.searchInfo) {
           params.searchInfo = this.configData.searchInfo;

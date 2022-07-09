@@ -334,6 +334,23 @@ export default {
                 openFirstTask: true, // 默认展开第一个任务点
                 limitFunc: true, // 是否启用上下限功能
                 enforceCheck: true, // 是否启用强制点检
+                abnormalMemo: true, // 是否启用异常描述
+                // 配置任务字段数组
+                columnArr: [
+                  //  id: createUnique(),
+                  // columnObj: {  // 字段
+                  //   id: '',
+                  //   columnName: '',
+                  //   columnTypeDict: ''
+                  // },
+                  // columnTitle: '', // 名称
+                  // compType: 1, // 组件类型
+                  // showStatus: 1, // 状态
+                  // dictObj: {} // 字典
+                ]
+              },
+              // 任务层
+              resultLayer: {
                 // 配置任务字段数组
                 columnArr: [
                   //  id: createUnique(),

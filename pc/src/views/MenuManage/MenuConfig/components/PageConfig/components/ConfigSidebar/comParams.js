@@ -15,7 +15,7 @@ export const TextCom = {
   singleType: 1, // 单行文本类型
   placeholder: '请输入单行文本', // 占位符
   helpInfo: '',
-  fieldName: '', // 字段名
+  // fieldName: '', // 字段名
   dataSource: {
     relateName: '主表', // 关系名称
     tableName: '', // 表名
@@ -52,7 +52,7 @@ export const SelectCom = {
   dropDownType: 1, // 下拉组件类型
   placeholder: '请选择下拉框',
   helpInfo: '', // 帮助信息
-  fieldName: '', // 字段名
+  // fieldName: '', // 字段名
   filterable: false, // 能否搜索
   dataSource: {
     relateName: '主表', // 关系名称
@@ -89,6 +89,7 @@ export const DataOneBoxCom = {
   dropDownType: 1,
   placeholder: '请选择数据单选框',
   helpInfo: '', // 帮助信息
+  // fieldName: '', // 字段名
   dataSource: {
     relateName: '', // 关系名称
     tableName: '', //  表名
@@ -149,6 +150,7 @@ export const DataMultiBoxCom = {
   dropDownType: 1,
   placeholder: '请选择数据多选框',
   helpInfo: '', // 帮助信息
+  // fieldName: '', // 字段名
   dataSource: {
     relateName: '', // 关系名称
     tableName: '', //  表名
@@ -219,6 +221,7 @@ export const DateTimeCom = {
   startPlaceholder: '请选择开始日期时间',
   endPlaceholder: '请选择结束日期时间',
   helpInfo: '',
+  // fieldName: '', // 字段名
   dataSource: {
     relateName: '主表',
     tableName: '',
@@ -247,4 +250,65 @@ export const DateTimeCom = {
     formula: '',
   }, // 最大时间
   submitType: 1, // 1 始终提交 2 仅显示时提交 3 始终不提交
+};
+
+// 按钮
+export const ButtonCom = {
+  name: '按钮', // 按钮名称
+  areaType: 2, // 表示在按钮区
+  dragCard: true, // 是否允许拖入卡片区
+  imgUrl: 'baseComp/FormButton.svg', // z组件拖拽图标
+  compType: 5, // 组件类型
+  compId: createUnique(), // 组件id
+  compName: 'FormButton', // 真实页面组件渲染名称
+  propertyCompName: 'FormButtonConfig', // 组件配置渲染名称
+  helpInfo: '', // 帮助信息
+  buttonType: 5, // 类型
+  exportType: 1, // 导出类型
+  buttonStyle: 'primary', // 样式
+  buttonForm: 1, // 风格
+  iconColor: '#5A80ED', // 图标颜色
+  iconFont: 'iconfont-xinzeng', // 图标
+  ruleArr: [
+    // {
+    //   ruleContent: '123',  // 规则内容
+    //   ruleTip: 'eqwe'      // 错误提示
+    // },
+  ], // 提交钱校验规则
+  pane: {
+    name: '', // 面板名称
+    columnName: '', // 面板字段
+    paramArr: [
+      // {
+      //   name: '', // 变量名称
+      //   type: 1, // 变量类型 1 是工作表 2 是固定值 3是公式
+      //   compId: '', // 组件id
+      //   fixedValue: '', // 固定值
+      //   formula: '' // 公式
+      // }
+    ],
+  },
+  execFunc: false, // 允许执行函数
+  execFuncName: '', // 函数表达式
+  flowType: 1, // 流程类型
+  beforeSubmit: {
+    type: 1,
+    html: '',
+  }, // 提交前提示
+  afterSubmit: {
+    type: 1,
+    html: '',
+  }, // 提交后提示
+  saveAreaArr: '', // 需要保存的区域
+  relateType: 1, // 弹窗类型 1是面板 2是菜单
+  dialogName: 'PanelDialog', // 弹窗风格
+  dialogTitle: '', // 弹窗标题
+  refreshType: 0,
+  submitEnable: false,
+  canShow: true,
+  canReadonly: false,
+  templateInfo: {}, // 导入模板
+  extraColumn: [], // 额外导入信息
+  needField: false, // 是否导出数据库表字段
+  exportSetting: 1, // 导出设置 1 - 4
 };

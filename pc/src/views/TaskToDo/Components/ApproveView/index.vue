@@ -295,9 +295,26 @@ export default {
       return triggerUserId === userId && instanceStatus === 'IN_PROGRESS';
     },
     isShowPasBtn() {
+      const { checkFormConfig = [] } = this.nodeConfig;
+      const currentObj = checkFormConfig.find((item) => !!item.isRelation);
       const { executorUserId, taskType, taskStatus } = this.approvalInfo;
       const { id: userId } = this.$store.state.userCenter.userInfo;
-      return executorUserId === userId && taskType === 5 && taskStatus === 1;
+      if (taskType !== 5) return false;
+      if (executorUserId === userId && taskType === 5 && taskStatus === 1) {
+        if (currentObj) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    },
+    isShowPasBtnCopy() {
+      const { checkFormConfig = [] } = this.nodeConfig;
+      const currentObj = checkFormConfig.find((item) => !!item.isRelation);
+      const { executorUserId, taskType, taskStatus } = this.approvalInfo;
+      const { id: userId } = this.$store.state.userCenter.userInfo;
+      if (taskType !== 5) return false;
+      return executorUserId === userId && taskType === 5 && taskStatus === 1 && currentObj;
     },
     getDialogName() {
       if (this.operationType === 1 || this.operationType === 5) {
@@ -365,7 +382,7 @@ export default {
   },
   mounted() {
     this.$bus.$off('do_flow_submit').$on('do_flow_submit', () => {
-      if (this.isShowPasBtn) {
+      if (this.isShowPasBtnCopy) {
         Message.closeAll();
         this.showModal(5);
       }

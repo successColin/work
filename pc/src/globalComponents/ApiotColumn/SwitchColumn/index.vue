@@ -57,10 +57,15 @@ export default {
       type: Boolean,
       default: false
     },
-    // 必填判断字段
+    // 是否需要修改
     judgeName: {
       type: String,
       default: ''
+    },
+    // 不能修改
+    noUpdateName: {
+      type: String,
+      default: 'noUpdate'
     }
   },
   data() {
@@ -71,8 +76,11 @@ export default {
 
   computed: {
     isNood() {
-      return function(v) {
+      return function (v) {
         if (this.isNoodDisabled && this.judgeName) {
+          if (v[this.noUpdateName]) {
+            return true;
+          }
           if (this.activeValue === v[this.judgeName]) {
             return true;
           }

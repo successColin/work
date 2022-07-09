@@ -35,8 +35,9 @@ module.exports = {
         // target: 'http://192.168.0.112:8080', // jt
         // target: 'http://192.168.0.136:8080', // lf
         // target: 'http://192.168.0.21:8080', // zs
-        // target: 'http://192.168.0.4:8080', // jh
-        // target: 'http://47.99.87.62:84/', // tz
+        // target: 'http://47.99.87.62:84/', // jh
+        // target: 'http://47.99.87.62:93/',
+        // target: 'http://47.99.87.62:84/', // 泰州石化
         changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
         pathRewrite: {
           '^/api': '/api',

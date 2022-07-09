@@ -28,7 +28,7 @@
     <template>
       <!-- 内容 -->
       <keep-alive>
-        <router-view />
+        <router-view selectWidth="width: 200px" />
       </keep-alive>
     </template>
   </apiot-content>
@@ -73,21 +73,21 @@ export default {
           color: '#5A80ED',
           url: 'thirdLinks',
           type: ''
-        },
-        {
-          name: 'globalConfig.fileServerOptions',
-          icon: 'icon-wenjianfuwuqixuanxiang',
-          color: '#FC8256',
-          url: 'fileserverConfig',
-          type: ''
-        },
-        {
-          name: 'globalConfig.watermarkOptions',
-          icon: 'icon-shuiyinxiangguanxuanxiang',
-          color: '#34C7BE',
-          url: 'watermarkConfig',
-          type: ''
         }
+        // {
+        //   name: 'globalConfig.fileServerOptions',
+        //   icon: 'icon-wenjianfuwuqixuanxiang',
+        //   color: '#FC8256',
+        //   url: 'fileserverConfig',
+        //   type: ''
+        // },
+        // {
+        //   name: 'globalConfig.watermarkOptions',
+        //   icon: 'icon-shuiyinxiangguanxuanxiang',
+        //   color: '#34C7BE',
+        //   url: 'watermarkConfig',
+        //   type: ''
+        // }
       ]
     };
   },

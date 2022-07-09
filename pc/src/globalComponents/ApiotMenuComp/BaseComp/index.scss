@@ -1,5 +1,5 @@
 .onelineCalss {
-  min-height: 60px !important;
+  min-height: 40px !important;
   &__form {
     display: flex;
     align-items: center;
@@ -10,7 +10,6 @@
       }
       .el-form-item__content {
         flex: 1;
-        padding-right: 40px;
       }
     }
   }

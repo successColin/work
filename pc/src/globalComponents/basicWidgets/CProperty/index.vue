@@ -8,7 +8,7 @@
 <!-- 页面 -->
 <template>
   <el-radio-group
-    class="alignWrap"
+    class="alignWrap1"
     v-on="$listeners"
     v-bind="$attrs"
     size="mini"
@@ -71,7 +71,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.alignWrap {
+.alignWrap1 {
   width: 100%;
   display: flex;
 
@@ -88,7 +88,7 @@ export default {
         width: 100%;
         padding: 8px 15px;
         font-size: 13px;
-        border-radius: 4px;
+        border-radius: 0;
         color: #333;
         border-color: #e9e9e9;
         background: $component-background-color;
@@ -104,6 +104,15 @@ export default {
       .el-radio-button__inner:hover {
         background: #edf3fe;
         border-color: #c8dcfc;
+      }
+      &:first-child {
+        .el-radio-button__inner{
+          border-bottom-left-radius: 4px;
+          border-top-left-radius: 4px;
+        }
+      }
+      &:last-child .el-radio-button__inner {
+        border-radius: 0 4px 4px 0;
       }
     }
   }

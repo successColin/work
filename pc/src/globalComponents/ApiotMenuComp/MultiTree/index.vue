@@ -289,6 +289,7 @@ export default {
       if (this.$store.state.userCenter.userInfo.isSupAdmin) {
         return false;
       }
+      console.log(11111);
       return true;
     },
     // 获取组件数据的map

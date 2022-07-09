@@ -152,7 +152,7 @@ export default {
     .el-pagination.is-background .btn-next,
     .el-pagination.is-background .el-pager li {
       margin: 0 10px 0 0;
-      width: 30px;
+      min-width: 30px;
       height: 30px;
       box-sizing: border-box;
       background: #ffffff;

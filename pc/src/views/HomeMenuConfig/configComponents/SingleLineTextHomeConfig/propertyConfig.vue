@@ -600,6 +600,7 @@ export default {
           .el-radio-button__inner {
             width: 100%;
             padding: 5px 15px;
+            border-radius: 0 !important;
             border-color: $component-border-color;
             background: $component-background-color;
 

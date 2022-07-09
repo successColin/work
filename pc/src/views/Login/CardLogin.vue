@@ -14,7 +14,7 @@
     }"
   >
     <!-- 多语言 -->
-    <header class="cardLogin__lang">
+    <header class="cardLogin__lang" v-if="+configs.enableMultilingual === 1">
       <my-lang></my-lang>
     </header>
     <!-- 登录方式 -->
@@ -49,7 +49,11 @@
         ></login-form>
         <!-- 微信扫码 / 浙政钉扫码 -->
         <!-- 1=无 2=APP扫码 3=浙政钉扫码 -->
-        <login-scan v-else :scanType="+configs.scanType"></login-scan>
+        <login-scan
+          v-else
+          :scanType="+configs.scanType"
+          :configs="configs"
+        ></login-scan>
       </div>
     </section>
     <!-- 浙江公安备案 -->
@@ -109,7 +113,7 @@ export default {
     },
     imgUrl() {
       const img = this.configs.backgroundImage;
-      return img.substr(0, img.length - 1);
+      return (img && img.substr(0, img.length - 1)) || require('@/assets/img/loginBg.png');
     },
     type() {
       return this.styleWidthObj && this.styleWidthObj.value;

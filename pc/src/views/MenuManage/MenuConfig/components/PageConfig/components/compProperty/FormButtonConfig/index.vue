@@ -30,6 +30,16 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="导出类型" v-if="activeObj.buttonType === 13">
+        <el-select v-model="activeObj.exportType" placeholder="请选择按钮类型">
+          <el-option
+            :label="item.label"
+            :value="item.value"
+            v-for="item in exportTypeArr"
+            :key="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item
         label="操作区域"
         v-if="[2, 9, 10].includes(activeObj.buttonType) && activeObj.isTabBtn"
@@ -161,7 +171,7 @@
       </apiot-button>
       <el-form-item
         label="关联类型"
-        v-if="![1, 2, 7, 8, 9].includes(activeObj.buttonType)"
+        v-if="![1, 2, 7, 8, 9, 14].includes(activeObj.buttonType)"
       >
         <el-radio v-model="activeObj.relateType" :label="1">弹出面板</el-radio>
         <el-radio
@@ -281,7 +291,7 @@
       </el-form-item>
       <el-form-item
         label="刷新类型"
-        v-show="![7, 8].includes(activeObj.buttonType)"
+        v-show="![7, 8, 14].includes(activeObj.buttonType)"
       >
         <el-select v-model="activeObj.refreshType" placeholder="请选择">
           <el-option
@@ -350,6 +360,22 @@
         </el-radio-group>
       </el-form-item>
     </el-form>
+<!--    <h2 class="contentConfig__dataSource&#45;&#45;h2">-->
+<!--      业务表<el-tooltip-->
+<!--        content="当业务表被关系关联，或者被组件使用时不允许更改"-->
+<!--        placement="top"-->
+<!--    ><i class="iconfont icon-bangzhu"-->
+<!--    /></el-tooltip>-->
+<!--    </h2>-->
+<!--    <filterable-input-->
+<!--        placeholder="请选择关联表"-->
+<!--        title="关联表"-->
+<!--        :dialogType="1"-->
+<!--        :disabled="canChangeTable"-->
+<!--        :showInfo="getCurrentTab.tableInfo"-->
+<!--        :isTree="getCurrentTab.isTree"-->
+<!--        @selectRes="selectTable"-->
+<!--    ></filterable-input>-->
     <!-- 自定义提示 -->
     <tip-dialog
       v-if="tipDialog"
@@ -484,7 +510,24 @@ export default {
         {
           label: '批量普通',
           value: 10
-        }
+        },
+        {
+          label: '查询',
+          value: 11
+        },
+        {
+          label: '重置',
+          value: 12
+        },
+        {
+          label: '导出',
+          value: 13
+        },
+        {
+          label: '下载资料',
+          value: 14
+        },
+
       ],
       // 按钮表现形式
       buttonFormArr: [
@@ -498,6 +541,20 @@ export default {
         },
         {
           label: '图标按钮',
+          value: 3
+        }
+      ],
+      exportTypeArr: [
+        {
+          label: 'EXCEL',
+          value: 1
+        },
+        {
+          label: 'WORD',
+          value: 2
+        },
+        {
+          label: 'PDF',
           value: 3
         }
       ],

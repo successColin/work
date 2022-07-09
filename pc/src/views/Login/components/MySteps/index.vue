@@ -138,17 +138,17 @@ export default {
       margin-top: 9px;
     }
     .fontColor1 {
-      color: #4689f5;
+      color: #4689f5 !important;
     }
     .fontColor2 {
-      color: #d7dfea;
+      color: #d7dfea !important;
     }
     .bgnColor1 {
-      background: #4689f5;
+      background: #4689f5 !important;
       z-index: 2;
     }
     .bgnColor2 {
-      background: #d7dfea;
+      background: #d7dfea !important;
     }
     .fontNameColor1 {
       color: #666666;

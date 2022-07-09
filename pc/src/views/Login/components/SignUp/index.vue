@@ -27,7 +27,7 @@
     </div>
     <div></div>
     <!-- 还没有账号？立即注册 -->
-    <div class="signUp__jump">
+    <div class="signUp__jump" v-if="+configs.enableRegistration === 1">
       <span>{{ $t('login.noAccountYet') }}</span>
       <span class="signUp__jump--btn loginFontHover" @click="handleJump">
         {{ $t('login.signUpNow') }}
@@ -45,6 +45,10 @@ export default {
     isScan: {
       type: Boolean,
       default: false
+    },
+    configs: {
+      type: Object,
+      default: () => {}
     }
   },
   computed: {

@@ -439,7 +439,7 @@ export default {
           .el-radio-button__inner {
             width: 100%;
             padding: 8px 15px;
-            border-radius: 0;
+            border-radius: 0 !important;
             font-size: 14px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;

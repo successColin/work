@@ -362,7 +362,7 @@ export default {
       // console.log(this.getCurrentTab);
       const res = this.findComp(
         this.getCurrentTab.relateTableArr[i].relateName,
-        this.getCurrentTab.children
+        this.getCurrentTab.children || this.getCurrentTab.dataSource
       );
 
       // console.log(res);
@@ -393,19 +393,29 @@ export default {
       }
     },
     findComp(relateName, arr) {
-      return arr.find((child) => {
-        if (
-          child.dataSource &&
-          child.dataSource.relateName &&
-          child.dataSource.relateName.indexOf(relateName) !== -1
-        ) {
-          return true;
+      let state = false;
+      if (Object.prototype.toString.call(arr) === '[object Object]') {
+        if (arr.relateName && arr.relateName.indexOf(relateName) !== -1) {
+          state = true;
         }
-        if (child.children && child.children.length) {
-          return this.findComp(relateName, child.children);
-        }
-        return false;
-      });
+        return state;
+      }
+      return (
+        arr &&
+        arr.find((child) => {
+          if (
+            child.dataSource &&
+            child.dataSource.relateName &&
+            child.dataSource.relateName.indexOf(relateName) !== -1
+          ) {
+            return true;
+          }
+          if (child.children && child.children.length) {
+            return this.findComp(relateName, child.children);
+          }
+          return false;
+        })
+      );
     },
     // 表格更改请求接口并清空字段数据
     tableChange(name, orCondition) {

@@ -78,7 +78,7 @@
         </div>
       </div>
     </div>
-    <div class="basic__item">
+    <!-- <div class="basic__item">
       <label class="basic__item__label">{{
         $t('userCenter.bindWechat')
       }}</label>
@@ -101,7 +101,7 @@
           <span v-else>{{ $t('userCenter.bind') }}</span>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="basic__item whole-line">
       <label class="basic__item__label">{{
         $t('userCenter.personalSignature')

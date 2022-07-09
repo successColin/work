@@ -158,6 +158,7 @@
             <p class="setTitle">标注前缀</p>
             <div>
               <apiot-input
+                  :isForbid="false"
                   v-model="getComponentInfo.stylesObj.labelPrefix"
                   @change="(value) => changeStyles(value, 'labelPrefix')"
               ></apiot-input>
@@ -167,6 +168,7 @@
             <p class="setTitle">标注后缀</p>
             <div>
               <apiot-input
+                  :isForbid="false"
                   v-model="getComponentInfo.stylesObj.labelSuffix"
                   @change="(value) => changeStyles(value, 'labelSuffix')"
               ></apiot-input>
@@ -696,7 +698,7 @@ export default {
           .el-radio-button__inner {
             width: 100%;
             padding: 5px 15px;
-            border-radius: 0;
+            border-radius: 0 !important;
             border-color: $component-border-color;
             background: $component-background-color;
 

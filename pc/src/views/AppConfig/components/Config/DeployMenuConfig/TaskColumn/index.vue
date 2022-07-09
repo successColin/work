@@ -71,7 +71,7 @@
                   v-model="item.showStatus"
                 >
                   <el-option :value="1" label="普通"></el-option>
-                  <el-option :value="2" label="隐藏"></el-option>
+                  <el-option :value="2" label="只读"></el-option>
                 </el-select>
               </span>
               <span class="task__item--taskState">
@@ -302,17 +302,37 @@ export default {
         },
         {
           columnName: 'inspectMeasureValue1',
-          memo: 'X轴实际测量值',
+          memo: '驱动(水平)',
           columnTypeDict: 4
         },
         {
           columnName: 'inspectMeasureValue2',
-          memo: 'Y轴实际测量值',
+          memo: '驱动(垂直)',
           columnTypeDict: 4
         },
         {
           columnName: 'inspectMeasureValue3',
-          memo: '温度实际测量值',
+          memo: '驱动(轴向)',
+          columnTypeDict: 4
+        },
+        {
+          columnName: 'inspectMeasureValue4',
+          memo: '非驱动(温度)',
+          columnTypeDict: 4
+        },
+        {
+          columnName: 'inspectMeasureValue5',
+          memo: '非驱动(水平)',
+          columnTypeDict: 4
+        },
+        {
+          columnName: 'inspectMeasureValue6',
+          memo: '非驱动(垂直)',
+          columnTypeDict: 4
+        },
+        {
+          columnName: 'inspectMeasureValue7',
+          memo: '非驱动(轴向)',
           columnTypeDict: 4
         },
         {

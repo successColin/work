@@ -49,19 +49,43 @@
         <div class="form--line">
           <el-form-item
             class="form--child"
+            :label="$t('appconfig.updateMode')"
+            prop="upgradeMode"
+          >
+            <apiot-select
+              v-model="appInfo.upgradeMode"
+              :options="typeArr"
+              :placeholder="
+                $t('placeholder.pleaseSelect', { any: $t('appconfig.updateMode') })
+              "
+              @change="handleChangeType"
+            ></apiot-select>
+          </el-form-item>
+          <el-form-item
+            class="form--child"
             :label="$t('appconfig.iosDownloadUrl')"
-            prop="iosDownloadUrl"
+            prop="appInfo.iosDownloadUrl"
           >
             <apiot-input
-              v-model="appInfo.iosDownloadUrl"
+              v-model="iosDownloadUrl"
+              slotType="suffix,prepend"
               :placeholder="
                 $t('placeholder.pleaseEnterAnyName', {
                   any: $t('appconfig.iosDownloadUrl'),
                 })
               "
-            ></apiot-input>
+            >
+              <el-select
+                v-model="http"
+                slot="prepend"
+                placeholder="请选择"
+              >
+                <el-option label="http://" value="http://"></el-option>
+                <el-option label="https://" value="https://"></el-option>
+              </el-select>
+            </apiot-input>
           </el-form-item>
-          <el-form-item
+          <!-- <el-form-item
             class="form--child"
             :label="$t('appconfig.installAtionPackAgeURL')"
             prop="installAtionPackAgeURL"
@@ -74,7 +98,7 @@
                 })
               "
             ></apiot-input>
-          </el-form-item>
+          </el-form-item> -->
         </div>
 
         <div class="form--line">
@@ -107,23 +131,6 @@
                 })
               "
             ></apiot-input>
-          </el-form-item>
-        </div>
-
-        <div class="form--line half">
-          <el-form-item
-            class="form--child"
-            :label="$t('appconfig.updateMode')"
-            prop="upgradeMode"
-          >
-            <apiot-select
-              v-model="appInfo.upgradeMode"
-              :options="typeArr"
-              :placeholder="
-                $t('placeholder.pleaseSelect', { any: $t('appconfig.updateMode') })
-              "
-              @change="handleChangeType"
-            ></apiot-select>
           </el-form-item>
         </div>
         <div class="form--line">
@@ -215,7 +222,9 @@ export default {
       accept: '.apk,.wgt',
       uploading: false,
       isSubmit: false,
-      infoId: {}
+      infoId: {},
+      http: 'http://',
+      iosDownloadUrl: ''
     };
   },
 
@@ -232,12 +241,8 @@ export default {
           value: 2,
           name: this.$t('appconfig.installationPackage')
         },
-        {
-          value: 3,
-          name: this.$t('appconfig.manualUpdate')
-        }
       ];
-    }
+    },
   },
 
   mounted() {
@@ -260,6 +265,7 @@ export default {
     },
     async saveUrl() {
       try {
+        this.appInfo.iosDownloadUrl = `${this.http}${this.iosDownloadUrl}`;
         const params = {
           id: this.infoId,
           parameterKey: 'UPGRADE_PROPERTIES',

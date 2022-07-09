@@ -245,9 +245,7 @@ export default {
     }
   },
 
-  mounted() {
-    // // console.log(this.showType, 'footer');
-  },
+  mounted() {},
 
   inject: [
     'resolveFormula',
@@ -419,6 +417,18 @@ export default {
         if (this.configData.buttonType === 8) {
           this.handleExport();
         }
+        // 查询
+        if (this.configData.buttonType === 11) {
+          this.handleQuery();
+        }
+        // 重置
+        if (this.configData.buttonType === 12) {
+          this.handleReset();
+        }
+        // 查询区导出
+        if (this.configData.buttonType === 13) {
+          this.handleQueryExport();
+        }
         // this.$bus.$emit('btnTrigger', this.configData, this.onlyFlag());
         await this.clickTrigger(this.configData, this.onlyFlag());
         if (this.configData.afterSubmit.type === 2) {
@@ -482,8 +492,11 @@ export default {
         if (this.showType && this.showType.type === 'flow') {
           const { checkFormConfig = [] } = this.nodeConfig;
           // eslint-disable-next-line max-len
-          const currentObj = checkFormConfig.find((item) => item.compId === this.configData.compId && !!item.isRelation);
-          if (currentObj) { // g关联提交按钮
+          const currentObj = checkFormConfig.find(
+            (item) => item.compId === this.configData.compId && !!item.isRelation
+          );
+          if (currentObj) {
+            // g关联提交按钮
             this.$bus.$emit('do_flow_submit', 1);
           }
         }
@@ -1421,7 +1434,21 @@ export default {
       // 按界面导出
       if (exportSetting === 3 || exportSetting === 4) {
         let whereOptions = '';
-        const { filterTermType, filterTermStr, filterTermSql } = this.tableInfo;
+        let filterTermType = '';
+        let filterTermStr = '';
+        let filterTermSql = '';
+        console.log('金莱尔');
+        const getPanelObj = this.getPanel();
+        if (JSON.stringify(getPanelObj) !== '{}') {
+          filterTermType = this.tableInfo.filterTermType;
+          filterTermStr = this.tableInfo.filterTermStr;
+          filterTermSql = this.tableInfo.filterTermSql;
+        } else {
+          const panelFilter = this.getFatherPanel().panelFilter[0];
+          filterTermType = panelFilter.filterTermType;
+          filterTermStr = panelFilter.filterTermStr;
+          filterTermSql = panelFilter.filterTermSql;
+        }
         if (filterTermType === 1) {
           if (filterTermStr) {
             const arr = JSON.parse(filterTermStr);
@@ -1447,12 +1474,16 @@ export default {
           // whereOptions = whereOptions.slice(0, -5);
         } else {
           const idArr = filterTermSql.match(/\$(\S*)\$/g);
-          idArr.forEach((item) => {
-            whereOptions = filterTermSql.replace(
-              /\$(\S*)\$/g,
-              getAllFormObj[item.slice(1, item.length - 1)]
-            );
-          });
+          if (idArr) {
+            idArr.forEach((item) => {
+              whereOptions = filterTermSql.replace(
+                /\$(\S*)\$/g,
+                getAllFormObj[item.slice(1, item.length - 1)]
+              );
+            });
+          } else {
+            whereOptions = filterTermSql;
+          }
         }
         console.log(whereOptions);
         console.log(
@@ -1489,6 +1520,23 @@ export default {
           }
         );
       }
+    },
+    // 查询
+    handleQuery() {
+      this.$bus.$emit('changeUrl');
+    },
+    // 重置
+    async handleReset() {
+      const { form } = this.featureArr;
+      Object.keys(form).forEach((item) => {
+        form[item] = '';
+      });
+      this.$bus.$emit('changeUrl');
+    },
+    // 查询区导出
+    async handleQueryExport() {
+      const { exportType } = this.configData;
+      this.$bus.$emit('queryExport', exportType);
     },
     // 确认 数据选择框
     async dataSelect() {
@@ -1643,6 +1691,7 @@ export default {
   }
   &.notShow {
     // transition: all 0.1s linear;
+    display: none;
     opacity: 0;
     width: 0 !important;
     margin-left: 0;

@@ -215,21 +215,40 @@
             </div>
             <!-- socket地址 -->
             <div v-else-if="i === 12" class="passwordConfig__logo common">
-              <div v-if="!statement.isSocketUrl" style="line-height: 48px;">
+              <div v-if="!statement.isSocketUrl" style="line-height: 48px">
                 {{ $store.state.globalConfig.themeConfig.socketUrl }}
               </div>
               <apiot-input
-                  style="width: 224px"
-                  v-else
-                  :isForbid="false"
-                  v-model="$store.state.globalConfig.themeConfig.socketUrl"
+                style="width: 224px"
+                v-else
+                :isForbid="false"
+                v-model="$store.state.globalConfig.themeConfig.socketUrl"
               ></apiot-input>
               <apiot-button
-                  type="text"
-                  class="passwordConfig__operation"
-                  @click="handleChangeCount('isSocketUrl')"
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isSocketUrl')"
               >
                 {{ changeBtnName(statement.isSocketUrl) }}
+              </apiot-button>
+            </div>
+            <!-- ureportUrl 地址 -->
+            <div v-else-if="i === 13" class="passwordConfig__logo common">
+              <div v-if="!statement.isUreportUrl" style="line-height: 48px">
+                {{ $store.state.globalConfig.themeConfig.ureportUrl }}
+              </div>
+              <apiot-input
+                style="width: 224px"
+                v-else
+                :isForbid="false"
+                v-model="$store.state.globalConfig.themeConfig.ureportUrl"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isUreportUrl')"
+              >
+                {{ changeBtnName(statement.isUreportUrl) }}
               </apiot-button>
             </div>
           </li>
@@ -260,7 +279,8 @@ export default {
         isMenuStyle: false,
         isTopHeight: false,
         istopStyle: false,
-        isSocketUrl: false
+        isSocketUrl: false,
+        isUreportUrl: false
       },
       themeStyleArr: [
         {
@@ -400,10 +420,15 @@ export default {
         },
         {
           name: this.$t('globalConfig.socketAddress'),
-          col: 24,
+          col: 12,
           key: 'socketAddress',
           attr: 'socketUrl'
         },
+        {
+          name: '报表域名地址',
+          col: 12,
+          attr: 'ureportUrl'
+        }
       ];
     },
     // 修改 button 状态
@@ -497,6 +522,9 @@ export default {
       }
       if (key === 'isSocketUrl') {
         await this.changeRadio(this.$store.state.globalConfig.themeConfig.socketUrl, 'socketUrl');
+      }
+      if (key === 'isUreportUrl') {
+        this.changeRadio(this.$store.state.globalConfig.themeConfig.ureportUrl, 'ureportUrl');
       }
       this.statement[key] = !this.statement[key];
     },

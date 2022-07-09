@@ -15,7 +15,7 @@
           class="menuItem__hover titBox"
           @click="handleClickMenu(val)"
         >
-          <div style="flex: 1" class="font__ellipsis">
+          <div style="flex: 1; line-height: 30px" class="font__ellipsis">
             {{ val.menuName }}
           </div>
           <collect-icon

@@ -366,6 +366,7 @@ export default {
               obj.menuVarObj[item.compId] = {};
               arr.forEach((compId) => {
                 obj.menuVarObj[item.compId][compId] = this.getAllForm()[compId];
+                curMenu.path = `${curMenu.path}&${compId}=${this.getAllForm()[compId]}`;
               });
             }
           });

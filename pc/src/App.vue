@@ -24,6 +24,7 @@ export default {
     };
   },
   created() {
+    this.$store.commit('changeIsNoodQuery', false);
     this.fetchConfig();
     window.addEventListener('beforeunload', this.beforeLoad);
   },
@@ -94,7 +95,7 @@ export default {
           }
         }
       });
-    },
+    }
   }
 };
 </script>

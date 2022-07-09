@@ -699,6 +699,7 @@ export class NodeUtils {
       // node.properties.priority = conditions.length - 2;
       // conditions[conditions.length - 1].properties.priority = conditions.length - 1;
     } else {
+      node.properties.title = `${node.properties.title}${conditions.length + 1}`;
       conditions.push(node);
     }
     this.setDefaultCondition(node, data);
@@ -739,6 +740,7 @@ export class NodeUtils {
     const res = await this.createNode('condition', emptyNode.nodeId);
     const res1 = await this.createNode('condition', emptyNode.nodeId);
     const conditionNodes = [res, res1].map((c, i) => {
+      console.log(i + 1);
       c.properties.title += i + 1;
       c.properties.priority = i;
       return c;

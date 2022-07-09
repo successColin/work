@@ -67,7 +67,15 @@
         >
           {{ $t('login.forgotPassword') }}
         </div>
-        <div class="loginForm__pswdLine--forget--line"></div>
+        <div
+          class="loginForm__pswdLine--forget--line"
+          v-if="
+            configs &&
+            configs.enableForgetPassword === '1' &&
+            configs &&
+            configs.enableRegistration === '1'
+          "
+        ></div>
         <span
           class="loginFontHover"
           @click="handleJumpRegister"
@@ -138,13 +146,9 @@ export default {
         validation: false // 滑条
       },
       // 是否显示button loading
-      loadingButton: false
-    };
-  },
-  computed: {
-    // 校验规则
-    rules() {
-      return {
+      loadingButton: false,
+      // 这不能用 computed rules
+      rules: {
         username: [
           {
             required: true,
@@ -159,15 +163,36 @@ export default {
             trigger: 'change'
           }
         ]
-      };
-    }
+      }
+    };
+  },
+  computed: {
+    // 校验规则
+    // rules() {
+    //   return {
+    //     username: [
+    //       {
+    //         required: true,
+    //         message: this.$t('login.helloPleaseEnterYourAccountPhoneNumber'),
+    //         trigger: 'change'
+    //       }
+    //     ],
+    //     password: [
+    //       {
+    //         required: true,
+    //         message: this.$t('login.helloPleaseEnterThePassword'),
+    //         trigger: 'change'
+    //       }
+    //     ]
+    //   };
+    // }
   },
   components: {
     SliderValidation // 拖动验证
     // SignUp // 注册组件
   },
   beforeDestroy() {
-    this.$bus.$off('changeLange');
+    // this.$bus.$off('changeLange');
     this.$bus.$off('handleAssociatedUser');
   },
   mounted() {
@@ -187,16 +212,16 @@ export default {
       this.ruleForm.password = '';
       this.ruleForm.rememberMe = false;
     }
-    this.$nextTick(() => {
-      if (this.$refs.ruleForm) {
-        this.$refs.ruleForm.clearValidate();
-      }
-    });
-    this.$bus.$on('changeLange', () => {
-      this.$nextTick(() => {
-        this.$refs.ruleForm.clearValidate();
-      });
-    });
+    // this.$nextTick(() => {
+    //   if (this.$refs.ruleForm) {
+    //     this.$refs.ruleForm.clearValidate();
+    //   }
+    // });
+    // this.$bus.$on('changeLange', () => {
+    //   this.$nextTick(() => {
+    //     this.$refs.ruleForm.clearValidate();
+    //   });
+    // });
     this.$bus.$on('handleAssociatedUser', () => {
       this.handleSubmit();
     });
@@ -210,15 +235,12 @@ export default {
           const { sliderErrorsCount } = newValue;
           if (sliderErrorsCount === '1') {
             this.isShowValidation = true;
-            this.isBtnDisabled = true;
           }
           if (sliderErrorsCount === '2') {
             this.isShowValidation = false;
-            this.isBtnDisabled = false;
           }
           if (sliderErrorsCount === '3') {
             this.isShowValidation = false;
-            this.isBtnDisabled = false;
           }
         }
       }
@@ -452,7 +474,7 @@ export default {
   width: 100%;
   position: relative;
   overflow: hidden;
-  background: $--color-primary;
+  background: $loginThemeLighten;
   border-radius: 4px;
   ::v-deep {
     .el-button {
@@ -461,7 +483,7 @@ export default {
       transition: all 0.4s;
       border: none;
       &:focus {
-        background: #377bea;
+        background: $loginThemeLighten;
       }
       &:hover {
         background: transparent;
@@ -483,7 +505,7 @@ export default {
   &:hover {
     &::after {
       transform: scale(1, 1);
-      background: #2c74e9;
+      background: $loginThemeColor;
     }
   }
 }

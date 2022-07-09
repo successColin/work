@@ -144,6 +144,7 @@ import WebviewConfig from './components/compProperty/WebviewConfig';
 import RelatedDataConfig from './components/compProperty/RelatedDataConfig';
 import TextTipConfig from './components/compProperty/TextTipConfig';
 import RichTextConfig from './components/compProperty/RichTextConfig';
+import DeployProgressBarConfig from './components/compProperty/DeployProgressBarConfig';
 import QueryMainConfig from './components/compProperty/QueryMainConfig';
 
 export default {
@@ -228,6 +229,7 @@ export default {
     RelatedDataConfig,
     TextTipConfig,
     RichTextConfig,
+    DeployProgressBarConfig,
     QueryMainConfig
   },
   provide() {
@@ -260,6 +262,7 @@ export default {
     },
     // 获取所有的校验单位
     getAllcheck() {
+      console.log(this.configData[0]);
       const obj = {};
       if (this.configData[0] && this.configData[0].children.length) {
         const compPath = `${this.configData[0].name}`;
@@ -681,11 +684,13 @@ export default {
           case 14:
           case 17:
           case 21:
-            if (!tempObj.dataSource.tableName && !tempObj.fieldName) {
-              checkObj.flag = false;
-              checkObj.msg = `${tempObj.name} 未填写字段`;
-              break;
-            } else if (tempObj.dataSource.tableName && !tempObj.dataSource.columnName) {
+          case 22:
+            // if (tempObj.canQuery && !tempObj.fieldName) {
+            //   checkObj.flag = false;
+            //   checkObj.msg = `${tempObj.name} 未填写字段`;
+            //   break;
+            // } else
+            if (tempObj.dataSource.tableName && !tempObj.dataSource.columnName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择字段`;
               break;
@@ -694,11 +699,11 @@ export default {
           case 2:
           case 3:
           case 4:
-            if (!tempObj.dataSource.tableName && !tempObj.fieldName) {
-              checkObj.flag = false;
-              checkObj.msg = `${tempObj.name} 未填写字段`;
-              break;
-            }
+            // if (tempObj.canQuery && !tempObj.fieldName) {
+            //   checkObj.flag = false;
+            //   checkObj.msg = `${tempObj.name} 未填写字段`;
+            //   break;
+            // }
             if (tempObj.dataSource.tableName && !tempObj.dataSource.columnName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择字段`;
@@ -711,7 +716,16 @@ export default {
             }
             break;
           case 6:
-            console.log(tempObj);
+            // if (tempObj.canQuery && !tempObj.fieldName) {
+            //   checkObj.flag = false;
+            //   checkObj.msg = `${tempObj.name} 未填写字段`;
+            //   break;
+            // }
+            if (tempObj.canQuery && !tempObj.tableInfo.tableName) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未选择业务表`;
+              break;
+            }
             if (!tempObj.dataSource.relateName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择关系`;
@@ -724,7 +738,16 @@ export default {
             }
             break;
           case 7:
-            // console.log(tempObj);
+            // if (tempObj.canQuery && !tempObj.fieldName) {
+            //   checkObj.flag = false;
+            //   checkObj.msg = `${tempObj.name} 未填写字段`;
+            //   break;
+            // }
+            if (tempObj.canQuery && !tempObj.tableInfo.tableName) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未选择业务表`;
+              break;
+            }
             if (!tempObj.dataSource.columnName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择字段`;

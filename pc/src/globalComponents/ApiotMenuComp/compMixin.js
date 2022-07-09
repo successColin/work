@@ -80,6 +80,9 @@ export default {
     if (!this.isConfig) {
       this.initFormula();
     }
+    if (this.configData.buttonType === 11) {
+      this.$store.commit('changeIsNoodQuery', true);
+    }
   },
   mounted() {
     this.menuMain = this.getMenuMain();
@@ -98,7 +101,7 @@ export default {
         this.parent.form &&
         Object.prototype.hasOwnProperty.call(
           this.parent.form,
-          this.configData.compId
+          this.configData.compId,
         )
       ) {
         return false;
@@ -116,7 +119,7 @@ export default {
       }
 
       const obj = JSON.parse(
-        JSON.stringify(this.parent.children.splice(this.i, 1)[0])
+        JSON.stringify(this.parent.children.splice(this.i, 1)[0]),
       );
       this.parent.children.splice(this.i, 0, obj);
       // 存在值是id的时候不选中
@@ -171,7 +174,7 @@ export default {
       ) {
         this.parent.form[`${this.configData.compId}`] = this.resolveFormula(
           true,
-          this.configData.formulaContent
+          this.configData.formulaContent,
         );
       }
     },
@@ -268,6 +271,7 @@ export default {
       return false;
     },
     isLayoutStyle() {
+      console.log(this.isQuery, this.grandFather);
       return this.isQuery && this.grandFather.layoutStyle === 2;
     },
   },

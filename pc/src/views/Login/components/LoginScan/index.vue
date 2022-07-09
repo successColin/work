@@ -13,7 +13,7 @@
         <!-- 浙政钉icon图标 -->
         <i
           v-show="scanType === zheZhengDingScan"
-          class="iconfont icon-tongguo"
+          class="iconfont icon-zhezhengding"
         ></i>
         {{
           scanType === appScan
@@ -21,13 +21,14 @@
             : '浙政钉扫码登录'
         }}
       </div>
-      <div class="loginScan__border">
+      <div class="loginScan__border" v-loading="loading">
         <img
           v-if="scanType === appScan"
           class="loginScan__area--img"
           src="@/assets/img/androidCode.png"
         />
         <iframe
+          ref="Iframe"
           v-else-if="zheZhengDingScan"
           :src="zheSrc"
           :frameBorder="0"
@@ -45,7 +46,7 @@
         {{ $t('login.scanCodeLogin') }}
       </div>
     </section>
-    <sign-up :isScan="true"></sign-up>
+    <sign-up :isScan="true" :configs="configs"></sign-up>
   </div>
 </template>
 
@@ -59,10 +60,15 @@ export default {
     scanType: {
       type: Number,
       default: 2
+    },
+    configs: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
     return {
+      loading: true,
       appScan: 2,
       zheZhengDingScan: 3,
       zheSrc: `https://login.dg-work.cn/qrlogin/webAppLogin.htm?APP_NAME=apiotV10_dingoa&protocolKey=0eac8d40-ceef-4f6d-ad03-213bffff9d99&protocol=oauth2&BACK_URL=${window.location.href}&embedMode=true&scope=get_user_info&state=`
@@ -73,6 +79,7 @@ export default {
   },
   mounted() {
     window.addEventListener('message', this.scanCode);
+    this.loadingFun();
   },
   destroyed() {
     window.removeEventListener('message', this.scanCode);
@@ -80,9 +87,19 @@ export default {
   computed: {},
   watch: {},
   methods: {
+    loadingFun() {
+      this.loading = true;
+      const iframe = this.$refs.Iframe;
+      if (iframe) {
+        iframe.onload = () => {
+          this.loading = false;
+        };
+      } else {
+        this.loading = false;
+      }
+    },
     async scanCode(e) {
       const code = e.data && e.data.code;
-      console.log(code);
       if (code) {
         try {
           await zwdingtalkScanLogin({
@@ -154,7 +171,7 @@ export default {
       align-items: center;
       .iconfont {
         font-size: 18px;
-        color: #4689f5;
+        color: $loginThemeColor;
         margin-right: 6px;
         display: flex;
         align-items: center;

@@ -43,7 +43,7 @@
               {{ $t('userCenter.creatByMe') }}
             </span>
             <span class="status" v-else>{{ $t('userCenter.joined') }}</span>
-            <span class="switch" @click="openCenter('tenant')">
+            <span class="switch" @click="openCenter('tenant')" v-if="false">
               <i class="iconfont icon-qiehuan"></i>{{ $t('userCenter.switch') }}
             </span>
           </li>
@@ -53,7 +53,11 @@
           <li class="user__content__li" @click="openCenter('AccountSecurity')">
             {{ $t('userCenter.accountSecurity') }}
           </li>
-          <li class="user__content__li" @click="openCenter('VersionUpdate')">
+          <li
+            class="user__content__li"
+            @click="openCenter('VersionUpdate')"
+            v-if="false"
+          >
             {{ $t('userCenter.versionUpdate') }}
           </li>
         </ul>
@@ -113,8 +117,9 @@ export default {
       }, 50);
     },
     doLogout() {
-      logout().then(() => {
+      logout().then(async () => {
         this.$router.push('/login');
+        await this.$store.dispatch('getLoginConfigFun');
       });
     }
   },

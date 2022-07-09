@@ -235,17 +235,25 @@ export function operationTriggers(data) {
 
 // 获取侧边列表
 export function getSidebarList(params) {
+  const menuId = window.vue.$route.params.id;
   return FetchData.request({
     url: 'application/select/list',
-    params,
+    params: {
+      menuId,
+      ...params,
+    },
   });
 }
 
 // 获取侧边列表分页
 export function getSidebarPage(params) {
+  const menuId = window.vue.$route.params.id;
   return FetchData.request({
     url: 'application/select/page',
-    params,
+    params: {
+      menuId,
+      ...params,
+    },
   });
 }
 

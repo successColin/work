@@ -15,6 +15,7 @@
       frameborder="0"
       v-if="!isConfig && this.configData.showType === 2"
       :style="getStyle"
+      :key="configData.compId"
     ></iframe>
     <div :style="getStyle" v-if="!isConfig && this.configData.showType === 1">
       <HomeMenu :otherParams="otherParams"></HomeMenu>
@@ -31,6 +32,7 @@
 
 <script>
 import HomeMenu from '@/views/HomeMenu';
+import { getQueryObj } from '@/utils/utils';
 import compMixin from '../../compMixin';
 
 export default {
@@ -40,7 +42,8 @@ export default {
       curCompType: 2,
       paramsStr: '',
       watchArr: [],
-      curHeight: 200
+      curHeight: 200,
+      queryUrl: ''
     };
   },
   mixins: [compMixin],
@@ -84,6 +87,8 @@ export default {
       this.setTabMianHeight();
       this.initWatch();
     }
+    this.$bus.$on('changeUrl', this.initParams);
+    this.$bus.$on('queryExport', this.queryExport);
   },
 
   beforeDestroy() {
@@ -94,9 +99,36 @@ export default {
       }
     });
     this.watchArr = [];
+    this.$bus.$off('changeUrl');
+    this.$bus.$off('queryExport');
   },
 
   methods: {
+    // ureport 导出
+    queryExport(type) {
+      // 只有ureport 导出
+      const { showType, outerLink } = this.configData;
+      const isUreport = outerLink.indexOf('/ureport/preview') !== -1;
+      if (showType === 2 && isUreport) {
+        const obj = getQueryObj(outerLink);
+        console.log(obj);
+        const link = document.createElement('a');
+        const body = document.querySelector('body');
+        let url = '';
+        if (type === 1) {
+          url += '/ureport/excel';
+        } else if (type === 2) {
+          url += '/ureport/word';
+        } else if (type === 3) {
+          url += '/ureport/pdf';
+        }
+        link.href = `${this.$store.state.globalConfig.themeConfig.ureportUrl}${url}?_u=${obj._u}&_t=0&`;
+        link.style.display = 'none';
+        body.appendChild(link);
+        link.click();
+        body.removeChild(link);
+      }
+    },
     setTabMianHeight() {
       let parent = this.$parent;
       while (!parent.specialParent) {
@@ -117,16 +149,18 @@ export default {
       this.configData.paramsArr.forEach((params) => {
         if (params.type === 2) {
           params.formula.replace(/\$([A-Za-z0-9]{6})\$/g, (v, v1) => {
-            const unWatch = this.$watch(
-              () => this.getAllForm()[v1],
-              () => {
-                this.initParams();
-              },
-              {
-                immediate: true
-              }
-            );
-            this.watchArr.push(unWatch);
+            if (!this.$store.state.ureport.isNoodQuery) {
+              const unWatch = this.$watch(
+                () => this.getAllForm()[v1],
+                () => {
+                  this.initParams();
+                },
+                {
+                  immediate: true
+                }
+              );
+              this.watchArr.push(unWatch);
+            }
           });
         }
       });

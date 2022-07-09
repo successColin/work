@@ -7,7 +7,7 @@
           :key="`${item.name}_${i}`"
           :span="item.col"
         >
-          <li v-show="!(i === 7 && loginStyle === 1)">
+          <li v-show="!(i === 8 && loginStyle === 1)">
             <div class="leftName">
               <div v-if="!Array.isArray(item.name)">
                 {{ item.name }}
@@ -30,7 +30,7 @@
                 }}
               </div>
               <apiot-select
-                style="width: 224px"
+                :style="selectWidth"
                 v-else
                 v-model="errorCount"
                 :options="onlineTimeOptionsArr"
@@ -52,7 +52,7 @@
                 {{ record }}
               </div>
               <apiot-input
-                style="width: 224px"
+                :style="selectWidth"
                 v-else
                 v-model="record"
                 @change="handleChangeSelectVal('onlineTime', $event)"
@@ -72,7 +72,7 @@
               </div>
               <div v-else>
                 <apiot-select
-                  style="width: 200px"
+                  :style="selectWidth"
                   v-if="statement.isScanType"
                   v-model="scanType"
                   :options="scanTypeArr"
@@ -108,7 +108,7 @@
               </div>
               <div v-else>
                 <apiot-select
-                  style="width: 200px"
+                  :style="selectWidth"
                   v-if="statement.isSsoTypePc"
                   v-model="ssoTypePc"
                   :options="ssoTypePcArr"
@@ -131,7 +131,9 @@
               </div>
               <div v-else>
                 <apiot-select
-                  style="width: 50%"
+                  :style="`width: ${
+                    statement.isLoginStyle && loginStyle === 1 ? '100%' : '50%'
+                  }`"
                   v-if="statement.isLoginStyle"
                   v-model="loginStyle"
                   :options="loginStyleArr"
@@ -295,6 +297,12 @@ import { selectColorArr, stylePercentageArr, loginStyleArr } from '@/config';
 import ImageAndChange from '../components/ImageAndChange';
 
 export default {
+  props: {
+    selectWidth: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       loading: false,

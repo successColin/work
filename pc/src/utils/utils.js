@@ -4,8 +4,8 @@ import CryptoJS from 'crypto-js';
 import qs from 'qs';
 
 // 获取url参数
-export function getQueryObj() {
-  const url = window.location.href;
+export function getQueryObj(u) {
+  const url = u || window.location.href;
   const queryString = url.split('?')[1];
   const queryObject = qs.parse(queryString);
   return queryObject;

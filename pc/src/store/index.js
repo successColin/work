@@ -13,6 +13,7 @@ import base from './base/index';
 import dictManage from './dictManage/index';
 import entityManage from './entityManage/index';
 import globalConfig from './globalConfig/index';
+import ureport from './ureport/index';
 import userCenter from './userCenter/index';
 
 Vue.use(Vuex);
@@ -27,6 +28,7 @@ export default new Vuex.Store({
     dictManage,
     globalConfig,
     userCenter,
+    ureport,
   },
   plugins: [
     PersistedState({

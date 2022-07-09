@@ -23,17 +23,16 @@
         @mouseleave.native="mouseleave"
         @click.stop.prevent="btnClick"
         :disabled="canReadonly ? true : configData.canReadonly"
-        ><i
+      >
+        <i
           v-if="configData.buttonForm !== 1"
           :class="`iconfont ${configData.iconFont} ${
             configData.buttonForm === 2 ? 'm-r-4' : ''
           }`"
           :style="`${configData.buttonStyle === 'primary' ? 'color:#fff' : ''}`"
-        ></i
-        ><span v-if="configData.buttonForm !== 3">{{
-          configData.name
-        }}</span></apiot-button
-      >
+        ></i>
+        <span v-if="configData.buttonForm !== 3">{{ configData.name }}</span>
+      </apiot-button>
       <apiot-button
         v-else
         type="text"
@@ -443,6 +442,18 @@ export default {
         // 导出
         if (this.configData.buttonType === 8) {
           this.handleExport();
+        }
+        // 查询
+        if (this.configData.buttonType === 11) {
+          this.handleQuery();
+        }
+        // 重置
+        if (this.configData.buttonType === 8) {
+          this.handleReset();
+        }
+        // 查询区导出
+        if (this.configData.buttonType === 8) {
+          this.handleQueryExport();
         }
         // this.$bus.$emit('btnTrigger', this.configData, this.onlyFlag());
         await this.clickTrigger(this.configData, this.onlyFlag());
@@ -1480,6 +1491,18 @@ export default {
           }
         );
       }
+    },
+    // 查询
+    async handleQuery() {
+      console.log(11111);
+    },
+    // 重置
+    async handleReset() {
+      console.log(22222);
+    },
+    // 查询区导出
+    async handleQueryExport() {
+      console.log(33333);
     },
     // 确认 数据选择框
     async dataSelect() {

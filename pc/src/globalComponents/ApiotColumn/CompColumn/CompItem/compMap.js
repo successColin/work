@@ -83,4 +83,8 @@ export default {
     compType: 21,
     imgUrl: 'baseComp/RichText.svg',
   },
+  22: {
+    compType: 22,
+    imgUrl: 'baseComp/ProgressBar.svg',
+  },
 };

@@ -111,6 +111,7 @@
                           'font__ellipsis',
                         ]"
                         :title="item.menuName"
+                        v-if="item.children"
                       >
                         <img
                           class="allMenu__imgColor"
@@ -264,10 +265,11 @@ export default {
     },
     // 全部菜单
     allMenus() {
-      const allArr = this.$store.getters.getRouteArr;
+      let allArr = this.$store.getters.getRouteArr;
       if (this.keywords) {
         return this.fuzzyQuery(this.keywords, allArr);
       }
+      allArr = allArr.filter((item) => item.children);
       return allArr || '';
     },
     // 显示隐藏

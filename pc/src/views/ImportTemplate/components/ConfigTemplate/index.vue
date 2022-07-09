@@ -323,6 +323,11 @@ export default {
           isDisable: item.necessary === 1
         });
       });
+      arr.forEach((item) => {
+        if (item.databaseColoumn === 'level') {
+          item.noUpdate = true;
+        }
+      });
       this.tableData = arr;
     },
     // 表格__编辑

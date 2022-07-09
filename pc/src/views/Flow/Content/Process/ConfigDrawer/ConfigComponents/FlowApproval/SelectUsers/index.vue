@@ -989,7 +989,7 @@ export default {
         .flowDetailMemberNodeName {
           display: flex;
           position: relative;
-          max-width: 90px;
+          max-width: 77px;
           z-index: 111;
           align-items: center;
           font-size: 12px;

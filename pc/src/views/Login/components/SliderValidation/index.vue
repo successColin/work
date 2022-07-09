@@ -15,7 +15,7 @@
     <div
       ref="moveDiv"
       @mousedown="mousedownFn($event)"
-      :class="['iconfont', iconFontCon]"
+      :class="[iconFontCon]"
       class="handler handler_bg"
     ></div>
   </div>

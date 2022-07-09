@@ -12,6 +12,7 @@ import Vue from 'vue';
 import waterfall from 'vue-waterfall2';
 import App from './App.vue';
 import './assets/css/elementTheme.scss';
+import './assets/iconfont/iconfont.css';
 import i18n from './i18n';
 import router from './router';
 import store from './store';

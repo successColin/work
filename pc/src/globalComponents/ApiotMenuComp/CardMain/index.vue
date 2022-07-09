@@ -292,6 +292,9 @@ export default {
       if (this.$store.state.userCenter.userInfo.isSupAdmin) {
         return false;
       }
+      if (this.showType && this.showType.type === 'flow') {
+        return false;
+      }
       return true;
     }
   },

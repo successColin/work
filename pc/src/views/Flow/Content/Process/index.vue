@@ -358,7 +358,7 @@ $bg-color: #f5f5f7;
 .flow-container {
   display: inline-block;
   background: $bg-color;
-  padding: 20px;
+  padding: 20px 20px 0 20px;
   width: 100%;
   height: calc(100% - 46px);
   box-sizing: border-box;

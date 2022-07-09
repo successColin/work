@@ -177,7 +177,14 @@
 
 <script>
 import { createUnique } from '@/utils/utils';
-import { TextCom, SelectCom, DataOneBoxCom, DataMultiBoxCom, DateTimeCom } from './comParams';
+import {
+  TextCom,
+  SelectCom,
+  DataOneBoxCom,
+  DataMultiBoxCom,
+  DateTimeCom,
+  ButtonCom
+} from './comParams';
 
 export default {
   props: {
@@ -548,64 +555,7 @@ export default {
               shouldRequired: false,
               submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
             },
-            {
-              name: '按钮', // 按钮名称
-              areaType: 2, // 表示在按钮区
-              dragCard: true, // 是否允许拖入卡片区
-              imgUrl: 'baseComp/FormButton.svg', // z组件拖拽图标
-              compType: 5, // 组件类型
-              compId: createUnique(), // 组件id
-              compName: 'FormButton', // 真实页面组件渲染名称
-              propertyCompName: 'FormButtonConfig', // 组件配置渲染名称
-              helpInfo: '', // 帮助信息
-              buttonType: 5, // 类型
-              buttonStyle: 'primary', // 样式
-              buttonForm: 1, // 风格
-              iconColor: '#5A80ED', // 图标颜色
-              iconFont: 'iconfont-xinzeng', // 图标
-              ruleArr: [
-                // {
-                //   ruleContent: '123',  // 规则内容
-                //   ruleTip: 'eqwe'      // 错误提示
-                // },
-              ], // 提交钱校验规则
-              pane: {
-                name: '', // 面板名称
-                columnName: '', // 面板字段
-                paramArr: [
-                  // {
-                  //   name: '', // 变量名称
-                  //   type: 1, // 变量类型 1 是工作表 2 是固定值 3是公式
-                  //   compId: '', // 组件id
-                  //   fixedValue: '', // 固定值
-                  //   formula: '' // 公式
-                  // }
-                ]
-              },
-              execFunc: false, // 允许执行函数
-              execFuncName: '', // 函数表达式
-              flowType: 1, // 流程类型
-              beforeSubmit: {
-                type: 1,
-                html: ''
-              }, // 提交前提示
-              afterSubmit: {
-                type: 1,
-                html: ''
-              }, // 提交后提示
-              saveAreaArr: '', // 需要保存的区域
-              relateType: 1, // 弹窗类型 1是面板 2是菜单
-              dialogName: 'PanelDialog', // 弹窗风格
-              dialogTitle: '', // 弹窗标题
-              refreshType: 0,
-              submitEnable: false,
-              canShow: true,
-              canReadonly: false,
-              templateInfo: {}, // 导入模板
-              extraColumn: [], // 额外导入信息
-              needField: false, // 是否导出数据库表字段
-              exportSetting: 1 // 导出设置 1 - 4
-            },
+            ButtonCom,
             DataOneBoxCom,
             DataMultiBoxCom,
             {
@@ -1068,6 +1018,64 @@ export default {
               paramsArr: [], // 传入参数
               canShow: true,
               canReadonly: false
+            },
+            {
+              name: '进度条',
+              showLabelTitle: true, // 是否显示分割线的标题
+              areaType: 1,
+              dragTable: true, // 能否拖入表格区
+              dragCard: true, // 能否拖入卡片区
+              imgUrl: 'highComp/ProgressBar.svg',
+              compType: 22,
+              compId: createUnique(),
+              compName: 'DeployProgressBar',
+              propertyCompName: 'DeployProgressBarConfig',
+              tableCompName: 'TableProgressBarCol',
+              defaultValueType: 1, // 1 是固定值 2 是公式
+              placeholder: '',
+              helpInfo: '',
+              dataSource: {
+                relateName: '主表',
+                tableName: '',
+                columnName: '',
+                columnTypeDict: 0,
+                id: 0,
+                alias: '',
+                dictObj: null // 字典表数据
+              },
+              singleStatus: 1,
+              canShow: true,
+              canReadonly: false,
+              width: '100%',
+              shouldRequired: false,
+              maxFileCount: 2,
+              tipsArr: [],
+              maxFileSize: 50,
+              progressBarHeight: 8,
+              font: {
+                color: '#333333', // 字体颜色
+                size: 13, // 字体大小
+                style: 1 // 1 常规 2 加粗
+              }, // 字体大小
+              colors: {
+                color1: '#E74D4D',
+                color2: '#FB6F5C',
+                color3: '#EC6434',
+                color4: '#FD922B',
+                color5: '#F2A917',
+                color6: '#F5DC00',
+                color7: '#34C7BE',
+                color8: '#32D0F5',
+              },
+              ranges: {
+                range1: 0,
+                range2: 35,
+                range3: 74,
+                range4: 99,
+                range5: 100,
+              },
+              showStyle: 1, // 1 线条风格 2 格子风格
+              submitType: 1, // 1 始终显示 2 鼠标悬停显示
             }
           ]
         },
@@ -1078,27 +1086,39 @@ export default {
             {
               ...TextCom,
               dragQuery: true, // 是否允许拖入查询区
-              noDragForm: true // 不能拖入表单区
+              noDragForm: true, // 不能拖入表单区
+              canQuery: true
             },
             {
               ...SelectCom,
               dragQuery: true, // 是否允许拖入查询区
-              noDragForm: true // 不能拖入表单区
+              noDragForm: true, // 不能拖入表单区
+              canQuery: true
             },
             {
               ...DataOneBoxCom,
               dragQuery: true, // 是否允许拖入查询区
-              noDragForm: true // 不能拖入表单区
+              noDragForm: true, // 不能拖入表单区
+              canQuery: true
             },
             {
               ...DataMultiBoxCom,
               dragQuery: true, // 是否允许拖入查询区
-              noDragForm: true // 不能拖入表单区
+              noDragForm: true, // 不能拖入表单区
+              canQuery: true
             },
             {
               ...DateTimeCom,
               dragQuery: true, // 是否允许拖入查询区
-              noDragForm: true // 不能拖入表单区
+              noDragForm: true, // 不能拖入表单区
+              canQuery: true
+            },
+            {
+              ...ButtonCom,
+              dragQuery: true, // 是否允许拖入查询区
+              noDragForm: true, // 不能拖入表单区
+              buttonType: 11, // 类型
+              canQuery: true
             }
           ]
         }
@@ -1476,6 +1496,8 @@ export default {
         obj.posAddDevice = '';
         obj.deviceAddDevice = '';
       }
+      // eslint-disable-next-line no-debugger
+      debugger;
       data[index].children[oldIndex] = obj;
     }
   },

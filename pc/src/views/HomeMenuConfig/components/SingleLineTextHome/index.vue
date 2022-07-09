@@ -50,17 +50,17 @@ export default {
       const { takeEffect, staticValue } = dataConfig;
       if (dataType === 1) {
         const obj = JSON.parse(staticValue);
-        return obj[takeEffect] || '';
+        return obj[takeEffect];
       }
       if (dataType === 2) {
         const { apiEffect, apiFilterResponse } = apiDataConfig;
         const obj = JSON.parse(apiFilterResponse);
-        return obj[apiEffect] || '';
+        return obj[apiEffect];
       }
       if (dataType === 3) {
         const { SQLEffect, SQLFilterResponse } = SqlDataConfig;
         const obj = JSON.parse(SQLFilterResponse);
-        return obj[SQLEffect] || '';
+        return obj[SQLEffect];
       }
       return '';
     },

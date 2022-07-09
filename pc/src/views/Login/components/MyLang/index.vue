@@ -36,7 +36,7 @@
 
 <script>
 import cnImg from '@/assets/img/cn.png';
-import enImg from '@/assets/img/en.png';
+// import enImg from '@/assets/img/en.png';
 
 export default {
   data() {
@@ -49,12 +49,12 @@ export default {
           name: '中文',
           url: cnImg,
           val: 'zhCN'
-        },
-        {
-          name: 'EN',
-          url: enImg,
-          val: 'enUS'
         }
+        // {
+        //   name: 'EN',
+        //   url: enImg,
+        //   val: 'enUS'
+        // }
       ]
     };
   },
@@ -85,7 +85,7 @@ export default {
     handleCommand(command) {
       this.localLang = command;
       localStorage.setItem('apiotLanguage', command);
-      this.$bus.$emit('changeLange');
+      // this.$bus.$emit('changeLange');
     },
     // 下拉框出现/隐藏时触发
     handleVisible(val) {

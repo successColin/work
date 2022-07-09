@@ -158,10 +158,10 @@ export default {
             ...legendPos,
             show: enableLegend,
             type: 'scroll',
-            pageIconColor: '#fff',
+            pageIconColor: '#010b1a',
             pageIconInactiveColor: '#4689F5',
             pageTextStyle: {
-              color: '#fff'
+              color: '#010b1a'
             },
             itemWidth: 10,
             itemHeight: 10,

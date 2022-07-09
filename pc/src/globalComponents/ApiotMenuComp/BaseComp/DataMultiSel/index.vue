@@ -116,7 +116,7 @@ export default {
     },
     getDictObj() {
       if (this.configData.dataSource) {
-        const { dictKey } = this.configData.dataSource.dictObj;
+        const { dictKey } = this.configData.dataSource.dictObj || {};
         if (dictKey) {
           const tempData = this.$store.getters.getCurDict(dictKey);
           const obj = {};

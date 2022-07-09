@@ -121,7 +121,7 @@ export default {
         (this.level === 3 && level === 2) ||
         (this.level === 2 && level === 1)
       ) {
-        icon = 'icon-chufashijian';
+        icon = 'icon-daorumoban';
       } else if (this.level === 3 && level === 1) {
         icon = 'icon-fenzuchangtai';
       }
@@ -171,7 +171,7 @@ export default {
       }
     }
 
-    .custom-tree-node .icon-chufashijian {
+    .custom-tree-node .icon-daorumoban {
       color: #34c7be;
     }
 

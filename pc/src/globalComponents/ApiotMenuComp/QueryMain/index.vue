@@ -86,6 +86,7 @@
             :fileDeleteIds="fileDeleteIds"
             :showType="showType"
             :getIdCompId="getIdCompId"
+            :isQuery="true"
           ></component>
         </div>
       </el-form>
@@ -103,7 +104,7 @@
       :moreOperateArr="moreOperateArr"
       :showType="showType"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[1, 2, 5, 6]"
+      :btnTypesArr="[11, 12, 13]"
       :isQuery="true"
     ></BtnsArea>
     <section
@@ -118,6 +119,8 @@
     >
       查询区
     </section>
+    <!-- 空白 -->
+    <div class="queryMain__interval" v-if="configData.displayStyle === 2"></div>
   </div>
 </template>
 
@@ -578,6 +581,16 @@ export default {
   overflow: hidden;
   display: flex;
   // flex-direction: column;
+  position: relative;
+  padding-bottom: 10px;
+  &__interval {
+    width: 100%;
+    height: 10px;
+    position: absolute;
+    background: #f6f6f8;
+    bottom: 3px;
+    // box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.16);
+  }
   &.isApp {
     // height: auto;
   }
@@ -632,7 +645,7 @@ export default {
     height: 100% !important;
     margin-bottom: 0px;
     margin-left: 10px;
-    width: 88px;
+    min-width: 88px;
   }
   &__wz {
     text-align: center;

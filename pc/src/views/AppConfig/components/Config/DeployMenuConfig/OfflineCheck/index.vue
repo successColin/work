@@ -97,13 +97,23 @@
         >
         </el-switch>
       </p>
-      <p class="offlineCheck--switch m-b-10">
+      <p class="offlineCheck--switch">
         {{ $t('appconfig.enforceCheck') }}
         <el-switch
           class="switch"
           active-text="是"
           inactive-text="否"
           v-model="offlineCheck.taskLayer.enforceCheck"
+        >
+        </el-switch>
+      </p>
+      <p class="offlineCheck--switch m-b-10">
+        {{ $t('appconfig.abnormalMemo') }}
+        <el-switch
+          class="switch"
+          active-text="是"
+          inactive-text="否"
+          v-model="offlineCheck.taskLayer.abnormalMemo"
         >
         </el-switch>
       </p>
@@ -117,11 +127,23 @@
         :columnArr.sync="offlineCheck.taskLayer.columnArr"
       ></TaskColumn>
     </el-collapse-item>
+    <el-collapse-item :title="$t('appconfig.resultLayer')" name="4">
+      <apiot-button class="offlineCheck--btn" @click="showResultColumnDialog = true">
+        <i class="iconfont icon-shezhi m-r-4"></i
+        >{{ $t('appconfig.taskColumn') }}
+      </apiot-button>
+      <ResultColumn
+        :visible.sync="showResultColumnDialog"
+        :showColumnDialog="showResultColumnDialog"
+        :columnArr.sync="offlineCheck.resultLayer.columnArr"
+      ></ResultColumn>
+    </el-collapse-item>
   </el-collapse>
 </template>
 
 <script>
 import TaskColumn from '../TaskColumn';
+import ResultColumn from '../ResultColumn';
 
 export default {
   name: '',
@@ -138,7 +160,8 @@ export default {
         { value: 2, content: 'unlockedType2' },
         { value: 3, content: 'unlockedType3' }
       ],
-      showColumnDialog: false
+      showColumnDialog: false,
+      showResultColumnDialog: false,
     };
   },
   mounted() {
@@ -147,7 +170,8 @@ export default {
   },
   methods: {},
   components: {
-    TaskColumn
+    TaskColumn,
+    ResultColumn
   }
 };
 </script>
