@@ -33,23 +33,25 @@
       fixed="left"
       :resizable="false"
       align="center"
+      className="notTablePadding"
     >
       <template slot-scope="scope">
-        <span
-          class="centerFont"
-          v-if="
-            scope.row.showIndex &&
-            scope.row[selectName] !== getCurrentRadioObjId
-          "
-          >{{ scope.$index + 1 }}</span
-        >
-        <el-radio
-          v-else
-          class="multipleTable__radio"
-          :value="currentRadioObj ? currentRadioObj[selectName] : ''"
-          :label="scope.row[selectName]"
-          @input="handleChangeRadioObj(scope.row)"
-        ></el-radio>
+        <div class="serial__box" @click="handleChangeRadioObj(scope.row)">
+          <span
+            class="centerFont"
+            v-if="
+              scope.row.showIndex &&
+              scope.row[selectName] !== getCurrentRadioObjId
+            "
+            >{{ scope.$index + 1 }}</span
+          >
+          <el-radio
+            v-else
+            class="serial__radio"
+            :value="currentRadioObj ? currentRadioObj[selectName] : ''"
+            :label="scope.row[selectName]"
+          ></el-radio>
+        </div>
         <div class="mask-box" v-if="lineSelect"></div>
       </template>
     </el-table-column>
@@ -60,6 +62,7 @@
       :selectable="selectable"
       v-else-if="showSelection"
       fixed="left"
+      className="notTablePadding"
     >
       <template slot-scope="scope">
         <span
@@ -197,7 +200,8 @@ export default {
       curData: [],
       columnSortable: null, // 列拖拽sortable
       rowSortable: null, // 行拖拽sortable
-      bounceHeigthFunc: null
+      bounceHeigthFunc: null,
+      timeObj: {}
     };
   },
 
@@ -256,14 +260,23 @@ export default {
     },
     //  鼠标移入
     cellMouseEnter(row) {
-      if (this.showSelection || this.showRadio) {
-        row.showIndex = false;
-      }
+      // 做延迟
+      this.timeObj[row.rowkey] = setTimeout(() => {
+        if (this.showSelection || this.showRadio) {
+          row.showIndex = false;
+        }
+      }, 100);
+
       this.$emit('cellMouseEnter', row);
     },
     // 鼠标移出
     cellMouseLeave(row) {
       if (this.showSelection || this.showRadio) {
+        // 清除延迟
+        if (this.timeObj[row.rowkey]) {
+          clearTimeout(this.timeObj[row.rowkey]);
+          delete this.timeObj[row.rowkey];
+        }
         row.showIndex = true;
       }
     },
@@ -535,12 +548,17 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.serial__box {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
 .centerFont {
   display: inline-block;
   text-align: center;
   width: 100%;
 }
-.multipleTable__radio {
+.serial__radio {
   ::v-deep {
     .el-radio__label {
       display: none;

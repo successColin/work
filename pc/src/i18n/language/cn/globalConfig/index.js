@@ -3,17 +3,17 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2022-06-20 10:18:21
+ * @Last Modified time: 2022-08-04 10:46:22
  */
 export default {
   globalConfig: {
     accountPasswordOptions: '账号密码相关选项',
-    themeAndLogoOptions: '主题及Logo相关选项',
-    thirdLinks: '第三方链接',
+    themeAndLogoOptions: '顶部及主题相关选项',
+    thirdLinks: '系统顶部三方链接',
     fileServerOptions: '文件服务器相关选项',
     watermarkOptions: '水印相关选项',
-    loginConfig: '系统登录相关选项',
-    APPLoginConfig: 'APP系统登录相关选项',
+    loginConfig: 'PC登录相关选项',
+    APPLoginConfig: 'APP登录相关选项',
     modifyHistory: '修改历史',
     encryptionModeOne: '系统加密',
     changeInitialPassword: '修改初始密码',
@@ -70,8 +70,15 @@ export default {
     backgroundImage: '请上传登录背景图',
     uploadTheLoginPageLogo: '请上传登录页LOGO',
     enableLink: '是否启用三方连接',
+    enableVersionId: '是否启用版本标识',
+    enablePlatformSwitch: '是否启动平台切换',
+    enableVersionUpgrade: '是否启用版本升级/续费',
     topHeight: '系统顶部高度',
     topStyle: '系统顶部风格',
-    socketAddress: '消息推送链接地址(WebSocket)'
+    socketAddress: '消息推送链接地址(WebSocket)',
+    homeConfig: '主页消息相关选项',
+    reportConfig: '报表相关选项',
+    ureportUrl: 'ureport域名地址',
+    fileUrl: '文件服务器地址参数',
   },
 };

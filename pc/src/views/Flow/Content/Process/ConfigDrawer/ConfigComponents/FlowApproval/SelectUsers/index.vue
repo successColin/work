@@ -10,89 +10,87 @@
   <section class="userBox">
     <div class="userBox__content">
       <el-popover
-          popper-class="flow__select__appover"
-          :visible-arrow="false"
-          placement="bottom-start"
-          width="300"
-          trigger="click"
+        popper-class="flow__select__appover"
+        :visible-arrow="false"
+        placement="bottom-start"
+        width="300"
+        trigger="click"
       >
         <div class="select__options">
           <div
-              class="select__item"
-              :class="{ active: orgVisible }"
-              @click="showOrgDialog"
+            class="select__item"
+            :class="{ active: orgVisible }"
+            @click="showOrgDialog"
           >
             组织架构
           </div>
           <div
-              class="select__item"
-              :class="{ active: roleVisible }"
-              @click="showRoleDialog"
+            class="select__item"
+            :class="{ active: roleVisible }"
+            @click="showRoleDialog"
           >
             角色
           </div>
           <div
-              class="select__item"
-              :class="{ active: posVisible }"
-              @click="showPosDialog"
+            class="select__item"
+            :class="{ active: posVisible }"
+            @click="showPosDialog"
           >
             职位
           </div>
           <div
-              class="select__item"
-              :class="{ active: visible }"
-              @click="showUserDialog"
+            class="select__item"
+            :class="{ active: visible }"
+            @click="showUserDialog"
           >
             固定人员
           </div>
           <div class="select__split"></div>
           <div class="select__memo">使用触发表源中的人员</div>
           <filterable-input
-              style="margin: 0 20px;"
-              class="list__item--column"
-              placeholder="请选择字段"
-              :tableName="tableName"
-              :showInfo="approverObj.FIELD"
-              :dialogType="2"
-              :notShowSys="false"
-              @selectRes="selectColumnRes"
+            style="margin: 0 20px"
+            class="list__item--column"
+            placeholder="请选择字段"
+            :tableName="tableName"
+            :showInfo="approverObj.FIELD"
+            :dialogType="2"
+            :notShowSys="false"
+            @selectRes="selectColumnRes"
           ></filterable-input>
           <div class="select__split"></div>
           <div class="select__memo">使用流程节点对象下的人员</div>
           <el-menu
-              :default-active="active"
-              :unique-opened="true"
-              class="el-menu-vertical-demo"
-              @select="selectUserType"
+            :default-active="active"
+            :unique-opened="true"
+            class="el-menu-vertical-demo"
+            @select="selectUserType"
           >
             <el-submenu
-                :index="`${node.id}`"
-                v-for="node in nodeList"
-                :key="node.id"
+              :index="`${node.id}`"
+              v-for="node in nodeList"
+              :key="node.id"
             >
               <template slot="title">
                 <span>{{ node.nodeTitle }}</span>
               </template>
               <el-menu-item
-                  :index="`${node.id}_1_${node.nodeTitle}`"
-                  v-if="node.nodeType === 1"
+                :index="`${node.id}_1_${node.nodeTitle}`"
+                v-if="node.nodeType === 1"
               >
                 <span>[人员]</span> 发起人
               </el-menu-item>
+<!--              <el-menu-item-->
+<!--                  :index="`${node.id}_2_${node.nodeTitle}`"-->
+<!--                  v-if="[3, 5].includes(node.nodeType)"-->
+<!--              >-->
+<!--                <span>[人员]</span>创建人-->
+<!--              </el-menu-item>-->
               <el-menu-item
-                  :index="`${node.id}_2_${node.nodeTitle}`"
-                  v-if="[3, 5].includes(node.nodeType)"
-              >
-                <span>[人员]</span>创建人
-              </el-menu-item
-              >
-              <el-menu-item
-                  :index="`${node.id}_3_${node.nodeTitle}`"
-                  v-if="[3, 5].includes(node.nodeType)"
+                :index="`${node.id}_3_${node.nodeTitle}`"
+                v-if="[3, 5].includes(node.nodeType)"
               >
                 <span>[人员]</span>执行人
-              </el-menu-item
-              >
+              </el-menu-item>
             </el-submenu>
           </el-menu>
         </div>
@@ -101,11 +99,11 @@
         </span>
       </el-popover>
       <el-input
-          class="search"
-          v-model="searchInput"
-          :placeholder="$t('org.searchUser')"
-          @input="debouncedSearch"
-          ref="btn"
+        class="search"
+        v-model="searchInput"
+        :placeholder="$t('org.searchUser')"
+        @input="debouncedSearch"
+        ref="btn"
       ></el-input>
     </div>
     <div class="selected-result">
@@ -113,9 +111,9 @@
         <div class="selected-title">组织</div>
         <div>
           <el-tag
-              class="org__item"
-              v-for="item in approverObj.ORG"
-              :key="item.id"
+            class="org__item"
+            v-for="item in approverObj.ORG"
+            :key="item.id"
           >
             <span class="iconfont icon-zuzhi"></span>{{ item.name }}
             <span class="iconfont icon-guanbi" @click="deleteOrg(item)"></span>
@@ -126,9 +124,9 @@
         <div class="selected-title">角色</div>
         <div>
           <el-tag
-              class="role__item"
-              v-for="item in approverObj.ROLE"
-              :key="item.id"
+            class="role__item"
+            v-for="item in approverObj.ROLE"
+            :key="item.id"
           >
             <span class="iconfont icon-jiaose"></span>{{ item.roleName }}
             <span class="iconfont icon-guanbi" @click="deleteRole(item)"></span>
@@ -139,9 +137,9 @@
         <div class="selected-title">职位</div>
         <div>
           <el-tag
-              class="pos__item"
-              v-for="item in approverObj.POST"
-              :key="item.id"
+            class="pos__item"
+            v-for="item in approverObj.POST"
+            :key="item.id"
           >
             <span class="iconfont icon-zhiwei"></span>{{ item.name }}
             <span class="iconfont icon-guanbi" @click="deletePos(item)"></span>
@@ -152,23 +150,26 @@
         <div class="selected-title">固定人员</div>
         <div style="overflow: hidden">
           <span
-              class="userBox__tag"
-              v-for="item in approverObj.USER"
-              :key="item.id"
+            class="userBox__tag"
+            v-for="item in approverObj.USER"
+            :key="item.id"
           >
             <user-headname
-                :userInfo="item"
-                prop="username"
-                colorId="id"
-                :isBig="true"
-                :isClear="true"
-                @handleClear="deleteUser"
+              :userInfo="item"
+              prop="username"
+              colorId="id"
+              :isBig="true"
+              :isClear="true"
+              @handleClear="deleteUser"
             />
           </span>
         </div>
       </div>
-      <div v-show="approverObj.FIELD && JSON.stringify(approverObj.FIELD) !== '{}'">
-        <div class="selected-title fieldWrap">{{ text }}：
+      <div
+        v-show="approverObj.FIELD && JSON.stringify(approverObj.FIELD) !== '{}'"
+      >
+        <div class="selected-title fieldWrap">
+          {{ text }}：
           {{ approverObj.FIELD ? approverObj.FIELD.columnName : '' }}
           <span class="iconfont icon-guanbi" @click="deleteField"></span>
         </div>
@@ -176,88 +177,88 @@
 
       <ul class="flowDetailMembers" :key="updateKey">
         <li
-            class="flexRow"
-            :style="`z-index: ${i};`"
-            v-for="(confg, i) in approverObj.NODE"
-            :key="confg.timestamp"
+          class="flexRow"
+          :style="`z-index: ${i};`"
+          v-for="(confg, i) in approverObj.NODE"
+          :key="confg.timestamp"
         >
           <div class="flowDetailTagBox">
             <div
-                class="flowDetailMemberNodeName ellipsis bold"
-                :title="confg.nodeTitle"
+              class="flowDetailMemberNodeName ellipsis bold"
+              :title="confg.nodeTitle"
             >
               {{ confg.nodeName }}
             </div>
             <div
-                class="flowDetailMemberFieldName ellipsis bold"
-                :title="renderBaseType(confg.baseType)"
+              class="flowDetailMemberFieldName ellipsis bold"
+              :title="renderBaseType(confg.baseType)"
             >
               {{ renderBaseType(confg.baseType) }}
             </div>
           </div>
 
           <el-popover
-              placement="bottom"
-              width="200"
-              trigger="click"
-              popper-class="usersSelectPopover"
-              v-if="confg.superiorType"
+            placement="bottom"
+            width="200"
+            trigger="click"
+            popper-class="usersSelectPopover"
+            v-if="confg.superiorType"
           >
             <div>
               <div
-                  v-if="
+                v-if="
                   !confg.superiorType || [1, 2].includes(confg.superiorType)
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 1, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 1, i)"
               >
                 组织负责人
               </div>
               <div
-                  v-if="
+                v-if="
                   !confg.superiorType || [1, 2].includes(confg.superiorType)
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 2, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 2, i)"
               >
                 上级组织负责人
               </div>
               <div
-                  v-if="isTrue(confg.superiorType, 3)"
-                  class="select_item_user"
-                  @click="selectCharge(confg, 3, i)"
+                v-if="isTrue(confg.superiorType, 3)"
+                class="select_item_user"
+                @click="selectCharge(confg, 3, i)"
               >
                 所属组织
               </div>
               <div
-                  v-if="isTrue(confg.superiorType, 4)"
-                  class="select_item_user"
-                  @click="selectCharge(confg, 4, i)"
+                v-if="isTrue(confg.superiorType, 4)"
+                class="select_item_user"
+                @click="selectCharge(confg, 4, i)"
               >
                 所属组织上级
               </div>
               <div
-                  v-if="
+                v-if="
                   ![1, 2, 3, 4].includes(confg.superiorType) &&
                   confg.superiorType
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 5, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 5, i)"
               >
                 职位
               </div>
             </div>
 
             <div
-                class="ming Dropdown pointer flowDetailOrganize organizeTransform"
-                v-if="confg.superiorType"
-                slot="reference"
+              class="ming Dropdown pointer flowDetailOrganize organizeTransform"
+              v-if="confg.superiorType"
+              slot="reference"
             >
               <div style="height: 28px">
                 <div class="Dropdown--input Dropdown--border">
                   <div
-                      class="flowDetailMemberOrganizeTitle"
-                      :title="renderCharge(confg.superiorType)"
+                    class="flowDetailMemberOrganizeTitle"
+                    :title="renderCharge(confg.superiorType)"
                   >
                     {{ renderCharge(confg.superiorType) }}
                   </div>
@@ -266,8 +267,8 @@
             </div>
           </el-popover>
           <div
-              class="ming Dropdown pointer flowDetailOrganize organizeTransform"
-              v-if="confg.postId"
+            class="ming Dropdown pointer flowDetailOrganize organizeTransform"
+            v-if="confg.postId"
           >
             <!--            <el-tag-->
             <!--                class="pos__item"-->
@@ -276,80 +277,83 @@
             <!--            </el-tag>-->
             <div style="height: 28px">
               <div class="Dropdown--input Dropdown--border">
-                <div class="flowDetailMemberOrganizeTitle postName" :title="confg.postName">
+                <div
+                  class="flowDetailMemberOrganizeTitle postName"
+                  :title="confg.postName"
+                >
                   {{ confg.postName }}
                 </div>
               </div>
             </div>
           </div>
           <el-popover
-              placement="bottom"
-              width="200"
-              trigger="click"
-              popper-class="usersSelectPopover"
-              v-if="isShowEnd(confg.superiorType, confg.postId)"
+            placement="bottom"
+            width="200"
+            trigger="click"
+            popper-class="usersSelectPopover"
+            v-if="isShowEnd(confg.superiorType, confg.postId)"
           >
             <div>
               <div
-                  v-if="
+                v-if="
                   !confg.superiorType || [1, 2].includes(confg.superiorType)
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 1, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 1, i)"
               >
                 组织负责人
               </div>
               <div
-                  v-if="
+                v-if="
                   !confg.superiorType || [1, 2].includes(confg.superiorType)
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 2, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 2, i)"
               >
                 上级组织负责人
               </div>
               <div
-                  v-if="
+                v-if="
                   !confg.superiorType ||
                   ![1, 2, 3, 4].includes(confg.superiorType)
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 3, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 3, i)"
               >
                 所属组织
               </div>
               <div
-                  v-if="
+                v-if="
                   !confg.superiorType ||
                   ![1, 2, 3, 4].includes(confg.superiorType)
                 "
-                  class="select_item_user"
-                  @click="selectCharge(confg, 4, i)"
+                class="select_item_user"
+                @click="selectCharge(confg, 4, i)"
               >
                 所属组织上级
               </div>
               <div
-                  v-if="[3, 4].includes(confg.superiorType)"
-                  class="select_item_user"
-                  @click="selectCharge(confg, 5, i)"
+                v-if="[3, 4].includes(confg.superiorType)"
+                class="select_item_user"
+                @click="selectCharge(confg, 5, i)"
               >
                 职位
               </div>
             </div>
             <div class="opeMore" slot="reference">
               <span
-                  v-if="
+                v-if="
                   !confg.superiorType || [3, 4].includes(confg.superiorType)
                 "
-                  ref="addMores"
-                  class="icon-gengduocaozuo iconfont"
+                ref="addMores"
+                class="icon-gengduocaozuo iconfont"
               ></span>
             </div>
           </el-popover>
           <span
-              @click="deleteCharge(i)"
-              class="mLeft5 flowDetailMemberDel"
-              data-tip="刪除"
+            @click="deleteCharge(i)"
+            class="mLeft5 flowDetailMemberDel"
+            data-tip="刪除"
           >
             <i class="icon-guanbi iconfont"></i>
           </span>
@@ -359,69 +363,68 @@
     <div class="userBox__searchWrap" v-if="searchInput && isShowSearchBox">
       <div class="searchResulet">
         {{ $t('user.search') }}"<span>{{ searchInput }}</span
-      >"{{ $t('user.searchResult') }}{{
-          usersSearchList.length
+        >"{{ $t('user.searchResult') }}{{ usersSearchList.length
         }}{{ $t('user.item') }}
       </div>
       <ul class="listWrap" v-if="usersSearchList.length">
         <li
-            @click="chooseUser(item)"
-            v-for="item in usersSearchList"
-            :key="item.id"
+          @click="chooseUser(item)"
+          v-for="item in usersSearchList"
+          :key="item.id"
         >
           <user-headname
-              :userInfo="item"
-              prop="username"
-              colorId="id"
+            :userInfo="item"
+            prop="username"
+            colorId="id"
           ></user-headname>
         </li>
       </ul>
     </div>
     <apiot-user-dialog
-        ref="users"
-        :visible.sync="visible"
-        title="选择审批人"
-        :checkedUsers="approverObj.USER"
-        @handleSure="handleSure"
+      ref="users"
+      :visible.sync="visible"
+      title="选择审批人"
+      :checkedUsers="approverObj.USER"
+      @handleSure="handleSure"
     ></apiot-user-dialog>
     <apiot-dialog
-        :visible.sync="orgVisible"
-        title="组织管理"
-        @sure-click="handleSaveArr('orgVisible', 'ORG', 'org')"
+      :visible.sync="orgVisible"
+      title="组织管理"
+      @sure-click="handleSaveArr('orgVisible', 'ORG', 'org')"
     >
-      <OrgComponent v-if="orgVisible" ref="org" :selected="approverObj.ORG"/>
+      <OrgComponent v-if="orgVisible" ref="org" :selected="approverObj.ORG" />
     </apiot-dialog>
     <apiot-dialog
-        :visible.sync="roleVisible"
-        title="角色管理"
-        @sure-click="handleSaveArr('roleVisible', 'ROLE', 'role')"
+      :visible.sync="roleVisible"
+      title="角色管理"
+      @sure-click="handleSaveArr('roleVisible', 'ROLE', 'role')"
     >
-      <RoleComponent v-if="roleVisible" :roles="approverObj.ROLE" ref="role"/>
+      <RoleComponent v-if="roleVisible" :roles="approverObj.ROLE" ref="role" />
     </apiot-dialog>
     <apiot-dialog
-        :visible.sync="posVisible"
-        title="职位管理"
-        @sure-click="handleSaveArr('posVisible', 'POST', 'pos')"
+      :visible.sync="posVisible"
+      title="职位管理"
+      @sure-click="handleSaveArr('posVisible', 'POST', 'pos')"
     >
-      <posComponent v-if="posVisible" :posArr="approverObj.POST" ref="pos"/>
+      <posComponent v-if="posVisible" :posArr="approverObj.POST" ref="pos" />
     </apiot-dialog>
     <apiot-dialog
-        :visible.sync="customRoleVisible"
-        title="职位管理"
-        @sure-click="handleSaveRoleArr('customRoleVisible')"
+      :visible.sync="customRoleVisible"
+      title="职位管理"
+      @sure-click="handleSaveRoleArr('customRoleVisible')"
     >
-      <posComponent v-if="customRoleVisible" :isSingle="true" ref="customPos"/>
+      <posComponent v-if="customRoleVisible" :isSingle="true" ref="customPos" />
     </apiot-dialog>
   </section>
 </template>
 
 <script>
-import { debounce } from '@/utils/utils';
-import { getUserPage } from '@/api/orgManage.js';
 import { getBeforesNode } from '@/api/flow.js';
+import { getUserPage } from '@/api/orgManage.js';
+import { debounce } from '@/utils/utils';
+import posComponent from '@/views/postManage/components/detail/components/orgDialog/post/index';
 import OrgComponent from '@/views/Role/RoleContent/DesignDetial/Organization/organization';
 import RoleComponent from '@/views/Users/Main/FormItem/AssRoles/Roles/roles';
-import posComponent from '@/views/postManage/components/detail/components/orgDialog/post/index';
 
 export default {
   components: {
@@ -622,7 +625,7 @@ export default {
         this.hide();
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.hasUserSelected')
         });
       }
@@ -746,10 +749,12 @@ export default {
         keywords: value,
         size: 99,
         current: 1,
-        orders: [{
-          asc: true,
-          column: 'id'
-        }]
+        orders: [
+          {
+            asc: true,
+            column: 'id'
+          }
+        ]
       };
       try {
         const res = await getUserPage(params);
@@ -959,7 +964,7 @@ export default {
         cursor: pointer;
       }
       .icon-guanbi:hover {
-        color: #4689F5;
+        color: #4689f5;
       }
     }
     .fieldWrap:hover .icon-guanbi {
@@ -998,7 +1003,7 @@ export default {
           color: #333333;
           height: 30px;
           padding: 0 10px;
-          background: #E5F0FF;
+          background: #e5f0ff;
           overflow: hidden;
           border-radius: 14px;
           box-shadow: 0 0 0 2px #fff;
@@ -1011,7 +1016,7 @@ export default {
           align-items: center;
           padding-left: 20px;
           margin-left: -10px;
-          background: #5A80ED;
+          background: #5a80ed;
           box-sizing: border-box;
           color: #fff;
           font-size: 12px;
@@ -1056,7 +1061,7 @@ export default {
         font-weight: 400;
         color: #333333;
         box-shadow: 0 0 0 2px #fff;
-        background: #FFEAEB;
+        background: #ffeaeb;
         border-top-right-radius: 30px;
         border-bottom-right-radius: 30px;
         overflow: hidden;
@@ -1070,8 +1075,8 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: #FFFFFF;
-        background: #EE5E5E;
+        color: #ffffff;
+        background: #ee5e5e;
         z-index: 0;
       }
 
@@ -1116,7 +1121,7 @@ export default {
 
       .icon-guanbi {
         font-size: 14px;
-        color: #BBC3CD;
+        color: #bbc3cd;
       }
 
       .icon-guanbi:hover {

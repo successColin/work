@@ -31,6 +31,7 @@
           v-for="item in getDictArr"
           :key="item.value"
           :label="item.value"
+          :disabled="configData.canReadonly"
         >
           <div class="option" v-if="configData.dropDownStyle === 2">
             <span class="option__bg">{{ item.name }}</span>
@@ -135,7 +136,7 @@ export default {
   overflow: hidden;
   &.noHover {
     min-height: 76px;
-    padding: 0px 15px 18px 15px;
+    padding: 0px 15px 18px 35px;
   }
   &.isTable {
     padding: 0;

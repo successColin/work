@@ -94,11 +94,11 @@
 import { getListSysEntityTables, listSysEntityColumns } from '@/api/entityManage';
 import { getDictList } from '@/api/dictManage';
 import { listPanel, getSysImportTemplateList } from '@/api/menuConfig';
-import { sysMenuList } from '@/api/menuManage';
+import { sysMenuList, ureportfiles } from '@/api/menuManage';
 
 export default {
   props: {
-    // 弹出类型 1为表名称 2为字段名称 3为字典 4为面板 5为导入模板
+    // 弹出类型 1为表名称 2为字段名称 3为字典 4为面板 5为导入模板 6为菜单名称 7为ureport文件
     dialogType: {
       type: Number,
       default: 1
@@ -197,6 +197,8 @@ export default {
             return this.currentRadioObj.templateName;
           case 6:
             return this.currentRadioObj.menuName;
+          case 7:
+            return this.currentRadioObj.name;
           default:
             return '';
         }
@@ -217,6 +219,8 @@ export default {
           return 'templateName';
         case 6:
           return 'menuName';
+        case 7:
+          return 'name';
         default:
           return 'id';
       }
@@ -339,6 +343,18 @@ export default {
         });
         // console.log(data);
         this.options = res;
+      } else if (this.dialogType === 7) {
+        const res = await ureportfiles({
+          current: 1,
+          size: 99999
+        });
+        const arr = [];
+        res.records.forEach((item) => {
+          arr.push({
+            name: item
+          });
+        });
+        this.options = arr;
       }
     },
     // 按钮__添加

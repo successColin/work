@@ -251,6 +251,18 @@
           </el-collapse-item>
         </el-collapse>
       </div>
+      <div class="contentConfig__box contentConfig__hasTab">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否需要数据权限
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.needPermissions"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
       <div class="contentConfig__box contentConfig__hasTab" v-if="false">
         <h2 class="contentConfig__hasTab--switchBox">
           是否初始化
@@ -544,8 +556,8 @@ export default {
       tableInfo.tableName = table.tableName;
       tableInfo.id = table.id;
       tableInfo.nameAlias = `alias_${createUnique()}`;
-      // 按钮区表名，别名回填
-      if (!this.isSelect) {
+
+      if (!this.isSelect && this.$route.query.isApp !== '1') {
         this.getCurrentTab.children[1].children[index].dataSource.tableName = tableInfo.tableName;
         this.getCurrentTab.children[1].children[index].dataSource.alias = tableInfo.nameAlias;
       }
@@ -606,17 +618,20 @@ export default {
         filterTermSql: '', // sql字符串
         termParams: '' // 过滤条件需要的组件参数id
       });
-      this.getCurrentTab.children[1].children.splice(2, 0, {
-        name: '操作',
-        compName: 'BtnsArea',
-        compId: createUnique(),
-        children: [],
-        dataSource: {
-          columnName: '',
-          tableName: '',
-          alias: ''
-        }
-      });
+
+      if (this.$route.query.isApp !== '1') {
+        this.getCurrentTab.children[1].children.splice(2, 0, {
+          name: '操作',
+          compName: 'BtnsArea',
+          compId: createUnique(),
+          children: [],
+          dataSource: {
+            columnName: '',
+            tableName: '',
+            alias: ''
+          }
+        });
+      }
     },
     // 删除多表
     deleteMultiData() {
@@ -679,7 +694,7 @@ export default {
         alignStyle: 1, // 1 是左对齐 2右对齐
         font: {
           color: '#333333', // 字体颜色
-          size: 14, // 字体大小
+          size: 13, // 字体大小
           style: 1 // 1 常规 2 加粗
         }, // 字体大小
         labelBg: {

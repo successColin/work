@@ -119,20 +119,20 @@
 </template>
 
 <script>
-import bus from '@/utils/bus';
 import {
-  sysMenuList,
-  sysMenuAdd,
+  importMenu,
   switchLocation,
-  sysMenuEdit,
+  sysMenuAdd,
   sysMenuDelete,
-  importMenu
+  sysMenuEdit,
+  sysMenuList
 } from '@/api/menuManage';
-import SidebarList from './components/Sidebar';
+import bus from '@/utils/bus';
 import MenuCard from './components/MenuCard';
+import MenuHome from './components/MenuHome';
 import MenuSelect from './components/MenuSelect';
 import SecondMenu from './components/SecondMenu';
-import MenuHome from './components/MenuHome';
+import SidebarList from './components/Sidebar';
 
 export default {
   name: 'menuManage',
@@ -317,7 +317,7 @@ export default {
           );
         } else {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('menu.noChangeModule')
           });
         }
@@ -391,7 +391,7 @@ export default {
         this.contentLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.menu') })} ${error.menuName}`
           });
         }
@@ -448,7 +448,7 @@ export default {
         this.contentLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.menu') })} ${error.menuName}`
           });
         }

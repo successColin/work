@@ -66,6 +66,9 @@ class FetchData {
     if (!data || !data.logData) {
       return data;
     }
+    if (data.logData.content) {
+      return data;
+    }
     const { userInfo } = window.vue.$store.state.userCenter;
     // 没有需要转换的logdata直接返回
     if (typeof data.logData !== 'object') {

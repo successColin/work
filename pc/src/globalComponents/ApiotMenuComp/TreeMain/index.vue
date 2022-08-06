@@ -333,7 +333,7 @@ export default {
       if (this.showType && this.showType.type === 'flow') {
         return false;
       }
-      return true;
+      return this.configData.needPermissions == null ? true : this.configData.needPermissions;
     },
     // 获取组件数据的map
     getCompIdMap() {

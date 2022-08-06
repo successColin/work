@@ -101,18 +101,18 @@
           </apiot-button>
         </div>
       </div>
-      <div class="form-item">
-        <div class="form-item-label">通过按钮属性</div>
-        <div class="form-item-content">
-          <apiot-input v-model="buttonAttributes.passText"></apiot-input>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">驳回按钮属性</div>
-        <div class="form-item-content">
-          <apiot-input v-model="buttonAttributes.rejectText"></apiot-input>
-        </div>
-      </div>
+<!--      <div class="form-item">-->
+<!--        <div class="form-item-label">通过按钮属性</div>-->
+<!--        <div class="form-item-content">-->
+<!--          <apiot-input v-model="buttonAttributes.passText"></apiot-input>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="form-item">-->
+<!--        <div class="form-item-label">驳回按钮属性</div>-->
+<!--        <div class="form-item-content">-->
+<!--          <apiot-input v-model="buttonAttributes.rejectText"></apiot-input>-->
+<!--        </div>-->
+<!--      </div>-->
       <div class="form-item">
         <div class="form-item-content">
           <div class="item-content-box">
@@ -303,7 +303,7 @@ export default {
         rejectText: '驳回', // 驳回按钮属性
         reasonForRejectionRequired: true //  驳回理由是否必填
       },
-      multiPersonApproval: '',
+      multiPersonApproval: 'ONE_PASS_OR_REJECT',
       afterProcess: '',
       checkList: [], //
       sourceType: {
@@ -408,7 +408,6 @@ export default {
       deep: true,
       handler() {
         this.init();
-        console.log(this.currentVersion, this.flowData);
         this.key += 1;
       }
     },
@@ -472,7 +471,6 @@ export default {
           effectiveApprovalDays
         } = this.nodeInfo;
         this.multiPersonApproval = multiPersonApproval;
-        console.log(buttonAttributes, 'buttonAttributes', this.nodeInfo);
         this.buttonAttributes = buttonAttributes;
         this.afterProcess = rejectConfig;
         // eslint-disable-next-line max-len
@@ -499,7 +497,7 @@ export default {
           POST: [] // 职位
         };
         this.checkList = [];
-        this.multiPersonApproval = '';
+        this.multiPersonApproval = 'ONE_PASS_OR_REJECT';
         this.buttonAttributes = {
           passText: '通过', // 通过按钮属性
           rejectText: '驳回', // 驳回按钮属性

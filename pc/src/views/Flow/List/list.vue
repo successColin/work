@@ -17,8 +17,8 @@
 </template>
 
 <script>
+import { addGroup, delGroup, getFlowGroup, switchGroupSno, updateGroup } from '@/api/flow';
 import { errorMessageProcessing } from '@/utils/utils';
-import { getFlowGroup, addGroup, delGroup, updateGroup, switchGroupSno } from '@/api/flow';
 
 export default {
   data() {
@@ -106,7 +106,7 @@ export default {
         };
         errorMessageProcessing(Obj, (message) => {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message
           });
         });
@@ -155,7 +155,7 @@ export default {
         };
         errorMessageProcessing(Obj, (message) => {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message
           });
         });

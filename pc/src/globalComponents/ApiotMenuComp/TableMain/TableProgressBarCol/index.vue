@@ -1,9 +1,9 @@
 <template>
   <el-table-column
-    class="column123"
+    class="column"
     v-on="$listeners"
     v-bind="$attrs"
-    resizable
+    :resizable="false"
     show-overflow-tooltip
     :prop="configData.dataSource.columnName"
   >
@@ -26,10 +26,11 @@
           <i class="iconfont icon-bangzhu" />
         </el-tooltip> </span
     ></template>
-    <div slot-scope="scope" class="column__notEditable">
+    <div slot-scope="scope" class="column__notEditable" ref="barBase">
       <!-- 线条风格 -->
-      <div class="bar-box line-bar" v-if="configData.showStyle === 1">
-        <div class="bar-part" ref="barBase"
+      <div class="bar-box line-bar" v-if="configData.showStyle === 1"
+        >
+        <div class="bar-part" v-show="configData.showStyle === 1"
           :style="{'border-radius': `${configData.progressBarHeight / 2}px`,
           height: `${configData.progressBarHeight}px`}">
           <div class="bar-base"
@@ -43,25 +44,26 @@
             <div class="bar" :style="{height: `${configData.progressBarHeight}px`,
               background: linearColor(tableData[scope.$index][configData.compId])}"></div>
           </div>
-          <div class="bar-tip" v-if="configData.submitType === 2"
+          <div class="bar-tip" v-if="configData.progressShowType === 2"
             :class="{arrowRight: tableData[scope.$index][configData.compId] >= 70,
             arrowLeft: tableData[scope.$index][configData.compId] < 70}"
             :style="tipPos(tableData[scope.$index][configData.compId])">
-            {{tableData[scope.$index][configData.compId]}}%</div>
+            {{progressShowNum(tableData[scope.$index][configData.compId])}}%</div>
         </div>
-        <div class="num-part" v-if="configData.submitType === 1">
-          {{tableData[scope.$index][configData.compId]}}%</div>
+        <div class="num-part" v-if="configData.progressShowType === 1">
+          {{progressShowNum(tableData[scope.$index][configData.compId])}}%</div>
       </div>
       <!-- 格子风格 -->
-      <div class="bar-box cell-bar" v-if="configData.showStyle === 2">
-        <div class="bar-part" ref="barBase"
+      <div class="bar-box cell-bar" v-if="configData.showStyle === 2 && showBar"
+        >
+        <div class="bar-part" v-show="configData.showStyle === 2"
           :style="{height: `${configData.progressBarHeight}px`,
-          width: `${configData.progressBarHeight * 15}px`}">
+          width: `${barBoxwidth}px`}">
           <div class="bar-base2"
             :style="{height: `${configData.progressBarHeight}px`}">
             <div class="bar-base2-cell"  :style="{width: `${configData.progressBarHeight}px`,
               'margin-right': `${configData.progressBarHeight / 2}px`}"
-              v-for="item in cellNum" :key="`base_${item}`">
+              v-for="item in cellNums" :key="`base_${item}`">
               <span class="bar-cell"></span></div>
           </div>
           <div class="bar-content bar-animate"
@@ -70,19 +72,19 @@
               tableData[scope.$index][configData.compId] : 100}%`}">
             <div class="bar-content-cell" :style="{width: `${configData.progressBarHeight}px`,
               'margin-right': `${configData.progressBarHeight / 2}px`}"
-              v-for="item in cellNum" :key="`content_${item}`">
+              v-for="item in cellNums" :key="`content_${item}`">
               <span class="bar-cell" :style="{background:
                 linearColor(tableData[scope.$index][configData.compId])}"></span>
             </div>
           </div>
-          <div class="bar-tip" v-if="configData.submitType === 2"
+          <div class="bar-tip" v-if="configData.progressShowType === 2"
             :class="{arrowRight: tableData[scope.$index][configData.compId] >= 70,
             arrowLeft: tableData[scope.$index][configData.compId] < 70}"
             :style="tipPos(tableData[scope.$index][configData.compId])">
-            {{tableData[scope.$index][configData.compId]}}%</div>
+            {{progressShowNum(tableData[scope.$index][configData.compId])}}%</div>
         </div>
-        <div class="num-part" v-if="configData.submitType === 1">
-          {{tableData[scope.$index][configData.compId]}}%</div>
+        <div class="num-part" v-if="configData.progressShowType === 1">
+          {{progressShowNum(tableData[scope.$index][configData.compId])}}%</div>
       </div>
     </div>
   </el-table-column>
@@ -96,49 +98,68 @@ export default {
   mixins: [tableCol],
   data() {
     return {
-      cellNum: 10,
+      showBar: false,
+      barBoxWidth: 0,
+      cellNums: 0,
     };
   },
   computed: {
+
   },
   components: {},
   mounted() {
+    this.$nextTick(() => {
+      setTimeout(() => {
+        this.showBar = true;
+        this.headerDragend();
+      }, 1000);
+    });
   },
   watch: {
   },
   methods: {
+    headerDragend() {
+      this.barBoxwidth();
+      this.cellNum();
+    },
     // 根据进度值显示对应颜色
     linearColor(progressNum) {
-      const config = this.configData || {};
       let color = '';
-      if (progressNum < config.ranges.range2) {
-        if (this.configData.showStyle === 1) {
-          color = `linear-gradient(to right, ${config.colors.color1}, ${config.colors.color2})`;
-        } else {
-          color = config.colors.color1;
+      const config = this.configData || {};
+      const { ranges } = config;
+      for (let i = 0; i < ranges.length; i += 1) {
+        if (i === 0) {
+          if (progressNum >= 0 && progressNum < ranges[i].range) {
+            if (this.configData.showStyle === 1) {
+              color = `linear-gradient(to right, ${ranges[i].color1}, ${ranges[i].color2})`;
+            } else {
+              color = ranges[i].color1;
+            }
+            return color;
+          }
         }
-      } else if (progressNum >= config.ranges.range2 &&
-        progressNum < config.ranges.range3) {
-        if (this.configData.showStyle === 1) {
-          color = `linear-gradient(to right, ${config.colors.color3}, ${config.colors.color4})`;
-        } else {
-          color = config.colors.color3;
+        if (i > 0 && i < ranges.length - 1) {
+          if (progressNum >= ranges[i - 1].range && progressNum < ranges[i].range) {
+            if (this.configData.showStyle === 1) {
+              color = `linear-gradient(to right, ${ranges[i].color1}, ${ranges[i].color2})`;
+            } else {
+              color = ranges[i].color1;
+            }
+            return color;
+          }
         }
-      } else if (progressNum >= config.ranges.range3 &&
-        progressNum < config.ranges.range4) {
-        if (this.configData.showStyle === 1) {
-          color = `linear-gradient(to right, ${config.colors.color5}, ${config.colors.color6})`;
-        } else {
-          color = config.colors.color5;
-        }
-      } else if (progressNum >= config.ranges.range5) {
-        if (this.configData.showStyle === 1) {
-          color = `linear-gradient(to right, ${config.colors.color7}, ${config.colors.color8})`;
-        } else {
-          color = config.colors.color7;
+        if (i === ranges.length - 1) {
+          if (progressNum >= ranges[i].range) {
+            if (this.configData.showStyle === 1) {
+              color = `linear-gradient(to right, ${ranges[i].color1}, ${ranges[i].color2})`;
+            } else {
+              color = ranges[i].color1;
+            }
+            return color;
+          }
         }
       }
-      return color;
+      // return color;
     },
     // 悬浮显示位置
     tipPos(num) {
@@ -151,6 +172,32 @@ export default {
         pos = 'right: 0';
       }
       return pos;
+    },
+    progressShowNum(num) {
+      return num > 100 ? 100 : num;
+    },
+    barBoxwidth() {
+      if (!this.$refs.barBase) return 0;
+      const barWidth = this.$refs.barBase.offsetWidth;
+      console.log(barWidth, 'barWidth');
+      const num = Math.trunc(barWidth / (this.configData.progressBarHeight * 1.5));
+      let width = `${num * this.configData.progressBarHeight * 1.5}px`;
+      if (this.configData.progressShowType === 1) {
+        width = `${num * this.configData.progressBarHeight * 1.5 - 60}px`;
+      }
+      this.barBoxWidth = width;
+      // return width;
+    },
+    cellNum() {
+      // if (!this.$refs[`barBase${index}`]) return 0;
+      if (!this.$refs.barBase) return 0;
+      const width = this.$refs.barBase.offsetWidth;
+      let num = Math.trunc(width / (this.configData.progressBarHeight * 1.5));
+      if (this.configData.progressShowType === 1) {
+        num = Math.trunc((width - 60) / (this.configData.progressBarHeight * 1.5));
+      }
+      this.cellNums = num;
+      // return num > 0 ? num : 0;
     }
   }
 };
@@ -210,7 +257,7 @@ export default {
     .bar-animate{
       transform: scaleX(0);
       animation: showBar ease-in-out 1 .3s forwards;
-      animation-delay: .2s;
+      // animation-delay: .2s;
       transform-origin: left;
     }
     @keyframes showBar {
@@ -297,7 +344,7 @@ export default {
     }
   }
   .num-part{
-    min-width: 40px;
+    width: 60px;
     padding-left: 10px;
     flex-shrink: 0;
     color: #666666;
@@ -321,6 +368,7 @@ export default {
 }
 .cell-bar{
   .bar-part{
+    flex: 1;
     min-width: 100px;
   }
 }

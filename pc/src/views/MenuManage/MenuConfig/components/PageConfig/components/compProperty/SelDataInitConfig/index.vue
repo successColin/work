@@ -130,7 +130,7 @@ export default {
       } catch (error) {
         if (error.panelName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `面板名称 ${error.panelName}`
           });
         }
@@ -154,7 +154,7 @@ export default {
       } catch (error) {
         if (error.panelName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `面板名称 ${error.panelName}`
           });
         }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>超赞 选中</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFC946" offset="0%"></stop>
+            <stop stop-color="#FDAD4B" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="设计配置" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="菜单设计-星级评级" transform="translate(-883.000000, -744.000000)">
+            <g id="超赞-选中" transform="translate(883.000000, 744.000000)">
+                <circle id="椭圆形备份-13" fill="url(#linearGradient-1)" cx="9" cy="9" r="9"></circle>
+                <path d="M5.5,5.5 C6.6045695,5.5 7.5,6.3954305 7.5,7.5 C7.5,7.77614237 7.27614237,8 7,8 C6.72385763,8 6.5,7.77614237 6.5,7.5 C6.5,6.94771525 6.05228475,6.5 5.5,6.5 C4.94771525,6.5 4.5,6.94771525 4.5,7.5 C4.5,7.77614237 4.27614237,8 4,8 C3.72385763,8 3.5,7.77614237 3.5,7.5 C3.5,6.3954305 4.3954305,5.5 5.5,5.5 Z" id="路径" fill="#333538" fill-rule="nonzero"></path>
+                <path d="M12.5,5.5 C13.6045695,5.5 14.5,6.3954305 14.5,7.5 C14.5,7.77614237 14.2761424,8 14,8 C13.7238576,8 13.5,7.77614237 13.5,7.5 C13.5,6.94771525 13.0522847,6.5 12.5,6.5 C11.9477153,6.5 11.5,6.94771525 11.5,7.5 C11.5,7.77614237 11.2761424,8 11,8 C10.7238576,8 10.5,7.77614237 10.5,7.5 C10.5,6.3954305 11.3954305,5.5 12.5,5.5 Z" id="路径备份-2" fill="#333538" fill-rule="nonzero"></path>
+                <path d="M13,10 C13,12.209139 11.209139,14 9,14 C6.790861,14 5,12.209139 5,10 L13,10 Z" id="路径备份-4" fill="#333538"></path>
+            </g>
+        </g>
+    </g>
+</svg>

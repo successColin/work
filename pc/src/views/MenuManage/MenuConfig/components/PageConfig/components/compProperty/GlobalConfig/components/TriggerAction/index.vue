@@ -93,10 +93,10 @@
 
 <script>
 import {
-  listDesignTriggers,
-  enableAndDisableTriggers,
   batchDeleteDesignTriggers,
-  getDesignTriggersLinkDiagram
+  enableAndDisableTriggers,
+  getDesignTriggersLinkDiagram,
+  listDesignTriggers
 } from '@/api/menuConfig';
 import AddAction from '../AddAction';
 import RelateGird from '../RelateGird';
@@ -299,7 +299,7 @@ export default {
     async batchDeleteDesignTriggers() {
       if (!this.selectedIds) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.selectDelData')
         });
       }

@@ -74,6 +74,10 @@
           </template>
         </el-table-column>
         <el-table-column
+            prop="roleCode"
+            label="编码"
+        ></el-table-column>
+        <el-table-column
           prop="memo"
           :label="$t('role.memo')"
           sortable="custom"
@@ -146,17 +150,17 @@
 </template>
 
 <script>
-import { errorMessageProcessing } from '@/utils/utils';
-import animate from '@/utils/animateList';
 import {
-  getRoleLiistById,
-  doAddRole,
   delByBatch,
-  doUpdateRole,
-  doSwitchRole,
+  doAddRole,
+  doCopyRole,
   doEditRoleDataAuth,
-  doCopyRole
+  doSwitchRole,
+  doUpdateRole,
+  getRoleLiistById
 } from '@/api/role';
+import animate from '@/utils/animateList';
+import { errorMessageProcessing } from '@/utils/utils';
 
 const FormItem = () => import('./FormItem/formItem');
 const Design = () => import('./AuthorityDesign/authorDesign');
@@ -203,9 +207,9 @@ export default {
       deep: true,
       handler(newValue, old = {}) {
         if (newValue.id && old.id !== newValue.id) {
-          this.fetchRoleList({ groupId: newValue.id, roleName: this.input, });
+          this.fetchRoleList({ groupId: newValue.id, roleName: this.input });
         } else if (newValue.id && !old.id) {
-          this.fetchRoleList({ groupId: newValue.id, roleName: this.input, });
+          this.fetchRoleList({ groupId: newValue.id, roleName: this.input });
         }
       }
     }
@@ -269,7 +273,7 @@ export default {
       const { selectKeys } = this.$refs.org;
       if (!selectKeys.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('role.placeChooseOrgMessage')
         });
         return;
@@ -289,7 +293,9 @@ export default {
         this.activename === 'PCDesign'
           ? this.$t('role.desktopPermission')
           : this.$t('role.Mobileterminalpermission');
-      const msg = `为${this.designObj.roleName}${type}中的${functionObj.menuName}菜单添加${orgList.join(',')}等数据权限`;
+      const msg = `为${this.designObj.roleName}${type}中的${
+        functionObj.menuName
+      }菜单添加${orgList.join(',')}等数据权限`;
       const params = {
         roleId: id,
         list,
@@ -412,7 +418,7 @@ export default {
                 });
                 errorMessageProcessing(newError, (message) => {
                   this.$message({
-                    type: 'error',
+                    type: 'warning',
                     message
                   });
                 });
@@ -462,7 +468,7 @@ export default {
             });
             errorMessageProcessing(newError, (message) => {
               this.$message({
-                type: 'error',
+                type: 'warning',
                 message
               });
             });
@@ -535,7 +541,7 @@ export default {
       // 删除角色
       if (!this.selected.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('common.placeSelectData')
         });
         return;

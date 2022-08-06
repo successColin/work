@@ -47,8 +47,8 @@
 </template>
 
 <script>
-import SelectComp from '../SelectComp';
 import CompTree from '../CompTree';
+import SelectComp from '../SelectComp';
 
 export default {
   props: {
@@ -106,7 +106,7 @@ export default {
       });
       if (index !== -1) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: `第${index + 1}条数据，返回值设置不规范`
         });
       }

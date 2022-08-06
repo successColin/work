@@ -185,7 +185,7 @@ export default {
 
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.size_more')
           });
           reject(file);
@@ -283,7 +283,7 @@ export default {
 
   &.noHover {
     min-height: 76px;
-    padding: 0px 15px 18px 15px;
+    padding: 0px 15px 18px 35px;
   }
 
   &.active,

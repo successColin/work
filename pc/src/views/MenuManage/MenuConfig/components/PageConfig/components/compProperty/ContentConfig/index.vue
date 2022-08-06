@@ -692,7 +692,7 @@ export default {
     deleteTab(index) {
       if (this.activeObj.children.length === 1) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '区域下至少有一个tab'
         });
       }

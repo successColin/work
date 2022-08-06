@@ -147,7 +147,7 @@ export default {
         }
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);
@@ -156,14 +156,14 @@ export default {
         if (!newSize) {
           if (this.maxKb) {
             this.$message({
-              type: 'error',
+              type: 'warning',
               message: `文件格式大于${this.maxKb}KB，请压缩文件之后再上传!`
             });
             reject(file);
             return;
           }
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.beforeUploading')
           });
           reject(file);

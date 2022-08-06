@@ -88,8 +88,13 @@
             v-show="file.percentage === 100 && file.showOperate"
           >
             <a
-              :href="`${file.url}?response-content-type=application/octet-stream`"
               class="file__operateBox--xiazai file__operateBox--line"
+              @click.stop="
+                download(
+                  `${file.url}?response-content-type=application/octet-stream`,
+                  file.name
+                )
+              "
             >
               <i class="iconfont icon-xiazai"></i>
               下载
@@ -111,6 +116,7 @@
 <script>
 import axios from 'axios';
 import { batchUpload, getFileList } from '@/api/menuConfig';
+import { getBlob, saveAs } from '@/utils/utils';
 import compMixin from '../../compMixin';
 
 export default {
@@ -157,6 +163,11 @@ export default {
   },
 
   methods: {
+    download(url, filename) {
+      getBlob(url, (blob) => {
+        saveAs(blob, filename);
+      });
+    },
     async getFileList() {
       if (this.parent.form[this.configData.compId]) {
         const data = await getFileList({
@@ -218,7 +229,7 @@ export default {
 
         if (!type) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: '不支持该类型附件上传'
           });
           reject(file);
@@ -227,7 +238,7 @@ export default {
 
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.size_more')
           });
           reject(file);
@@ -235,7 +246,7 @@ export default {
         }
         if (this.fileList.length >= this.configData.maxFileCount) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: '上传文件数量超过最大限制'
           });
           reject(file);
@@ -250,7 +261,7 @@ export default {
       const source = axios.CancelToken.source();
       if (this.fileList.length >= this.configData.maxFileCount) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '上传文件数量超过最大限制'
         });
         return;
@@ -345,7 +356,7 @@ export default {
   padding: 2px 15px 18px 15px;
   &.noHover {
     min-height: 76px;
-    padding: 0px 15px 18px 15px;
+    padding: 0px 15px 18px 35px;
   }
   &.active,
   &:hover:not(.noHover) {

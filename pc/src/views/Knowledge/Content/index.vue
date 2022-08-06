@@ -106,16 +106,16 @@
       >
         <el-button-group>
           <apiot-button
+              :type="active === 2 ? 'primary' : ''"
+              @click="changeView(2)"
+          >
+            <span class="iconfont icon-liebiaozhanshi"></span>
+          </apiot-button>
+          <apiot-button
             :type="active === 1 ? 'primary' : ''"
             @click="changeView(1)"
           >
             <span class="iconfont icon-juzhenzhanshi"></span>
-          </apiot-button>
-          <apiot-button
-            :type="active === 2 ? 'primary' : ''"
-            @click="changeView(2)"
-          >
-            <span class="iconfont icon-liebiaozhanshi"></span>
           </apiot-button>
         </el-button-group>
       </div>
@@ -274,42 +274,42 @@
 </template>
 
 <script>
-import { Decrypt, getBlob, saveAs } from '_u/utils';
 import axios from 'axios';
-import {
-  getKonwledgeList,
-  addFolder,
-  editFolder,
-  getFileList,
-  delFiles,
-  moveFiles,
-  getCollectList,
-  doCollect,
-  unCollect,
-  visitFiles,
-  getCommonList,
-  shareFiles,
-  getShareFiles,
-  doCancelShareFiles,
-  getOthersShareFiles,
-  doUpdateShareUser,
-  getBussinessList,
-  fetchBusList
-  // eslint-disable-next-line import/named
-} from '@/api/knowledge';
+import { Decrypt, getBlob, saveAs } from '_u/utils';
 import ajax from '@/api/axiosConfig';
-import xls from '@/assets/img/XLS.svg';
-import zipFile from '@/assets/img/zipFile.svg';
-import txt from '@/assets/img/TXT.svg';
-import ppt from '@/assets/img/PPT.svg';
-import pdf from '@/assets/img/PDF.svg';
-import doc from '@/assets/img/DOC.svg';
-import imageFile from '@/assets/img/imageFile.svg';
-import vedio from '@/assets/img/vedio.svg';
+import {
+  addFolder,
+  delFiles,
+  doCancelShareFiles,
+  doCollect,
+  doUpdateShareUser,
+  editFolder,
+  fetchBusList,
+  // eslint-disable-next-line import/named
+  getBussinessList,
+  getCollectList,
+  getCommonList,
+  getFileList,
+  getKonwledgeList,
+  getOthersShareFiles,
+  getShareFiles,
+  moveFiles,
+  shareFiles,
+  unCollect,
+  visitFiles
+} from '@/api/knowledge';
+import query from '@/api/query';
 import audioFiile from '@/assets/img/audioFile.svg';
+import doc from '@/assets/img/DOC.svg';
 import elseFile from '@/assets/img/else.svg';
 import filesSvg from '@/assets/img/files.svg';
-import query from '@/api/query';
+import imageFile from '@/assets/img/imageFile.svg';
+import pdf from '@/assets/img/PDF.svg';
+import ppt from '@/assets/img/PPT.svg';
+import txt from '@/assets/img/TXT.svg';
+import vedio from '@/assets/img/vedio.svg';
+import xls from '@/assets/img/XLS.svg';
+import zipFile from '@/assets/img/zipFile.svg';
 import FilePath from './FilePath';
 
 const BlockContent = () => import('./BlockContent/index');
@@ -345,7 +345,7 @@ export default {
       videoVisible: false, // 视频弹框
       videoTitle: '', // 视频名称
       doUploadFile: false, // 表示是否是其他页面的上传
-      accept: '.png, .jpg,.jpeg, .gif, .txt, .doc, .xls, .xlsx, .ppt, .pdf, .mp3, .mp4, .avi',
+      accept: '.png, .jpg,.jpeg, .gif, .txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .mp3, .mp4, .avi, .vsdx, .zip, .rar, .m4a, .xmind, .emmx, .log',
       pathArr: [initPath],
       loading: false,
       fileList: [], // 能够正常上传的文件
@@ -357,7 +357,7 @@ export default {
       groupType: 'all',
       keyWord: '',
       showType: 1,
-      active: 1, // 用户状态枚举
+      active: 2, //
       total: 0,
       selectKeys: [],
       userDialogVisible: false,
@@ -574,16 +574,12 @@ export default {
     isShowListContent() {
       return function () {
         if (
-          (
-            (this.active === 2 && this.groupType !== 10)
-                ||
-                ([7, 8].includes(this.groupType) && this.active === 1)
-          ) && this.showType !== 3
+          ((this.active === 2 && this.groupType !== 10) ||
+            ([7, 8].includes(this.groupType) && this.active === 1)) &&
+          this.showType !== 3
         ) {
-          console.log(333);
           return true;
         }
-        console.log(4444);
         return false;
       };
     },
@@ -597,6 +593,7 @@ export default {
         if (this.groupType === 10) {
           const arr = Object.keys(this.list);
           let total = 0;
+          // todo: 可以换成reduce
           if (arr.length) {
             arr.forEach((item) => {
               // eslint-disable-next-line no-const-assign
@@ -872,9 +869,10 @@ export default {
         const nameArr = name.split('.');
         const type = nameArr[nameArr.length - 1];
         const newSize = size / 1024 < 3000000;
+        console.log(type, '111', this.accept);
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.error_files')
           });
           this.rejectFileList.push(file);
@@ -883,7 +881,7 @@ export default {
         }
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.size_more')
           });
           this.rejectFileList.push(file);
@@ -907,13 +905,13 @@ export default {
       if ('.png, .jpg,.gif, .jpeg'.indexOf(suffix) > -1) {
         return 3;
       }
-      if ('.txt, .doc, .xls, .xlsx, .ppt, .pdf'.indexOf(suffix) > -1) {
+      if ('.txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .vsdx, .zip, .rar, .xmind, .emmx, .log'.indexOf(suffix) > -1) {
         return 2;
       }
       if ('.mp3'.indexOf(suffix) > -1) {
         return 5;
       }
-      if ('.mp4, .avi'.indexOf(suffix) > -1) {
+      if ('.mp4, .avi, .m4a'.indexOf(suffix) > -1) {
         return 4;
       }
       return 6;
@@ -947,6 +945,7 @@ export default {
       const formData = new FormData();
       const current = this.pathArr[this.pathArr.length - 1];
       const parentId = current.id === 'all' ? 0 : current.id;
+      console.log(this.doUploadFile, this.doUploadFile ? pid : parentId);
       formData.append('file', item.raw);
       formData.append('parentId', this.doUploadFile ? pid : parentId);
       formData.append('treeClass', this.showType);
@@ -1037,7 +1036,7 @@ export default {
       //  编辑文件名称
       if (!name) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('knowledge.error_empty')
         });
         return;
@@ -1049,7 +1048,7 @@ export default {
         );
         if (sortName.length) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.error_same_name')
           });
           return;
@@ -1286,7 +1285,7 @@ export default {
       const { selectKeys } = this.$refs.moveList;
       if (!selectKeys.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('knowledge.error_right_files')
         });
         return;
@@ -1324,7 +1323,7 @@ export default {
       const basetype = dom.related.getAttribute('data-treeType');
       if (Number(basetype) !== 1) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('knowledge.error_right_files')
         });
         return;
@@ -1345,7 +1344,7 @@ export default {
         !dragFile.sysKlEmpower.editAllow
       ) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('knowledge.error_no_premiss')
         });
         return false;
@@ -1438,7 +1437,7 @@ export default {
       // 分享文件
       if (!userList.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('knowledge.error_choose_users')
         });
         return;
@@ -1536,11 +1535,12 @@ export default {
         if (!suffixArr.length) return txt;
         const suffix = suffixArr[suffixArr.length - 1];
         if (suffix === 'txt') return txt;
-        if (suffix === 'xls') return xls;
-        if (suffix === 'ppt') return ppt;
+        if (['xls', 'xlsx'].includes(suffix)) return xls;
+        if (['ppt', 'pptx'].includes(suffix)) return ppt;
         if (suffix === 'pdf') return pdf;
-        if (suffix === 'doc') return doc;
-        if (suffix === 'zip' || suffix === 'rar') return zipFile;
+        if (['docx', 'doc'].includes(suffix)) return doc;
+        if (['zip', 'rar'].includes(suffix)) return zipFile;
+        if (['vsdx', 'xmind', 'emmx', 'log'].includes(suffix)) return elseFile;
         return xls;
       }
       if ((obj.sysKlTree && obj.sysKlTree.treeType === 3) || obj.treeType === 3) {

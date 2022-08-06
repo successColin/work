@@ -196,6 +196,41 @@
         </apiot-button>
       </el-form-item>
       <el-form-item
+        label="操作日志"
+        v-if="[1, 2, 7, 8, 9, 14].includes(activeObj.buttonType)"
+      >
+        <p class="switchBox">
+          是否启用操作日志
+          <el-switch
+            v-model="activeObj.enableLog"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+        <el-select
+          v-model="activeObj.logComp"
+          multiple
+          placeholder="请选择操作日志字段"
+          v-if="activeObj.enableLog && activeObj.buttonType === 1"
+        >
+          <el-option-group
+            v-for="group in getAreaComp"
+            :key="group.compId"
+            :label="group.name"
+          >
+            <el-option
+              v-for="item in group.children"
+              :key="item.compId"
+              :label="item.name"
+              :value="item.compId"
+            >
+            </el-option>
+          </el-option-group>
+        </el-select>
+      </el-form-item>
+      <el-form-item
         label="执行函数"
         v-if="activeObj.isTabBtn && activeObj.buttonType === 1"
       >
@@ -345,6 +380,60 @@
         </p>
       </el-form-item>
       <el-form-item
+        label="下载数据类型"
+        v-if="[14].includes(activeObj.buttonType)"
+      >
+        <el-select
+          v-model="activeObj.downLoadType"
+          placeholder="请选择"
+          class="m-t-10"
+        >
+          <el-option
+            :label="item.name"
+            v-for="item in filesTypeOption"
+            :key="item.value"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        label="业务文件字段配置"
+        v-if="[1, 2].includes(activeObj.downLoadType)"
+      >
+        <el-select
+          v-model="activeObj.fileColumns"
+          placeholder="请选择"
+          class="m-t-10"
+          multiple
+          filterable
+          collapse-tags
+        >
+          <el-option
+            :label="`${item.columnName}(${item.memo})`"
+            v-for="item in filesOption"
+            :key="item.columnName"
+            :value="item.columnName"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        label="导出文件命名"
+        v-if="[14].includes(activeObj.buttonType)"
+      >
+        <apiot-input
+          v-model="activeObj.downloadName"
+          placeholder="请输入文件名称"
+        ></apiot-input>
+      </el-form-item>
+
+      <apiot-button
+        class="formButtonConfig__btn"
+        @click="levelVisible = true"
+        v-if="[14].includes(activeObj.buttonType)"
+      >
+        <i class="iconfont icon-shezhi m-r-4"></i>导出文件层级设置
+      </apiot-button>
+      <el-form-item
         label="导出设置"
         v-show="[8].includes(activeObj.buttonType)"
       >
@@ -360,22 +449,6 @@
         </el-radio-group>
       </el-form-item>
     </el-form>
-<!--    <h2 class="contentConfig__dataSource&#45;&#45;h2">-->
-<!--      业务表<el-tooltip-->
-<!--        content="当业务表被关系关联，或者被组件使用时不允许更改"-->
-<!--        placement="top"-->
-<!--    ><i class="iconfont icon-bangzhu"-->
-<!--    /></el-tooltip>-->
-<!--    </h2>-->
-<!--    <filterable-input-->
-<!--        placeholder="请选择关联表"-->
-<!--        title="关联表"-->
-<!--        :dialogType="1"-->
-<!--        :disabled="canChangeTable"-->
-<!--        :showInfo="getCurrentTab.tableInfo"-->
-<!--        :isTree="getCurrentTab.isTree"-->
-<!--        @selectRes="selectTable"-->
-<!--    ></filterable-input>-->
     <!-- 自定义提示 -->
     <tip-dialog
       v-if="tipDialog"
@@ -424,10 +497,19 @@
       :triggerCompMap="triggerCompMap"
       :tableArr="activeObj.templateInfo.tableArr || []"
     ></ExtraColumn>
+    <!--层级设置-->
+    <levelSetting
+      :visible.sync="levelVisible"
+      :showOrHide="levelVisible"
+      :value="activeObj.layeredStrategy"
+      :filesOption="filesOption"
+      @saveLayeredStrategy="saveLayeredStrategy"
+    />
   </div>
 </template>
 
 <script>
+import { getFields } from '@/api/flow';
 import { selectColorArr } from '@/config';
 import ruleDialog from './ruleDialog.vue';
 import SaveAllParams from './saveAllParams.vue';
@@ -437,6 +519,8 @@ import PanelConfig from '../ContentConfig/PanelConfig';
 import ToMenuConfig from '../ContentConfig/ToMenuConfig';
 import ExtraColumn from './ExtraColumn';
 import SelectFormula from '../GlobalConfig/components/AddAction/components/SelectFormula';
+
+const levelSetting = () => import('./levelSetting');
 
 export default {
   mixins: [propertyMixin],
@@ -454,6 +538,9 @@ export default {
   },
   data() {
     return {
+      levelVisible: false,
+      // 表字段
+      filesOption: [],
       // 按钮样式
       buttonStyleArr: [
         {
@@ -526,8 +613,7 @@ export default {
         {
           label: '下载资料',
           value: 14
-        },
-
+        }
       ],
       // 按钮表现形式
       buttonFormArr: [
@@ -629,6 +715,14 @@ export default {
           value: 1
         },
         {
+          label: '刷新上一页',
+          value: 8
+        },
+        {
+          label: '更新上一页树',
+          value: 9
+        },
+        {
           label: '关闭当前页',
           value: 2
         },
@@ -671,6 +765,20 @@ export default {
           value: 4
         }
       ],
+      filesTypeOption: [
+        {
+          name: '全部',
+          value: 1
+        },
+        {
+          name: '仅业务文件',
+          value: 2
+        },
+        {
+          name: '仅关联资料',
+          value: 3
+        }
+      ],
       submitObj: null, // 自定义类型的对象
       tipDialog: false, // 是否展示自定义提示
       showPanelConfig: false, // 面板配置弹窗是否显示
@@ -687,9 +795,19 @@ export default {
     PanelConfig,
     ToMenuConfig,
     ExtraColumn,
-    SelectFormula
+    SelectFormula,
+    levelSetting
   },
-
+  watch: {
+    'activeObj.buttonType': {
+      immediate: true,
+      handler(v) {
+        if (v === 14) {
+          this.initDownLoadFiles();
+        }
+      }
+    }
+  },
   computed: {
     getCompArr() {
       const arr = [];
@@ -714,7 +832,6 @@ export default {
           }
         });
       }
-
       return arr;
     },
 
@@ -747,6 +864,62 @@ export default {
         }
       });
       return curInfo;
+    },
+    // 获取该按钮下面区域的组件
+    getAreaComp() {
+      if (this.activeObj.isTabBtn) {
+        const arr = [];
+        this.relateObj.children.forEach((area) => {
+          if (area.compName !== 'BtnsArea') {
+            const tempArr = [];
+            arr.push({
+              name: area.name,
+              compId: area.compId,
+              children: tempArr
+            });
+
+            area.children.forEach((block) => {
+              if (block.areaType === 1) {
+                block.children.forEach((comp) => {
+                  if (
+                    (comp.compType <= 10 && comp.singleStatus === 1) ||
+                    comp.dataSource.columnName === 'id'
+                  ) {
+                    tempArr.push({
+                      name: comp.name,
+                      compId: comp.compId
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
+        return arr;
+      }
+      const arr = [];
+      const tempArr = [];
+      arr.push({
+        name: this.relateObj.name,
+        compId: this.relateObj.compId,
+        children: tempArr
+      });
+      this.relateObj.children.forEach((block) => {
+        if (block.areaType === 1) {
+          block.children.forEach((comp) => {
+            if (
+              (comp.compType <= 10 && comp.singleStatus === 1) ||
+              comp.dataSource.columnName === 'id'
+            ) {
+              tempArr.push({
+                name: comp.name,
+                compId: comp.compId
+              });
+            }
+          });
+        }
+      });
+      return arr;
     },
     // 是不是树的按钮
     isTreeBtn() {
@@ -786,7 +959,6 @@ export default {
       };
     }
   },
-
   mounted() {
     this.selectColorArr = selectColorArr;
     if (this.fatherObj.tabBtnArea) {
@@ -794,9 +966,25 @@ export default {
       this.refreshTypeArr.pop();
     }
     this.initTreeBtn();
+    if (this.activeObj.buttonType === 14) {
+      this.initDownLoadFiles();
+    }
+    if (this.activeObj.logComp) {
+      this.initLogComp();
+    }
   },
 
   methods: {
+    saveLayeredStrategy(v) {
+      this.activeObj.layeredStrategy = v;
+      this.$set(this.activeObj, 'layeredStrategy', v);
+    },
+    async initDownLoadFiles() {
+      const {
+        tableInfo: { tableName }
+      } = this.getParentObj(2);
+      this.filesOption = await getFields({ columnTypes: '', tableName });
+    },
     initTreeBtn() {
       if (
         this.getParentObj(3) &&
@@ -805,6 +993,15 @@ export default {
         this.activeObj.buttonStyle = 'text';
         this.activeObj.buttonForm = 3;
       }
+    },
+    initLogComp() {
+      const arr = [];
+      this.activeObj.logComp.forEach((compId) => {
+        if (this.getAllcheck[compId] && this.getAreaComp[compId]) {
+          arr.push(compId);
+        }
+      });
+      this.activeObj.logComp = arr;
     },
     nameFocus() {
       this.activeObj.backName = this.activeObj.name;

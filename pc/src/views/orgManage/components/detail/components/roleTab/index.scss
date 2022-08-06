@@ -23,6 +23,7 @@
       height: calc(100% - 36px);
       overflow-y: auto;
       &__tree{
+        height: 100%;
         ::v-deep{
           .el-tree-node__expand-icon{
             color: #333333;
@@ -35,13 +36,13 @@
               font-size: 20px;
             }
             .icon-fenzuchangtai{
-              color: #FAB71C;
+              color: #FAB71C !important;
             }
             .icon-jiaose{
-              color: #EE5E5E;
+              color: #EE5E5E !important;
             }
             .icon-zhiwei{
-              color: #FC8256;
+              color: #FC8256 !important;
             }
           }
           .is-leaf{

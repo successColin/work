@@ -67,9 +67,16 @@ export default {
   }
   &.notConfig {
     padding: 0;
-    .leftAndRight__top {
+    .topAndBottom__top {
       box-sizing: border-box;
       border-bottom: 1px solid #e9e9e9;
+    }
+    ::v-deep {
+      .inBottom {
+        .btnsArea {
+          height: 42px !important;
+        }
+      }
     }
   }
 }

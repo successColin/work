@@ -9,7 +9,7 @@
   <section class="helpCenterShow">
     <header>
       <div class="helpCenterShow__header">
-        <img src="@/assets/img/pcLoginLog.png" alt="" />
+        <img src="@/assets/img/pcLoginLog1.svg" alt="" />
         <div class="helpCenterShow__header--title">
           {{ $t('helpCenter.aPIOTHelpCenter') }}
         </div>
@@ -102,7 +102,7 @@ $headerHeight: 64px;
     align-items: center;
     height: 100%;
     img {
-      width: 82px;
+      // width: 82px;
       height: 22px;
       padding-right: 20px;
       border-right: 1px solid #e9e9e9;

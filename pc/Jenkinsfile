@@ -113,7 +113,8 @@ pipeline {
 
         stage("部署到47.118.76.70环境") {
             steps {
-                sh "scp -r ${env.WORKSPACE}@2/dist/** v10_dev:/data/wwwroot/default/v10/"
+                sh "ssh v10_dev -tt rm -rf /data/wwwroot/default/v10/static "
+                sh "scp -r ${env.WORKSPACE}@2/dist/** v10_dev:/data/wwwroot/default/v10/ "
             }
             post {
                 success {
@@ -135,33 +136,9 @@ pipeline {
             }
         }
         
-        stage("部署到泰州石化（UAT）环境") {
-            steps {
-                sh "scp -r ${env.WORKSPACE}@2/dist/** UAT:/var/lib/docker/volumes/tzsh-84_web-home/_data/dist/"
-            }
-            post {
-                success {
-                    dingtalk (
-                        robot: 'jizhi-dingtalk',
-                        type: 'TEXT',
-                        atAll: false,
-                        text: ['EAM10前端','分支：dev','已成功部署到泰州石化（UAT）环境！！！'],
-                    )
-                }
-                failure {
-                    dingtalk (
-                        robot: 'jizhi-dingtalk',
-                        type: 'TEXT',
-                        atAll: false,
-                        text: ['EAM10前端','分支：dev','泰州石化（UAT）环境部署失败！！！'],
-                    )
-                }
-            }
-        }
-        
         stage("部署到v10ERP演示环境") {
             steps {
-                sh "scp -r ${env.WORKSPACE}@2/dist/** UAT:/var/lib/docker/volumes/erp_web-home/_data/dist/"
+                sh "scp -r ${env.WORKSPACE}@2/dist/** UAT:/var/lib/docker/volumes/eam10_business_web-home/_data/dist/"
             }
             post {
                 success {

@@ -68,7 +68,7 @@ export default {
 <style lang='scss' scoped>
 .dividing {
   box-sizing: border-box;
-  padding: 4px 15px;
+  padding: 4px 20px;
   width: 100%;
   &.isConfig {
     padding: 4px 15px;
@@ -77,10 +77,10 @@ export default {
     width: 100%;
     height: 44px;
     &--name {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: #333333;
-      line-height: 16px;
+      line-height: 15px;
       &.notShow {
         display: none;
       }

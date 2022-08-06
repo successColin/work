@@ -127,9 +127,9 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 0 20px;
   &__header {
-    flex: 0 0 42px;
-    line-height: 42px;
+    margin: 6px 0;
   }
   &__main {
     flex: 1;

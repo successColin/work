@@ -145,7 +145,7 @@
           >
         </el-select>
       </el-form-item>
-      <el-form-item label="状态" v-if="isShow">
+      <el-form-item label="状态">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -379,20 +379,23 @@ export default {
         return;
       }
       const ruleArr = this.fatherObj.rules[this.activeObj.compId];
-      let index = 0;
+      let index = -1;
       this.showDefault = false;
       this.activeObj.dropDownType = radio;
-      if (ruleArr && ruleArr.length !== 0) {
-        index = ruleArr.findIndex((item) => item.flag === 'requiredRule');
+      if (ruleArr) {
+        if (ruleArr.length !== 0) {
+          index = ruleArr.findIndex((item) => item.flag === 'requiredRule');
+        }
+        if (radio === 1 && index !== -1) {
+          this.fatherObj.form[this.activeObj.compId] = '';
+          ruleArr[index].type = 'number';
+        }
+        if (radio === 2 && index !== -1) {
+          this.fatherObj.form[this.activeObj.compId] = [];
+          ruleArr[index].type = 'array';
+        }
       }
-      if (radio === 1) {
-        this.fatherObj.form[this.activeObj.compId] = '';
-        ruleArr[index].type = 'number';
-      }
-      if (radio === 2) {
-        this.fatherObj.form[this.activeObj.compId] = [];
-        ruleArr[index].type = 'array';
-      }
+
       this.$nextTick(() => {
         this.showDefault = true;
       });

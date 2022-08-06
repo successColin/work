@@ -34,6 +34,21 @@
         </el-form-item>
         <el-form-item
           class="hlaf"
+          :label="$t('org.keycode')"
+          prop="keyCode"
+        >
+          <apiot-input
+            v-model="curData.keyCode"
+            maxlength="30"
+            :placeholder="
+              $t('placeholder.pleaseEnterAnyName', {
+                any: $t('org.keycode'),
+              })
+            "
+          ></apiot-input>
+        </el-form-item>
+        <el-form-item
+          class="hlaf"
           prop="parentId"
           :label="$t('org.organization')"
         >
@@ -42,11 +57,19 @@
               <i class="iconfont icon-jiahao m-r-6"></i>
               {{ $t('common.select') }}
             </span>
-            <span class="org-tag m-r-6" v-if="!!curData.parentId">
+            <apiot-tag
+              v-if="!!curData.parentId"
+              class="m-r-6"
+              @deleteSelf="deleteParent"
+              :key="curData.parentName"
+              :item="curData.parentName"
+              itemIconClass="icon-zuzhi"
+            ></apiot-tag>
+            <!-- <span class="org-tag m-r-6" v-if="!!curData.parentId">
               <i class="iconfont icon-zuzhi m-r-6"></i>
               {{ curData.parentName || '' }}
               <i class="iconfont icon-guanbi m-l-6" @click="deleteParent()"></i>
-            </span>
+            </span> -->
           </div>
         </el-form-item>
         <el-form-item
@@ -386,7 +409,7 @@ export default {
 .drawer-content {
   width: 100%;
   height: 100%;
-  padding: 36px 21px;
+  padding: 30px 21px;
   box-sizing: border-box;
   ::v-deep {
     .el-form {

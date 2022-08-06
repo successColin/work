@@ -203,6 +203,15 @@ export function batchDelete(params) {
   });
 }
 
+// 下载资料
+export function downLoadData(data) {
+  return FetchData.request({
+    url: 'system/materials/downloadRelationFiles',
+    method: 'post',
+    data,
+  });
+}
+
 // 按钮新增
 export function singleInsert(data) {
   return FetchData.request({
@@ -522,6 +531,14 @@ export function listMultiTree(params) {
 export function pageMultiTree(params) {
   return FetchData.request({
     url: 'system/multiTree/pageMultiTree',
+    params,
+  });
+}
+
+// 级联组件开发
+export function getCascadeInfo(params) {
+  return FetchData.request({
+    url: 'application/select/getCascadeInfo',
     params,
   });
 }

@@ -165,6 +165,7 @@ export default {
   DELETE_FLOW_GROUP: '/workflowGroup/logicDel', // 新增流程分组
   UPDATE_FLOW_GROUP: '/workflowGroup/edit', // 修改流程分组属性
   SWITCH_FLOW_GROUP: '/system/sysMenu/switchLocation', // 修改流程分组排序
+  GET_API_LIST: '/workflowNode/getWebHookList', // 获取代理接口列表
 
   // 主页配置
   GET_HOME_PAGE_LIST: '/system/homepage/listSysHomepageConfig', // 主页列表
@@ -189,4 +190,5 @@ export default {
   MARK_MAIL_READ: 'innerMail/read', // 设置我的站内信已读
   MARK_MAIL_ALL_READ: 'innerMail/readMyAll', // 设置我的所有站内信已读
   GET_MAIL_COUNT: 'innerMail/queryCount', // 查询当前时间登录用户的站内信数量
+  DOWNlOAD_RELATIONS_Files: `${PREFIX}/${VERSION}/system/materials/downloadRelationFiles`, // 导出关联资料
 };

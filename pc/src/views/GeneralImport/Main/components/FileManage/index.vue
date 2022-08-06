@@ -107,7 +107,7 @@ export default {
         const type = nameArr[nameArr.length - 1];
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);

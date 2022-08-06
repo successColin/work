@@ -88,6 +88,18 @@
           <i class="iconfont icon-xinzeng m-r-4"></i>添加label框
         </apiot-button>
       </div>
+      <div class="contentConfig__box contentConfig__hasTab">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否需要数据权限
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.needPermissions"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
       <div class="contentConfig__box contentConfig__hasTab" v-if="false">
         <h2 class="contentConfig__hasTab--switchBox">
           是否初始化
@@ -784,7 +796,7 @@ export default {
         alignStyle: 1, // 1 是左对齐 2右对齐
         font: {
           color: '#333333', // 字体颜色
-          size: 14, // 字体大小
+          size: 13, // 字体大小
           style: 1 // 1 常规 2 加粗
         }, // 字体大小
         labelBg: {

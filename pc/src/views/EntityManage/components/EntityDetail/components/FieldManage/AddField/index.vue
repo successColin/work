@@ -55,7 +55,7 @@
           >
             <el-option
               v-for="item in $store.state.dictManage.COLUMNS_TYPE.filter(
-                (item) => item.value <= 4
+                (item) => item.value <= 5
               )"
               :key="item.value"
               :label="item.name"
@@ -136,8 +136,8 @@
 </template>
 
 <script>
-import bus from '@/utils/bus';
 import { addColumns, listColumnsLength, modifyColumns } from '@/api/entityManage';
+import bus from '@/utils/bus';
 
 export default {
   props: {
@@ -355,7 +355,7 @@ export default {
         this.showLoading = false;
         if (error.columnName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.column') })} ${
               error.columnName
             }`
@@ -413,7 +413,7 @@ export default {
         this.showLoading = false;
         if (error.columnName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.column') })} ${
               error.columnName
             }`

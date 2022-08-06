@@ -1,16 +1,16 @@
 <template>
   <apiot-dialog
-      class="affectType"
-      :title="getTitle"
-      @sure-click="sureClick"
-      v-on="$listeners"
-      v-bind="$attrs"
+    class="affectType"
+    :title="getTitle"
+    @sure-click="sureClick"
+    v-on="$listeners"
+    v-bind="$attrs"
   >
     <el-form
-        label-position="top"
-        label-width="80px"
-        @submit.native.prevent
-        class="affectType__form"
+      label-position="top"
+      label-width="80px"
+      @submit.native.prevent
+      class="affectType__form"
     >
       <div class="form--line">
         <el-row :gutter="20">
@@ -18,10 +18,10 @@
             <el-form-item label="类型" class="form--child">
               <el-select v-model="curType" :disabled="!canEdit">
                 <el-option
-                    :label="item.label"
-                    :value="item.value"
-                    v-for="item in typeList"
-                    :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                  v-for="item in typeList"
+                  :key="item.value"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -29,12 +29,12 @@
           <el-col :span="12">
             <el-form-item label="触发表" class="form--child">
               <filterable-input
-                  placeholder="请选择表"
-                  :showInfo="tableInfo"
-                  :dialogType="1"
-                  @selectRes="selectTable"
-                  :disabled="!canEdit"
-                  :notShowSys="false"
+                placeholder="请选择表"
+                :showInfo="tableInfo"
+                :dialogType="1"
+                @selectRes="selectTable"
+                :disabled="!canEdit"
+                :notShowSys="false"
               ></filterable-input>
             </el-form-item>
           </el-col>
@@ -43,23 +43,22 @@
       <div class="form--line">
         <el-form-item label="新增(更新)内容" class="form--child">
           <apiot-button class="addBtn" @click="addContent"
-          ><i class="iconfont icon-xinzeng m-r-4"></i>新增
-          </apiot-button
-          >
+            ><i class="iconfont icon-xinzeng m-r-4"></i>新增
+          </apiot-button>
           <ul class="list">
             <li
-                v-for="(item, index) in contentList"
-                :key="index"
-                class="list__item m-b-8"
+              v-for="(item, index) in contentList"
+              :key="index"
+              class="list__item m-b-8"
             >
               <filterable-input
-                  class="list__item--column"
-                  placeholder="请选择字段"
-                  :tableName="tableInfo.tableName"
-                  :showInfo="item.columnObj"
-                  :dialogType="2"
-                  :notShowSys="false"
-                  @selectRes="selectColumnRes($event, item.columnObj)"
+                class="list__item--column"
+                placeholder="请选择字段"
+                :tableName="tableInfo.tableName"
+                :showInfo="item.columnObj"
+                :dialogType="2"
+                :notShowSys="false"
+                @selectRes="selectColumnRes($event, item.columnObj)"
               ></filterable-input>
               <!-- <el-select v-model="item.lambda" class="list__item--lambda">
                 <el-option
@@ -70,55 +69,55 @@
                 ></el-option>
               </el-select> -->
               <el-select
-                  v-model="item.valueType"
-                  class="list__item--valueType"
-                  @change="item.content = ''"
+                v-model="item.valueType"
+                class="list__item--valueType"
+                @change="item.content = ''"
               >
                 <el-option label="固定值" :value="1"></el-option>
                 <el-option label="公式" :value="2"></el-option>
               </el-select>
               <el-date-picker
-                  v-if="item.valueType === 1 && item.columnObj.columnType === 3"
-                  type="datetime"
-                  :editable="false"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  v-model="item.content"
-                  class="list__item--content"
-                  placeholder="请选择日期"
+                v-if="item.valueType === 1 && item.columnObj.columnType === 3"
+                type="datetime"
+                :editable="false"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                v-model="item.content"
+                class="list__item--content"
+                placeholder="请选择日期"
               >
               </el-date-picker>
               <apiot-input
-                  v-else
-                  v-show="item.valueType === 1"
-                  v-model="item.content"
-                  class="list__item--content"
+                v-else
+                v-show="item.valueType === 1"
+                v-model="item.content"
+                class="list__item--content"
               ></apiot-input>
               <select-formula
-                  v-if="item.valueType === 2"
-                  :configData="configData"
-                  class="list__item--formula"
-                  :triggerCompMap="triggerCompMap"
-                  v-model="item.content"
+                v-if="item.valueType === 2"
+                :configData="configData"
+                class="list__item--formula"
+                :triggerCompMap="triggerCompMap"
+                v-model="item.content"
               ></select-formula>
               <i
-                  class="iconfont icon-shanchu"
-                  @click="deleteList(contentList, index)"
+                class="iconfont icon-shanchu"
+                @click="deleteList(contentList, index)"
               ></i>
             </li>
           </ul>
         </el-form-item>
       </div>
-      <div class="form--line" v-if="curType!=='INSERT'">
+      <div class="form--line" v-if="curType !== 'INSERT'">
         <ActionTerm
-            v-bind="$attrs"
-            :curTermObj="termObj"
-            :lambdaArr="lambdaArr"
-            :flag="2"
-            businessType="flow"
-            :tableInfo="tableInfo"
-            :configData="configData"
-            :triggerCompMap="triggerCompMap"
-            :notShowSys="false"
+          v-bind="$attrs"
+          :curTermObj="termObj"
+          :lambdaArr="lambdaArr"
+          :flag="2"
+          businessType="flow"
+          :tableInfo="tableInfo"
+          :configData="configData"
+          :triggerCompMap="triggerCompMap"
+          :notShowSys="false"
         ></ActionTerm>
       </div>
       <div class="form--line">
@@ -131,8 +130,8 @@
 </template>
 
 <script>
-import SelectFormula from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/SelectFormula';
 import ActionTerm from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/ActionTerm';
+import SelectFormula from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/SelectFormula';
 
 export default {
   props: {
@@ -155,18 +154,20 @@ export default {
   },
   data() {
     return {
-      typeList: [{
-        label: '新增',
-        value: 'INSERT',
-      },
-      {
-        label: '编辑',
-        value: 'UPDATE',
-      },
-      {
-        label: '删除',
-        value: 'DELETE',
-      }],
+      typeList: [
+        {
+          label: '新增',
+          value: 'INSERT'
+        },
+        {
+          label: '编辑',
+          value: 'UPDATE'
+        },
+        {
+          label: '删除',
+          value: 'DELETE'
+        }
+      ],
       tableInfo: {},
       contentList: [],
       memo: '',
@@ -215,57 +216,55 @@ export default {
     sureClick() {
       if (!this.tableInfo.tableName) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发表'
         });
       }
       if (this.curType === 'INSERT' && this.contentList.length === 0) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '新增类型必须有内容'
         });
       }
       if (this.curType === 'DELETE' && this.termObj.termArr.length === 0) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '删除类型必须有条件'
         });
       }
       if (
-        (this.curType === 'UPDATE') &&
-          (this.termObj.termArr.length === 0 || this.contentList.length === 0)
+        this.curType === 'UPDATE' &&
+        (this.termObj.termArr.length === 0 || this.contentList.length === 0)
       ) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '编辑类型必须有内容和条件'
         });
       }
       if (this.contentList.length) {
-        const index = this.contentList.flat(Infinity)
-          .findIndex((term) => {
-            if (!term.columnObj.columnName) {
-              return true;
-            }
-            return false;
-          });
+        const index = this.contentList.flat(Infinity).findIndex((term) => {
+          if (!term.columnObj.columnName) {
+            return true;
+          }
+          return false;
+        });
         if (index !== -1) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '请选择内容字段'
           });
         }
       }
       if (this.termObj.termArr.length) {
-        const index = this.termObj.termArr.flat(Infinity)
-          .findIndex((term) => {
-            if (!term.columnObj.columnName) {
-              return true;
-            }
-            return false;
-          });
+        const index = this.termObj.termArr.flat(Infinity).findIndex((term) => {
+          if (!term.columnObj.columnName) {
+            return true;
+          }
+          return false;
+        });
         if (index !== -1) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '请选择条件字段'
           });
         }
@@ -275,7 +274,7 @@ export default {
         tableName: this.tableInfo.tableName,
         operationContent: JSON.stringify(this.contentList),
         operationConditions: JSON.stringify(this.termObj),
-        memo: this.memo,
+        memo: this.memo
       };
       this.$emit('addAffectType', params);
       this.$emit('update:visible', false);
@@ -283,7 +282,7 @@ export default {
     addContent() {
       if (!this.tableInfo.tableName) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发表'
         });
       }
@@ -316,21 +315,22 @@ export default {
 
 <style lang='scss' scoped>
 ::v-deep {
-  .el-dialog__header{
+  .el-dialog__header {
     text-align: left;
   }
 }
 .affectType__form {
   overflow-y: auto;
   overflow-x: hidden;
-  .form--line{
-    ::v-deep{
-      .formula__box--header, .formula__box--main{
+  .form--line {
+    ::v-deep {
+      .formula__box--header,
+      .formula__box--main {
         text-align: left;
       }
     }
   }
-  ::v-deep{
+  ::v-deep {
     .el-form-item {
       text-align: left;
       .el-select {

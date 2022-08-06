@@ -25,5 +25,6 @@ export default {
     collection: '收藏',
     cancelCollection: '取消收藏',
     pleaseSelectManager: '请选择管理人员',
+    keycode: '编码'
   },
 };

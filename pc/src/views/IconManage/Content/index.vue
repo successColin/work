@@ -152,9 +152,9 @@
 
 <script>
 import axios from 'axios';
-import { definedIconGroupID, Decrypt } from '@/utils/utils';
-import { getIconList, batchDeleteIcon } from '@/api/iconManage';
 import fetch from '@/api/axiosConfig';
+import { batchDeleteIcon, getIconList } from '@/api/iconManage';
+import { Decrypt, definedIconGroupID } from '@/utils/utils';
 
 export default {
   props: {
@@ -188,7 +188,7 @@ export default {
   computed: {
     iconArr() {
       // 模糊查询
-      return function() {
+      return function () {
         const groupArr = this.groupArr || [];
         const arr =
           groupArr.filter(
@@ -201,7 +201,7 @@ export default {
     },
     isCheckAll() {
       // 是否是全选
-      return function() {
+      return function () {
         if (this.type) return false;
         const arr = this.groupArr.filter((item) => item.iconType === this.baseType) || [];
         if (!arr.length || !this.selectedArr.length) return false;
@@ -209,7 +209,7 @@ export default {
       };
     },
     isShow() {
-      return function() {
+      return function () {
         return definedIconGroupID.includes(this.iconMessage.id);
       };
     }
@@ -262,7 +262,7 @@ export default {
       if (!this.fileList.length) return;
       if (!this.selectedArr.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('icon.pleaseUploadFile')
         });
         return;
@@ -291,7 +291,7 @@ export default {
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           // console.log(1111111111111);
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);
@@ -300,7 +300,7 @@ export default {
         if (!newSize) {
           // console.log(2222222);
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.beforeUploading')
           });
           reject(file);
@@ -318,13 +318,13 @@ export default {
     limitMessage(files) {
       if (files.length > this.limit) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('icon.messageUploadNumber')
         });
       }
       if (this.fileList.length > this.limit) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('icon.messageUploadNumber')
         });
       }
@@ -333,7 +333,7 @@ export default {
       const formData = new FormData();
       if (!this.fileList.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('icon.pleaseUploadToSave')
         });
         return;
@@ -400,7 +400,7 @@ export default {
     },
     async del() {
       if (!this.selectedArr.length) {
-        this.$message({ type: 'error', message: this.$t('icon.pleaseUploadFileToDelete') });
+        this.$message({ type: 'warning', message: this.$t('icon.pleaseUploadFileToDelete') });
         return;
       }
       const ids = this.selectedArr.join(',');

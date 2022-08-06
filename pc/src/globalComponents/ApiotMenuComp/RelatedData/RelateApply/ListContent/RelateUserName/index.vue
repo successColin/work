@@ -12,6 +12,7 @@
     :sortable="false"
     :label="$t('knowledge.bus_create')"
     resizable
+    width="130"
     show-overflow-tooltip
   >
     <template slot-scope="scope">

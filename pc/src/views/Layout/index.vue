@@ -51,6 +51,7 @@ import MenuTradition from './components/MenuTradition';
 import MenuList from './components/MenuList';
 
 export default {
+  name: 'Layout',
   data() {
     return {
       showPage: true,
@@ -84,10 +85,16 @@ export default {
   beforeMount() {
     this.getUserCenterInfo();
     this.$store.dispatch('fetchThemeConfig', 'THEME_AND_LOGO');
-    this.$store.dispatch('fetchThirdLinks');
+    this.$store.dispatch('fetchConfigFun');
+    this.$store.dispatch('fetchConfigFun', 'MESSAGE_CONFIG');
+    this.$store.dispatch('fetchConfigFun', 'UREPORT_URL');
+    this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
   },
   mounted() {
     this.$bus.$on('showMenu', this.showMenu);
+    if (this.$store.getters.getMenuType === 2) {
+      this.showMenu();
+    }
   },
   methods: {
     async getUserCenterInfo() {
@@ -137,7 +144,7 @@ export default {
       this.aniName = '';
       this.$nextTick(() => {
         if (this.navLeftWidth === 0 || flag) {
-          this.navLeftWidth = 260;
+          this.navLeftWidth = 220;
         } else {
           this.navLeftWidth = 0;
         }

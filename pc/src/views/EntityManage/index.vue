@@ -86,16 +86,16 @@
 </template>
 
 <script>
-import bus from '@/utils/bus';
 import {
-  getListSysEntityTables,
   delSysEntityTables,
-  synchronizeEntities,
-  statisticsData
+  getListSysEntityTables,
+  statisticsData,
+  synchronizeEntities
 } from '@/api/entityManage';
-import SidebarList from './components/SidebarList';
+import bus from '@/utils/bus';
 import AddEntity from './components/AddEntity';
 import EntityDetail from './components/EntityDetail';
+import SidebarList from './components/SidebarList';
 
 export default {
   name: 'entityManage',
@@ -206,7 +206,7 @@ export default {
     async deleteEntity() {
       if (!this.multiEntityArr.length) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.selectDelData')
         });
       }
@@ -245,7 +245,7 @@ export default {
     editEntity(row) {
       if (/^sys_/.test(row.tableName)) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.notAllowOperate')
         });
       }
@@ -278,7 +278,7 @@ export default {
     async syncData() {
       if (!this.multiEntityArr.length) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.selectTable')
         });
       }

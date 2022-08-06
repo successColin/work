@@ -143,6 +143,9 @@ export default {
         background: $--hover-color;
       }
     }
+    .el-tree__empty-block {
+      min-height: 300px;
+    }
   }
 }
 </style>

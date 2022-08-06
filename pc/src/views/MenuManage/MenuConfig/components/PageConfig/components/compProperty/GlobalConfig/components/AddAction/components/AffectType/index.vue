@@ -198,19 +198,19 @@ export default {
     sureClick() {
       if (!this.tableInfo.tableName) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发表'
         });
       }
       if (this.curType === 1 && this.contentList.length === 0) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '新增类型必须有内容'
         });
       }
       if (this.curType === 3 && this.termObj.termArr.length === 0) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '删除类型必须有条件'
         });
       }
@@ -219,7 +219,7 @@ export default {
         (this.termObj.termArr.length === 0 || this.contentList.length === 0)
       ) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: `${this.curType === 2 ? '修改' : '增改'}类型必须有内容和条件`
         });
       }
@@ -232,7 +232,7 @@ export default {
         });
         if (index !== -1) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '请选择内容字段'
           });
         }
@@ -246,7 +246,7 @@ export default {
         });
         if (index !== -1) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '请选择条件字段'
           });
         }
@@ -273,7 +273,7 @@ export default {
     addContent() {
       if (!this.tableInfo.tableName) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发表'
         });
       }

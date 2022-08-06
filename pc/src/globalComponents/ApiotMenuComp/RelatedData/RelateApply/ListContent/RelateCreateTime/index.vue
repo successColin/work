@@ -13,7 +13,7 @@
     :label="$t('knowledge.bus_time')"
     resizable
     show-overflow-tooltip
-    :min-width="140"
+    :width="230"
   >
     <template slot-scope="scope">
       <span> {{ scope.row.uploadTime || scope.row.sysKlTree.uploadTime }}</span>

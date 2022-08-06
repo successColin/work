@@ -67,6 +67,9 @@ export default {
 <style lang='scss' scoped>
 .panel__dialog {
   ::v-deep {
+    .el-drawer__header {
+      padding-left: 20px !important;
+    }
     .el-drawer__body {
       padding-top: 0;
       height: calc(100% - 54px - 26px);
@@ -75,7 +78,6 @@ export default {
       }
     }
     .tabMain__pane--area {
-      padding: 0px 21px 0;
       box-sizing: border-box;
       &.firstIsTable {
         padding-top: 0px;

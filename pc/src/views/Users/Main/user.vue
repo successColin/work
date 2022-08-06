@@ -46,11 +46,11 @@
             @click="doSearch"
           ></i>
         </apiot-input>
-<!--        <apiot-sys-import-->
-<!--          style="float: right"-->
-<!--          @FETCH_NEW_LIST="doSearch"-->
-<!--          :templateId="116"-->
-<!--        ></apiot-sys-import>-->
+        <!--        <apiot-sys-import-->
+        <!--          style="float: right"-->
+        <!--          @FETCH_NEW_LIST="doSearch"-->
+        <!--          :templateId="116"-->
+        <!--        ></apiot-sys-import>-->
       </div>
     </div>
     <div class="wrap_div_roleWrap">
@@ -140,11 +140,11 @@ import cnchar from 'cnchar';
 import { errorMessageProcessing } from '@/utils/utils';
 // import animateList from '_u/animateList';
 import { getRoleLiistById } from '@/api/role';
-import { getUsersList, addUser, batchDel, updateUser, doUpdateUserDataAuth } from '@/api/user';
+import { addUser, batchDel, doUpdateUserDataAuth, getUsersList, updateUser } from '@/api/user';
 import NormalColumn from './NormalColumn';
-import StateColumn from './StateColumn';
 import OrgAndRole from './OrgAndRole';
 import RoleColumn from './RoleColumn';
+import StateColumn from './StateColumn';
 import TagColumn from './TagColumn';
 import UserColumn from './UserColumn';
 
@@ -374,7 +374,7 @@ export default {
   },
   computed: {
     getPlaceholder() {
-      return function() {
+      return function () {
         return this.$t('user.placeholder_common');
       };
     },
@@ -554,7 +554,7 @@ export default {
       const { selectKeys } = this.$refs.org;
       if (!selectKeys.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.pleaseChooseAndSave')
         });
         return;
@@ -677,7 +677,7 @@ export default {
             });
             errorMessageProcessing(newError, (message) => {
               this.$message({
-                type: 'error',
+                type: 'warning',
                 message
               });
             });
@@ -765,7 +765,7 @@ export default {
       // 删除角色
       if (!this.selected.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.chooseOne')
         });
         return;

@@ -65,14 +65,14 @@
               :enterable="false"
               placement="bottom"
             >
-<!--              <el-switch-->
-<!--                class="m-l-2"-->
-<!--                v-model="item.enabled"-->
-<!--                :active-value="true"-->
-<!--                :inactive-value="false"-->
-<!--                @change="change"-->
-<!--              >-->
-<!--              </el-switch>-->
+              <!--              <el-switch-->
+              <!--                class="m-l-2"-->
+              <!--                v-model="item.enabled"-->
+              <!--                :active-value="true"-->
+              <!--                :inactive-value="false"-->
+              <!--                @change="change"-->
+              <!--              >-->
+              <!--              </el-switch>-->
             </el-tooltip>
           </div>
         </transition>
@@ -195,13 +195,13 @@ export default {
     sure() {
       if (this.iconObj.icon === '' && this.iconObj.imageUrl === '') {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('menu.icon') })
         });
       }
       if (this.menuName === '') {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseEnterAnyName', {
             any: this.$t('menu.menu')
           })

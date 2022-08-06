@@ -71,12 +71,13 @@ export default {
     &__selected {
       width: 100%;
       border: 1px solid #e9e9e9;
+      min-height: 40px;
       max-height: 70px;
-      padding-top: 6px;
+      padding-top: 5px;
       padding-left: 10px;
       overflow-y: auto;
       box-sizing: border-box;
-      margin-top: 6px;
+      margin-top: 10px;
       color: #333333;
       .manage-tag {
         padding-right: 6px;
@@ -248,7 +249,7 @@ export default {
   }
   .el-dialog__footer {
     border-top: 1px solid #e9e9e9;
-    padding: 16px 20px 17px;
+    padding: 16px 20px 15px;
   }
 
   .el-dialog__headerbtn {

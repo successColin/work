@@ -54,7 +54,11 @@
                 : ''
             }}
           </div>
-          <img src="./images/profession.svg" alt="" />
+          <img
+            src="./images/profession.svg"
+            alt=""
+            v-if="+themeConfig.enableVersionId === 1"
+          />
           <user-info
             :userCenter.sync="userCenter"
             :userInfo="$store.state.userCenter.userInfo"
@@ -172,8 +176,9 @@
           effect="dark"
           content="消息"
           placement="bottom"
+          :enterable="false"
           transition="topEnterBottomLeave"
-          v-if="$store.state.globalConfig.themeConfig.enableMessage === '1'"
+          v-if="$store.state.globalConfig.messageConfig.enableMessage === '1'"
         >
           <nav class="nav iconNav">
             <div
@@ -251,6 +256,8 @@
 </template>
 
 <script>
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 import cnImg from '@/assets/img/cn.png';
 // import enImg from '@/assets/img/en.png';
 import { fontChange, debounce } from '@/utils/utils';
@@ -261,8 +268,6 @@ import userAvatar from '@/views/orgManage/components/userAvatar/index';
 import { getPersonalCenterUser } from '@/api/userCenter';
 import { getMyTodoList } from '@/api/flow';
 import { getMailCount } from '@/api/messageShow.js';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
 import TaskToDo from '@/views/TaskToDo/index';
 import MessageShow from '@/views/MessageShow/index';
 import HeaderMenu from '../HeaderMenu';
@@ -428,6 +433,9 @@ export default {
     MessageShow
   },
   computed: {
+    themeConfig() {
+      return this.$store.state.globalConfig.themeConfig;
+    },
     getbg() {
       const { themeStyle, themeColor } = this.$store.state.globalConfig.themeConfig;
       return `background: ${themeStyle === '1' ? '#29354D' : themeColor}`;
@@ -471,12 +479,6 @@ export default {
       handler(v) {
         if (v === '1') {
           this.initTask();
-          if (this.timer2) {
-            clearInterval(this.timer2);
-          }
-          this.timer2 = setInterval(() => {
-            this.initTask();
-          }, 60 * 1000);
         }
       }
     },
@@ -484,12 +486,6 @@ export default {
       handler(v) {
         if (v === '1') {
           this.initMessage();
-          if (this.timer1) {
-            clearInterval(this.timer);
-          }
-          this.timer1 = setInterval(() => {
-            this.initMessage();
-          }, 60 * 1000);
         }
       }
     }
@@ -541,7 +537,7 @@ export default {
     },
     connection() {
       // 建立连接对象
-      const { socketUrl } = this.$store.state.globalConfig.themeConfig;
+      const { socketUrl } = this.$store.state.globalConfig.messageConfig;
       const socket = new SockJS(`${socketUrl}/welcome`);
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
@@ -864,7 +860,8 @@ $iconNavWidth: 44px;
     }
 
     &--self {
-      width: 206px;
+      // width: 230px;
+      width: max-content;
       height: 34px;
       line-height: 34px;
       text-align: center;
@@ -872,6 +869,7 @@ $iconNavWidth: 44px;
       align-items: center;
       cursor: pointer;
       padding-right: 14px;
+      background: rgba(255, 255, 255, 0.08);
 
       &:hover {
         .icon-shujiantouzhankai {
@@ -911,7 +909,7 @@ $iconNavWidth: 44px;
       border-radius: 50%;
       font-size: 12px;
       font-weight: 400;
-      margin-left: 10px;
+      margin-left: 6px;
 
       ::v-deep {
         .avatar .userImage {
@@ -932,7 +930,9 @@ $iconNavWidth: 44px;
       font-size: 13px;
       font-weight: 400;
       text-align: left;
-      width: 42px;
+      // flex: 1;
+      max-width: 74px;
+      width: min-content;
     }
 
     &--language {

@@ -92,11 +92,11 @@
 
 <script>
 import {
-  sysMenuList,
+  switchLocation,
   sysMenuAdd,
-  sysMenuEdit,
   sysMenuDelete,
-  switchLocation
+  sysMenuEdit,
+  sysMenuList
 } from '@/api/menuManage';
 import IconSelect from '../IconSelect';
 
@@ -214,7 +214,7 @@ export default {
       if (this.iconObj.icon === '' && this.iconObj.imageUrl === '') {
         this.showLoading = false;
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('menu.icon') })
         });
       }
@@ -290,7 +290,7 @@ export default {
         this.showLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.module') })} ${error.menuName}`
           });
         }
@@ -339,7 +339,7 @@ export default {
         this.showLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.module') })} ${error.menuName}`
           });
         }

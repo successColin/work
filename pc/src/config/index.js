@@ -103,6 +103,10 @@ module.exports = {
       label: '离线点检',
       routeName: 'inspection',
     },
+    {
+      label: '流程',
+      routeName: 'sysProcess',
+    },
   ],
   approvalType: [
     // 审批类型，用于流程

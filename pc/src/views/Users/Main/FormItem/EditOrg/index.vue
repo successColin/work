@@ -1,28 +1,27 @@
 <template>
   <div class="orgWrap">
-    <el-button
-        size="mini"
-        @click="show"
-    ><i class="iconfont icon-jiahao"></i> {{$t('user.doAdd')}}</el-button>
+    <el-button size="mini" @click="show"
+      ><i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}</el-button
+    >
     <el-tag
-        v-show="JSON.stringify(orgObj)!=='{}' || orgObj.name"
-        size="small"
-        closable
-        @close="handleClose"
+      v-show="JSON.stringify(orgObj) !== '{}' || orgObj.name"
+      size="small"
+      closable
+      @close="handleClose"
     >
       <i class="iconfont icon-zuzhi"></i>{{ orgObj.name }}
     </el-tag>
     <apiot-dialog
-        :visible.sync=dialogVisible
-        :title="$t('user.orgName')"
-        :modal-append-to-body=false
-        v-on:sure-click="relationFunction"
-        v-on:cancle-click="hide"
+      :visible.sync="dialogVisible"
+      :title="$t('user.orgName')"
+      :modal-append-to-body="false"
+      v-on:sure-click="relationFunction"
+      v-on:cancle-click="hide"
     >
       <Organization
-          ref="org"
-          :selected="selected"
-          :isSingle="true"
+        ref="org"
+        :selected="selected"
+        :isSingle="true"
       ></Organization>
     </apiot-dialog>
   </div>
@@ -36,22 +35,20 @@ export default {
   props: {
     orgObj: {
       type: Object,
-      default: () => {
-      },
-    },
+      default: () => {}
+    }
   },
   data() {
     return {
       input: '',
       dialogVisible: false,
-      selected: [],
+      selected: []
     };
   },
   components: { Organization },
   computed: {},
   watch: {},
-  mounted() {
-  },
+  mounted() {},
   methods: {
     show() {
       this.dialogVisible = true;
@@ -65,8 +62,8 @@ export default {
       const list = this.$refs.org ? this.$refs.org.selectKeys : [];
       if (!list.length) {
         this.$message({
-          type: 'error',
-          message: this.$t('user.addOrgData'),
+          type: 'warning',
+          message: this.$t('user.addOrgData')
         });
         return;
       }
@@ -74,17 +71,18 @@ export default {
       this.$emit('doEditOrg', orgObj);
       this.dialogVisible = false;
     },
-    handleClose() { // 删除标签
+    handleClose() {
+      // 删除标签
       this.$emit('doEditOrg', {});
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang='scss' scoped>
 .orgWrap {
   .icon-jiahao {
     vertical-align: bottom;
-    color: #AAAAAA;
+    color: #aaaaaa;
   }
 
   ::v-deep {
@@ -124,20 +122,20 @@ export default {
       font-weight: 400;
       line-height: 30px;
       color: #333333;
-      background: #E5F0FF;
+      background: #e5f0ff;
       line-height: 30px;
       border: none;
 
       & > .icon-zuzhi {
         margin-right: 2px;
         vertical-align: middle;
-        color: #4789F5;
+        color: #4789f5;
       }
     }
 
     .el-tag .el-tag__close {
       top: 0;
-      color: #AAAAAA;
+      color: #aaaaaa;
       font-size: 16px;
 
       &:hover {
@@ -145,7 +143,6 @@ export default {
         background: none;
       }
     }
-
   }
 }
 </style>

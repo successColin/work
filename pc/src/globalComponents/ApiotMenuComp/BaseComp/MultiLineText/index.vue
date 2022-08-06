@@ -71,7 +71,7 @@ export default {
 .multiLineText {
   position: relative;
   box-sizing: border-box;
-  padding: 0px 15px 18px 15px;
+  padding: 0px 15px 18px 35px;
   &.active,
   &:hover:not(.noHover) {
     background: #f1f7ff;

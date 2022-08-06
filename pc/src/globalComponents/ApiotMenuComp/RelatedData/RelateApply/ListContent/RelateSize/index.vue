@@ -12,6 +12,7 @@
     :sortable="false"
     :label="$t('knowledge.bus_size')"
     resizable
+    width="130"
     show-overflow-tooltip
   >
     <template slot-scope="scope">
@@ -34,6 +35,9 @@ export default {
     calculateSize() {
       // 计算文件大小
       return function (item) {
+        if ((item.sysKlTree && item.sysKlTree.treeType === 1) || item.treeType === 1) {
+          return '-';
+        }
         const { size } = item.sysKlTree || item;
         const kb = 1024;
         const mb = kb * 1024;

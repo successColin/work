@@ -249,6 +249,22 @@ export default {
     handleCloseGlobalConfig() {
       this.globalVisible = false;
     },
+    checkSummary(descConfigList) {
+      if (descConfigList.length) {
+        let isTrue = false;
+        descConfigList.forEach((item) => {
+          if (!item.key || !item.name) {
+            isTrue = true;
+          }
+        });
+        if (isTrue) {
+          // this.$message.error('摘要信息请填写完整!');
+          return false;
+        }
+        return true;
+      }
+      return true;
+    },
     handleOk(submitGlobal) {
       // 获取配置信息
       if (submitGlobal === 'globalConfig') {
@@ -262,6 +278,7 @@ export default {
           pcPanelName = '', // pc面板名称
           appPanelId = null, // app面板id
           appPanelName = '', // app面板名称
+          getCurrentTab
         } = this.$refs.globalConfig;
         const config = {
           lastAllowRevokeNodeId,
@@ -274,7 +291,8 @@ export default {
           isCheckUserNullAutoPass: checkList.includes('isCheckUserNullAutoPass'),
           isAlreadyCheckUserAutoPass: checkList.includes('isAlreadyCheckUserAutoPass'),
           isSameCheckUserWithLastNodeAutoPass: checkList.includes('isSameCheckUserWithLastNodeAutoPass'),
-          descConfigList
+          descConfigList,
+          tableRelation: JSON.stringify(getCurrentTab)
         };
         if (descConfigList.length) {
           let isTrue = false;
@@ -283,10 +301,35 @@ export default {
               isTrue = true;
             }
           });
-          console.log(descConfigList, 'descConfigList', isTrue);
           if (isTrue) {
             this.$message.error('摘要信息请填写完整!');
             return;
+          }
+        }
+        if (getCurrentTab && JSON.stringify(getCurrentTab) !== '{}') {
+          const { relateTableArr } = getCurrentTab;
+          if (relateTableArr.length) {
+            // eslint-disable-next-line no-plusplus
+            for (let i = 0; i < relateTableArr.length; i++) {
+              const { conditionArr = [] } = relateTableArr[i];
+              // eslint-disable-next-line no-plusplus
+              for (let j = 0; j < conditionArr.length; j++) {
+                // eslint-disable-next-line no-plusplus
+                for (let z = 0; z < conditionArr[j].length; z++) {
+                  // eslint-disable-next-line max-len
+                  const { firstLineColumn = {}, secondLineColumn = {}, secondIsValue, secondLineValue } = conditionArr[j][z];
+                  if (secondIsValue) {
+                    if (!secondLineValue) {
+                      this.$message.error('关系请配置完整!');
+                      return false;
+                    }
+                  } else if ((!firstLineColumn.columnName || !secondLineColumn.columnName)) {
+                    this.$message.error('关系请配置完整!');
+                    return false;
+                  }
+                }
+              }
+            }
           }
         }
         this.$emit('submitGlobalConfig', config);
@@ -306,9 +349,17 @@ export default {
             type: obj.radio,
             fieldNames: obj.value1
           },
-          triggerPreCond: obj.termObj
+          triggerPreCond: obj.termObj,
         };
-        this.activeData.properties.tableName = obj.value;
+        let others = '';
+        if (this.activeData.properties.tableName !== obj.value) {
+          this.activeData.properties.tableName = obj.value;
+          others = JSON.stringify({
+            tableInfo: { tableName: obj.value },
+            relateTableArr: [],
+            relateTableIndex: 0
+          });
+        }
         const newObj = {
           config,
           ...this.activeData.properties
@@ -316,7 +367,7 @@ export default {
         const message = `触发源 “${obj.value}”`;
         const trggerMessage = this.getMessage(obj.radio);
         const newMessage = `${message}</br>${trggerMessage}`;
-        this.$emit('handleCloseConfig', newObj, newMessage);
+        this.$emit('handleCloseConfig', newObj, newMessage, others);
       }
       if (type === 'approver') {
         // 提交审批节点的数据
@@ -409,6 +460,7 @@ export default {
           ...this.activeData.properties
         };
         const message = this.getConditionsMessage(termArr, termType);
+        console.log(newObj, 'newObj');
         this.$emit('handleCloseConfig', newObj, message);
       }
       if (type === 'fill') {
@@ -468,14 +520,21 @@ export default {
       if (type === 'webhook') {
         const obj = this.$refs[type];
         const {
+          apiCode,
           requestHeadersList,
           requestMethod,
           requestUrl,
           returnValue,
-          requestParameter
+          requestParameter,
+          params,
+          name
         } = obj;
-        if (!requestUrl) {
-          this.$message.error('请填写请求地址！');
+        // if (!requestUrl) {
+        //   this.$message.error('请填写请求地址！');
+        //   return;
+        // }
+        if (!apiCode) {
+          this.$message.error('请填写代理接口编码！');
           return;
         }
         // if (requestMethod === 'GET' && !requestHeadersList.length) {
@@ -488,11 +547,14 @@ export default {
             requestMethod,
             requestUrl,
             returnValue,
-            requestParameter
+            requestParameter,
+            params,
+            apiCode,
+            name
           },
           ...this.activeData.properties
         };
-        const message = `<span class="el-tag el-tag--light">${requestMethod}</span><div>请求地址:</div> <div>${requestUrl}</div>`;
+        const message = `<div>代理接口编码:</div> <div>${apiCode}(${name})</div>`;
         this.$emit('handleCloseConfig', newObj, message);
       }
       if (type === 'procedure') {

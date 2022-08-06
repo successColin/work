@@ -493,7 +493,7 @@ export default {
           } else if (this.currentType === 2) {
             if (!this.showRes) {
               return this.$message({
-                type: 'error',
+                type: 'warning',
                 message: '请编辑编码规则'
               });
             }

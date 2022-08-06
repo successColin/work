@@ -67,17 +67,17 @@
 
 <script>
 import {
-  phenomenonList,
-  reasonList,
-  measureList,
-  batchDelete,
   associatedPhenomenon,
-  deleteAssociated
+  batchDelete,
+  deleteAssociated,
+  measureList,
+  phenomenonList,
+  reasonList
 } from '@/api/menuConfig';
+import measuresImg from '@/assets/img/measures.svg';
 import phenomenonImg from '@/assets/img/phenomenon.svg';
 import whyImg from '@/assets/img/why.svg';
-import measuresImg from '@/assets/img/measures.svg';
-import { phenomenonColumn, whyColumn, measuresColumn } from './CurrentData.js';
+import { measuresColumn, phenomenonColumn, whyColumn } from './CurrentData.js';
 
 import compMixin from '../compMixin';
 
@@ -260,7 +260,7 @@ export default {
         try {
           // if (this.data.childCount > 0) {
           //   return this.$message({
-          //     type: 'error',
+          //     type: 'warning',
           //     message: '当前树下存在子集，不能删除'
           //   });
           // }
@@ -277,7 +277,7 @@ export default {
           this.$bus.$emit('reloadArea', 'all', this.onlyFlag());
         } catch (error) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: '解绑失败'
           });
         }

@@ -9,6 +9,11 @@
       @keyup.enter.native="searchBlur"
       @blur.native="inputBlur"
     ></apiot-input>
+    <i
+      class="iconfont icon-guanbi"
+      @click="searchClearAndBlur"
+      v-show="$refs.input && $refs.input.$el.children[0].value"
+    ></i>
     <i class="iconfont icon-sousuo" @click="searchBlur"></i>
   </el-form>
 </template>
@@ -28,7 +33,7 @@ export default {
 
   computed: {
     getPlaceholder() {
-      return function() {
+      return function () {
         return this.placeholder || this.$t('placeholder.pleaseEnterkeySearch');
       };
     }
@@ -37,6 +42,12 @@ export default {
   mounted() {},
 
   methods: {
+    searchClearAndBlur() {
+      this.$refs.input.$el.children[0].value = '';
+      this.$refs.input.$el.children[0].dispatchEvent(new Event('input'));
+      this.$parent.current = 1;
+      this.$emit('getList', 1);
+    },
     searchBlur() {
       this.$parent.current = 1;
       this.$emit('getList');
@@ -66,7 +77,7 @@ export default {
     .el-input__inner {
       height: 30px;
       padding-left: 12px;
-      padding-right: 30px;
+      padding-right: 48px;
       border: 1px solid #e9e9e9 !important;
       &:hover {
         border-color: #c0c4cc !important;
@@ -83,6 +94,21 @@ export default {
     top: 50%;
     transform: translateY(-50%);
     right: 1px;
+    width: 29px;
+    line-height: 30px;
+    cursor: pointer;
+    &:hover {
+      color: $--color-primary;
+    }
+  }
+
+  .icon-guanbi {
+    position: absolute;
+    color: #d9d9d9;
+    height: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
     width: 29px;
     line-height: 30px;
     cursor: pointer;

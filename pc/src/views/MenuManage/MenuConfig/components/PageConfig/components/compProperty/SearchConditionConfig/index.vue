@@ -49,6 +49,16 @@
           <i class="iconfont icon-xinzeng m-r-4"></i>添加搜索组件
         </apiot-button>
       </el-form-item>
+      <p class="switchBox m-b-16" v-if="$route.query.isApp === '1'">
+        是否启用扫描功能
+        <el-switch
+          v-model="activeObj.enableScan"
+          class="switchBox__switch"
+          active-text="是"
+          inactive-text="否"
+        >
+        </el-switch>
+      </p>
       <p class="switchBox m-b-16">
         启用高级搜索
         <el-switch

@@ -289,8 +289,7 @@ export default {
       if (this.$store.state.userCenter.userInfo.isSupAdmin) {
         return false;
       }
-      console.log(11111);
-      return true;
+      return this.configData.needPermissions == null ? true : this.configData.needPermissions;
     },
     // 获取组件数据的map
     getCompIdMap() {
@@ -541,7 +540,8 @@ export default {
       if (
         (areaArr === 'current' || areaArr === 'searchCurrent') &&
         onlyFlag === this.onlyFlag() &&
-        compId === this.configData.compId
+        compId === this.configData.compId &&
+        this.configData.compName === 'MultiTree'
       ) {
         this.current = 1;
         this.getSidebarList();
@@ -907,9 +907,7 @@ export default {
     },
     // 按钮点击时，选中当前点击的
     selectTreeNode(data) {
-      console.log(data);
       this.selectKey = data.treeId;
-      console.log(this.selectKey);
     },
     // 更改form的值
     changeForm(data) {
@@ -1065,7 +1063,7 @@ export default {
     treeDelete() {
       const form = this.$refs.tree.getTree().getCurrentNode();
       const node = this.$refs.tree.getTree().getNode(this.selectKey);
-      if (`${form[this.getIdCompId]}${form.dataType}` === this.selectKey) {
+      if (form && `${form[this.getIdCompId]}${form.dataType}` === this.selectKey) {
         this.$refs.tree.getTree().setCurrentKey(node.parent.data[this.getIdCompId]);
         const curForm = this.$refs.tree.getTree().getCurrentNode();
         this.selectItem(curForm);

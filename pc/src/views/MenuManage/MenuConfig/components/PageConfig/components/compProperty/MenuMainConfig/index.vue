@@ -111,6 +111,18 @@
       </div>
       <div class="contentConfig__box contentConfig__hasTab">
         <h2 class="contentConfig__hasTab--switchBox">
+          是否需要数据权限
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.needPermissions"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div class="contentConfig__box contentConfig__hasTab">
+        <h2 class="contentConfig__hasTab--switchBox">
           是否初始化
           <el-switch
             class="contentConfig__hasTab--switch"

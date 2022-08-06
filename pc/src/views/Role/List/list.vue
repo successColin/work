@@ -16,8 +16,8 @@
 </template>
 
 <script>
+import { doAddGroup, doDeleteGroup, doFetchGroup, doSwitchGroup, doUpdateGroup } from '@/api/role';
 import { errorMessageProcessing } from '@/utils/utils';
-import { doFetchGroup, doAddGroup, doDeleteGroup, doUpdateGroup, doSwitchGroup } from '@/api/role';
 
 export default {
   data() {
@@ -105,7 +105,7 @@ export default {
         };
         errorMessageProcessing(Obj, (message) => {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message
           });
         });
@@ -154,7 +154,7 @@ export default {
         };
         errorMessageProcessing(Obj, (message) => {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message
           });
         });

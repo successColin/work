@@ -52,7 +52,7 @@ export default {
 
   computed: {
     getButtonArr() {
-      return function(column) {
+      return function (column) {
         if (column.compName === 'OperateColumn') {
           if (this.expressionGroup !== 1) {
             return [{ name: 'common.edit1', funcName: 'editEx' }];
@@ -94,7 +94,7 @@ export default {
       // 如果没有选中数据，进行提醒
       if (this.multiExpressionArr.length === 0) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('common.placeSelectData'),
         });
         return;

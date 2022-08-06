@@ -14,7 +14,7 @@
       :loading.sync="showLoading"
       @sure-click="handleSure"
     >
-      <section>
+      <section class="transferOpration__content">
         <header class="topTip">
           <i class="el-alert__icon el-icon-info"></i>
           <div>
@@ -55,7 +55,8 @@
       key="transferLogList"
       :visible.sync="transferLogVisible"
       :title="$t('systemLog.transferTipClickLog')"
-      :isShowSure="false"
+      :isShowFooter="false"
+      custom-class="transferLogListDialog"
     >
       <transfer-log-list v-if="transferLogVisible"></transfer-log-list>
     </apiot-dialog>
@@ -147,6 +148,9 @@ export default {
 .transferLog__time {
   margin-top: 16px;
 }
+.transferOpration__content {
+  padding: 14px 20px 0;
+}
 
 .topTip {
   padding: 10px 0;
@@ -166,6 +170,16 @@ export default {
     color: $--color-primary;
     &:hover {
       cursor: pointer;
+    }
+  }
+}
+::v-deep {
+  .el-dialog__body {
+    padding: 0;
+  }
+  .transferLogListDialog {
+    & > .el-dialog__body {
+      height: 486px;
     }
   }
 }

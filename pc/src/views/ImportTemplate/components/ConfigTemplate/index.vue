@@ -95,12 +95,12 @@
 
 <script>
 import {
-  getListColoumns,
-  getExpressionList,
-  updateModifyColoumnNotNull,
+  deleteCodeRule,
   deleteColoumns,
-  updateModifyColoumnSno,
-  deleteCodeRule
+  getExpressionList,
+  getListColoumns,
+  updateModifyColoumnNotNull,
+  updateModifyColoumnSno
 } from '@/api/importTemplate';
 import EditPage from './components/EditPage';
 import MoreloadDialog from './components/MoreloadDialog';
@@ -282,7 +282,7 @@ export default {
     async handleDeleteField() {
       if (!this.multiIdsString) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('helpCenter.deleteData') })
         });
       }

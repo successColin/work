@@ -25,7 +25,7 @@
               v-else
             ></i>
           </div>
-          <span class="menuList__item--text" v-showEllipsis>
+          <span class="menuList__item--text" v-showEllipsis="10">
             {{ child.menuName }}
           </span>
         </el-menu-item>
@@ -41,7 +41,7 @@
               :style="`color:${child.icon ? child.icon.color : '#5A80ED'}`"
               v-else
             ></i>
-            <span v-showEllipsis>{{ child.menuName }}</span>
+            <span v-showEllipsis="10">{{ child.menuName }}</span>
           </span>
           <MenuItem @itemClick="itemClick" :item="child"></MenuItem>
         </el-submenu>
@@ -78,7 +78,7 @@ export default {
   border-right: 0 none;
   .iconfont {
     font-size: 20px;
-    margin-right: 18px;
+    margin-right: 8px;
   }
   .nav--item__active {
     color: $--color-primary !important;
@@ -111,6 +111,17 @@ export default {
     .el-submenu__title {
       height: 48px;
       line-height: 48px;
+      .iconImg {
+        margin-right: 8px;
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+      }
+      &:hover {
+        span {
+          color: $--color-primary;
+        }
+      }
     }
     .el-menu-item-group__title {
       height: 0;
@@ -122,13 +133,18 @@ export default {
       line-height: 44px;
       color: #333;
       position: relative;
-      &:hover .isCollect {
-        opacity: 1;
-        transform: scale(1);
+      &:hover {
+        span {
+          color: $--color-primary;
+        }
+        .isCollect {
+          opacity: 1;
+          transform: scale(1);
+        }
       }
     }
     .el-submenu__icon-arrow {
-      left: 228px;
+      left: 192px;
       right: auto;
     }
   }
@@ -145,9 +161,9 @@ export default {
 
     &--img {
       overflow: hidden;
-      width: 24px;
-      height: 24px;
-      margin-right: 18px;
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
       display: flex;
       align-items: center;
       .iconImg {

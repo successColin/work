@@ -59,6 +59,18 @@
           @selectRes="selectTable"
         ></filterable-input>
       </div>
+      <div class="contentConfig__box contentConfig__hasTab">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否需要数据权限
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.needPermissions"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
       <div class="contentConfig__box contentConfig__hasTab" v-if="false">
         <h2 class="contentConfig__hasTab--switchBox">
           是否初始化
@@ -712,7 +724,7 @@ export default {
   },
 
   watch: {
-    'getCurrentTab.reloadArea': function(v, v1) {
+    'getCurrentTab.reloadArea': function (v, v1) {
       if (v && v1 && v.length !== v1.length) {
         this.resetReloadArea();
       }

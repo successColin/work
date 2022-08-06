@@ -16,7 +16,7 @@
             </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
             <div
-              v-if="[0, 1, 2, 3, 4, 5].includes(i)"
+              v-if="[0, 1, 2, 3, 4, 5, 6, 7].includes(i)"
               style="flex: none"
               class="common"
             >
@@ -60,7 +60,7 @@
               </el-checkbox-group>
             </div>
             <!-- 菜单样式 -->
-            <div v-else-if="i === 6" class="common">
+            <div v-else-if="i === 8" class="common">
               <div v-if="!statement.isMenuStyle">
                 {{
                   showValueName(
@@ -84,7 +84,7 @@
               </apiot-button>
             </div>
             <!-- 主题风格 -->
-            <div v-else-if="i === 7" class="common">
+            <div v-else-if="i === 9" class="common">
               <div class="colorWrap">
                 <div v-for="item in themeStyleArr" :key="item.color">
                   <div
@@ -110,7 +110,7 @@
               </div>
             </div>
             <!-- 系统顶部高度 -->
-            <div v-else-if="i === 8" class="common">
+            <div v-else-if="i === 10" class="common">
               <div v-if="!statement.isTopHeight">
                 {{ $store.state.globalConfig.themeConfig.topHeight }}px
               </div>
@@ -134,7 +134,7 @@
               </apiot-button>
             </div>
             <!-- 主题样式 -->
-            <div v-else-if="i === 9" class="common">
+            <div v-else-if="i === 11" class="common">
               <div class="colorWrap">
                 <div
                   v-for="item in themeColor"
@@ -162,7 +162,7 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="i === 10" class="common">
+            <div v-else-if="i === 12" class="common">
               <div v-if="!statement.istopStyle">
                 {{ $store.state.globalConfig.themeConfig.topStyle }}
               </div>
@@ -182,7 +182,7 @@
               </apiot-button>
             </div>
             <!-- 登录页LOGO -->
-            <div v-else-if="i === 11" class="passwordConfig__logo common">
+            <div v-else-if="i === 13" class="passwordConfig__logo common">
               <div v-if="!statement.isRegistration">
                 <el-image
                   fit="cover"
@@ -214,7 +214,7 @@
               </apiot-button>
             </div>
             <!-- socket地址 -->
-            <div v-else-if="i === 12" class="passwordConfig__logo common">
+            <!-- <div v-else-if="i === 15" class="passwordConfig__logo common">
               <div v-if="!statement.isSocketUrl" style="line-height: 48px">
                 {{ $store.state.globalConfig.themeConfig.socketUrl }}
               </div>
@@ -232,16 +232,15 @@
                 {{ changeBtnName(statement.isSocketUrl) }}
               </apiot-button>
             </div>
-            <!-- ureportUrl 地址 -->
-            <div v-else-if="i === 13" class="passwordConfig__logo common">
+            <div v-else-if="i === 16" class="passwordConfig__logo common">
               <div v-if="!statement.isUreportUrl" style="line-height: 48px">
-                {{ $store.state.globalConfig.themeConfig.ureportUrl }}
+                {{ $store.state.globalConfig.ureportConfig.ureportUrl }}
               </div>
               <apiot-input
                 style="width: 224px"
                 v-else
                 :isForbid="false"
-                v-model="$store.state.globalConfig.themeConfig.ureportUrl"
+                v-model="$store.state.globalConfig.ureportConfig.ureportUrl"
               ></apiot-input>
               <apiot-button
                 type="text"
@@ -250,7 +249,7 @@
               >
                 {{ changeBtnName(statement.isUreportUrl) }}
               </apiot-button>
-            </div>
+            </div> -->
           </li>
         </el-col>
       </el-row>
@@ -261,7 +260,7 @@
 <script>
 import { commonUpdate, updateImages } from '@/api/globalConfig';
 import { changeThemeColor } from '@/utils/themeColorClient';
-import { selectColorArr } from '@/config';
+// import { selectColorArr } from '@/config';
 import ImageAndChange from '../components/ImageAndChange';
 
 export default {
@@ -270,8 +269,20 @@ export default {
       menuStyle: null,
       loading: false,
       // eslint-disable-next-line max-len
-      // themeColor: ['#4689f5', '#EE5E5E', '#FAB71C', '#FC8256', '#34C7BE', '#10B98A', '#1CA6FF', '#A853F2', '#EF4373', '#708DB7'],
-      themeColor: selectColorArr,
+      themeColor: [
+        '#4689F5',
+        '#C62127',
+        '#EE5E5E',
+        '#FAB71C',
+        '#FC8256',
+        '#34C7BE',
+        '#A853F2',
+        '#EF4373',
+        '#285398',
+        '#10978F',
+        '#6B2BA2'
+      ],
+      // themeColor: selectColorArr,
       params: {},
       statement: {
         isRegistration: false,
@@ -348,12 +359,12 @@ export default {
     // 左侧配置
     configArr() {
       return [
-        {
-          name: this.$t('globalConfig.homePageMessage'),
-          col: 12,
-          attr: 'enableMessage',
-          imgAttr: 'enableMessageIcon'
-        },
+        // {
+        //   name: this.$t('globalConfig.homePageMessage'),
+        //   col: 12,
+        //   attr: 'enableMessage',
+        //   imgAttr: 'enableMessageIcon'
+        // },
         {
           name: this.$t('globalConfig.homepageApproval'),
           col: 12,
@@ -370,7 +381,7 @@ export default {
         },
         {
           name: this.$t('globalConfig.enableMultilingualism'),
-          col: 12,
+          col: 24,
           attr: 'enableMultilingualism'
         },
         {
@@ -382,9 +393,27 @@ export default {
         },
         {
           name: this.$t('globalConfig.enableLink'),
-          col: 24,
+          col: 12,
           key: 'enableLink',
           attr: 'enableLink'
+        },
+        {
+          name: this.$t('globalConfig.enableVersionId'),
+          col: 12,
+          key: 'enableVersionId',
+          attr: 'enableVersionId'
+        },
+        {
+          name: this.$t('globalConfig.enablePlatformSwitch'),
+          col: 12,
+          key: 'enablePlatformSwitch',
+          attr: 'enablePlatformSwitch'
+        },
+        {
+          name: this.$t('globalConfig.enableVersionUpgrade'),
+          col: 12,
+          key: 'enableVersionUpgrade',
+          attr: 'enableVersionUpgrade'
         },
         {
           name: this.$t('globalConfig.menuStyle'),
@@ -417,18 +446,18 @@ export default {
           name: this.$t('globalConfig.homePageLogo'),
           col: 24,
           attr: 'homePageLogo'
-        },
-        {
-          name: this.$t('globalConfig.socketAddress'),
-          col: 12,
-          key: 'socketAddress',
-          attr: 'socketUrl'
-        },
-        {
-          name: '报表域名地址',
-          col: 12,
-          attr: 'ureportUrl'
         }
+        // {
+        //   name: this.$t('globalConfig.socketAddress'),
+        //   col: 12,
+        //   key: 'socketAddress',
+        //   attr: 'socketUrl'
+        // },
+        // {
+        //   name: '报表域名地址',
+        //   col: 12,
+        //   attr: 'ureportUrl'
+        // }
       ];
     },
     // 修改 button 状态
@@ -524,7 +553,7 @@ export default {
         await this.changeRadio(this.$store.state.globalConfig.themeConfig.socketUrl, 'socketUrl');
       }
       if (key === 'isUreportUrl') {
-        this.changeRadio(this.$store.state.globalConfig.themeConfig.ureportUrl, 'ureportUrl');
+        this.changeRadio(this.$store.state.globalConfig.ureportConfig.ureportUrl, 'ureportUrl');
       }
       this.statement[key] = !this.statement[key];
     },
@@ -755,7 +784,16 @@ $borderColor: 1px solid #e9e9e9;
     opacity: 0.5;
   }
 
-  .el-col-12:nth-child(odd) {
+  // .el-col-12:nth-child(odd) {
+  //   box-sizing: border-box;
+  //   border-right: 1px solid #e9e9e9;
+  // }
+  .el-col-12:nth-child(1),
+  .el-col-12:nth-child(3),
+  .el-col-12:nth-child(5),
+  .el-col-12:nth-child(7),
+  .el-col-12:nth-child(10),
+  .el-col-12:nth-child(12) {
     box-sizing: border-box;
     border-right: 1px solid #e9e9e9;
   }
@@ -780,6 +818,9 @@ $borderColor: 1px solid #e9e9e9;
   }
   .el-checkbox {
     line-height: 20px;
+    .el-checkbox__label {
+      color: #333333;
+    }
   }
 }
 </style>

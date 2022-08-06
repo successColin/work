@@ -294,7 +294,7 @@
 </template>
 
 <script>
-import { getListByKey, commonUpdate, updateImages } from '@/api/globalConfig';
+import { commonUpdate, getListByKey, updateImages } from '@/api/globalConfig';
 import { selectColorArr } from '@/config';
 
 export default {
@@ -493,7 +493,7 @@ export default {
         const newSize = size / 1024 / 1024 < 20;
         if ('.pdf'.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);
@@ -501,7 +501,7 @@ export default {
         }
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.beforeUploadingConfig')
           });
           reject(file);
@@ -528,7 +528,7 @@ export default {
         const newSize = size / 1024 < 200;
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);
@@ -536,7 +536,7 @@ export default {
         }
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.beforeUploadingConfig')
           });
           reject(file);

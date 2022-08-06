@@ -202,9 +202,9 @@
 </template>
 
 <script>
-import { editUserTelphone, editUserEmail } from '@/api/userCenter.js';
-import { phoneNumber, email } from '@/utils/validationRules';
+import { editUserEmail, editUserTelphone } from '@/api/userCenter.js';
 import { Encrypt } from '@/utils/utils';
+import { email, phoneNumber } from '@/utils/validationRules';
 import InputGetcode from '@/views/Login/components/InputGetcode';
 
 export default {
@@ -390,7 +390,7 @@ export default {
         this.isSubmit = false;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: error.name
           });
         }

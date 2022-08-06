@@ -85,8 +85,8 @@
 
 <script>
 import { getListDetail, postDeleteDetail } from '@/api/helpCenter';
-import SidebarList from '../components/SidebarList';
 import EditDrawer from '../components/EditDrawer';
+import SidebarList from '../components/SidebarList';
 import TableDetails from '../components/TableDetails';
 
 export default {
@@ -206,7 +206,7 @@ export default {
       if (!this.multiIdsString) {
         // 枚举值不能为空
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('helpCenter.deleteData') })
         });
       }

@@ -78,13 +78,25 @@
                   :options="scanTypeArr"
                 ></apiot-select>
               </div>
-              <apiot-button
-                type="text"
-                class="passwordConfig__operation"
-                @click="handleChangeCount('isScanType', item.attributeKey)"
-              >
-                {{ changeBtnName(statement.isScanType) }}
-              </apiot-button>
+              <div class="buttonBlock">
+                <!-- 浙政钉配置 -->
+                <apiot-button
+                  v-if="scanType === 3"
+                  type="text"
+                  class="passwordConfig__operation"
+                  @click="handleConfigZhe"
+                >
+                  配置
+                </apiot-button>
+                <div class="onLine" v-if="scanType === 3"></div>
+                <apiot-button
+                  type="text"
+                  class="passwordConfig__operation"
+                  @click="handleChangeCount('isScanType', item.attributeKey)"
+                >
+                  {{ changeBtnName(statement.isScanType) }}
+                </apiot-button>
+              </div>
             </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
             <div v-if="[2, 4, 5].includes(i)" style="flex: none" class="common">
@@ -288,13 +300,21 @@
         </el-col>
       </el-row>
     </ul>
+    <zhezhengding-config
+      :zzdConfig="zzdConfig"
+      ref="historyPassword"
+      :visible.sync="dialogVisible"
+      :zzdConfigObj="zzdConfigObj"
+      title="配置浙政钉"
+    ></zhezhengding-config>
   </section>
 </template>
 
 <script>
-import { getListByKey, commonUpdate, updateImages } from '@/api/globalConfig';
-import { selectColorArr, stylePercentageArr, loginStyleArr } from '@/config';
+import { commonUpdate, getListByKey, updateImages } from '@/api/globalConfig';
+import { loginStyleArr, selectColorArr, stylePercentageArr } from '@/config';
 import ImageAndChange from '../components/ImageAndChange';
+import ZhezhengdingConfig from '../components/ZhezhengdingConfig';
 
 export default {
   props: {
@@ -305,6 +325,7 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
       loading: false,
       accept: '.png,.svg,.jpg, .jpeg',
       response: [],
@@ -351,10 +372,12 @@ export default {
       loopMaps: [],
       scanType: 1,
       scanTypeArr: [], // 扫码类型
-      ssoTypePcArr: [] // 单点登录类型
+      ssoTypePcArr: [], // 单点登录类型
+      zzdConfig: {},
+      zzdConfigObj: {}
     };
   },
-  components: { ImageAndChange },
+  components: { ImageAndChange, ZhezhengdingConfig },
   created() {
     // this.setSocket(`${this.expertSysid}/${this.consultationSysid}`);
   },
@@ -478,6 +501,9 @@ export default {
     }
   },
   methods: {
+    handleConfigZhe() {
+      this.dialogVisible = true;
+    },
     // 初始化主题色
     initColor() {
       selectColorArr.forEach((color, index) => {
@@ -518,7 +544,7 @@ export default {
         const newSize = size / 1024 < 1024;
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);
@@ -526,7 +552,7 @@ export default {
         }
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.beforeUploadingConfig')
           });
           reject(file);
@@ -567,6 +593,7 @@ export default {
         this.response.find((item) => item.attributeKey === 'backgroundImage') || {};
       const logoObjWidth =
         this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
+      const zzdConfig = this.response.find((item) => item.attributeKey === 'zzdConfig') || {};
       const loopObj = this.response.find((item) => item.attributeKey === 'loginLoopMaps') || {};
       const loopMapsArr = loopObj.attributeValue ? loopObj.attributeValue.split(',') : [];
       this.loopMaps = [];
@@ -592,6 +619,8 @@ export default {
       this.loginObj = logoObj;
       this.backgroundImageObj = backgroundObj;
       this.loginWidth = Number(logoObjWidth.attributeValue);
+      this.zzdConfig = (zzdConfig.attributeValue && JSON.parse(zzdConfig.attributeValue)) || {};
+      this.zzdConfigObj = zzdConfig || {};
     },
     async changeRadio(value, key) {
       this.loading = true;
@@ -936,5 +965,15 @@ $borderColor: 1px solid #e9e9e9;
     width: 48px;
     height: 48px;
   }
+}
+.buttonBlock {
+  display: flex;
+  align-items: center;
+}
+.onLine {
+  height: 12px;
+  border-right: 1px solid $--color-primary;
+  margin: 0 8px;
+  cursor: auto;
 }
 </style>

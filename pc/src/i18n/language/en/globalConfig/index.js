@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2022-06-20 10:19:32
+ * @Last Modified time: 2022-08-04 10:47:00
  */
 export default {
   globalConfig: {
@@ -71,7 +71,14 @@ export default {
     backgroundImage: 'Please upload the login background image',
     uploadTheLoginPageLogo: 'Please upload the login page logo',
     enableLink: 'Enable Link',
+    enableVersionId: 'Enable Version Id',
+    enablePlatformSwitch: 'Enable Platform Switch',
+    enableVersionUpgrade: 'Enable Version Upgrade / Renewal',
     topHeight: 'System Top Height',
     topStyle: 'System Top Style',
+    homeConfig: 'Home Config',
+    reportConfig: 'Report Config',
+    ureportUrl: 'Ureport Url',
+    fileUrl: 'File Url',
   },
 };

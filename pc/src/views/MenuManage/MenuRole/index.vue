@@ -159,13 +159,13 @@
 <script>
 import Roles from '_v/Users/Main/FormItem/AssRoles/Roles/roles';
 import {
-  listSysDesignMenu,
   copyDesign,
-  modifyDesign,
-  enableDesign,
   deleteDesign,
+  enableDesign,
+  enableWorkflow,
   listRole,
-  enableWorkflow
+  listSysDesignMenu,
+  modifyDesign
 } from '@/api/menuConfig';
 import UpdateHis from './UpdateHis';
 
@@ -258,7 +258,7 @@ export default {
         });
       } else {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择角色'
         });
       }

@@ -42,6 +42,7 @@
     </div>
     <div class="treeWrap">
       <el-tree
+        class="org-tree"
         :data="treeData"
         show-checkbox
         node-key="id"
@@ -329,8 +330,10 @@ export default {
     border-right: 1px solid #e9e9e9;
     overflow-y: auto;
     box-sizing: border-box;
-
     ::v-deep {
+      .org-tree{
+        height: 100%;
+      }
       .custom-tree-node .iconfont {
         margin-right: 6px;
         font-size: 20px;

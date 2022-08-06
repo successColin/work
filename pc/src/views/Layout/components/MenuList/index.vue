@@ -94,7 +94,7 @@ export default {
     },
     menuClick(menu) {
       this.changeSelect(menu);
-      this.$bus.$emit('showMenu', false);
+      // this.$bus.$emit('showMenu', false);
       bus.$emit('changeMenuTab', menu);
     }
   },

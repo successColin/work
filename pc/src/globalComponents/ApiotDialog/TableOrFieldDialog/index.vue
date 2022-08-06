@@ -66,7 +66,7 @@
 import { getListSysEntityTables, listSysEntityColumns } from '@/api/entityManage';
 import { listDictByType, listDict } from '@/api/dictManage';
 import { pagePanel, getPageSysImportTemplateList } from '@/api/menuConfig';
-import { sysMenuPage } from '@/api/menuManage';
+import { sysMenuPage, ureportfiles } from '@/api/menuManage';
 
 export default {
   props: {
@@ -158,6 +158,9 @@ export default {
       if (this.dialogType === 6) {
         return '菜单';
       }
+      if (this.dialogType === 7) {
+        return '选择文件名';
+      }
       return this.title || '';
     },
     getLable() {
@@ -174,6 +177,8 @@ export default {
           return 'id';
         case 6:
           return 'id';
+        case 7:
+          return 'name';
         default:
           return 'id';
       }
@@ -314,6 +319,12 @@ export default {
           prop: 'menuName',
           compName: 'ElTableColumn'
         });
+      } else if (this.dialogType === 7) {
+        this.dropColumnData.push({
+          label: this.$t('common.name', { name: '' }),
+          prop: 'name',
+          compName: 'ElTableColumn'
+        });
       }
     },
     // 获取列表数据
@@ -431,6 +442,20 @@ export default {
         });
         // console.log(data);
         this.tableData = res.records;
+        this.total = res.total;
+      } else if (this.dialogType === 7) {
+        const res = await ureportfiles({
+          size: this.size,
+          current: this.current,
+          name: this.dictKeywords
+        });
+        const arr = [];
+        res.records.forEach((item) => {
+          arr.push({
+            name: item
+          });
+        });
+        this.tableData = arr;
         this.total = res.total;
       }
     },

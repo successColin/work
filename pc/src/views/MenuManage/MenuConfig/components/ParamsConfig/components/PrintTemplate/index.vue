@@ -53,8 +53,8 @@
 
 <script>
 import {
-  getListSysPrintTemplate,
   deleteSysPrintTemplate,
+  getListSysPrintTemplate,
   updateIsEnabled
 } from '@/api/printTemplate';
 
@@ -128,7 +128,7 @@ export default {
     async getList() {
       this.contentLoading = true;
       this.tableData = await getListSysPrintTemplate({
-        MenuId: this.$route.query.id
+        menuId: this.$route.query.id
       });
       this.contentLoading = false;
     },
@@ -151,7 +151,7 @@ export default {
       if (!this.multiIdsString) {
         // 枚举值不能为空
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('helpCenter.deleteData') })
         });
       }

@@ -10,7 +10,7 @@
           :title="child.menuName"
           v-if="+child.menuLevel === 2"
         >
-          <span v-showEllipsis>{{ child.menuName }}</span
+          <span v-showEllipsis="10">{{ child.menuName }}</span
           ><i
             :class="`isCollect iconfont ${
               child.isCollect
@@ -32,7 +32,7 @@
               :style="`color:${child.icon ? child.icon.color : '#5A80ED'}`"
               v-else
             ></i>
-            <span v-showEllipsis>{{ child.menuName }}</span>
+            <span v-showEllipsis="10">{{ child.menuName }}</span>
           </span>
           <MenuItem
             @changeCollect="changeCollect"
@@ -76,7 +76,7 @@ export default {
   border-right: 0 none;
   .iconfont {
     font-size: 20px;
-    margin-right: 18px;
+    margin-right: 8px;
   }
   .menuList__item--img {
     display: flex;
@@ -85,14 +85,14 @@ export default {
   .iconImg {
     width: 20px;
     height: 20px;
-    margin-right: 18px;
+    margin-right: 8px;
   }
   .nav--item__active {
     color: $--color-primary !important;
   }
   &__content {
     span {
-      margin-left: 30px;
+      margin-left: 13px;
       color: #666666;
       &:hover {
         color: $--color-primary;
@@ -119,6 +119,11 @@ export default {
     .el-submenu__title {
       height: 48px;
       line-height: 48px;
+      &:hover {
+        span {
+          color: $--color-primary;
+        }
+      }
     }
     .el-menu-item-group__title {
       height: 0;
@@ -130,13 +135,21 @@ export default {
       line-height: 44px;
       color: #333;
       position: relative;
-      &:hover .isCollect {
-        opacity: 1;
-        transform: scale(1);
+      font-size: 13px;
+      padding-right: 10px;
+      &:hover {
+        span {
+          color: $--color-primary;
+        }
+
+        .isCollect {
+          opacity: 1;
+          transform: scale(1);
+        }
       }
     }
     .el-submenu__icon-arrow {
-      left: 228px;
+      left: 192px;
       right: auto;
     }
   }

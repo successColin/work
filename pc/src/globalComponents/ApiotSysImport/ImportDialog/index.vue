@@ -46,29 +46,29 @@
 
 <script>
 import {
-  doUploadFiles,
-  doProcessChek,
-  doImportProcess,
-  doImportStart,
-  doCheckTemplateIsRight
-} from '@/api/user';
-import {
-  importTemplateOrgStart,
-  importTemplateUserStart,
+  checkOrgSpecialTemplate,
+  checkPDSpecialTemplate,
   checkTreeTemplate,
+  checkUserSpecialTemplate,
+  getCheckSpecialProgress,
+  getCheckSpecialSpecialProgress,
   getCheckTreeProgress,
   getUploadTreeProgress,
-  importTemplateTreeOrgStart,
-  importTreeTemplate,
-  importTemplatePDStart,
-  checkOrgSpecialTemplate,
-  checkUserSpecialTemplate,
-  checkPDSpecialTemplate,
   importSpecialTemplate,
-  getCheckSpecialProgress,
-  getCheckSpecialSpecialProgress
+  importTemplateOrgStart,
+  importTemplatePDStart,
+  importTemplateTreeOrgStart,
+  importTemplateUserStart,
+  importTreeTemplate
 } from '@/api/importTemplate';
-import { createUnique, getSeconds } from '@/utils/utils';
+import {
+  doCheckTemplateIsRight,
+  doImportProcess,
+  doImportStart,
+  doProcessChek,
+  doUploadFiles
+} from '@/api/user';
+import { createUnique, Encrypt, getSeconds } from '@/utils/utils';
 
 const UploadTemplete = () => import('@/globalComponents/ApiotSysImport/UploadTemplete/index');
 const Preview = () => import('@/globalComponents/ApiotSysImport/Preview/index');
@@ -85,6 +85,11 @@ export default {
       // 模板id
       type: Number,
       default: 1
+    },
+    templateName: {
+      // 模板id
+      type: String,
+      default: ''
     },
     // 导入额外信息
     extraColumnArr: {
@@ -181,7 +186,7 @@ export default {
       // 点击导入，
       if (!this.file) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('importAndExport.correspondingTemplate')
         });
         this.showLoading = false;
@@ -329,6 +334,15 @@ export default {
         });
         formData.append('relationJson', JSON.stringify(jsonArray));
       }
+      const { userInfo } = this.$store.state.userCenter;
+      const b =
+        this.tableArr.length === 1
+          ? `表[${this.tableArr.join()}]`
+          : `多表[${this.tableArr.join()}]`;
+      const logContent = `${userInfo.username}(${userInfo.account})导入${b},模板id:${this.templateId},模板名称:${this.templateName}`;
+      formData.append('logData.content', Encrypt(logContent));
+      formData.append('logData.clientType', 'PC');
+      formData.append('logData.curMenuId', this.$route.params.id);
       if (this.isSpecial && this.tableArr.length === 1) {
         // 特殊表导入
         if (this.tableArr.find((v) => v === 'sys_org')) {

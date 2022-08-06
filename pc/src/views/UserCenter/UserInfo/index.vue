@@ -43,7 +43,11 @@
               {{ $t('userCenter.creatByMe') }}
             </span>
             <span class="status" v-else>{{ $t('userCenter.joined') }}</span>
-            <span class="switch" @click="openCenter('tenant')" v-if="false">
+            <span
+              class="switch"
+              @click="openCenter('tenant')"
+              v-if="+themeConfig.enablePlatformSwitch === 1"
+            >
               <i class="iconfont icon-qiehuan"></i>{{ $t('userCenter.switch') }}
             </span>
           </li>
@@ -56,7 +60,7 @@
           <li
             class="user__content__li"
             @click="openCenter('VersionUpdate')"
-            v-if="false"
+            v-if="+themeConfig.enableVersionUpgrade === 1"
           >
             {{ $t('userCenter.versionUpdate') }}
           </li>
@@ -100,7 +104,11 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    themeConfig() {
+      return this.$store.state.globalConfig.themeConfig;
+    }
+  },
   mounted() {
     // this.getUserList();
   },

@@ -24,8 +24,14 @@
           v-if="configData.helpInfo.length"
         >
           <i class="iconfont icon-bangzhu" />
-        </el-tooltip> </span
-    ></template>
+        </el-tooltip>
+      </span>
+      <FilterCol
+        ref="filterCol"
+        :configData="configData"
+        :grandFather="grandFather"
+      ></FilterCol>
+    </template>
     <div slot-scope="scope">
       <!-- :class="[{ textDec: shouldOpenPanel }]" -->
       <div
@@ -122,6 +128,11 @@ export default {
           return content.split(',');
         }
         if (content !== '') {
+          if (+this.configData.dataSource.columnTypeDict === 3) {
+            if (this.configData.timeShowType === 1 && content) {
+              content = content.toString().slice(0, 10);
+            }
+          }
           return [content];
         }
         return [];

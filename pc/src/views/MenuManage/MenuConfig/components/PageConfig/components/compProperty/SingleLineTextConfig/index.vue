@@ -72,7 +72,7 @@
           @selectRes="selectColumnRes"
         ></filterable-input>
       </el-form-item>
-      <el-form-item label="状态" v-if="isShow">
+      <el-form-item label="状态">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -195,7 +195,7 @@
         </el-button-group>
       </el-form-item>
 
-      <el-form-item label="验证" v-if="activeObj.singleType === 1 && isShow">
+      <el-form-item label="验证" v-if="isShow">
         <p class="switchBox">
           是否必填
           <!-- :value="activeObj.showTab"
@@ -323,7 +323,8 @@ export default {
           value: 3,
           rule: [
             {
-              pattern: '(^d{15}$)|(^d{18}$)|(^d{17}(d|X|x)$)',
+              pattern:
+                '^((1[1-5]|2[1-3]|3[1-7]|4[1-6]|5[0-4]|6[1-5]|8[1-3])\\d{4})((19|20)\\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])(\\d{3}([0-9xX]))$',
               message: '请输入身份证',
               trigger: 'change'
             }
@@ -359,6 +360,18 @@ export default {
             {
               pattern: '(^(?:(?![IOZSV])[dA-Z]){2}d{6}(?:(?![IOZSV])[dA-Z]){10}$)|(^d{15}$)',
               message: '请输入邮编',
+              trigger: 'change'
+            }
+          ]
+        },
+        {
+          label: '车牌号码',
+          value: 7,
+          rule: [
+            {
+              pattern:
+                '(^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF]$)|([DF][A-HJ-NP-Z0-9][0-9]{4}$)))|(^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1}$)',
+              message: '请输入车牌号',
               trigger: 'change'
             }
           ]
@@ -468,27 +481,31 @@ export default {
       if (this.lengthMin && this.lengthMax && this.lengthMin >= this.lengthMax) {
         this.lengthMin = '';
       }
-      if (!this.lengthMin) {
-        this.activeObj.lengthLimit = '';
-      }
       this.setMaxAndMinRule();
     },
     maxBlur() {
       if (this.lengthMin && this.lengthMax && this.lengthMin >= this.lengthMax) {
         this.lengthMax = '';
       }
-      if (!this.lengthMax) {
-        this.activeObj.lengthLimit = '';
-      }
       this.setMaxAndMinRule();
     },
     setMaxAndMinRule() {
       const ruleArr = this.fatherObj.rules[this.activeObj.compId];
+      let str = '';
+      if (this.lengthMin) {
+        str = `长度大于${this.lengthMin}个字符`;
+      }
+      if (this.lengthMax) {
+        str = `长度小于${this.lengthMax}个字符`;
+      }
+      if (this.lengthMin && this.lengthMax) {
+        str = `长度在 ${this.lengthMin} 到 ${this.lengthMax} 个字符`;
+      }
       const ruleObj = {
         flag: 'maxAndMin',
         min: +this.lengthMin,
         max: +this.lengthMax,
-        message: `长度在 ${this.lengthMin} 到 ${this.lengthMax} 个字符`,
+        message: str,
         trigger: 'change'
       };
       // console.log(ruleObj);
@@ -571,13 +588,15 @@ export default {
 
   watch: {
     lengthMin(v) {
-      if (v && this.lengthMax) {
-        this.activeObj.lengthLimit = `${v}-${this.lengthMax}`;
+      this.activeObj.lengthLimit = `${v}-${this.lengthMax}`;
+      if (!v && !this.lengthMax) {
+        this.activeObj.lengthLimit = '';
       }
     },
     lengthMax(v) {
-      if (v && this.lengthMin) {
-        this.activeObj.lengthLimit = `${this.lengthMin}-${v}`;
+      this.activeObj.lengthLimit = `${this.lengthMin}-${v}`;
+      if (!v && !this.lengthMin) {
+        this.activeObj.lengthLimit = '';
       }
     }
   }

@@ -129,7 +129,7 @@ export default {
         !this.configData.enableMine
       ) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '底部菜单最多5个'
         });
       }

@@ -399,12 +399,12 @@
 </template>
 
 <script>
-import { debounce } from '@/utils/utils';
-import { getUserPage } from '@/api/orgManage.js';
 import { getBeforesNode } from '@/api/flow.js';
+import { getUserPage } from '@/api/orgManage.js';
+import { debounce } from '@/utils/utils';
+import posComponent from '@/views/postManage/components/detail/components/orgDialog/post/index';
 import OrgComponent from '@/views/Role/RoleContent/DesignDetial/Organization/organization';
 import RoleComponent from '@/views/Users/Main/FormItem/AssRoles/Roles/roles';
-import posComponent from '@/views/postManage/components/detail/components/orgDialog/post/index';
 
 export default {
   components: {
@@ -449,7 +449,7 @@ export default {
 
   computed: {
     isShowEnd() {
-      return function(superiorType, postId) {
+      return function (superiorType, postId) {
         if (postId) {
           return !postId;
         }
@@ -457,12 +457,12 @@ export default {
       };
     },
     isTrue() {
-      return function(superiorType, type) {
+      return function (superiorType, type) {
         return !superiorType || ([3, 4].includes(superiorType) && superiorType !== type);
       };
     },
     renderBaseType() {
-      return function(baseType) {
+      return function (baseType) {
         if (baseType === '1') {
           return '发起人';
         }
@@ -476,7 +476,7 @@ export default {
       };
     },
     renderCharge() {
-      return function(baseType) {
+      return function (baseType) {
         if (baseType === 1) {
           return '组织负责人';
         }
@@ -554,7 +554,7 @@ export default {
         this.hide();
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.hasUserSelected')
         });
       }

@@ -75,7 +75,7 @@ export default {
         if (data > 0) {
           this.configData.notUnique = true;
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.configData.name}已存在`
           });
         } else {
@@ -96,7 +96,7 @@ export default {
   overflow: hidden;
   &.noHover {
     min-height: 76px;
-    padding: 0px 15px 18px 15px;
+    padding: 0px 15px 18px 35px;
   }
   &.isTable {
     padding: 0;

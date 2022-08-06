@@ -137,10 +137,10 @@
 </template>
 
 <script>
-import termMixin from '../termMixin';
-import CompTree from '../CompTree';
 import ActionTerm from '../ActionTerm';
+import CompTree from '../CompTree';
 import SelectFormula from '../SelectFormula';
+import termMixin from '../termMixin';
 
 export default {
   mixins: [termMixin],
@@ -216,7 +216,7 @@ export default {
     addAffectComp() {
       if (!this.triggerComp.compId) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发组件'
         });
       }

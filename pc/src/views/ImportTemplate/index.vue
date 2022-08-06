@@ -119,11 +119,11 @@
 
 <script>
 import { Decrypt, getBlob, saveAs } from '_u/utils';
-import { getPageTemplate, deleteTemplate } from '@/api/importTemplate';
+import { deleteTemplate, getPageTemplate } from '@/api/importTemplate';
 import query from '@/api/query';
-import SidebarList from './components/SidebarList';
-import EditPage from './components/EditPage';
 import ConfigTemplate from './components/ConfigTemplate';
+import EditPage from './components/EditPage';
+import SidebarList from './components/SidebarList';
 
 export default {
   data() {
@@ -287,7 +287,7 @@ export default {
       if (!this.multiIdsString) {
         // 枚举值不能为空
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('helpCenter.deleteData') })
         });
       }

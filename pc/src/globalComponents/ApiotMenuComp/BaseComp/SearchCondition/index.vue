@@ -277,6 +277,7 @@ export default {
       if (this.configData.shouldHigh && this.configData.hisSearch) {
         this.listSearchRecords();
       }
+      this.$bus.$on('clearSearch', this.clearSearch);
     }
   },
 
@@ -442,6 +443,7 @@ export default {
       if (flag === 2) {
         // console.log(comp);
         if (comp.compType === 6) {
+          console.log(comp);
           column.name = `${comp.dataSource.mainTableInfo.tableName}.${comp.dataSource.mainColumnInfo.columnName}`;
         }
       }
@@ -545,8 +547,13 @@ export default {
       }
       this.$bus.$emit('reloadArea', 'searchCurrent', this.onlyFlag(), this.tableInfo.compId);
     },
+    clearSearch(onlyFlag, tableCompId, flag) {
+      if (onlyFlag === this.onlyFlag() && this.tableInfo.compId === tableCompId) {
+        this.clearHigh(flag);
+      }
+    },
     // 清空高级搜索
-    clearHigh() {
+    clearHigh(flag = true) {
       this.initHighForm();
       this.$nextTick(() => {
         this.activeType = 1;
@@ -562,8 +569,9 @@ export default {
             vm.initComp();
           });
         }
-
-        this.$bus.$emit('reloadArea', 'searchCurrent', this.onlyFlag(), this.tableInfo.compId);
+        if (flag) {
+          this.$bus.$emit('reloadArea', 'searchCurrent', this.onlyFlag(), this.tableInfo.compId);
+        }
       });
     },
     // 高级搜索确认
@@ -679,7 +687,18 @@ export default {
       this.$bus.$emit('reloadArea', 'searchCurrent', this.onlyFlag(), this.tableInfo.compId);
     }
   },
-
+  beforeDestroy() {
+    sessionStorage.__current__mulArr__id = '';
+    // 统一在menu里面注销
+    if (this.getFatherPanel) {
+      // 在最外层的数据上才销毁
+      if (!this.getFatherPanel()) {
+        this.$bus.$off('clearSearch', this.clearSearch);
+      }
+    } else {
+      this.$bus.$off('clearSearch', this.clearSearch);
+    }
+  },
   watch: {
     keywords: {
       handler(v) {

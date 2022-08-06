@@ -219,10 +219,10 @@ export default {
   components: {},
   computed: {
     typeOption() {
-      return this.$store.getters.getCurDict('DICT-00128');
+      return this.$store.getters.getCurDict('PRINT_TYPE');
     },
     elementType() {
-      return this.$store.getters.getCurDict('DICT-00131');
+      return this.$store.getters.getCurDict('PRINT_ELE_TYPE');
     }
   },
   watch: {

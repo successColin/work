@@ -61,8 +61,8 @@
                 @click.stop="preView(item)"
                 :title="item.sysKlTree.name"
               >
-                <!--                {{ item.sysKlTree.name }}-->
-                {{ renderFileName(item.sysKlTree.name, item.sysKlTree) }}
+                                {{ item.sysKlTree.name }}
+<!--                {{ renderFileName(item.sysKlTree.name, item.sysKlTree) }}-->
               </span>
               <apiot-input
                 v-model="editFileName"

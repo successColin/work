@@ -23,8 +23,14 @@
           v-if="configData.helpInfo.length"
         >
           <i class="iconfont icon-bangzhu" />
-        </el-tooltip> </span
-    ></template>
+        </el-tooltip>
+      </span>
+      <FilterCol
+        ref="filterCol"
+        :configData="configData"
+        :grandFather="grandFather"
+      ></FilterCol>
+    </template>
     <div slot-scope="scope">
       <div
         class="column__editable"
@@ -148,7 +154,7 @@ export default {
         if (dictKey) {
           const tempData = this.$store.getters.getCurDict(dictKey);
           const obj = {};
-          if (tempData.length) {
+          if (Array.isArray(tempData) && tempData.length) {
             tempData.forEach((dict) => {
               obj[dict.value] = dict;
             });

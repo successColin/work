@@ -9,30 +9,24 @@
 <template>
   <div class="dataListWrap">
     <div class="dataListHeader">
-      <apiot-button type="primary" @click="doAdd"><i class="el-icon-edit"></i> 新增</apiot-button>
-      <apiot-button @click="doDel"><i class="el-icon-delete"></i> 删除</apiot-button>
+      <apiot-button type="primary" @click="doAdd"
+        ><i class="el-icon-edit"></i> 新增</apiot-button
+      >
+      <apiot-button @click="doDel"
+        ><i class="el-icon-delete"></i> 删除</apiot-button
+      >
     </div>
     <div class="dataListContent">
       <apiot-table
-          :height="472"
-          :tableData="tableData"
-          @selection-change="selectRows"
-          :border="false"
-          style="width: 100%">
-        <el-table-column
-            prop="name"
-            label="名称"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="memo"
-            label="备注"
-        >
-        </el-table-column>
-        <el-table-column
-            fixed="right"
-            label="操作"
-            width="100">
+        :height="472"
+        :tableData="tableData"
+        @selection-change="selectRows"
+        :border="false"
+        style="width: 100%"
+      >
+        <el-table-column prop="name" label="名称"> </el-table-column>
+        <el-table-column prop="memo" label="备注"> </el-table-column>
+        <el-table-column fixed="right" label="操作" width="100">
           <template slot-scope="scope">
             <span @click="doEdit(scope.row)" class="editWrap">编辑</span>
           </template>
@@ -40,19 +34,19 @@
       </apiot-table>
     </div>
     <apiot-dialog
-        :visible.sync="visible"
-        :isNeedCancelBtn="false"
-        classStyle="normalDialog"
-        :title="title"
-        @sure-click="handleOk"
+      :visible.sync="visible"
+      :isNeedCancelBtn="false"
+      classStyle="normalDialog"
+      :title="title"
+      @sure-click="handleOk"
     >
-      <ServeConfig ref="serveConfig" :info="infoObj" v-if="visible"/>
+      <ServeConfig ref="serveConfig" :info="infoObj" v-if="visible" />
     </apiot-dialog>
   </div>
 </template>
 
 <script>
-import { insertDataFilter, delDataFilter, updateDataFilter } from '@/api/homePage';
+import { delDataFilter, insertDataFilter, updateDataFilter } from '@/api/homePage';
 
 const ServeConfig = () => import('./ServerConfig/index');
 
@@ -60,7 +54,9 @@ export default {
   props: {
     tableData: {
       type: Array,
-      default() { return []; }
+      default() {
+        return [];
+      }
     },
     init: {
       type: Function
@@ -82,16 +78,21 @@ export default {
   computed: {
     renderName() {
       return function (type) {
-        if (type === 1) { return 'MYSQL'; }
-        if (type === 2) { return 'ORACLE'; }
-        if (type === 3) { return 'SQLSERVER'; }
+        if (type === 1) {
+          return 'MYSQL';
+        }
+        if (type === 2) {
+          return 'ORACLE';
+        }
+        if (type === 3) {
+          return 'SQLSERVER';
+        }
         return '';
       };
     }
   },
 
-  mounted() {
-  },
+  mounted() {},
   watch: {},
 
   methods: {
@@ -121,27 +122,29 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async () => {
-        const ids = this.selectedKeys.map((item) => item.id).join(',');
-        try {
-          await delDataFilter({ ids });
-          await this.init();
+      })
+        .then(async () => {
+          const ids = this.selectedKeys.map((item) => item.id).join(',');
+          try {
+            await delDataFilter({ ids });
+            await this.init();
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+          } catch (e) {
+            this.$message({
+              type: 'warning',
+              message: '删除失败!'
+            });
+          }
+        })
+        .catch(() => {
           this.$message({
-            type: 'success',
-            message: '删除成功!'
+            type: 'info',
+            message: '已取消删除'
           });
-        } catch (e) {
-          this.$message({
-            type: 'error',
-            message: '删除失败!'
-          });
-        }
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
         });
-      });
     },
     handleOk() {
       this.$refs.serveConfig.$refs.numberValidateForm.validate((valid) => {
@@ -160,10 +163,12 @@ export default {
     async handleSave(param) {
       try {
         const api = this.infoObj.id ? updateDataFilter : insertDataFilter;
-        const params = this.infoObj.id ? {
-          ...param,
-          id: this.infoObj.id
-        } : param;
+        const params = this.infoObj.id
+          ? {
+            ...param,
+            id: this.infoObj.id
+          }
+          : param;
         await api(params);
         await this.init();
         this.visible = false;

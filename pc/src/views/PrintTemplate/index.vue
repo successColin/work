@@ -97,13 +97,13 @@
 </template>
 
 <script>
-import { getSysDesignMenu } from '@/api/menuConfig';
-import { insertSysPrintTemplate, editSysPrintTemplate } from '@/api/printTemplate';
 import { postUploadHelp } from '@/api/helpCenter';
-import ConfigSidebar from './components/ConfigSidebar';
-import EditExcel from './components/EditExcel';
+import { getSysDesignMenu } from '@/api/menuConfig';
+import { editSysPrintTemplate, insertSysPrintTemplate } from '@/api/printTemplate';
 import ConfigParams from './components/ConfigParams';
+import ConfigSidebar from './components/ConfigSidebar';
 import ContentPreview from './components/ContentPreview';
+import EditExcel from './components/EditExcel';
 
 export default {
   data() {
@@ -184,7 +184,7 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch('getCurrentDict', 'DICT-00128,DICT-00131');
+    this.$store.dispatch('getCurrentDict', 'PRINT_TYPE,PRINT_ELE_TYPE');
     this.getSysDesignMenu();
     document.addEventListener(
       'mousemove',
@@ -287,7 +287,7 @@ export default {
       const { name, type } = this.globalConfig;
       if (!name) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请填写模板名称'
         });
         return;
@@ -298,7 +298,8 @@ export default {
       const designJson = {
         globalConfig: this.globalConfig,
         excelArr: this.excelArr,
-        imgArr: this.imgArr
+        imgArr: this.imgArr,
+        borderInfo: this.$refs.myPrint.borderInfo
       };
       // 新增
       if (this.detailId) {

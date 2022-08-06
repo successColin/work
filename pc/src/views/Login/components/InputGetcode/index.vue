@@ -103,7 +103,7 @@ export default {
       if (!this.canClick) return; // 如果在执行就返回
       if (!this.account) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('login.helloPleaseEnterYourMobilePhoneNumber')
         });
         return;

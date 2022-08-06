@@ -288,6 +288,9 @@ export default {
       };
     }
   },
+  mounted() {
+    console.log(this.getCurrentTab);
+  },
   components: {},
   methods: {
     // 添加关联表

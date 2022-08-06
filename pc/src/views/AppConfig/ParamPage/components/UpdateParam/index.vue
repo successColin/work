@@ -56,7 +56,9 @@
               v-model="appInfo.upgradeMode"
               :options="typeArr"
               :placeholder="
-                $t('placeholder.pleaseSelect', { any: $t('appconfig.updateMode') })
+                $t('placeholder.pleaseSelect', {
+                  any: $t('appconfig.updateMode'),
+                })
               "
               @change="handleChangeType"
             ></apiot-select>
@@ -75,11 +77,7 @@
                 })
               "
             >
-              <el-select
-                v-model="http"
-                slot="prepend"
-                placeholder="请选择"
-              >
+              <el-select v-model="http" slot="prepend" placeholder="请选择">
                 <el-option label="http://" value="http://"></el-option>
                 <el-option label="https://" value="https://"></el-option>
               </el-select>
@@ -142,7 +140,10 @@
             <el-upload
               class="uploadArea"
               action=""
-              :on-success="(response, file, fileList) => handleChange(response, file, fileList, 1)"
+              :on-success="
+                (response, file, fileList) =>
+                  handleChange(response, file, fileList, 1)
+              "
               :multiple="false"
               :before-upload="beforeUpload"
               accept=".apk"
@@ -153,8 +154,8 @@
               <div class="apkInfo" v-if="appInfo.apkObj && appInfo.apkObj.name">
                 <i class="icon-APPanzhuangbao iconfont"></i>
                 <div class="info">
-                  <p class="name">{{appInfo.apkObj.name}}</p>
-                  <p>{{(appInfo.apkObj.size/1024/1024).tofixed(2)}}Mb</p>
+                  <p class="name">{{ appInfo.apkObj.name }}</p>
+                  <p>{{ (appInfo.apkObj.size / 1024 / 1024).tofixed(2) }}Mb</p>
                 </div>
                 <!-- <i class="icon-shanchu iconfont"></i> -->
               </div>
@@ -172,7 +173,10 @@
             <el-upload
               class="uploadArea"
               action=""
-              :on-success="(response, file, fileList) => handleChange(response, file, fileList, 2)"
+              :on-success="
+                (response, file, fileList) =>
+                  handleChange(response, file, fileList, 2)
+              "
               :multiple="false"
               :before-upload="beforeUpload"
               accept=".wgt"
@@ -183,8 +187,8 @@
               <div class="apkInfo" v-if="appInfo.wgtObj && appInfo.wgtObj.name">
                 <i class="icon-APPanzhuangbao iconfont"></i>
                 <div class="info">
-                  <p class="name">{{appInfo.wgtObj.name}}</p>
-                  <p>{{(appInfo.wgtObj.size/1024/1024).tofixed(2)}}Mb</p>
+                  <p class="name">{{ appInfo.wgtObj.name }}</p>
+                  <p>{{ (appInfo.wgtObj.size / 1024 / 1024).tofixed(2) }}Mb</p>
                 </div>
                 <!-- <i class="icon-shanchu iconfont"></i> -->
               </div>
@@ -206,11 +210,11 @@
 </template>
 
 <script>
-import { Decrypt } from '_u/utils';
 import axios from 'axios';
+import { Decrypt } from '_u/utils';
+import { getInfoByKey, saveParameter } from '@/api/appConfig.js';
 import ajax from '@/api/axiosConfig';
 import { PREFIX, VERSION } from '@/config';
-import { getInfoByKey, saveParameter } from '@/api/appConfig.js';
 
 export default {
   props: {},
@@ -240,9 +244,9 @@ export default {
         {
           value: 2,
           name: this.$t('appconfig.installationPackage')
-        },
+        }
       ];
-    },
+    }
   },
 
   mounted() {
@@ -253,7 +257,7 @@ export default {
     getParamsInfoByKey() {
       try {
         const param = {
-          key: 'UPGRADE_PROPERTIES',
+          key: 'UPGRADE_PROPERTIES'
         };
         getInfoByKey(param).then((res) => {
           this.appInfo = res.parameterJson;
@@ -289,7 +293,7 @@ export default {
         const type = nameArr[nameArr.length - 1];
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);
@@ -360,7 +364,7 @@ export default {
       // eslint-disable-next-line no-shadow
       const fetch = axios.create({
         withCredentials: true,
-        ...config,
+        ...config
         // onUploadProgress: (progressEvent) => {
         //   // 对原生进度事件的处理
         //   // eslint-disable-next-line no-mixed-operators
@@ -391,7 +395,7 @@ export default {
         .catch(() => {
           this.delFileFromUploadingFiles(item);
         });
-    },
+    }
   }
 };
 </script>
@@ -418,7 +422,7 @@ $--name: 'update';
         justify-content: center;
         color: #aaaaaa;
         font-size: 12px;
-        border: 1px dashed #D9D9D9;
+        border: 1px dashed #d9d9d9;
         border-radius: 4px;
         box-sizing: border-box;
       }
@@ -449,11 +453,11 @@ $--name: 'update';
         }
       }
     }
-      .half{
-        width: 50%;
-        padding-right: 10px;
-        box-sizing: border-box;
-      }
+    .half {
+      width: 50%;
+      padding-right: 10px;
+      box-sizing: border-box;
+    }
   }
 }
 </style>

@@ -32,12 +32,32 @@
             v-for="item in tableData"
           ></el-option>
         </el-select>
+        <el-form-item label="外部页面类型" v-if="activeObj.showType === 2">
+          <el-select
+            v-model="activeObj.externalType"
+            placeholder="请选外部页面类型"
+          >
+            <el-option label="默认" :value="1"></el-option>
+            <el-option label="ureport" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
         <apiot-input
-          v-if="activeObj.showType === 2"
+          v-if="activeObj.showType === 2 && activeObj.externalType === 1"
           v-model="activeObj.outerLink"
           :isForbid="false"
           placeholder="请输入显示地址"
-        ></apiot-input>
+        ></apiot-input
+        ><filterable-input
+          v-if="activeObj.showType === 2 && activeObj.externalType === 2"
+          class="m-t-10"
+          ref="filterableInput"
+          placeholder="请选择文件名"
+          title="选择文件名"
+          :showInfo="activeObj.ureportObj"
+          :hasPagination="true"
+          :dialogType="7"
+          @selectRes="selectRes"
+        ></filterable-input>
       </el-form-item>
       <el-form-item label="尺寸类型">
         <el-select v-model="activeObj.sizeType" placeholder="请选择尺寸类型">
@@ -195,6 +215,12 @@ export default {
   },
 
   methods: {
+    // 获取数据表值
+    selectRes(v) {
+      this.activeObj.ureportObj = {
+        name: v.name
+      };
+    },
     // 获取列表
     async sysMenuList() {
       try {

@@ -57,8 +57,8 @@
 </template>
 
 <script>
+import { batchDeleteIndexes, listSysEntityTablesIndexes, modifyIndexes } from '@/api/entityManage';
 import bus from '@/utils/bus';
-import { listSysEntityTablesIndexes, batchDeleteIndexes, modifyIndexes } from '@/api/entityManage';
 import AddIndex from './AddIndex';
 
 export default {
@@ -158,7 +158,7 @@ export default {
     deleteIndex() {
       if (!this.multiEntityArr.length) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.selectDelData')
         });
       }

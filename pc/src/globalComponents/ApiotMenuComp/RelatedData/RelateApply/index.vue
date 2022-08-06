@@ -8,7 +8,7 @@
         @mouseleave.native="isHover = false"
         type="primary"
         @click="knowledgeShow = true"
-        v-if="showRelateBtn && !this.keyWord"
+        v-if="showRelateBtn && !this.keyWord && relateDataComp.value"
       >
         <i class="iconfont icon-guanxiguanlian"></i>
         {{ $t('knowledge.relateK') }}
@@ -26,7 +26,12 @@
       >
         <apiot-button
           type="primary"
-          v-if="configData.showUploadBtn && canShowBtn && !this.keyWord"
+          v-if="
+            configData.showUploadBtn &&
+            canShowBtn &&
+            !this.keyWord &&
+            relateDataComp.value
+          "
         >
           <i class="icon-shangchuan iconfont" style="margin-right: 4px"></i>
           {{ $t('knowledge.upload') }}
@@ -34,7 +39,12 @@
       </el-upload>
       <apiot-button
         @click="handleAdd"
-        v-if="configData.showNewBtn && canShowBtn && !this.keyWord"
+        v-if="
+          configData.showNewBtn &&
+          canShowBtn &&
+          !this.keyWord &&
+          relateDataComp.value
+        "
       >
         <span class="iconfont icon-xinzengwenjianjia btnWrap__btnCommon"></span>
         {{ $t('knowledge.Add_folder') }}
@@ -675,6 +685,7 @@ export default {
         this.relateBusiComp.value = this.getAllForm()[this.configData.relateBusiComp.compId];
         this.relateBusiComp.tableName = this.configData.relateBusiComp.tableName;
       }
+      console.log(this.relateBusiComp.value);
       if (this.getFatherPanel()) {
         const { relateDataComp } = this.getFatherPanel();
         const { relateBusiComp } = this.getFatherPanel();
@@ -1192,6 +1203,10 @@ export default {
       visitFiles({ classId: this.showType, userId: this.userInfo.id, id });
     },
     async listFiles(params) {
+      console.log(this.relateDataComp.value);
+      if (!this.relateDataComp.value) {
+        return;
+      }
       const param = {
         keywords: '',
         relationTableId: this.relateBusiComp.value,

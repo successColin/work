@@ -120,7 +120,7 @@ export default {
         }
         this.loading = true;
         await saveGlobal(params);
-        await this.$store.dispatch('fetchThirdLinks');
+        await this.$store.dispatch('fetchConfigFun');
         this.linksData = JSON.parse(JSON.stringify(this.$store.state.globalConfig.thirdLinks));
         this.$message({
           type: 'success',
@@ -136,7 +136,7 @@ export default {
       };
       this.loading = true;
       await batchDelete(params);
-      await this.$store.dispatch('fetchThirdLinks');
+      await this.$store.dispatch('fetchConfigFun');
       this.linksData = JSON.parse(JSON.stringify(this.$store.state.globalConfig.thirdLinks));
       this.$message({
         type: 'success',

@@ -29,6 +29,7 @@
 
 <script>
 import { upload } from '@/api/appConfig';
+import { batchUpload } from '@/api/menuConfig';
 
 export default {
   props: {
@@ -49,6 +50,10 @@ export default {
     uploadType: {
       type: Number,
       default: 1
+    },
+    isPc: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -69,10 +74,14 @@ export default {
   methods: {
     // 上传成功
     uploadSuccess(response) {
-      // console.log(response);
       if (response) {
-        this.curUrl = response;
-        this.$emit('update:fileUrl', response);
+        if (this.isPc) {
+          this.curUrl = response[0].url;
+          this.$emit('update:fileUrl', response[0].url);
+        } else {
+          this.curUrl = response;
+          this.$emit('update:fileUrl', response);
+        }
       }
     },
     // 上传之前
@@ -82,7 +91,7 @@ export default {
         const newSize = size <= this.fileLimit * 1024 * 1024;
         if (!type) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: '不支持该类型附件上传'
           });
           reject(file);
@@ -91,7 +100,7 @@ export default {
 
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.size_more')
           });
           reject(file);
@@ -105,6 +114,12 @@ export default {
       const { file } = param;
 
       const formData = new FormData();
+
+      if (this.isPc) {
+        formData.append('files', file);
+        const res = await batchUpload(formData);
+        return res;
+      }
       formData.append('file', file);
       const res = await upload(formData);
       return res;

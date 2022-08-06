@@ -70,17 +70,31 @@ export default {
         {
           name: 'globalConfig.thirdLinks',
           icon: 'icon-dingbusanfanglianjie',
-          color: '#5A80ED',
+          color: '#34C7BE',
           url: 'thirdLinks',
           type: ''
+        },
+        {
+          name: 'globalConfig.homeConfig',
+          icon: 'icon-zhuyexiaoxixiangguanxiang',
+          color: '#EE5E5E',
+          url: 'homeConfig',
+          type: ''
+        },
+        {
+          name: 'globalConfig.reportConfig',
+          icon: 'icon-baobiaoxiangguanxiang',
+          color: '#FC8256',
+          url: 'reportConfig',
+          type: ''
+        },
+        {
+          name: 'globalConfig.fileServerOptions',
+          icon: 'icon-wenjianfuwuqixuanxiang',
+          color: '#FC8256',
+          url: 'fileserverConfig',
+          type: ''
         }
-        // {
-        //   name: 'globalConfig.fileServerOptions',
-        //   icon: 'icon-wenjianfuwuqixuanxiang',
-        //   color: '#FC8256',
-        //   url: 'fileserverConfig',
-        //   type: ''
-        // },
         // {
         //   name: 'globalConfig.watermarkOptions',
         //   icon: 'icon-shuiyinxiangguanxuanxiang',

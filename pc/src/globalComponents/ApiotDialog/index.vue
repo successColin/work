@@ -14,7 +14,9 @@
     @mousedown.native="handleWrapperMousedown($event)"
     @mouseup.native="handleWrapperMouseup($event)"
     class="curMask"
-    :class="{ bigDialog: isBigDialog }"
+    :class="{
+      bigDialog: isBigDialog,
+    }"
     @keydown.esc.native.stop="escKeyDown"
     @open="open"
     tabindex="0"
@@ -206,7 +208,7 @@ export default {
 
   .el-dialog__footer {
     border-top: 1px solid #e9e9e9;
-    padding: 11px 20px 12px;
+    padding: 16px 20px 17px;
   }
 
   .el-dialog__headerbtn {

@@ -70,6 +70,26 @@ const GlobalConfig = [
         },
       },
       {
+        path: 'homeConfig',
+        name: 'homeConfig',
+        component: () => import('_v/GlobalConfig/HomeConfig'),
+        meta: {
+          childrenPage: true,
+          parentPath: 'globalConfig',
+          parentName: '全局参数',
+        },
+      },
+      {
+        path: 'reportConfig',
+        name: 'reportConfig',
+        component: () => import('_v/GlobalConfig/ReportConfig'),
+        meta: {
+          childrenPage: true,
+          parentPath: 'globalConfig',
+          parentName: '全局参数',
+        },
+      },
+      {
         path: 'fileserverConfig',
         name: 'fileserverConfig',
         component: () => import('_v/GlobalConfig/FileserverConfig'),

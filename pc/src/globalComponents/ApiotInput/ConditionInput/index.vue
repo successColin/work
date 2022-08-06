@@ -5,6 +5,7 @@
     :class="[{ showPre: showPre }]"
   >
     <apiot-input
+      ref="input"
       :placeholder="placeholder || $t('placeholder.pleaseEnterkeySearch')"
       v-bind="$attrs"
       v-on="$listeners"
@@ -29,6 +30,11 @@
         </el-select>
       </template>
     </apiot-input>
+    <i
+      class="iconfont icon-guanbi"
+      @click="searchClearAndBlur"
+      v-show="$refs.input && $refs.input.$el.children[getLength - 1].value"
+    ></i>
     <i class="iconfont icon-sousuo" @click="searchBlur"></i>
   </el-form>
 </template>
@@ -58,11 +64,25 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+    getLength() {
+      if (this.$refs.input.$el) {
+        return this.$refs.input.$el.children.length;
+      }
+      return 1;
+    }
+  },
 
   mounted() {},
 
   methods: {
+    searchClearAndBlur() {
+      const len = this.$refs.input.$el.children.length;
+      this.$refs.input.$el.children[len - 1].value = '';
+      this.$refs.input.$el.children[len - 1].dispatchEvent(new Event('input'));
+      this.$parent.current = 1;
+      this.$emit('getList', 1);
+    },
     searchBlur() {
       this.$parent.current = 1;
       this.$emit('getList', 1);
@@ -95,7 +115,7 @@ export default {
     .el-input__inner {
       height: 30px;
       padding-left: 12px;
-      padding-right: 30px;
+      padding-right: 48px;
       color: #333 !important;
     }
     .el-input:focus-within + i.icon-sousuo {
@@ -109,6 +129,20 @@ export default {
     top: 50%;
     transform: translateY(-50%);
     right: 1px;
+    width: 29px;
+    line-height: 30px;
+    cursor: pointer;
+    &:hover {
+      color: $--color-primary;
+    }
+  }
+  .icon-guanbi {
+    position: absolute;
+    color: #d9d9d9;
+    height: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
     width: 29px;
     line-height: 30px;
     cursor: pointer;

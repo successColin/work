@@ -120,7 +120,7 @@
         :nodeConfig="nodeConfig"
       ></component>
     </ul>
-    <div class="btnMask" v-if="isSelect && isTabBtn"></div>
+    <div class="btnMask" v-if="isSelect && isTabBtn" @click.stop></div>
   </header>
 </template>
 

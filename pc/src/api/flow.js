@@ -432,3 +432,14 @@ export function editFlow(data) {
     data
   });
 }
+
+/**
+ * 获取代理接口列表
+ * @returns {*}
+ */
+export function fetchApiList() {
+  return fetch.request({
+    url: query.GET_API_LIST,
+    method: 'get'
+  });
+}

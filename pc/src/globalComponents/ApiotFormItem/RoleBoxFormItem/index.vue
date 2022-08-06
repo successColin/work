@@ -46,8 +46,8 @@
 </template>
 
 <script>
-import { debounce } from '@/utils/utils';
 import { getRoleLiistById } from '@/api/role';
+import { debounce } from '@/utils/utils';
 
 export default {
   inheritAttrs: false,
@@ -141,7 +141,7 @@ export default {
         this.$emit('changeRoles', currentRoles);
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.hasBeenSelected')
         });
       }

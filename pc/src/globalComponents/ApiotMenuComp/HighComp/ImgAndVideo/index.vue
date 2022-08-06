@@ -26,6 +26,8 @@
         v-show="false"
       ></apiot-input>
       <el-upload
+        v-if="configData.showType === 1"
+        class="upload"
         drag
         action=""
         :accept="accept"
@@ -73,22 +75,128 @@
           </div>
 
           <div
-            class="file__operateBox"
+            class="file__operateBox fontHover"
             v-show="file.percentage === 100 && file.showOperate"
+            @click="preview(file)"
           >
-            <el-tooltip effect="dark" content="预览" placement="top"
+            <!-- <el-tooltip effect="dark" content="预览" placement="top"
               ><i class="iconfont icon-chakan" @click="preview(file)"></i
-            ></el-tooltip>
+            ></el-tooltip> -->
             <el-tooltip effect="dark" content="下载" placement="top">
               <a
-                :href="`${file.url}?response-content-type=application/octet-stream`"
                 class="file__operateBox--xiazai"
+                @click.stop="
+                  download(
+                    `${file.url}?response-content-type=application/octet-stream`,
+                    file.name
+                  )
+                "
               >
                 <i class="iconfont icon-xiazai"></i> </a
             ></el-tooltip>
             <el-tooltip effect="dark" content="删除" placement="top"
-              ><i class="iconfont icon-guanbi" @click="delFile(file)"></i
+              ><i
+                class="iconfont icon-guanbi file__operateBox--shanchu"
+                @click.stop="delFile(file)"
+              ></i
             ></el-tooltip>
+          </div>
+        </div>
+      </el-upload>
+      <el-upload
+        v-else
+        class="uploadFile"
+        drag
+        multiple
+        action=""
+        :accept="accept"
+        :on-success="uploadSuccess"
+        :before-upload="beforeUpload"
+        :http-request="doUpload"
+        :file-list="fileList"
+        :disabled="configData.canReadonly"
+      >
+        <div class="el-upload__text">
+          <apiot-button
+            class="uploadBtn"
+            :disabled="configData.singleStatus === 2"
+            ><i class="iconfont icon-shangchuan m-r-4"></i
+            >上传附件</apiot-button
+          >
+          将文件拖到框内，或点击按钮上传
+        </div>
+        <div
+          slot="file"
+          slot-scope="{ file }"
+          class="file"
+          @mouseenter="file.showOperate = true"
+          @mouseleave="file.showOperate = false"
+        >
+          <!-- <img
+            class="file__img"
+            :src="require(`@/assets/img/${getCurIconName(file.name)}.svg`)"
+          /> -->
+          <img
+            v-if="!isVedio(file.name)"
+            v-show="file.url"
+            class="file__img fontHover"
+            @click="preview(file)"
+            :src="file.url"
+          />
+          <video
+            v-else
+            v-show="file.url"
+            class="file__img fontHover"
+            @click="preview(file)"
+            :src="file.url"
+          ></video>
+          <span
+            class="file__name font__ellipsis fontHover"
+            :title="file.name"
+            @click="preview(file)"
+            >{{ file.name }}</span
+          >
+          <span
+            class="file__size"
+            v-show="file.percentage === 100 && !file.showOperate"
+            >{{ resolveSize(file.size) }}</span
+          >
+          <span
+            class="file__time"
+            v-show="file.percentage === 100 && !file.showOperate"
+            >{{ file.uploadTime }}</span
+          >
+          <div
+            class="file__cancleUpload"
+            v-show="file.percentage !== 100"
+            @click="cancleUpload(file)"
+          >
+            <i class="iconfont icon-guanbi"></i>
+          </div>
+          <div class="file__progress" v-show="file.percentage !== 100">
+            <el-progress
+              :percentage="file.percentage"
+              color="#FAB71C"
+              :show-text="false"
+            ></el-progress>
+          </div>
+          <div
+            class="file__operateBox"
+            v-show="file.percentage === 100 && file.showOperate"
+          >
+            <a
+              class="file__operateBox--xiazai file__operateBox--line"
+              @click.stop="
+                download(
+                  `${file.url}?response-content-type=application/octet-stream`,
+                  file.name
+                )
+              "
+            >
+              <i class="iconfont icon-xiazai"></i>
+              下载
+            </a>
+            <i class="iconfont icon-guanbi" @click="delFile(file)"></i>
           </div>
         </div>
       </el-upload>
@@ -143,6 +251,7 @@
 <script>
 import axios from 'axios';
 import { batchUpload, getFileList } from '@/api/menuConfig';
+import { getBlob, saveAs } from '@/utils/utils';
 import compMixin from '../../compMixin';
 import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
 
@@ -205,7 +314,14 @@ export default {
       };
     }
   },
-
+  created() {
+    // console.log(this.configData.compType);
+    if (this.configData.compType === 12) {
+      this.accept = '.png, .jpg,.jpeg, .gif';
+    } else {
+      this.accept = ' .mp4, .avi';
+    }
+  },
   mounted() {
     this.unwatch = this.$watch(`parent.form.${this.configData.compId}`, (v) => {
       if (v && this.flag) {
@@ -218,6 +334,30 @@ export default {
   },
 
   methods: {
+    getCurIconName(name) {
+      const ext = name.split('.')[1];
+      const obj = {
+        XLS: ['xls', 'xlsx'],
+        zipFile: ['zip', 'rar'],
+        TXT: ['txt'],
+        PPT: ['ppt', 'pptx'],
+        PDF: ['pdf'],
+        DOC: ['doc', 'docx'],
+        imageFile: ['png', 'jpg', 'jpeg', 'gif'],
+        vedio: ['mp4', 'avi'],
+        audioFile: ['mp3']
+      };
+      const res = Object.keys(obj).find((key) => {
+        if (obj[key].includes(ext)) {
+          return true;
+        }
+        return false;
+      });
+      if (res) {
+        return res;
+      }
+      return 'else';
+    },
     async getFileList() {
       if (this.parent.form[this.configData.compId]) {
         const data = await getFileList({
@@ -228,7 +368,7 @@ export default {
           item.percentage = 100;
         });
         this.fileList = data;
-        // console.log(data);
+        console.log(data);
       }
     },
 
@@ -252,7 +392,7 @@ export default {
 
         if (!newSize) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('knowledge.size_more')
           });
           reject(file);
@@ -260,7 +400,7 @@ export default {
         }
         if (this.fileList.length >= this.configData.maxFileCount) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: '上传文件数量超过最大限制'
           });
           reject(file);
@@ -275,7 +415,7 @@ export default {
       const source = axios.CancelToken.source();
       if (this.fileList.length >= this.configData.maxFileCount) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '上传文件数量超过最大限制'
         });
         return;
@@ -294,8 +434,7 @@ export default {
       formData.append('files', file);
       console.log(this.showType.menuId);
       // eslint-disable-next-line max-len
-      const menuId =
-        this.showType && this.showType.type === 'flow' ? 0 : this.$route.params.id;
+      const menuId = this.showType && this.showType.type === 'flow' ? 0 : this.$route.params.id;
       formData.append('menuId', menuId);
       const res = await batchUpload(
         formData,
@@ -350,6 +489,11 @@ export default {
     },
     cancelPreview() {
       this.previewObj = {};
+    },
+    download(url, filename) {
+      getBlob(url, (blob) => {
+        saveAs(blob, filename);
+      });
     }
   },
 
@@ -389,7 +533,7 @@ export default {
   padding: 2px 15px 18px 15px;
   &.noHover {
     min-height: 76px;
-    padding: 0px 15px 18px 15px;
+    padding: 0px 15px 18px 35px;
   }
   &.active,
   &:hover:not(.noHover) {
@@ -413,6 +557,9 @@ export default {
     }
   }
   ::v-deep {
+    .el-upload-list__item {
+      transition: none;
+    }
     .el-form-item {
       margin-bottom: 0;
       .el-form-item__label {
@@ -423,107 +570,142 @@ export default {
         display: flex;
       }
     }
-    .el-upload--picture-card {
-      width: 104px;
-      height: 104px;
-      &:hover {
-        .icon-jiahao {
+    .upload {
+      .el-upload--picture-card {
+        width: 104px;
+        height: 104px;
+        &:hover {
+          .icon-jiahao {
+            color: $--color-primary;
+          }
+        }
+      }
+      .el-upload-list--picture-card .el-upload-list__item {
+        width: 104px;
+        height: 104px;
+      }
+      .el-upload-dragger {
+        height: 100%;
+        width: 100%;
+        border: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .el-upload-list__item {
+        transition: none !important;
+      }
+    }
+    .uploadFile {
+      .el-upload {
+        width: 100%;
+        .el-upload-dragger {
+          width: 100%;
+          height: 36px;
+          background: #fafafa;
+          border-radius: 4px;
+          .el-upload__text {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding-left: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            .uploadBtn {
+              height: 26px;
+              line-height: 26px;
+              margin-right: 10px;
+            }
+            .icon-shangchuan {
+              color: $--color-primary;
+            }
+          }
+        }
+      }
+    }
+  }
+  .upload {
+    .file {
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+      border-radius: 4px;
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      &__img {
+        width: 100%;
+        height: 100%;
+      }
+      &__cancleUpload {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        &:hover {
           color: $--color-primary;
         }
       }
-    }
-    .el-upload-list--picture-card .el-upload-list__item {
-      width: 104px;
-      height: 104px;
-    }
-    .el-upload-dragger {
-      height: 100%;
-      width: 100%;
-      border: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .el-upload-list__item {
-      transition: none !important;
+      &__progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        ::v-deep {
+          .el-progress {
+            line-height: 0;
+            width: 84px;
+            height: 84px;
+            .el-progress-bar__outer {
+              height: 2px !important;
+            }
+            .el-progress-circle {
+              width: 84px !important;
+              height: 84px !important;
+            }
+          }
+        }
+      }
+      &__operateBox {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.2);
+        .iconfont {
+          color: #fff;
+          font-size: 16px;
+          cursor: pointer;
+        }
+        &--xiazai {
+          position: absolute;
+          right: 24px;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        &--shanchu {
+          position: absolute;
+          right: 2px;
+        }
+        &--line {
+          position: relative;
+          &:after {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 12px;
+            background-color: #e9e9e9;
+            right: -14px;
+          }
+        }
+      }
     }
   }
 
-  .file {
-    position: relative;
-    overflow: hidden;
-    background: #ffffff;
-    border-radius: 4px;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    &__img {
-      width: 100%;
-      height: 100%;
-    }
-    &__cancleUpload {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      &:hover {
-        color: $--color-primary;
-      }
-    }
-    &__progress {
-      position: absolute;
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      ::v-deep {
-        .el-progress {
-          line-height: 0;
-          width: 84px;
-          height: 84px;
-          .el-progress-bar__outer {
-            height: 2px !important;
-          }
-          .el-progress-circle {
-            width: 84px !important;
-            height: 84px !important;
-          }
-        }
-      }
-    }
-    &__operateBox {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: space-evenly;
-      .iconfont {
-        color: #fff;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      &--xiazai {
-        text-decoration: none;
-        cursor: pointer;
-      }
-      &--line {
-        position: relative;
-        &:after {
-          content: '';
-          position: absolute;
-          width: 1px;
-          height: 12px;
-          background-color: #e9e9e9;
-          right: -14px;
-        }
-      }
-    }
-  }
   .previewDialog {
     img,
     video {
@@ -541,6 +723,104 @@ export default {
   }
   .notShow {
     visibility: hidden;
+  }
+  .uploadFile {
+    line-height: 0;
+    .file {
+      display: flex;
+      position: relative;
+      align-items: center;
+      height: 36px;
+      overflow: hidden;
+      background: #ffffff;
+      border-radius: 4px;
+      border: 1px solid #e9e9e9;
+      box-sizing: border-box;
+      padding-left: 10px;
+      padding-right: 10px;
+      &__img {
+        width: 24px;
+        margin-right: 4px;
+      }
+      &__name {
+        width: 134px;
+      }
+      &__size {
+        margin-left: auto;
+        margin-right: 10px;
+      }
+      &__cancleUpload {
+        position: absolute;
+        right: 10px;
+        cursor: pointer;
+        &:hover {
+          color: $--color-primary;
+        }
+      }
+      &__progress {
+        position: absolute;
+        left: 38px;
+        right: 42px;
+        bottom: 8px;
+        height: 2px;
+        ::v-deep {
+          .el-progress {
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            line-height: 0;
+            .el-progress-bar__outer {
+              height: 2px !important;
+            }
+          }
+        }
+      }
+      &__operateBox {
+        position: absolute;
+        right: 10px;
+        &--xiazai {
+          display: inline-flex;
+          align-items: center;
+          text-decoration: none;
+          font-weight: 400;
+          color: #333333;
+          font-size: 13px;
+          cursor: pointer;
+          margin-right: 28px;
+          .iconfont {
+            font-weight: normal;
+            color: #bbc3cd;
+            font-size: 16px;
+          }
+          &:hover {
+            color: $--color-primary;
+            .iconfont {
+              color: $--color-primary;
+            }
+          }
+        }
+        &--line {
+          position: relative;
+          &:after {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 12px;
+            background-color: #e9e9e9;
+            right: -14px;
+          }
+        }
+        .icon-guanbi {
+          color: #bbc3cd;
+          cursor: pointer;
+          font-size: 16px;
+          &:hover {
+            color: $--color-primary;
+          }
+        }
+      }
+    }
   }
 }
 </style>

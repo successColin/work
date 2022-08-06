@@ -3,7 +3,7 @@
  * @Author: cmk
  * @Date: 2021-04-19 17:54:53
  * @Last Modified by: ytx
- * @Last Modified time: 2022-07-09 16:46:02
+ * @Last Modified time: 2022-08-04 16:16:51
  */
 import { getListByKey } from '@/api/globalConfig';
 import { changeThemeColor } from '@/utils/themeColorClient';
@@ -16,6 +16,16 @@ export default {
     themeConfig: {}, // 主题配置正常数据
     themeConfigArr: [], // 主题配置源数据
     thirdLinks: [],
+    zzdScan: '',
+    // 主页消息相关选项
+    messageConfig: [],
+    messageConfigArr: [],
+    // 报表相关选项
+    ureportConfig: [],
+    ureportConfigArr: [],
+    // 文件服务器相关选项
+    fileConfig: [],
+    fileConfigArr: [],
   },
   getters: {
     getMenuType(state) {
@@ -26,6 +36,10 @@ export default {
     },
   },
   mutations: {
+    // 扫码地址
+    setZzdScan(state, url) {
+      state.zzdScan = url;
+    },
     // 设置logo高度
     setLogoHeight(state, logoHeight) {
       state.logoHeight = logoHeight;
@@ -73,14 +87,33 @@ export default {
         );
     },
     // 处理第三方链接数据
-    resolveThirdLinks(state, res) {
-      state.thirdLinks = res.map((item) => {
-        const obj = JSON.parse(item.attributeValue);
-        return {
-          ...item,
+    resolveData(state, [res, key]) {
+      let obj = {};
+      res.forEach((item) => {
+        const { attributeKey, attributeValue } = item;
+        obj = {
           ...obj,
+          [attributeKey]: attributeValue,
         };
       });
+      if (key === 'THIRD_LINKS') {
+        state.thirdLinks = res.map((item) => {
+          const v = JSON.parse(item.attributeValue);
+          return {
+            ...item,
+            ...v,
+          };
+        });
+      } else if (key === 'MESSAGE_CONFIG') {
+        state.messageConfig = obj;
+        state.messageConfigArr = res;
+      } else if (key === 'UREPORT_URL') {
+        state.ureportConfig = obj;
+        state.ureportConfigArr = res;
+      } else if (key === 'FILE_SERVER') {
+        state.fileConfig = obj;
+        state.fileConfigArr = res;
+      }
     },
     // 设置主题及相关配置
     setThemeConfig(state, { key, value }) {
@@ -97,9 +130,9 @@ export default {
       const res = await getListByKey({ parameterKey: key });
       commit('reduceDataToThemeConfig', res);
     },
-    async fetchThirdLinks({ commit }) {
-      const res = await getListByKey({ parameterKey: 'THIRD_LINKS' });
-      commit('resolveThirdLinks', res);
+    async fetchConfigFun({ commit }, key = 'THIRD_LINKS') {
+      const res = await getListByKey({ parameterKey: key });
+      commit('resolveData', [res, key]);
     },
   },
 };

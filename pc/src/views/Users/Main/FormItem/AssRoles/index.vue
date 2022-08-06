@@ -40,8 +40,8 @@
 </template>
 
 <script>
-import { debounce } from '@/utils/utils';
 import { getRoleLiistById } from '@/api/role';
+import { debounce } from '@/utils/utils';
 import Roles from './Roles/roles';
 
 export default {
@@ -119,7 +119,7 @@ export default {
         // this.$emit('relationRoles', this.tags);
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.hasBeenSelected')
         });
       }

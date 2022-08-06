@@ -67,7 +67,39 @@
           @selectRes="selectColumnRes"
         ></filterable-input>
       </el-form-item>
-      <el-form-item label="宽度">
+      <el-form-item
+        label="最小宽度"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-button-group>
+          <el-button
+            :class="[{ active: activeObj.tableWidth === '0.05' }]"
+            @click="activeObj.tableWidth = '0.05'"
+            >5%</el-button
+          >
+          <el-button
+            :class="[{ active: activeObj.tableWidth === '0.1' }]"
+            @click="activeObj.tableWidth = '0.1'"
+            >10%</el-button
+          >
+          <el-button
+            :class="[{ active: activeObj.tableWidth === '0.15' }]"
+            @click="activeObj.tableWidth = '0.15'"
+            >15%</el-button
+          >
+          <el-button
+            :class="[{ active: activeObj.tableWidth === '0.2' }]"
+            @click="activeObj.tableWidth = '0.2'"
+            >20%</el-button
+          >
+          <el-button
+            :class="[{ active: activeObj.tableWidth === '0.25' }]"
+            @click="activeObj.tableWidth = '0.25'"
+            >25%</el-button
+          >
+        </el-button-group>
+      </el-form-item>
+      <el-form-item label="宽度" v-else>
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.width === '50%' }]"
@@ -119,17 +151,28 @@
         ></apiot-input>
       </el-form-item>
       <el-form-item>
-        <span slot="label">
+        <div class="title-label" slot="label">
           <span class="span-box">
             <span> 数据区间颜色 </span>
             <i class="iconfont icon-bangzhu" />
           </span>
-        </span>
+        </div>
+        <apiot-button class="paramsBtn" @click="addColorArea">
+          <i class="iconfont icon-xinzeng m-r-4"></i>添加区间
+        </apiot-button>
         <div class="color__areas">
-          <div class="color__areas__row">
+          <div class="color__areas__row" v-for="(item, index) in activeObj.ranges" :key="index">
             <apiot-input
               class="color__areas__input"
-              v-model.number="activeObj.ranges.range1"
+              v-if="index === 0"
+              value="0"
+              placeholder="请输入固定值"
+              disabled
+            ></apiot-input>
+            <apiot-input
+              class="color__areas__input"
+              v-else
+              v-model.number="activeObj.ranges[index - 1].range"
               placeholder="请输入固定值"
               disabled
             ></apiot-input>
@@ -137,91 +180,29 @@
             ~
             <apiot-input
               class="color__areas__input"
-              v-model.number="activeObj.ranges.range2"
+              value="100"
               placeholder="请输入固定值"
+              v-if="index === activeObj.ranges.length - 1"
             ></apiot-input>
-            %
-            <apiot-color-picker
-              v-model="activeObj.colors.color1"
-              :predefine="selectColorArr"
-            >
-            </apiot-color-picker>
-            <apiot-color-picker
-              v-model="activeObj.colors.color2"
-              :predefine="selectColorArr"
-            >
-            </apiot-color-picker>
-          </div>
-          <div class="color__areas__row">
             <apiot-input
               class="color__areas__input"
-              v-model.number="activeObj.ranges.range2"
+              v-model.number="item.range"
               placeholder="请输入固定值"
-              disabled
-            ></apiot-input>
-            %
-            ~
-            <apiot-input
-              class="color__areas__input"
-              v-model.number="activeObj.ranges.range3"
-              placeholder="请输入固定值"
+              v-else
             ></apiot-input>
             %
             <apiot-color-picker
-              v-model="activeObj.colors.color3"
+              v-model="item.color1"
               :predefine="selectColorArr"
             >
             </apiot-color-picker>
             <apiot-color-picker
-              v-model="activeObj.colors.color4"
+              v-model="item.color2"
               :predefine="selectColorArr"
             >
             </apiot-color-picker>
-          </div>
-          <div class="color__areas__row">
-            <apiot-input
-              class="color__areas__input"
-              v-model.number="activeObj.ranges.range3"
-              placeholder="请输入固定值"
-              disabled
-            ></apiot-input>
-            %
-            ~
-            <apiot-input
-              class="color__areas__input"
-              v-model.number="activeObj.ranges.range4"
-              placeholder="请输入固定值"
-            ></apiot-input>
-            %
-            <apiot-color-picker
-              v-model="activeObj.colors.color5"
-              :predefine="selectColorArr"
-            >
-            </apiot-color-picker>
-            <apiot-color-picker
-              v-model="activeObj.colors.color6"
-              :predefine="selectColorArr"
-            >
-            </apiot-color-picker>
-          </div>
-          <div class="color__areas__row">
-            <apiot-input
-              class="color__areas__input onlyone"
-              v-model.number="activeObj.ranges.range5"
-              placeholder="请输入固定值"
-              disabled
-            ></apiot-input>
-            %
-            <apiot-color-picker
-              v-model="activeObj.colors.color7"
-              :predefine="selectColorArr"
-            >
-            </apiot-color-picker>
-            <apiot-color-picker
-              v-model="activeObj.colors.color8"
-              :predefine="selectColorArr"
-            >
-            </apiot-color-picker>
+            <i class="iconfont icon-guanbi"
+              :class="{noShow: index === 0}" @click="deleteColorArea(index)"></i>
           </div>
         </div>
       </el-form-item>
@@ -249,10 +230,20 @@
           <el-option label="加粗字体" :value="2"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="内容显示">
-        <el-select v-model="activeObj.submitType" placeholder="请选择类型">
+      <el-form-item label="内容显示" v-if="$route.query.isApp !== '1'">
+        <el-select v-model="activeObj.progressShowType" placeholder="请选择类型">
           <el-option label="始终显示" :value="1"></el-option>
           <el-option label="鼠标悬停显示" :value="2"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="提交类型">
+        <el-select
+          v-model="activeObj.submitType"
+          placeholder="请选择类型"
+        >
+          <el-option label="始终提交" :value="1"></el-option>
+          <el-option label="仅显示时提交" :value="2"></el-option>
+          <el-option label="始终不提交" :value="3"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
@@ -301,9 +292,25 @@ export default {
   },
   mounted() {
     this.setRequiredRule();
+    console.log(this.relateObj, 'this.relateObj');
   },
 
   methods: {
+    addColorArea() {
+      const areas = this.activeObj.ranges;
+      areas.push({
+        color1: '#E74D4D',
+        color2: '#FB6F5C',
+        range: 100,
+      });
+      this.activeObj.ranges = areas;
+    },
+    deleteColorArea(index) {
+      if (index === 0) return;
+      const areas = this.activeObj.ranges;
+      areas.splice(index, 1);
+      this.activeObj.ranges = areas;
+    },
     // 关系选择切换
     relateChange(item) {
       this.tableArr = [];
@@ -385,23 +392,6 @@ export default {
 <style lang='scss' scoped>
 @import '../commonConfig';
 
-.relateBox {
-  &__relate,
-  &__table {
-    width: 48% !important;
-  }
-  &__relate {
-    margin-right: 4%;
-  }
-}
-
-.panelBtn {
-  width: 100%;
-  margin-top: 10px;
-  .iconfont {
-    color: $--color-primary;
-  }
-}
 .color__areas__row{
   width: 100%;
   height: 42px;
@@ -443,6 +433,24 @@ export default {
   }
   .onlyone{
     width: 153px;
+  }
+  .icon-guanbi{
+    font-size: 14px;
+    color: #BBC3CD;
+    cursor: pointer;
+    &:hover{
+      color: $--color-primary;
+    }
+  }
+  .noShow{
+    opacity: 0;
+    cursor: inherit;
+  }
+}
+.paramsBtn {
+  width: 100%;
+  .iconfont {
+    color: $--color-primary;
   }
 }
 .font {

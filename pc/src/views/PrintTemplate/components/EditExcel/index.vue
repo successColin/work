@@ -159,14 +159,15 @@ export default {
       isPush: false,
       isNeed: false,
       celldataList: [],
-      imgObj: {}
+      imgObj: {},
+      borderInfo: []
     };
   },
   components: {},
   computed: {
     // 水平位置
     horizontaltype() {
-      return function(v) {
+      return function (v) {
         switch (v) {
           case '0':
             return 'center';
@@ -268,6 +269,12 @@ export default {
         arr.push(childObj);
       });
       this.celldataList = arr[this.activeIndex].celldata;
+
+      this.borderInfo =
+        res[this.activeIndex] &&
+        res[this.activeIndex].config &&
+        res[this.activeIndex].config.borderInfo;
+
       this.$emit('update:excelArr', arr);
 
       this.imgObj = this.luckysheet.getImageOption() || {};
@@ -321,7 +328,7 @@ export default {
       if (this.detailId) {
         const excelData = await getPrintDesign({ id: this.detailId });
         // console.log(JSON.parse(excelData.desingJson));
-        const { globalConfig, excelArr, imgArr } = JSON.parse(excelData.desingJson);
+        const { globalConfig, excelArr, imgArr, borderInfo } = JSON.parse(excelData.desingJson);
         if (excelArr.length !== 0) {
           const fillExcelArr = [];
           excelArrData = [];
@@ -331,6 +338,9 @@ export default {
               order: item.order,
               celldata: item.celldata,
               images: imgArr,
+              config: {
+                borderInfo
+              },
               ...this.sheetObject
             });
             fillExcelArr.push(...item.celldata);
@@ -422,15 +432,15 @@ export default {
         //   fontSize: true, // '字号大小'
         //   bold: true, // '粗体 (Ctrl+B)'
         //   italic: true, // '斜体 (Ctrl+I)'
-        //   strikethrough: true, // '删除线 (Alt+Shift+5)'
-        //   underline: true, // '下划线 (Alt+Shift+6)'
+        //   // strikethrough: true, // '删除线 (Alt+Shift+5)'
+        //   // underline: true, // '下划线 (Alt+Shift+6)'
         //   textColor: true, // '文本颜色'
         //   fillColor: true, // '单元格颜色'
         //   border: true, // '边框'
         //   mergeCell: true, // '合并单元格'
         //   horizontalAlignMode: true, // '水平对齐方式'
         //   verticalAlignMode: true, // '垂直对齐方式'
-        //   textWrapMode: true, // '换行方式'
+        //   // textWrapMode: true, // '换行方式'
         //   image: true // '插入图片'
         // },
         hook: {
@@ -521,7 +531,8 @@ export default {
         maxWidth: this.maxWidth,
         maxHeight: this.maxHeight,
         celldataList: this.celldataList,
-        excelImg: this.imgObj
+        excelImg: this.imgObj,
+        borderInfo: this.borderInfo
       });
       // this.$nextTick(() => {
       //   printJS({

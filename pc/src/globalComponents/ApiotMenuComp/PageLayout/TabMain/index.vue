@@ -123,11 +123,13 @@ import { createUnique } from '@/utils/utils';
 
 export default {
   props: {
-    showType: { // 用于流程
+    showType: {
+      // 用于流程
       type: Object,
       default: () => {}
     },
-    nodeConfig: { // 用于流程
+    nodeConfig: {
+      // 用于流程
       type: Object,
       default: () => {}
     },

@@ -27,8 +27,8 @@ export default {
       // const { host } = window.location;
       // const ip = host.split(':')[0];
       // const currentUrl = `http://${ip}:8085/ureport/designer`;
-      // console.log(currentUrl);
-      return `${this.$store.state.globalConfig.themeConfig.ureportUrl}/ureport/designer`;
+      // console.log(`${this.$store.state.globalConfig.ureportConfig.ureportUrl}/ureport/designer`);
+      return `${this.$store.state.globalConfig.ureportConfig.ureportUrl}/ureport/designer`;
     }
   },
   watch: {},

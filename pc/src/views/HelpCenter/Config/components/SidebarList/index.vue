@@ -24,10 +24,10 @@
 
 <script>
 import {
-  getListModelMenu,
   changeGroupPos,
-  postInsertModel,
+  getListModelMenu,
   postDeleteModel,
+  postInsertModel,
   postModifyModel
 } from '@/api/helpCenter';
 
@@ -109,7 +109,7 @@ export default {
         }
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('common.group') })}${error.name}`
           });
         }
@@ -139,7 +139,7 @@ export default {
     async deleteGroup(item) {
       if (item.tableTotal) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('helpCenter.contentUnderThisgroupAndCannotBeDeleted')
         });
       }

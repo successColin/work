@@ -28,6 +28,12 @@
           placeholder="这里是帮助信息填写"
         ></apiot-input>
       </el-form-item>
+      <el-form-item label="展示类型">
+        <el-select v-model="activeObj.showType" placeholder="">
+          <el-option label="大图展示" :value="1"> </el-option>
+          <el-option label="小图名称展示" :value="2"> </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item v-if="this.relateObj.tableInfo.tableName">
         <span slot="label">
           <span class="span-box">

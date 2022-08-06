@@ -2,6 +2,8 @@
   <!--   v-if="canShow && showInput" -->
   <div
     class="formButton"
+    :canShow="canShow"
+    :showInput="showInput"
     :class="[
       { notSidebar: !isSidebar },
       { notShow: !(canShow && showInput) },
@@ -78,6 +80,7 @@
       :importVisible.sync="importVisible"
       :extraColumnArr="configData.extraColumn"
       :templateId="templateId"
+      :templateName="configData.templateInfo.templateName"
       :tableArr="tableArr"
       :isTree="configData.templateInfo.isTree"
       :sortId="configData.templateInfo.sortId"
@@ -87,9 +90,10 @@
 </template>
 
 <script>
+import axios from 'axios';
 import qs from 'qs';
-import { singleSave, batchSave, batchDelete, selectList } from '@/api/menuConfig';
-import { Decrypt, getBlob, saveAs, formatDate } from '@/utils/utils';
+import { batchDelete, batchSave, selectList, singleSave } from '@/api/menuConfig';
+import { Decrypt, Encrypt, formatDate, getBlob, saveAs } from '@/utils/utils';
 import { lighten } from '@/utils/varyColor';
 
 import query from '@/api/query';
@@ -169,7 +173,8 @@ export default {
       canReadonly: false,
       importVisible: false, // 点击导入可见
       isAdd: false, // 保存操作是否是新增
-      allFormStr: ''
+      allFormStr: '',
+      curSaveRes: null
     };
   },
   mixins: [compMixin],
@@ -268,7 +273,7 @@ export default {
         arr.forEach((comp, index) => {
           if (comp.compType === 1 && comp.notUnique && comp.shouldRepeat) {
             this.$message({
-              type: 'error',
+              type: 'warning',
               message: `${comp.name}已存在`
             });
             return reject();
@@ -307,7 +312,7 @@ export default {
             if (error && typeof error !== 'object') {
               // this.$message.close();
               this.$message({
-                type: 'error',
+                type: 'warning',
                 message: error
               });
             }
@@ -356,7 +361,7 @@ export default {
           const msg = this.configData.ruleArr[index].ruleTip || `按钮第${index}条规则校验失败`;
           this.isLoading = false;
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: msg
           });
         }
@@ -429,6 +434,10 @@ export default {
         if (this.configData.buttonType === 13) {
           this.handleQueryExport();
         }
+        // 下载资料按钮
+        if (this.configData.buttonType === 14) {
+          await this.doExportData();
+        }
         // this.$bus.$emit('btnTrigger', this.configData, this.onlyFlag());
         await this.clickTrigger(this.configData, this.onlyFlag());
         if (this.configData.afterSubmit.type === 2) {
@@ -449,6 +458,61 @@ export default {
         if (this.configData.refreshType === 1) {
           // 刷新当前页
           this.$bus.$emit('reloadArea', 'all', this.onlyFlag());
+        } else if (this.configData.refreshType === 8) {
+          const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
+          // 为true的时候，对当前第一个表单
+          if (isAdd && this.curSaveRes) {
+            this.curSaveRes.batchInfo.forEach((info) => {
+              const obj = info.saveInfo.listInfo[0].find((item) => {
+                if (item.columnName === 'id' && item.columnValue !== 'null') {
+                  return true;
+                }
+                return false;
+              });
+              if (obj) {
+                this.$bus.$emit(
+                  'reloadArea',
+                  'setId',
+                  this.onlyFlag(),
+                  info.compId,
+                  obj.columnValue
+                );
+              }
+            });
+          }
+          // 刷新上一页
+          this.$bus.$emit('reloadArea', 'all', this.getValueFromFather('onlyFlag'));
+        } else if (this.configData.refreshType === 9) {
+          const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
+          // 为true的时候，对当前第一个表单
+          if (isAdd && this.curSaveRes) {
+            this.curSaveRes.batchInfo.forEach((info) => {
+              const obj = info.saveInfo.listInfo[0].find((item) => {
+                if (item.columnName === 'id' && item.columnValue !== 'null') {
+                  return true;
+                }
+                return false;
+              });
+              if (obj) {
+                this.$bus.$emit(
+                  'reloadArea',
+                  'setId',
+                  this.onlyFlag(),
+                  info.compId,
+                  obj.columnValue
+                );
+              }
+            });
+          }
+          // 更新上一页树
+          this.$bus.$emit(
+            'reloadArea',
+            'treeUpdate',
+            this.getValueFromFather('onlyFlag'),
+            this.tableInfo.compId,
+            this.configData.buttonType,
+            isAdd
+          );
         } else if (this.configData.refreshType === 2) {
           // 关闭当前页
           this.$bus.$emit('closePanel', this.onlyFlag());
@@ -464,7 +528,6 @@ export default {
           this.$bus.$emit('reloadArea', 'current', this.onlyFlag(), this.tableInfo.compId);
         } else if (this.configData.refreshType === 6) {
           const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
-          console.log(123);
           // 更新当前树
           this.$bus.$emit(
             'reloadArea',
@@ -478,7 +541,7 @@ export default {
           // 关闭当前页
           this.$bus.$emit('closePanel', this.onlyFlag());
           const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
-          // 更新当前树
+          // 更新上一页树
           this.$bus.$emit(
             'reloadArea',
             'treeUpdate',
@@ -488,7 +551,6 @@ export default {
             isAdd
           );
         }
-        console.log(this.showType, 'zzz', this.nodeConfig);
         if (this.showType && this.showType.type === 'flow') {
           const { checkFormConfig = [] } = this.nodeConfig;
           // eslint-disable-next-line max-len
@@ -505,7 +567,7 @@ export default {
         this.isLoading = false;
         if (error && typeof error !== 'object' && error !== 'cancel') {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: error
           });
         }
@@ -518,12 +580,29 @@ export default {
       }
       return '';
     },
+    getDictStr(comp, columnValue) {
+      const dictArr = this.$store.getters.getCurDict(comp.dataSource.dictObj.dictKey);
+      const obj = dictArr.find((item) => item.value === columnValue);
+      if (obj) {
+        return `${comp.name}:${obj.name}`;
+      }
+      return '';
+    },
+    getShowStr(comp, columnValue, form) {
+      if (comp.enableDict && comp.dataSource.dictObj.dictKey) {
+        const tempStr = this.getDictStr(comp, columnValue);
+        return tempStr;
+      }
+      const v = form[`${comp.compId}_`];
+      return `${comp.name}:${v}`;
+    },
     // 遍历处理保存数据
     resolveSaveData(featureArr, area, data) {
       const form = data || featureArr.form;
       const arr = ['create_time', 'create_user_id', 'modify_time', 'modify_user_id'];
       const columnArr = [];
       const formInfo = [];
+      formInfo.str = '';
       featureArr.children.forEach((comp) => {
         if (
           comp.submitType === 1 ||
@@ -537,7 +616,7 @@ export default {
               return;
             }
           }
-          // 去除修改系统字段的 并且 字段名不成重复
+          // 去除修改系统字段的 并且 字段名不能重复
           if (!arr.includes(comp.dataSource.columnName)) {
             let columnValue = form[comp.compId] == null ? '' : form[comp.compId];
             if (Array.isArray(columnValue)) {
@@ -576,6 +655,34 @@ export default {
                   };
                 }
               }
+              // 按钮是否启用操作日志
+              if (this.configData.enableLog && this.configData.logComp.includes(comp.compId)) {
+                let str = `${comp.name}:${columnValue}`;
+                // 基础组件 不是只读 显示的组件 记录下操作
+                if (
+                  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(comp.compType) &&
+                  !comp.canReadonly &&
+                  comp.canShow
+                ) {
+                  if ([2, 3, 4].includes(comp.compType) && comp.dataSource.dictObj.dictKey) {
+                    const tempStr = this.getDictStr(comp, columnValue);
+                    if (tempStr) {
+                      str = tempStr;
+                    }
+                  }
+                  if ([6, 7].includes(comp.compType)) {
+                    const tempStr = this.getShowStr(comp, columnValue, form);
+                    if (tempStr) {
+                      str = tempStr;
+                    }
+                  }
+                  formInfo.str += `${str},`;
+                }
+                if (['id', 'parent_id', 'position_id'].includes(comp.dataSource.columnName)) {
+                  formInfo.str += `${str},`;
+                }
+              }
+
               if (!columnArr.includes(column.columnName)) {
                 columnArr.push(column.columnName);
                 formInfo.push({
@@ -605,15 +712,31 @@ export default {
     },
     // 表单区处理保存接口参数
     resolveParams() {
+      const { userInfo } = this.$store.state.userCenter;
+      let logContent = `${userInfo.username}(${userInfo.account}):`;
       const params = {
         formInfo: [],
         removeFileIds: this.fileDeleteIds.join(),
         tableName: this.tableInfo.tableInfo.tableName,
         compMap: JSON.stringify(this.getAllForm()),
         menuId: this.$route.params.id,
-        flowType: this.configData.flowType
+        flowType: this.configData.flowType,
+        logData: {
+          content: '',
+          clientType: 'PC',
+          curMenuId: this.$route.params.id
+        }
       };
       params.formInfo = this.resolveSaveData(this.featureArr, this.tableInfo);
+      if (params.formInfo.str) {
+        const operate = this.isAdd ? '新增' : '编辑';
+        logContent += `[${operate}表(${params.tableName})数据:${params.formInfo.str.slice(0, -1)}]`;
+      }
+      delete params.formInfo.str;
+      params.logData.content = Encrypt(logContent);
+      if (!this.configData.enableLog || !this.configData.logComp.length) {
+        delete params.logData;
+      }
       return params;
     },
     // 表单区 批量保存接口
@@ -621,10 +744,15 @@ export default {
       const params = {
         listInfo: [[]],
         removeFileIds: this.fileDeleteIds.join(),
-        tableName: area.tableInfo.tableName
+        tableName: area.tableInfo.tableName,
+        logStr: []
       };
       const feature = area.pageType === 2 ? area.children[1] : area.children[0];
       params.listInfo[0] = this.resolveSaveData(feature, area);
+      if (params.listInfo[0].str) {
+        params.logStr.push(params.listInfo[0].str.slice(0, -1));
+      }
+      delete params.listInfo[0].str;
       params.isAdd = this.isAdd;
       if (area.isTree || (this.getFatherPanel() && this.getFatherPanel().isTree)) {
         params.isTree = 1;
@@ -636,12 +764,18 @@ export default {
       const params = {
         listInfo: [],
         removeFileIds: this.fileDeleteIds.join(),
-        tableName: area.tableInfo.tableName
+        tableName: area.tableInfo.tableName,
+        logStr: []
       };
       const feature = area.pageType === 2 ? area.children[1] : area.children[0];
       area.tableData.forEach((data) => {
         if (!data.notChange) {
-          params.listInfo.push(this.resolveSaveData(feature, area, data));
+          const listInfo = this.resolveSaveData(feature, area, data);
+          if (listInfo.str) {
+            params.logStr.push(listInfo.str.slice(0, -1));
+          }
+          delete listInfo.str;
+          params.listInfo.push(listInfo);
         }
       });
       // console.log(params);
@@ -666,25 +800,43 @@ export default {
     // 批量保存参数设置
     resolveBatchParams(areaArr) {
       // console.log(areaArr);
+      const { userInfo } = this.$store.state.userCenter;
+      let logContent = `${userInfo.username}(${userInfo.account}):`;
       const params = {
         batchInfo: [],
         compMap: JSON.stringify(this.getAllForm()),
         menuId: this.$route.params.id,
-        flowType: this.configData.flowType
+        flowType: this.configData.flowType,
+        logData: {
+          content: '',
+          clientType: 'PC',
+          curMenuId: this.$route.params.id
+        }
       };
       areaArr.forEach((area) => {
         if (
           area.propertyCompName === 'MenuMainConfig' ||
           area.propertyCompName === 'TreeMainConfig'
         ) {
+          const saveInfo = this.resolveFormParams(area);
+          if (saveInfo.logStr.length) {
+            const operate = saveInfo.isAdd ? '新增' : '编辑';
+            logContent += `[${operate}表(${area.tableInfo.tableName})数据:${saveInfo.logStr[0]}],`;
+          }
+          delete saveInfo.logStr;
           params.batchInfo.push({
             compId: area.compId,
             areaType: area.propertyCompName === 'MenuMainConfig' ? 1 : 2,
             relation: area.relation || [],
-            saveInfo: this.resolveFormParams(area)
+            saveInfo
           });
         }
         if (area.propertyCompName === 'TableMainConfig') {
+          const saveInfo = this.resolveFormParams(area);
+          if (saveInfo.logStr.length) {
+            logContent += `[批量保存表(${area.tableInfo.tableName})数据${saveInfo.logStr.length}条`;
+          }
+          delete saveInfo.logStr;
           params.batchInfo.push({
             compId: area.compId,
             areaType: 3,
@@ -693,6 +845,10 @@ export default {
           });
         }
       });
+      params.logData.content = Encrypt(logContent.slice(0, -1));
+      if (!this.configData.enableLog || !this.configData.logComp.length) {
+        delete params.logData;
+      }
       return params;
     },
     // singleSave,batchDelete,singleInsert,singleUpdate
@@ -833,7 +989,7 @@ export default {
         if (this.configData.execFunc) {
           this.bulkAddParams(params);
         }
-        await batchSave(params);
+        this.curSaveRes = await batchSave(params);
       }
       if (this.isTable) {
         // console.log(this.tableInfo, this.featureArr);
@@ -859,7 +1015,12 @@ export default {
         compMap: JSON.stringify(this.getAllForm()),
         menuId: this.$route.params.id,
         batchInfo: [],
-        flowType: this.configData.flowType
+        flowType: this.configData.flowType,
+        logData: {
+          content: '',
+          clientType: 'PC',
+          curMenuId: this.$route.params.id
+        }
       };
       const area = this.tableInfo;
       // 表单区删除 || 表格区表格里面删除
@@ -916,7 +1077,12 @@ export default {
         });
         params.ids = params.ids.slice(0, -1);
       }
-
+      const { userInfo } = this.$store.state.userCenter;
+      const logContent = `${userInfo.username}(${userInfo.account}):[删除表(${params.tableName})数据:id:${params.ids}]`;
+      params.logData.content = Encrypt(logContent);
+      if (!this.configData.enableLog) {
+        delete params.logData;
+      }
       return params;
     },
     // 处理tab区的删除参数
@@ -928,7 +1094,12 @@ export default {
         compMap: JSON.stringify(this.getAllForm()),
         menuId: this.$route.params.id,
         batchInfo: [],
-        flowType: this.configData.flowType
+        flowType: this.configData.flowType,
+        logData: {
+          content: '',
+          clientType: 'PC',
+          curMenuId: this.$route.params.id
+        }
       };
       // 表单区删除
       if (area.propertyCompName === 'MenuMainConfig') {
@@ -965,6 +1136,12 @@ export default {
         params.ids = params.ids.slice(0, -1);
         // // console.log('删除的id', params.ids);
       }
+      const { userInfo } = this.$store.state.userCenter;
+      const logContent = `${userInfo.username}(${userInfo.account}):[删除表(${params.tableName})数据:id:${params.ids}]`;
+      params.logData.content = Encrypt(logContent);
+      if (!this.configData.enableLog) {
+        delete params.logData;
+      }
       return params;
     },
     // 删除
@@ -972,7 +1149,7 @@ export default {
       if (this.isTabBtn) {
         if (this.getResArr.length === 0) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '无可删除区域'
           });
         }
@@ -993,7 +1170,7 @@ export default {
           const table = this.menuMain.$refs[area.compId][0];
           if (table.multiEntityArr.length === 0) {
             this.$message({
-              type: 'error',
+              type: 'warning',
               message: '未选择删除数据'
             });
             return Promise.reject();
@@ -1012,7 +1189,7 @@ export default {
               params.isTree = 1;
               if (+params.ids === 1) {
                 this.$message({
-                  type: 'error',
+                  type: 'warning',
                   message: '不能删除根节点'
                 });
                 return Promise.reject();
@@ -1046,7 +1223,7 @@ export default {
         if (this.tableInfo.propertyCompName === 'TableMainConfig') {
           if (this.multiEntityArr.length === 0 && !this.isTableBtn) {
             this.$message({
-              type: 'error',
+              type: 'warning',
               message: '未选择删除数据'
             });
             return Promise.reject();
@@ -1070,7 +1247,7 @@ export default {
               params.isTree = 1;
               if (+params.ids === 1) {
                 this.$message({
-                  type: 'error',
+                  type: 'warning',
                   message: '不能删除根节点'
                 });
                 return Promise.reject();
@@ -1097,6 +1274,57 @@ export default {
         }
         this.isLoading = false;
       }
+    },
+    // 下载资料
+    async doExportData() {
+      this.isLoading = true;
+      const params = this.resolveDeleteParams();
+      if (this.tableInfo.propertyCompName === 'TableMainConfig') {
+        if (this.multiEntityArr.length === 0 && !this.isTableBtn) {
+          this.$message({
+            type: 'warning',
+            message: '未选择数据'
+          });
+          this.isLoading = false;
+          return Promise.reject();
+        }
+      }
+      const { downLoadType = 1, fileColumns = [], layeredStrategy, downloadName } = this.configData;
+      const obj = {
+        fileColumns: [1, 2].includes(downLoadType) ? fileColumns : [],
+        relatedData: [1, 3].includes(downLoadType)
+      };
+      const param = {
+        bizIds: params.ids,
+        bizTableName: params.tableName,
+        fileScope: obj,
+        layeredStrategy: layeredStrategy ? JSON.parse(layeredStrategy) : [],
+        logData: {
+          content: '',
+          clientType: 'PC',
+          curMenuId: this.$route.params.id
+        }
+      };
+      const { userInfo } = this.$store.state.userCenter;
+      const logContent = `${userInfo.username}(${userInfo.account}):[下载表(${params.tableName})资料:id:${params.ids}]`;
+      param.logData.content = Encrypt(logContent);
+      if (!this.configData.enableLog) {
+        delete param.logData;
+      }
+      await axios({
+        method: 'post',
+        url: `${query.DOWNlOAD_RELATIONS_Files}`,
+        data: qs.stringify(param, { arrayFormat: 'indices', allowDots: true }),
+        responseType: 'blob',
+        headers: {
+          token: Decrypt(localStorage.getItem('token')),
+          'content-type': 'application/x-www-form-urlencoded'
+        }
+      }).then((res) => {
+        console.log(res);
+        saveAs(res.data, `${downloadName}.zip`);
+        this.isLoading = false;
+      });
     },
     // 处理过滤条件变量为真实值
     resolveFilterVar(panelObj) {
@@ -1171,7 +1399,7 @@ export default {
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
         panelObj.onlyFlag = this.onlyFlag();
-        console.log(this.tableInfo);
+        // console.log(this.tableInfo);
         if (this.tableInfo.isTree && this.tableInfo.compName !== 'MultiTree') {
           panelObj.isTree = true;
         }
@@ -1201,7 +1429,7 @@ export default {
         if (this.isTableBtn) {
           if (this.tableInfo.lineEditable) {
             return this.$message({
-              type: 'error',
+              type: 'warning',
               message: '行编辑状态不需要编辑弹窗'
             });
           }
@@ -1210,7 +1438,7 @@ export default {
           const len = this.multiEntityArr.length;
           if (len !== 1) {
             return this.$message({
-              type: 'error',
+              type: 'warning',
               message: '请选中有且仅有一条数据'
             });
           }
@@ -1380,7 +1608,10 @@ export default {
       console.log(tableComp);
       tableComp.forEach((comp, i) => {
         if (i !== 0) {
-          const currentObj = collectionArr.find((c) => c.name === comp.dataSource.relateName);
+          const currentObj = collectionArr.find(
+            (c) => `${c.name}(${c.key1})` === comp.dataSource.relateName
+          );
+          console.log(collectionArr, currentObj);
           let tableName = '';
           const tabletitle = comp.dataSource.tableName;
           if (tabletitle === mainTable) {
@@ -1394,7 +1625,7 @@ export default {
             }
           }
           if (tableName && comp.dataSource.columnName) {
-            columns.push(`${tableName}.${comp.dataSource.columnName}`);
+            columns.push(`${tableName}.${comp.dataSource.columnName} ${comp.compId}`);
           }
           memo.push(comp.name);
         }
@@ -1412,15 +1643,28 @@ export default {
         //   }&isHeader=${isHeader}`,
         //   chooseArr
         // );
+
+        let url = `${query.DO_Export_Template}?chooseIds=${chooseArr.join(',')}&id=${
+          this.templateId
+        }&isHeader=${isHeader}&menuId=${this.$route.params.id}&userId=${
+          this.$store.state.userCenter.userInfo.id
+        }`;
+        if (this.configData.enableLog) {
+          const { userInfo } = this.$store.state.userCenter;
+          const b =
+            this.tableArr.length === 1
+              ? `表[${this.tableArr.join()}]`
+              : `多表[${this.tableArr.join()}]`;
+          const logContent = `${userInfo.username}(${userInfo.account})导出${b},模板id:${this.templateId},模板名称:${templateName}`;
+          url += `&logData.content=${Encrypt(logContent)}&logData.clientType=PC&logData.curMenuId=${
+            this.$route.params.id
+          }`;
+        }
         getBlob(
           {
-            url: `${query.DO_Export_Template}?chooseIds=${chooseArr.join(',')}&id=${
-              this.templateId
-            }&isHeader=${isHeader}&menuId=${this.$route.params.id}&userId=${
-              this.$store.state.userCenter.userInfo.id
-            }`,
+            url,
             token: Decrypt(localStorage.getItem('token') || ''),
-            method: 'GET'
+            method: 'POST'
           },
           (res) => {
             const names = templateName || '导出模板';
@@ -1444,10 +1688,12 @@ export default {
           filterTermStr = this.tableInfo.filterTermStr;
           filterTermSql = this.tableInfo.filterTermSql;
         } else {
-          const panelFilter = this.getFatherPanel().panelFilter[0];
-          filterTermType = panelFilter.filterTermType;
-          filterTermStr = panelFilter.filterTermStr;
-          filterTermSql = panelFilter.filterTermSql;
+          const panelFilter = this.getFatherPanel() && this.getFatherPanel().panelFilter[0];
+          if (panelFilter) {
+            filterTermType = panelFilter.filterTermType;
+            filterTermStr = panelFilter.filterTermStr;
+            filterTermSql = panelFilter.filterTermSql;
+          }
         }
         if (filterTermType === 1) {
           if (filterTermStr) {
@@ -1500,23 +1746,31 @@ export default {
 
         console.log(qs.stringify(collectionArr));
         console.log(encodeURI(JSON.stringify(collectionArr)));
+
+        let url = `${query.DO_Export_Interface}?isHeader=${
+          needField ? 1 : 0
+        }&mainTable=${mainTable}&chooseIds=${chooseArr.join(',')}&columns=${columns.join(
+          ','
+        )}&foreignJson=${encodeURI(JSON.stringify(collectionArr))}&memo=${memo.join(',')}&menuId=${
+          this.$route.params.id
+        }&userId=${
+          this.$store.state.userCenter.userInfo.id
+        }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(this.getAllForm()))}`;
+        if (this.configData.enableLog) {
+          const { userInfo } = this.$store.state.userCenter;
+          const logContent = `${userInfo.username}(${userInfo.account})导出界面(${this.$route.query.title})数据,表名:${mainTable}`;
+          url += `&logData.content=${Encrypt(logContent)}&logData.clientType=PC&logData.curMenuId=${
+            this.$route.params.id
+          }`;
+        }
         getBlob(
           {
-            url: `${query.DO_Export_Interface}?isHeader=${
-              needField ? 1 : 0
-            }&mainTable=${mainTable}&chooseIds=${chooseArr.join(',')}&columns=${columns.join(
-              ','
-            )}&foreignJson=${encodeURI(JSON.stringify(collectionArr))}&memo=${memo.join(
-              ','
-            )}&menuId=${this.$route.params.id}&userId=${
-              this.$store.state.userCenter.userInfo.id
-            }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(this.getAllForm()))}`,
+            url,
             token: Decrypt(localStorage.getItem('token') || ''),
-            method: 'GET'
+            method: 'POST'
           },
           (res) => {
-            const names = templateName || '导出模板';
-            saveAs(res, `${names}.xls`);
+            saveAs(res, `${this.$route.query.title}.xls`);
           }
         );
       }
@@ -1553,7 +1807,7 @@ export default {
       }
       if (arr && arr.length === 0) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择数据'
         });
         return Promise.reject();
@@ -1631,6 +1885,9 @@ export default {
           return;
         }
         const keys = Object.keys(this.getInitComp());
+        if (keys.length === 0) {
+          return;
+        }
         this.canShow = this.showInput;
         this.canReadonly = this.configData.canReadonly || this.configData.singleStatus === 2;
         keys.forEach((key) => {
@@ -1691,11 +1948,15 @@ export default {
   }
   &.notShow {
     // transition: all 0.1s linear;
-    display: none;
     opacity: 0;
     width: 0 !important;
     margin-left: 0;
     margin-top: 0;
+    ::v-deep {
+      .el-button {
+        display: none;
+      }
+    }
   }
   .iconfont {
     color: $--color-primary;

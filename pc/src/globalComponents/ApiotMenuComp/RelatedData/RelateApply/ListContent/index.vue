@@ -316,5 +316,16 @@ export default {
       cursor: pointer;
     }
   }
+  ::v-deep{
+    .el-table--border .el-table__cell{
+      border-right: none;
+    }
+    .el-table__row>td:first-child{
+      border-right: 1px solid #EBEEF5;
+    }
+    .el-table__header .el-table_1_column_1 {
+      border-right: 1px solid #EBEEF5;
+    }
+  }
 }
 </style>

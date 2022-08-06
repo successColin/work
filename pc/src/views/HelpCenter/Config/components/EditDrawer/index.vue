@@ -175,10 +175,10 @@
 
 <script>
 import {
+  postDeleteHelpFile,
   postInsertDetail,
   postModifyDetail,
-  postUploadHelp,
-  postDeleteHelpFile
+  postUploadHelp
 } from '@/api/helpCenter';
 import MyVideo from '@/views/HelpCenter/component/MyVideo';
 // import { postFileUpload } from '@/api/common';
@@ -490,21 +490,21 @@ export default {
       const imgType = type.split('/')[1];
       if (!isLt2M) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('helpCenter.uploadaAvatarPictureSizeMustNotExceed')
         });
         return false;
       }
       if (this.acceptImg.indexOf(imgType) === -1) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('helpCenter.PleaseUploadJPEGPNGJPGFormat')
         });
         return false;
       }
       if (this.imgArr.length !== 0) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('helpCenter.onlyOneImageCanBeUploadedForTheVideoCover')
         });
         return false;

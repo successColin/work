@@ -36,7 +36,7 @@
         @keyup.enter.native="doSearch"
         @input="reset"
       ></apiot-input>
-      <i class="iconfont icon-sousuo"></i>
+      <i class="iconfont icon-sousuo" @click="doSearch"></i>
     </div>
     <div class="leftWrap_ul_listWrap">
       <OrgTree v-if="defaultLeftType === 'org'" ref="org" isolationSign="user"></OrgTree>

@@ -254,7 +254,7 @@ export default {
       // 为空处理
       if (!this.groupname) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           showClose: true,
           message: this.$t('common.notEmpty', {
             name: this.$t('common.name', { name: this.$t('entity.group') })
@@ -285,7 +285,7 @@ export default {
     doAddGroup() {
       if (!this.input) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('common.notEmpty', {
             name: this.$t('common.name', { name: this.$t('entity.group') })
           })

@@ -134,7 +134,7 @@
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
       </el-form-item>
-      <el-form-item label="状态" v-if="isShow">
+      <el-form-item label="状态">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"

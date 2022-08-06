@@ -9,6 +9,7 @@
 <template>
   <div class="headersWrap">
     <div class="headersBox" v-for="(item,index) in value" :key="item.uuid">
+      <div style="marginBottom: 10px;fontSize: 13px;color:#333333;">参数{{index + 1}}</div>
       <div class="paramsWrap">
         <apiot-input v-model="item.name"></apiot-input>
       </div>
@@ -30,8 +31,9 @@
             :configData="configData"
             :triggerCompMap="triggerCompMap"
             v-model="item.content"
+            :showType="[1, 6]"
         ></select-formula>
-        <i class="iconfont icon-shanchu" @click="deleteHeader(index)"></i>
+<!--        <i class="iconfont icon-shanchu" @click="deleteHeader(index)"></i>-->
       </div>
 
     </div>
@@ -165,7 +167,7 @@ export default {
         margin-bottom: 0;
       }
       .formulaContent, .selectFormulaWrap {
-        width: calc(100% - 50px);
+        //width: calc(100% - 50px);
       }
 
       .icon-shanchu {

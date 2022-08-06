@@ -118,7 +118,7 @@ export default {
         this.$emit('update:multiArr', multiTempArr);
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: `${value}已存在`
         });
       }

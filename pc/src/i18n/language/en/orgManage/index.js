@@ -25,5 +25,6 @@ export default {
     collection: 'collection',
     cancelCollection: 'cancel collection',
     pleaseSelectManager: 'Please select Manager',
+    keycode: 'keycode'
   },
 };

@@ -283,6 +283,8 @@ export default {
         const api = this.getSearchApi();
         const res = await api(params);
         let childs = res;
+        console.log(res);
+        console.log(this.curId);
         if (this.isSingle && this.curId) {
           childs = res.map((item) => {
             let arr = [];
@@ -298,7 +300,9 @@ export default {
             }
             return item;
           });
+          console.log(childs);
         }
+        console.log(childs);
         this.treeData = childs;
         this.loading = false;
       } catch (e) {

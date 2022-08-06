@@ -108,66 +108,108 @@
           ></filterable-input>
         </div>
       </div>
-      <apiot-button class="list-btn" @click="add">
-        <i class="icon-xinzeng iconfont m-r-4"></i>
-        添加摘要信息
-      </apiot-button>
-      <div class="form-item">
-        <div class="form-item-content">
-          <div class="abstractDesc">
-            <div class="abstractHeader">
-              <div>序号</div>
-              <div>摘要字段</div>
-              <div>字段描述</div>
-              <div>操作</div>
-            </div>
-            <div class="abstractTbody">
-              <apiot-nodata
-                  v-if="!descConfigList.length"
-                  style="height: 150px;"
-              ></apiot-nodata>
-              <div v-for="(item,i) in descConfigList"
-                   :key="i"
-                   class="abstractTr"
-              >
-                <div>{{ i + 1 }}</div>
-                <div>
-                  <apiot-input v-model="item.key"></apiot-input>
-                </div>
-                <div>
-                  <apiot-input v-model="item.name"></apiot-input>
-                </div>
-                <div><span @click="del(i)" class="iconfont icon-shanchu"></span></div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div style="margin-top: 10px;">
+        <apiot-button class="list-btn" @click="doClick">
+          <i class="icon-xinzeng iconfont m-r-4"></i>
+          摘要信息配置
+        </apiot-button>
       </div>
-      <!--      <div class="form-item">-->
-      <!--        <div class="form-item-label">人工节点通知</div>-->
-      <!--        <div class="form-item-content">-->
-      <!--          <el-checkbox v-model="radio2" label="工作流触发者不发送通知"></el-checkbox>-->
-      <!--        </div>-->
-      <!--      </div>-->
-      <!--      <div class="form-item">-->
-      <!--        <div class="form-item-content">-->
-      <!--          <div class="item-content-box">-->
-      <!--            <div class="box-left">允许查看流程图</div>-->
-      <!--            <div class="box-right">-->
-      <!--              <el-switch-->
-      <!--                  v-model="enabled"-->
-      <!--                  active-color="#4689F5"-->
-      <!--                  inactive-color="#E0E0E0">-->
-      <!--              </el-switch>-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </div>-->
+      <div style="margin-top: 10px;">
+        <apiot-button class="list-btn" @click="relateDialog=true">
+          <i class="icon-xinzeng iconfont m-r-4"></i>
+          设置关联表
+        </apiot-button>
+      </div>
+      <apiot-dialog
+          :visible.sync="visible1"
+          title="设置摘要信息"
+          @sure-click="handleSaveConfig"
+      >
+        <div class="summarySettings">
+          <apiot-button @click="add">
+            <i class="iconfont icon-xinzeng m-r-4"></i
+            >{{ $t('common.add', { name: '' }) }}
+          </apiot-button>
+        </div>
+        <apiot-table
+            class="summarySettingsWrap"
+            :showSelection="false"
+            :isNeedRowDrop="false"
+            :isNeedColumnDrop="false"
+            :showSort="true"
+            :isAnimate="false"
+            rowKey="index"
+            :tableData="descConfigList"
+            style="width: 100%">
+          <el-table-column
+              prop="key"
+              label="字段"
+          >
+            <template slot-scope="scope">
+              <el-select
+                  v-model="scope.row.key"
+                  filterable
+                  placeholder="请选择字段"
+                  @change="changeColumn($event, scope.row, scope.$index, 'key')"
+              >
+                <el-option
+                    v-for="item in fieldOptions"
+                    :key="item.columnName"
+                    :label="`${item.columnName}(${item.memo})`"
+                    :value="item.columnName"
+                >
+                </el-option>
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="enumeration"
+              label="枚举">
+            <template slot-scope="scope">
+              <filterable-input
+                  v-show="visible1"
+                  class="task__filterableInput"
+                  placeholder="请选择字典"
+                  :showInfo="{ dictKey: scope.row.dictKey, dictName: scope.row.dictName }"
+                  :hasPagination="true"
+                  :dialogType="3"
+                  @selectRes="changeColumn1($event, scope.row, scope.$index, 'enumeration')"
+              ></filterable-input>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="name"
+              label="描述">
+            <template slot-scope="scope">
+              <apiot-input
+                  v-model="scope.row.name"
+                  @input="changeColumn($event, scope.row, scope.$index, 'name')"
+              ></apiot-input>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="name1"
+              width="50"
+              label="操作">
+            <template slot-scope="scope">
+              <span @click="del(scope.$index)" class="iconfont icon-shanchu"></span>
+            </template>
+          </el-table-column>
+        </apiot-table>
+      </apiot-dialog>
+      <!-- 配置关联表弹窗 -->
+      <RelateTableDialog
+          :visible.sync="relateDialog"
+          :getCurrentTab="getCurrentTab"
+      ></RelateTableDialog>
     </div>
   </div>
 </template>
 
 <script>
+import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
+import { getFields } from '@/api/flow';
+
 export default {
   props: {
     flowData: {
@@ -183,6 +225,13 @@ export default {
   },
   data() {
     return {
+      getCurrentTab: {
+        tableInfo: { tableName: '' },
+        relateTableArr: [],
+        relateTableIndex: 0
+      },
+      relateDialog: false,
+      visible1: false,
       pcPanelId: null, // pc面板id
       pcPanelName: '', // pc面板名称
       appPanelId: null, // app面板id
@@ -199,10 +248,15 @@ export default {
       approveNode: '', // 撤回的审批节点
       tabOptions: [], // 面板
       descConfigList: [], // 摘要信息配置
+      descConfigListOrigin: [], // 初始数据
+      tableName: '',
+      fieldOptions: []
     };
   },
 
-  components: {},
+  components: {
+    RelateTableDialog
+  },
 
   computed: {},
 
@@ -237,10 +291,70 @@ export default {
           this.getFieldList();
         }
       }
+    },
+    visible1: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        console.log(v);
+        if (!v) {
+          this.descConfigList = JSON.parse(JSON.stringify(this.descConfigListOrigin));
+        }
+      }
+    },
+    descConfigList: {
+      handler(v) {
+        console.log(v, 'zzz');
+      }
     }
   },
 
   methods: {
+    async getFieldList() {
+      // 获取字段列表
+      this.fieldOptions = await getFields({
+        columnTypes: '',
+        tableName: this.tableName
+      });
+
+      // console.log('获取');
+    },
+    handleSaveConfig() {
+      this.descConfigListOrigin = JSON.parse(JSON.stringify(this.descConfigList));
+      if (this.descConfigList.length) {
+        let isTrue = false;
+        this.descConfigList.forEach((item) => {
+          if (!item.key || !item.name) {
+            isTrue = true;
+          }
+        });
+        if (isTrue) {
+          this.$message.error('摘要信息请填写完整!');
+        } else {
+          this.visible1 = false;
+        }
+      } else {
+        this.visible1 = false;
+      }
+    },
+    changeColumn1(value, row, i) {
+      const obj = this.descConfigList[i];
+      const newObj = { ...obj, dictKey: value.dictKey, dictName: value.dictName };
+      this.descConfigList.splice(i, 1, newObj);
+    },
+    changeColumn(value, row, i, key) {
+      const obj = this.descConfigList[i];
+      const newObj = { ...obj, [key]: value };
+      this.descConfigList.splice(i, 1, newObj);
+    },
+    doClick() {
+      if (!this.tableName) {
+        this.$message.error('请选择触发源!');
+        return;
+      }
+      this.visible1 = true;
+      this.getFieldList();
+    },
     del(i) {
       this.descConfigList.splice(i, 1);
     },
@@ -256,7 +370,11 @@ export default {
       });
     },
     init() {
-      const { globalAttributes } = this.currentVersion;
+      const { globalAttributes, workflowTree = {} } = this.currentVersion;
+      const { type, properties } = workflowTree;
+      if (type === 'start' && properties) {
+        this.tableName = properties.tableName;
+      }
       if (globalAttributes && JSON.stringify(globalAttributes) !== '{}') {
         const {
           descConfigList = [],
@@ -270,9 +388,11 @@ export default {
           pcPanelName = '', // pc面板名称
           appPanelId = null, // app面板id
           appPanelName = '', // app面板名称
+          tableRelation
         } = globalAttributes;
         this.lastAllowRevokeNodeId = lastAllowRevokeNodeId;
         this.descConfigList = descConfigList;
+        this.descConfigListOrigin = JSON.parse(JSON.stringify(descConfigList));
         this.allowRevoke = allowRevoke;
         if (isAlreadyCheckUserAutoPass) {
           this.checkList.push('isAlreadyCheckUserAutoPass');
@@ -290,6 +410,11 @@ export default {
         this.pcPanelName = pcPanelName; // pc面板名称
         this.appPanelId = appPanelId; // app面板id
         this.appPanelName = appPanelName; // app面板名称
+        this.getCurrentTab = tableRelation ? JSON.parse(tableRelation) : {
+          tableInfo: { tableName: this.tableName },
+          relateTableArr: [],
+          relateTableIndex: 0
+        };
       }
     },
     selectPane(e, key) {
@@ -544,6 +669,30 @@ export default {
         }
       }
     }
+  }
+  .summarySettingsWrap{
+    .icon-shanchu {
+      color: #BBC3CD;
+      cursor: pointer;
+    }
+    .icon-shanchu:hover {
+      color: #4689f5;
+    }
+    ::v-deep{
+      .filterableInput__result--table{
+        top: 2px;
+        right: 3px;
+        bottom: 5px;
+        left: 3px;
+      }
+      .filterableInput__con .icon-jiahao{
+        bottom: 3px;
+      }
+    }
+  }
+  .summarySettings{
+    margin-bottom: 10px;
+    text-align: left;
   }
 
   ::v-deep {

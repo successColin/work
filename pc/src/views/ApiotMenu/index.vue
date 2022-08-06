@@ -525,6 +525,7 @@ export default {
       list.forEach((item) => {
         const { compId, children, name } = item;
         const index = checkFormConfig.findIndex((config) => config.compId === compId);
+        // console.log(index, name, compId);
         if (index !== -1) {
           const config = checkFormConfig[index];
           // 如果流程配置中 和当前控件中都存在必填属性，将控件属性修改成配置的值
@@ -567,22 +568,25 @@ export default {
             }
           }
           if (isExistInObj(config, 'canEdit') && isExistInObj(item, 'singleStatus')) {
-            if (config.canEdit) {
-              item.singleStatus = 1;
-            } else {
-              item.singleStatus = 2;
-            }
+            // if (config.canEdit) {
+            //   item.singleStatus = 1;
+            // } else {
+            //   item.singleStatus = 2;
+            // }
+            item.canReadonly = !config.canEdit;
           }
           if (isExistInObj(config, 'canShow') && isExistInObj(item, 'singleStatus')) {
-            if (config.canShow) {
-              if (config.canEdit) {
-                item.singleStatus = 1;
-              } else {
-                item.singleStatus = 2;
-              }
-            } else {
-              item.singleStatus = 4;
-            }
+            item.canShow = config.config;
+            // if (config.canShow) {
+            //   if (config.canEdit) {
+            //     item.singleStatus = 1;
+            //   } else {
+            //     item.singleStatus = 2;
+            //   }
+            // } else {
+            //   console.log(item, item.name, item.compId, JSON.parse(JSON.stringify(item)));
+            //   item.singleStatus = 4;
+            // }
           }
           if (item.compName === 'FormButton' && isExistInObj(config, 'canShow')) {
             item.canShow = config.canShow;
@@ -591,7 +595,6 @@ export default {
             item.canReadonly = !config.canEdit;
           }
         }
-
         if (children && Array.isArray(children) && children.length) {
           this.reduceData(children, item);
         }
@@ -742,9 +745,11 @@ export default {
     // 处理值去设置
     resolveRes(v) {
       if (v) {
-        const arr = v.split(',');
+        const arr = typeof v === 'string' ? v.split(',') : v;
         arr.forEach((item, index) => {
-          arr[index] = +item;
+          if (!Object.is(NaN, +item)) {
+            arr[index] = +item;
+          }
         });
         return arr;
       }
@@ -1087,7 +1092,6 @@ export default {
           // console.log(comp, 111);
           let tab = null;
           if (comp) {
-            // console.log(item.affectType);
             switch (item.affectType) {
               case 1:
                 // 显隐
@@ -1140,7 +1144,7 @@ export default {
                   if ([3].includes(comp.compType)) {
                     v = +v;
                   }
-                  if ([4].includes(comp.compType)) {
+                  if ([4, 25].includes(comp.compType)) {
                     v = this.resolveRes(v);
                   }
                   tab.form[comp.compId] = v;
@@ -1180,7 +1184,7 @@ export default {
                       v = +v;
                     }
                   }
-                  if ([4].includes(comp.compType)) {
+                  if ([4, 25].includes(comp.compType)) {
                     v = this.resolveRes(v);
                   }
                   if ([6, 7, 15].includes(comp.compType)) {

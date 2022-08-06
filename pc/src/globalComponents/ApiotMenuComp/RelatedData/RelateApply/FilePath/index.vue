@@ -66,6 +66,10 @@ export default {
       font-weight: 400;
       color: #666666;
     }
+    .el-breadcrumb .el-breadcrumb__item:not(.el-breadcrumb__item:last-child):hover
+    .el-breadcrumb__inner{
+      color: #333333;
+    }
   }
 }
 </style>

@@ -36,7 +36,7 @@ export default {
     JOB_TYPE: [], // 定时任务类型
     JOB_STATUS: [], // 定时任务状态
     JOB_EXECUTE_RESULT: [], // 定时任务执行结果
-    // DICT-00128(打印模板模板类型),DICT-00131(打印模板元素类型)
+    // PRINT_TYPE(打印模板模板类型),PRINT_ELE_TYPE(打印模板元素类型)
     TRIGGER_TYPE: [
       {
         name: '影响控件属性',
@@ -66,7 +66,7 @@ export default {
   },
   getters: {
     getCurDict(state) {
-      return function(dictName) {
+      return function (dictName) {
         return state[dictName];
       };
     },

@@ -102,8 +102,21 @@
         </div>
       </div>
     </div> -->
-    <div class="basic__item whole-line">
-      <label class="basic__item__label">{{
+    <div class="basic__item">
+      <label class="basic__item__label">绑定浙政钉</label>
+      <div class="basic__item__content">
+        <p>{{ info.dingTalk }}</p>
+        <div class="basic__item__content__operation">
+          <span v-if="info.dingTalk" @click="handleZzdBind">{{
+            $t('common.modify')
+          }}</span>
+          <span v-else @click="handleZzdBind">{{ $t('userCenter.bind') }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- whole-line -->
+    <div class="basic__item">
+      <label class="basic__item__label even-label">{{
         $t('userCenter.personalSignature')
       }}</label>
       <div class="basic__item__content">
@@ -150,12 +163,29 @@
       :visible.sync="visibleBindEmail"
       :userInfo="userInfo"
     ></bind-email>
+    <apiot-dialog
+      width="68%"
+      :title="info.dingTalk ? '修改关联浙政钉' : '添加关联浙政钉'"
+      :visible.sync="visibleZzd"
+      :isShowSure="false"
+      :cancle-click="handleZzdBindOk"
+    >
+      <iframe
+        class="Iframe"
+        :src="$store.state.globalConfig.zzdScan"
+        :frameBorder="0"
+        width="210"
+        height="280"
+        scrolling="no"
+      />
+    </apiot-dialog>
   </div>
 </template>
 
 <script>
 import userAvatar from '@/views/orgManage/components/userAvatar/index';
-import { editUserName, editUserSignature } from '@/api/userCenter.js';
+import { editUserName, editUserSignature, getPersonalCenterUser } from '@/api/userCenter.js';
+import { zwdingtalkScanLogin } from '@/api/login.js';
 import modifyTelephone from './components/modifyTelephone/index';
 import modifyAvatar from './components/modifyAvatar/index';
 import bindEmail from './components/bindEmail/index';
@@ -176,6 +206,7 @@ export default {
       visibleAvatar: false,
       visibleTelphone: false,
       visibleBindEmail: false,
+      visibleZzd: false,
       changeType: 'phone',
       info: {}
     };
@@ -196,9 +227,31 @@ export default {
 
   mounted() {
     this.info = this.userInfo;
+    window.addEventListener('message', this.scanCode);
+  },
+
+  destroyed() {
+    window.removeEventListener('message', this.scanCode);
   },
 
   methods: {
+    async scanCode(e) {
+      const code = e.data && e.data.code;
+      if (code) {
+        await zwdingtalkScanLogin({
+          code
+        });
+        const res = await getPersonalCenterUser();
+        this.info = res;
+        this.$store.commit('setUserInfo', res);
+      }
+    },
+    handleZzdBind() {
+      this.visibleZzd = true;
+    },
+    handleZzdBindOk() {
+      this.visibleZzd = false;
+    },
     editName(type) {
       this.isEditName = type;
       if (!type) {
@@ -282,6 +335,11 @@ export default {
   width: 100%;
   overflow: hidden;
   font-size: 13px;
+  ::v-deep {
+    .el-dialog__body {
+      height: 322px;
+    }
+  }
   &__item {
     width: 50%;
     height: 72px;
@@ -325,5 +383,10 @@ export default {
   .whole-line {
     width: 100%;
   }
+}
+.Iframe {
+  width: 100%;
+  position: relative;
+  top: -40px;
 }
 </style>

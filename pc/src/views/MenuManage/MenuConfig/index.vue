@@ -35,6 +35,7 @@ import ParamsConfig from './components/ParamsConfig';
 import PaneManage from './components/PaneManage';
 
 export default {
+  name: 'MenuConfig',
   data() {
     return {
       activeName: 'PageConfig',

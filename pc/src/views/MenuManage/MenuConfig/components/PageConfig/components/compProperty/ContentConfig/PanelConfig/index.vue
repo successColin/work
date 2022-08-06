@@ -10,7 +10,12 @@
     >
       <el-form label-position="top" label-width="80px">
         <div class="form--line">
-          <el-form-item label="关联面板" class="form--child" prop="tableName">
+          <el-form-item
+            label="关联面板"
+            class="form--child"
+            prop="tableName"
+            :style="`${isSelPanel ? 'flex: 0 0 50%' : ''}`"
+          >
             <filterable-input
               ref="filterableInput"
               class="panelInput m-r-10"
@@ -37,7 +42,7 @@
               ></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="弹窗标题" class="form--child">
+          <el-form-item label="弹窗标题" class="form--child" v-if="!isSelPanel">
             <apiot-input
               v-model="activeObj.dialogTitle"
               placeholder="请输入弹窗标题"
@@ -239,6 +244,9 @@ export default {
     // 所有组件平坦化
     getAllcheck: {
       type: Object
+    },
+    panelCompId: {
+      type: String
     }
   },
   computed: {
@@ -377,6 +385,9 @@ export default {
         });
       });
       return curInfo;
+    },
+    getPanelCompId() {
+      return this.panelCompId || this.activeObj.compId;
     }
   },
   data() {
@@ -404,9 +415,9 @@ export default {
       !this.isCustomPage &&
       this.configData.length &&
       this.configData[0].paneObj &&
-      this.configData[0].paneObj[this.activeObj.compId]
+      this.configData[0].paneObj[this.getPanelCompId]
     ) {
-      this.curPaneObj = this.configData[0].paneObj[this.activeObj.compId];
+      this.curPaneObj = this.configData[0].paneObj[this.getPanelCompId];
       this.getPaneConfig();
     }
     if (this.isCustomPage && JSON.stringify(this.tabPaneConfig) !== '{}') {
@@ -488,7 +499,7 @@ export default {
           panelFilter: [] // 面板过滤条件
         };
         if (!this.isCustomPage) {
-          this.configData[0].paneObj[this.activeObj.compId] = this.curPaneObj;
+          this.configData[0].paneObj[this.getPanelCompId] = this.curPaneObj;
         }
         return;
       }
@@ -502,7 +513,7 @@ export default {
         this.curPaneObj.panelFilter = [];
         this.curPaneObj.panelClassify = pane.panelClassify;
         if (!this.isCustomPage) {
-          this.configData[0].paneObj[this.activeObj.compId] = this.curPaneObj;
+          this.configData[0].paneObj[this.getPanelCompId] = this.curPaneObj;
         }
         const data = await getSysDesignMenu({
           sysMenuDesignId: pane.sysMenuDesignId

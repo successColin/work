@@ -17,6 +17,9 @@ export default {
     };
   },
   mounted() {
+    if (this.configData.needPermissions == null) {
+      this.configData.needPermissions = true;
+    }
     if (this.configData.children.length === 0 && this.isConfig) {
       this.initArea();
     }

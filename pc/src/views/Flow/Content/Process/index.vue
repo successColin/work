@@ -214,7 +214,7 @@ export default {
      * 属性面板提交事件
      * @param { Object } value - 被编辑的节点的properties属性对象
      */
-    onPropEditConfirm(value, content) {
+    async onPropEditConfirm(value, content, others) {
       this.activeData.content = content || '请设置条件';
       // console.log(value);
       // const oldProp = this.activeData.properties;
@@ -226,15 +226,22 @@ export default {
         // && NodeUtils.resortPrioByCNode(this.activeData, oldProp.priority, this.data);
         NodeUtils.setDefaultCondition(this.activeData, this.data);
       }
-      this.handleUpdateNodeInfo(value, content);
+      if (others) {
+        this.activeVersion = {
+          ...this.activeVersion,
+          globalAttributes: {
+            ...this.activeVersion.globalAttributes,
+            tableRelation: others
+          }
+        };
+      }
+      await this.handleUpdateNodeInfo(value, content);
       // if (NodeUtils.isStartNode(this.activeData)) this.$emit('startNodeChange', this.data);
       this.onClosePanel();
     },
     async handleUpdateNodeInfo(value, content) {
       const { config } = value;
-      console.log(config);
       const { id, ...rest } = this.nodeDataSource;
-      console.log(this.nodeDataSource);
       const params = {
         // workflowNode: {
         id,

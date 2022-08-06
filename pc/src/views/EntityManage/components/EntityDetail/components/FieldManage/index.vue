@@ -54,8 +54,8 @@
 </template>
 
 <script>
+import { batchDeleteColumns, listSysEntityColumns } from '@/api/entityManage';
 import bus from '@/utils/bus';
-import { listSysEntityColumns, batchDeleteColumns } from '@/api/entityManage';
 import AddField from './AddField';
 
 export default {
@@ -189,7 +189,7 @@ export default {
     deleteField() {
       if (!this.multiEntityArr.length) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.selectDelData')
         });
       }

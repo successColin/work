@@ -11,9 +11,10 @@
     v-if="showInput"
   >
     <iframe
-      :src="`${getAdress}${paramsStr}`"
+      ref="Iframe"
       frameborder="0"
       v-if="!isConfig && this.configData.showType === 2"
+      :src="`${getAdress}${paramsStr}`"
       :style="getStyle"
       :key="configData.compId"
     ></iframe>
@@ -32,7 +33,6 @@
 
 <script>
 import HomeMenu from '@/views/HomeMenu';
-import { getQueryObj } from '@/utils/utils';
 import compMixin from '../../compMixin';
 
 export default {
@@ -58,6 +58,9 @@ export default {
     getAdress() {
       if (this.configData.showType === 1) {
         return this.configData.innerName;
+      }
+      if (this.configData.externalType === 2) {
+        return `${this.$store.state.globalConfig.ureportConfig.ureportUrl}/ureport/preview?_u=file:${this.configData.ureportObj.name}&_t=0`;
       }
       return this.configData.outerLink;
     },
@@ -107,11 +110,8 @@ export default {
     // ureport 导出
     queryExport(type) {
       // 只有ureport 导出
-      const { showType, outerLink } = this.configData;
-      const isUreport = outerLink.indexOf('/ureport/preview') !== -1;
-      if (showType === 2 && isUreport) {
-        const obj = getQueryObj(outerLink);
-        console.log(obj);
+      const { showType, externalType, ureportObj } = this.configData;
+      if (showType === 2 && externalType === 2) {
         const link = document.createElement('a');
         const body = document.querySelector('body');
         let url = '';
@@ -122,11 +122,20 @@ export default {
         } else if (type === 3) {
           url += '/ureport/pdf';
         }
-        link.href = `${this.$store.state.globalConfig.themeConfig.ureportUrl}${url}?_u=${obj._u}&_t=0&`;
+        link.href = `${this.$store.state.globalConfig.ureportConfig.ureportUrl}${url}?_u=${ureportObj.name}&_t=0&`;
         link.style.display = 'none';
         body.appendChild(link);
         link.click();
         body.removeChild(link);
+      } else {
+        const iframe = this.$refs.Iframe.contentWindow;
+
+        iframe.postMessage(
+          {
+            message: 'doExport'
+          },
+          '*'
+        );
       }
     },
     setTabMianHeight() {
@@ -168,6 +177,10 @@ export default {
     },
     initParams() {
       let str = '?';
+      if (this.getAdress.indexOf('?') !== -1) {
+        str = '&';
+      }
+
       this.configData.paramsArr.forEach((params) => {
         if (params.type === 1) {
           this.otherParams[params.name] = params.fixed;

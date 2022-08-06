@@ -5,11 +5,11 @@
   $--inputWidth
 ) {
   .#{$--name} {
-    padding: 0 10px;
     display: flex;
     flex-direction: column;
     height: 100%;
     &__header {
+      margin: 0 10px;
       width: 100%;
       display: flex;
       .item {
@@ -26,6 +26,7 @@
       }
     }
     &__content {
+      margin: 0 10px;
       flex: 1;
       width: 100%;
       overflow: hidden;

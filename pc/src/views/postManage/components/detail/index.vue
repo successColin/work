@@ -34,17 +34,35 @@
           >
           </apiot-input>
         </el-form-item>
+        <el-form-item
+          class="hlaf"
+          :label="$t('org.keycode')"
+          prop="keyCode"
+        >
+          <apiot-input
+            v-model="curData.keyCode"
+            maxlength="30"
+            :placeholder="
+              $t('placeholder.pleaseEnterAnyName', {
+                any: $t('org.keycode'),
+              })
+            "
+          ></apiot-input>
+        </el-form-item>
         <el-form-item class="hlaf" prop="parentId" :label="$t('post.position')">
           <div class="org-item">
             <span class="add-org m-r-6" @click="showSelectOrgDialog('post')">
               <i class="iconfont icon-jiahao m-r-6"></i>
               {{ $t('common.select') }}
             </span>
-            <span class="org-tag m-r-6" v-if="!!curData.parentId">
-              <i class="iconfont icon-zhiwei m-r-6"></i>
-              {{ curData.parentName || '' }}
-              <i class="iconfont icon-guanbi m-l-6" @click="deleteParent()"></i>
-            </span>
+            <apiot-tag
+              v-if="!!curData.parentId"
+              class="m-r-6"
+              @deleteSelf="deleteParent"
+              :key="curData.parentName"
+              :item="curData.parentName"
+              itemIconClass="icon-zhiwei"
+            ></apiot-tag>
           </div>
           <!-- 职位选择弹窗 -->
           <org-dialog

@@ -229,6 +229,7 @@ export default {
               filterTermSql: '', // sql字符串
               termParams: '', // 过滤条件需要的组件参数id
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: false // 是否是树区
             },
@@ -257,6 +258,7 @@ export default {
               filterTermSql: '', // sql字符串
               termParams: '', // 过滤条件需要的组件参数id
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: false, // 是否是树区
               required: false, // 是否必填
@@ -299,6 +301,7 @@ export default {
               termParams: '', // 过滤条件需要的组件参数id
               canOperate: false, // 是否启用操作列
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: false, // 是否是树区
               hasPagination: true, // 是否启用分页
@@ -337,6 +340,7 @@ export default {
               filterTermSql: '', // sql字符串
               termParams: '', // 过滤条件需要的组件参数id
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: true, // 是否是树区
               hasTreeIcon: false, // 是否有树区固定图标
@@ -370,6 +374,22 @@ export default {
               relateTableArr: [],
               relateTableIndex: 0,
               children: [],
+              cascadeDataSource: [
+                {
+                  relateColumn: {
+                    id: '',
+                    columnName: ''
+                  },
+                  tableInfo: {
+                    id: '',
+                    tableName: ''
+                  },
+                  showColumn: {
+                    id: '',
+                    columnName: ''
+                  }
+                }
+              ],
               multiDataSource: [
                 {
                   name: '一级表',
@@ -437,6 +457,7 @@ export default {
               filterTermSql: '', // sql字符串
               termParams: '', // 过滤条件需要的组件参数id
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: true, // 是否是树区
               hasTreeIcon: false, // 是否有树区固定图标
@@ -766,6 +787,7 @@ export default {
               propertyCompName: 'SearchConditionConfig',
               placeholder: '请输入关键字搜索',
               searchCompArr: [], // 普通搜索的组件数组
+              enableScan: false, // 是否启用扫描
               shouldHigh: false, // 是否启用高级搜索
               highStyle: 2, // 高级搜索按钮类型
               highCompArr: [], // 高级搜索包含组件类型
@@ -900,6 +922,39 @@ export default {
               enableGird: true, // 是否启用表格
               shouldRequired: false,
               submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
+            },
+            {
+              name: '评分',
+              showLabelTitle: true, // 是否显示分割线的标题
+              dragTable: true,
+              dragCard: true, // 能否拖入卡片区
+              areaType: 1,
+              imgUrl: 'baseComp/Evaluation.svg',
+              compType: 23,
+              compId: createUnique(),
+              compName: 'Evaluation',
+              tableCompName: 'TableEvaluationCol',
+              propertyCompName: 'EvaluationConfig',
+              placeholder: '',
+              helpInfo: '',
+              dataSource: {
+                relateName: '', // 关系名称
+                tableName: '', //  表名
+                columnName: '', // 字段名称
+                columnTypeDict: 0, // 字段类型
+                id: 0, // 字段id
+                alias: '', // 别名
+                dictObj: null, // 字典表数据
+                mainColumnInfo: null // 主表相关信息
+              },
+              tableWidth: '0.1',
+              width: '50%',
+              maxScore: 5, // 最大打分分值
+              showContent: false, // 是否展示内容
+              dividingType: 1, // 分割线显示类型
+              canShow: true,
+              canReadonly: false,
+              submitType: 1
             }
           ]
         },
@@ -908,15 +963,15 @@ export default {
           isClose: false,
           children: [
             {
-              name: '图片/视频',
+              name: '图片',
               areaType: 1, // 表示内容区
-              imgUrl: 'highComp/ImgAndVideo.svg',
+              imgUrl: 'highComp/Image.svg',
               compType: 12,
               compId: createUnique(),
               compName: 'ImgAndVideo',
               propertyCompName: 'ImgAndVideoConfig',
-              labelName: '图片/视频',
-              placeholder: '请上传图片/视频',
+              labelName: '图片',
+              placeholder: '请上传图片',
               helpInfo: '',
               dataSource: {
                 relateName: '主表',
@@ -927,6 +982,37 @@ export default {
                 alias: '',
                 dictObj: null // 字典表数据
               },
+              showType: 1, // 1 大图 2 小图
+              singleStatus: 1,
+              canShow: true,
+              canReadonly: false,
+              width: '100%',
+              shouldRequired: false,
+              maxFileCount: 5, // 最大文件个数
+              maxFileSize: 200, // 单个文件最大体积
+              submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
+            },
+            {
+              name: '视频',
+              areaType: 1, // 表示内容区
+              imgUrl: 'highComp/Video.svg',
+              compType: 24,
+              compId: createUnique(),
+              compName: 'ImgAndVideo',
+              propertyCompName: 'ImgAndVideoConfig',
+              labelName: '视频',
+              placeholder: '请上传视频',
+              helpInfo: '',
+              dataSource: {
+                relateName: '主表',
+                tableName: '',
+                columnName: '',
+                columnTypeDict: 0,
+                id: 0,
+                alias: '',
+                dictObj: null // 字典表数据
+              },
+              showType: 1, // 1 大图 2 小图
               singleStatus: 1,
               canShow: true,
               canReadonly: false,
@@ -1012,6 +1098,10 @@ export default {
               widthPix: 200, // 宽度pix
               heightPix: 200, // 高度pix
               showType: 1, // 1 内部页面 2外部页面
+              externalType: 1, // 1 默认 2ureport
+              ureportObj: {
+                name: ''
+              },
               innerName: '', // 内部页面名称
               innerLink: '', // 内部页面地址
               outerLink: '', // 外部页面地址
@@ -1031,7 +1121,7 @@ export default {
               compName: 'DeployProgressBar',
               propertyCompName: 'DeployProgressBarConfig',
               tableCompName: 'TableProgressBarCol',
-              defaultValueType: 1, // 1 是固定值 2 是公式
+              tableWidth: '0.1',
               placeholder: '',
               helpInfo: '',
               dataSource: {
@@ -1043,14 +1133,10 @@ export default {
                 alias: '',
                 dictObj: null // 字典表数据
               },
-              singleStatus: 1,
               canShow: true,
               canReadonly: false,
               width: '100%',
               shouldRequired: false,
-              maxFileCount: 2,
-              tipsArr: [],
-              maxFileSize: 50,
               progressBarHeight: 8,
               font: {
                 color: '#333333', // 字体颜色
@@ -1065,17 +1151,100 @@ export default {
                 color5: '#F2A917',
                 color6: '#F5DC00',
                 color7: '#34C7BE',
-                color8: '#32D0F5',
+                color8: '#32D0F5'
               },
-              ranges: {
-                range1: 0,
-                range2: 35,
-                range3: 74,
-                range4: 99,
-                range5: 100,
-              },
+              ranges: [
+                {
+                  color1: '#E74D4D',
+                  color2: '#FB6F5C',
+                  range: 100
+                }
+              ],
               showStyle: 1, // 1 线条风格 2 格子风格
-              submitType: 1, // 1 始终显示 2 鼠标悬停显示
+              submitType: 1, // 1 始终提交 2 仅显示时提交 3 始终不提交
+              progressShowType: 1 // 1 始终显示 2 鼠标悬停显示
+            },
+            {
+              name: '级联',
+              areaType: 1, // 表示内容区
+              imgUrl: 'highComp/PapersUpload.svg',
+              compType: 25,
+              compId: createUnique(),
+              compName: 'Cascade',
+              propertyCompName: 'CascadeConfig',
+              labelName: '级联',
+              placeholder: '请选择数据',
+              helpInfo: '',
+              dataSource: {
+                relateName: '主表',
+                tableName: '',
+                columnName: '',
+                columnTypeDict: 0,
+                id: 0,
+                alias: '',
+                dictObj: null // 字典表数据
+              },
+              singleStatus: 1,
+              canShow: true,
+              canReadonly: false,
+              width: '50%',
+              shouldRequired: false,
+              submitType: 1, // 1 始终提交 2 仅显示时提交 3 始终不提交
+              cascadeType: 1, // 级联类型 1 自定义 2 省市区
+              cascadeDataSource: [
+                {
+                  name: '1级表',
+                  relateColumn: {
+                    id: '',
+                    columnName: ''
+                  },
+                  tableInfo: {
+                    id: '',
+                    tableName: ''
+                  },
+                  showColumn: {
+                    id: '',
+                    columnName: ''
+                  }
+                },
+                {
+                  name: '2级表',
+                  relateColumn: {
+                    id: '',
+                    columnName: ''
+                  },
+                  tableInfo: {
+                    id: '',
+                    tableName: ''
+                  },
+                  showColumn: {
+                    id: '',
+                    columnName: ''
+                  }
+                }
+              ], // 级联数据源
+              loadType: 1, // 下级加载方式 1 悬浮加载 2 点击加载
+              storeType: 1, // 存储方式 1 多级拼接类型 2 仅末尾级字段
+              enableSearch: false // 是否启用搜索
+            },
+            {
+              name: '轮播图',
+              areaType: 1,
+              imgUrl: 'baseComp/DividingLine.svg',
+              compType: 26,
+              compId: createUnique(),
+              compName: 'Carousel',
+              propertyCompName: 'CarouselConfig',
+              placeholder: '',
+              helpInfo: '',
+              width: '100%',
+              heightMul: 2, // 高度倍数 1,2,3
+              showType: 1, // 展现形式
+              borderType: 1, // 边框样式
+              indicatorType: 1, // 指示器样式
+              imgArr: [], // 图片数组
+              canShow: true,
+              canReadonly: false
             }
           ]
         },
@@ -1178,6 +1347,7 @@ export default {
               posAddDevice: '', // 位置节点新增设备id
               deviceAddDevice: '', // 设备节点新增设备id
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: true, // 是否是树区
               linkSymbol: '', // 链接符`
@@ -1210,6 +1380,7 @@ export default {
               filterTermSql: '', // sql字符串
               termParams: '', // 过滤条件需要的组件参数id
               shouldInit: true, // 是否初始化
+              needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: true, // 是否是树区
               linkSymbol: '' // 链接符
@@ -1360,7 +1531,7 @@ export default {
       if (component.$attrs.dragType === 'comp') {
         return false;
       }
-      console.log(component, dragElement, relateElement);
+      // console.log(component, dragElement, relateElement);
       // 能否拖入表单去
       if (component.$attrs.isForm) {
         if (dragElement.noDragForm) {
@@ -1497,7 +1668,7 @@ export default {
         obj.deviceAddDevice = '';
       }
       // eslint-disable-next-line no-debugger
-      debugger;
+      // debugger;
       data[index].children[oldIndex] = obj;
     }
   },

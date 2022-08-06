@@ -183,7 +183,7 @@ export default {
       // console.log(this.hasTriggerComp);
       if (this.hasTriggerComp[this.configData.compId]) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.hasTriggerComp[this.configData.compId].msg,
         });
       }
@@ -271,7 +271,7 @@ export default {
       return false;
     },
     isLayoutStyle() {
-      console.log(this.isQuery, this.grandFather);
+      // console.log(this.isQuery, this.grandFather);
       return this.isQuery && this.grandFather.layoutStyle === 2;
     },
   },

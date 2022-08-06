@@ -52,11 +52,11 @@
 
 <script>
 import {
-  doUploadFiles,
-  doProcessChek,
+  doCheckTemplateIsRight,
   doImportProcess,
   doImportStart,
-  doCheckTemplateIsRight
+  doProcessChek,
+  doUploadFiles
 } from '@/api/user';
 import { createUnique, getSeconds } from '@/utils/utils';
 
@@ -144,7 +144,7 @@ export default {
       // 点击导入，
       if (!this.file) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('importAndExport.correspondingTemplate')
         });
         return;

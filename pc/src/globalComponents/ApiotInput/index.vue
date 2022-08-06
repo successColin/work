@@ -46,6 +46,7 @@ export default {
       default: true
     }
   },
+  inheritAttrs: false,
   data() {
     return {
       isNeedPrevent: false,

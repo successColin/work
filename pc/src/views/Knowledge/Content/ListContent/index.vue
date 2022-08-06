@@ -42,12 +42,13 @@
           <div @click="preView(scope.row)" class="inputWrap">
             <img class="listWrap__img" :src="getFileUrl(scope.row)" />
             <span v-if="!isEdit(scope.row)">
-              {{
-                renderFileName(
-                  scope.row.name || scope.row.sysKlTree.name,
-                  scope.row
-                )
-              }}
+<!--              {{-->
+<!--                renderFileName(-->
+<!--                  scope.row.name || scope.row.sysKlTree.name,-->
+<!--                  scope.row-->
+<!--                )-->
+<!--              }}-->
+              {{scope.row.name || scope.row.sysKlTree.name}}
             </span>
             <apiot-input
               style="width: calc(100% - 38px)"
@@ -65,6 +66,7 @@
       </el-table-column>
       <el-table-column
         prop="size"
+        width="130"
         :label="$t('knowledge.bus_size')"
         v-if="!isDialog"
       >
@@ -74,6 +76,7 @@
       </el-table-column>
       <el-table-column
         prop="uploadUserName"
+        width="130"
         :label="$t('knowledge.bus_create')"
       >
         <template slot-scope="scope">
@@ -85,7 +88,11 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="uploadTime" :label="$t('knowledge.bus_time')">
+      <el-table-column
+          prop="uploadTime"
+          :label="$t('knowledge.bus_time')"
+          width="230"
+      >
         <template slot-scope="scope">
           <span>
             {{ scope.row.uploadTime || scope.row.sysKlTree.uploadTime }}</span
@@ -177,6 +184,9 @@ export default {
     calculateSize() {
       // 计算文件大小
       return function (item) {
+        if ((item.sysKlTree && item.sysKlTree.treeType === 1) || item.treeType === 1) {
+          return '-';
+        }
         const { size } = item.sysKlTree || item;
         const kb = 1024;
         const mb = kb * 1024;
@@ -388,6 +398,24 @@ export default {
 
     & + span {
       cursor: pointer;
+    }
+  }
+  ::v-deep{
+    .el-table--border .el-table__cell:first-child .cell{
+      padding: 0;
+      justify-content: center;
+    }
+    .el-table th.el-table__cell > .cell{
+      display: flex;
+    }
+    .el-table--border .el-table__cell{
+      border-right: none;
+    }
+    .el-table__row>td:first-child{
+      border-right: 1px solid #EBEEF5;
+    }
+    .el-table__header .el-table_1_column_1 {
+      border-right: 1px solid #EBEEF5;
     }
   }
 }

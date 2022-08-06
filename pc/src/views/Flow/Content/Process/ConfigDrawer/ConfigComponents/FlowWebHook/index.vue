@@ -9,57 +9,84 @@
 <template>
   <div class="contentWrap" :key="key">
     <div class="config-property">
+<!--      <div class="form-item">-->
+<!--        <div class="form-item-label">请求类型</div>-->
+<!--        <div class="form-item-content">-->
+<!--          <el-radio v-model="requestMethod" label="GET">GET</el-radio>-->
+<!--          <el-radio v-model="requestMethod" label="POST">POST</el-radio>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="form-item">-->
+<!--        <div class="form-item-label">URL</div>-->
+<!--        <div class="form-item-content">-->
+<!--          <el-input-->
+<!--              v-model="requestUrl"-->
+<!--              plcaeholder="请输入请求地址"-->
+<!--          ></el-input>-->
+<!--        </div>-->
+<!--      </div>-->
       <div class="form-item">
-        <div class="form-item-label">请求类型</div>
+        <div class="form-item-label">代理接口编码</div>
         <div class="form-item-content">
-          <el-radio v-model="requestMethod" label="GET">GET</el-radio>
-          <el-radio v-model="requestMethod" label="POST">POST</el-radio>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">URL</div>
-        <div class="form-item-content">
-          <el-input
-            v-model="requestUrl"
-            plcaeholder="请输入请求地址"
-          ></el-input>
+<!--          <el-input-->
+<!--            v-model="apiCode"-->
+<!--            plcaeholder="请输入代理接口编码"-->
+<!--          ></el-input>-->
+          <el-select
+              style="width: 100%;"
+              v-model="apiCode"
+              filterable
+              plcaeholder="请选择代理接口"
+              @change="choose"
+          >
+            <el-option
+                v-for="item in apiList"
+                :key="item.businessCode"
+                :label="item.businessName"
+                :value="item.businessCode"
+            >
+            </el-option>
+          </el-select>
         </div>
       </div>
       <div class="form-item">
         <div class="form-item-label">
-          Headers
-          <apiot-button class="headers-add" @click="addHeader">
-            <i class="icon-xinzeng common-style_fontColor iconfont m-r-4"></i>
-            Headers
-          </apiot-button>
+          参数设置
+<!--          <apiot-button class="headers-add" @click="addHeader">-->
+<!--            <i class="icon-xinzeng common-style_fontColor iconfont m-r-4"></i>-->
+<!--            新增参数-->
+<!--          </apiot-button>-->
         </div>
         <div class="form-item-content">
-          <SetHeaders :value="requestHeadersList" @deleteHeader="doDel" />
+          <SetHeaders :value="params" @deleteHeader="doDel" />
         </div>
+<!--        <div class="form-item-content">-->
+<!--          <SetHeaders :value="requestHeadersList" @deleteHeader="doDel" />-->
+<!--        </div>-->
       </div>
-      <div class="form-item" v-if="requestMethod === 'POST'">
-        <div class="form-item-label">
-          Body
-          <apiot-button class="headers-add" @click="showCompTree = true">
-            <i class="icon-xinzeng common-style_fontColor iconfont m-r-4"></i>
-            添加控件
-          </apiot-button>
-        </div>
-        <div class="form-item-content">
-          <json-editor
-            v-if="requestMethod === 'POST'"
-            v-model="requestParameter"
-            :triggerCompMap="triggerCompMap"
-            ref="jsonEditor"
-          ></json-editor>
-        </div>
-      </div>
-      <div>
-        <apiot-button class="list-btn" @click="showReturnValue = true">
-          <i class="icon-shezhi iconfont"></i>
-          设置返回值
-        </apiot-button>
-      </div>
+<!--     <div class="form-item" v-if="requestMethod === 'POST'">-->
+<!--        <div class="form-item-label">-->
+<!--          Body-->
+<!--          <apiot-button class="headers-add" @click="showCompTree = true">-->
+<!--            <i class="icon-xinzeng common-style_fontColor iconfont m-r-4"></i>-->
+<!--            添加控件-->
+<!--          </apiot-button>-->
+<!--        </div>-->
+<!--        <div class="form-item-content">-->
+<!--          <json-editor-->
+<!--            v-if="requestMethod === 'POST'"-->
+<!--            v-model="requestParameter"-->
+<!--            :triggerCompMap="triggerCompMap"-->
+<!--            ref="jsonEditor"-->
+<!--          ></json-editor>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div>-->
+<!--        <apiot-button class="list-btn" @click="showReturnValue = true">-->
+<!--          <i class="icon-shezhi iconfont"></i>-->
+<!--          设置返回值-->
+<!--        </apiot-button>-->
+<!--      </div>-->
       <transition name="slide-bottom">
         <comp-tree
           :visible.sync="showCompTree"
@@ -84,9 +111,11 @@
 </template>
 
 <script>
+import { fetchApiList } from '@/api/flow';
 import CompTree from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/CompTree';
 import ReturnValue from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/ReturnValue';
-import JsonEditor from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/JsonEditor';
+// eslint-disable-next-line max-len
+// import JsonEditor from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/JsonEditor';
 import SetHeaders from './SetHeaders';
 
 export default {
@@ -110,15 +139,19 @@ export default {
       requestMethod: 'GET',
       requestUrl: '',
       requestHeadersList: [],
+      params: [],
       requestParameter: '{}',
-      returnValue: ''
+      returnValue: '',
+      apiCode: '',
+      apiList: [],
+      name: ''
     };
   },
 
   components: {
     SetHeaders,
     CompTree,
-    JsonEditor,
+    // JsonEditor,
     ReturnValue
   },
 
@@ -183,6 +216,7 @@ export default {
   },
 
   mounted() {
+    this.initList();
   },
   watch: {
     nodeInfo: {
@@ -195,36 +229,67 @@ export default {
   },
 
   methods: {
+    async initList() {
+      this.apiList = await fetchApiList();
+    },
     init() {
       if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.$nextTick(() => {
           this.requestMethod = this.nodeInfo.requestMethod || 'GET';
           this.requestUrl = this.nodeInfo.requestUrl || '';
           this.requestHeadersList = this.nodeInfo.requestHeadersList || [];
+          this.params = this.nodeInfo.params || [];
           this.returnValue = this.nodeInfo.returnValue || '';
           this.requestParameter = this.nodeInfo.requestParameter || '{}';
+          this.apiCode = this.nodeInfo.apiCode || '';
+          this.name = this.nodeInfo.name || '';
         });
       } else {
         this.requestMethod = 'GET';
         this.requestUrl = '';
         this.requestHeadersList = [];
+        this.params = [];
         this.returnValue = '';
         this.requestParameter = '{}';
+        this.apiCode = '';
+        this.name = '';
       }
       this.key += 1;
     },
     addHeader() {
       // 添加请求参数
       const uuid = `${Date.parse(new Date())}${Math.random() * 100}`;
-      this.requestHeadersList.unshift({
+      // this.requestHeadersList.unshift({
+      //   uuid,
+      //   name: '',
+      //   valueType: 1,
+      //   content: ''
+      // });
+      this.params.unshift({
         uuid,
         name: '',
         valueType: 1,
         content: ''
       });
     },
+    choose(v) {
+      const current = this.apiList.find((item) => item.businessCode === v);
+      if (!current) return;
+      const { params = [], businessName = '' } = current;
+      this.name = businessName;
+      this.params = params.map(({ code }) => {
+        const uuid = `${Date.parse(new Date())}${Math.random() * 100}`;
+        return {
+          uuid,
+          name: code,
+          valueType: 1,
+          content: ''
+        };
+      });
+    },
     doDel(index) {
-      this.requestHeadersList.splice(index, 1);
+      // this.requestHeadersList.splice(index, 1);
+      this.params.splice(index, 1);
     },
     getSelectComp(comp) {
       this.$refs.jsonEditor.setValue(comp);

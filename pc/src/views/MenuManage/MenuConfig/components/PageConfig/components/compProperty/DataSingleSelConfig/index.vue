@@ -148,7 +148,7 @@
           @selectRes="selectDict"
         ></filterable-input>
       </el-form-item>
-      <el-form-item label="关联类型" v-if="activeObj.dataSource.columnName">
+      <el-form-item label="文字关联类型" v-if="activeObj.dataSource.columnName">
         <el-radio v-model="activeObj.relateType" :label="1">弹出面板</el-radio>
         <el-radio v-model="activeObj.relateType" :label="2">跳转菜单</el-radio>
         <apiot-button
@@ -164,6 +164,11 @@
           @click="showMenuConfig = true"
         >
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
+        </apiot-button>
+      </el-form-item>
+      <el-form-item label="按钮关联类型" v-if="activeObj.dataSource.columnName">
+        <apiot-button class="panelBtn" @click="showBtnPanelConfig = true">
+          <i class="iconfont icon-shezhi m-r-4"></i>弹出面板配置
         </apiot-button>
       </el-form-item>
       <el-form-item
@@ -194,7 +199,7 @@
           <i class="iconfont icon-shezhi m-r-4"></i>弹出扫一扫过滤条件
         </apiot-button>
       </el-form-item>
-      <el-form-item label="状态" v-if="isShow">
+      <el-form-item label="状态">
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.singleStatus === 1 }]"
@@ -222,7 +227,7 @@
       <el-form-item
         label="默认值"
         class="defaultValue"
-        v-if="relateObj && relateObj.compName !== 'TableMain' && isShow"
+        v-if="relateObj && relateObj.compName !== 'TableMain'"
       >
         <el-select
           v-model="activeObj.defaultValueType"
@@ -352,9 +357,18 @@
         </el-select>
       </el-form-item>
     </el-form>
-    <!-- 面板配置弹窗 -->
+    <!-- 普通面板面板配置弹窗 -->
     <PanelConfig
       :visible.sync="showPanelConfig"
+      :configData="configData"
+      :activeObj="activeObj"
+      :isSelPanel="false"
+      :panelCompId="activeObj.textPanelId"
+      :triggerCompMap="triggerCompMap"
+    ></PanelConfig>
+    <!-- 数据选择面板配置弹窗 -->
+    <PanelConfig
+      :visible.sync="showBtnPanelConfig"
       :configData="configData"
       :activeObj="activeObj"
       :isSelPanel="true"
@@ -378,6 +392,7 @@
     ></ToMenuConfig>
     <!-- 配置关联表弹窗 -->
     <RelateTableDialog
+      v-if="activeObj.tableInfo"
       :visible.sync="relateDialog"
       :getCurrentTab="activeObj"
     ></RelateTableDialog>
@@ -385,6 +400,7 @@
 </template>
 
 <script>
+import { createUnique } from '@/utils/utils';
 import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
 import propertyMixin from '../propertyMixin';
 import SelectFormula from '../GlobalConfig/components/AddAction/components/SelectFormula';
@@ -409,6 +425,7 @@ export default {
         panelFilter: [] // 面板过滤条件
       },
       showPanelConfig: false, // 面板配置弹窗是否显示
+      showBtnPanelConfig: false, // 按钮的数据选择面包那
       showMenuConfig: false,
       showScanConfig: false,
       relateDialog: false
@@ -467,6 +484,10 @@ export default {
 
   mounted() {
     this.setRequiredRule();
+    console.log(this.activeObj.textPanelId);
+    if (!this.activeObj.textPanelId) {
+      this.activeObj.textPanelId = createUnique();
+    }
   },
 
   methods: {

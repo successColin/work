@@ -337,7 +337,7 @@ export default {
     },
     // 新增区域
     handleCommand(area) {
-      console.log(area);
+      // console.log(area);
       if (area.compName === 'RelatedData') {
         this.curPaneObj.panelFilter.push({
           compId: area.compId,

@@ -128,3 +128,11 @@ export function linkHomePage(data) {
     data,
   });
 }
+
+// ureport
+export function ureportfiles(params) {
+  return FetchData.request({
+    url: '/system/ureport/files',
+    params,
+  });
+}

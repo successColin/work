@@ -163,14 +163,14 @@
 
 <script>
 import CodeMirror from 'codemirror';
+import { doFetchGroup, doFetchOrgTree, getPostionTree, getRoleLiistById } from '@/api/role';
+import parser from '@/utils/formula';
+import { getChartsByEx } from '@/utils/utils';
+import 'codemirror/addon/hint/anyword-hint.js';
 import 'codemirror/addon/hint/show-hint.css';
 import 'codemirror/addon/hint/show-hint.js';
-import 'codemirror/addon/hint/anyword-hint.js';
-import 'codemirror/theme/idea.css';
 import 'codemirror/lib/codemirror.css';
-import { getChartsByEx } from '@/utils/utils';
-import parser from '@/utils/formula';
-import { doFetchOrgTree, doFetchGroup, getRoleLiistById, getPostionTree } from '@/api/role';
+import 'codemirror/theme/idea.css';
 
 export default {
   props: {
@@ -236,7 +236,10 @@ export default {
         },
         {
           name: '流程引擎函数',
-          children: [{ name: 'GET_FLOW_DATA_ID', isFormula: true, type: 6 }]
+          children: [
+            { name: 'GET_FLOW_DATA_ID', isFormula: true, type: 6 },
+            { name: 'GET_TOKEN', isFormula: true, type: 6 }
+          ]
         },
         {
           name: '服务器函数',
@@ -522,9 +525,14 @@ export default {
         return '';
       });
       parser.setFunction('GET_FLOW_DATA_ID', (params) => {
-        console.log(params);
         if (params.length !== 0) {
           return new Error('获取流程数据id公式无参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TOKEN', (params) => {
+        if (params.length !== 0) {
+          return new Error('获取Token公式无参数');
         }
         return '';
       });
@@ -619,7 +627,7 @@ export default {
         // console.log(index);
         if (index !== -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: '一般性错误，请检查函数参数个数，格式等'
           });
           return false;
@@ -658,48 +666,48 @@ export default {
       }
       if (res.error === '#ERROR!') {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '一般性错误，请检查函数参数个数，格式等'
         });
         return false;
       }
       if (res.error === '#NAME?') {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '无法识别的函数名,变量名或参数个数不对'
         });
         return false;
       }
       if (res.error === '#N/A') {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '表示某个值对公式不可用'
         });
         return false;
       }
       if (res.error === '#DIV/0!') {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '除以零误差'
         });
         return false;
       }
       if (res.error === '#NUM!') {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '当公式遇到无效数字时发生'
         });
         return false;
       }
       if (res.error === '#VALUE!') {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '当公式参数之一的类型错误时发生'
         });
         return false;
       }
       this.$message({
-        type: 'error',
+        type: 'warning',
         message: '该公式存在问题'
       });
       return false;

@@ -45,7 +45,11 @@ export default {
   },
   12: {
     compType: 12,
-    imgUrl: 'highComp/ImgAndVideo.svg',
+    imgUrl: 'highComp/Video.svg',
+  },
+  24: {
+    compType: 24,
+    imgUrl: 'highComp/Image.svg',
   },
   13: {
     compType: 13,
@@ -86,5 +90,17 @@ export default {
   22: {
     compType: 22,
     imgUrl: 'baseComp/ProgressBar.svg',
+  },
+  23: {
+    compType: 23,
+    imgUrl: 'baseComp/Evaluation.svg',
+  },
+  25: {
+    compType: 25,
+    imgUrl: 'highComp/PapersUpload.svg',
+  },
+  26: {
+    compType: 26,
+    imgUrl: 'highComp/Image.svg',
   },
 };

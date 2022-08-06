@@ -202,7 +202,7 @@ export default {
       } else if (this.isMulti) {
         if (this.compList.length === 0) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '请选择组件'
           });
         }
@@ -211,7 +211,7 @@ export default {
       } else {
         if (!this.curComp.compId) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: '请选择组件'
           });
         }

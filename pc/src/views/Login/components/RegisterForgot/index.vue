@@ -11,7 +11,7 @@
     <template v-slot:header>
       <div class="myRegister__header">
         <div class="myRegister__header--left">
-          <img src="@/assets/img/pcLoginLog.png" alt="" />
+          <img src="@/assets/img/pcLoginLog1.svg" alt="" />
           <div class="myRegister__header--line"></div>
           <span>{{ titleName }}</span>
         </div>

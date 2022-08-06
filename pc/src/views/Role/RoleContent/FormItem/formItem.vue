@@ -7,6 +7,17 @@
       style="margin: 0 !important"
     >
       <el-col :span="12">
+        <el-form-item label="编码" prop="roleCode">
+          <apiot-input
+              v-model="formData.roleCode"
+              maxlength="30"
+              show-word-limit
+              v-forbid
+              placeholder="请填写编码"
+          ></apiot-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
         <el-form-item :label="$t('role.name')" prop="roleName">
           <apiot-input
             v-model="formData.roleName"

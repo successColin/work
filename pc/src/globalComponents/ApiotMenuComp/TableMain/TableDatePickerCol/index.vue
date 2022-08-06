@@ -25,8 +25,14 @@
           v-if="configData.helpInfo.length"
         >
           <i class="iconfont icon-bangzhu" />
-        </el-tooltip> </span
-    ></template>
+        </el-tooltip>
+      </span>
+      <FilterCol
+        ref="filterCol"
+        :configData="configData"
+        :grandFather="grandFather"
+      ></FilterCol>
+    </template>
     <div slot-scope="scope">
       <div
         class="editable"

@@ -24,8 +24,14 @@
           v-if="configData.helpInfo.length"
         >
           <i class="iconfont icon-bangzhu" />
-        </el-tooltip> </span
-    ></template>
+        </el-tooltip>
+      </span>
+      <FilterCol
+        ref="filterCol"
+        :configData="configData"
+        :grandFather="grandFather"
+      ></FilterCol>
+    </template>
     <div slot-scope="scope">
       <div
         class="column__editable"
@@ -39,7 +45,9 @@
           v-model="tableData[scope.$index][configData.compId]"
           @change="valueChange(scope.$index)"
           v-onlyNumber="configData.numberType"
-          v-fixedPlace="configData.numberType === 2 && activeObj.decimalPlaces"
+          v-fixedPlace="
+            configData.numberType === 2 && activeObj && activeObj.decimalPlaces
+          "
           :disabled="configData.canReadonly"
           :ref="`valueInput${scope.$index}`"
           @blur="valueBlur(scope.row)"

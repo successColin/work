@@ -6,6 +6,55 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "30578634",
+      "name": "文件类型",
+      "font_class": "wenjianleixing",
+      "unicode": "eb14",
+      "unicode_decimal": 60180
+    },
+    {
+      "icon_id": "30578635",
+      "name": "业务类型",
+      "font_class": "yewuleixing",
+      "unicode": "eb15",
+      "unicode_decimal": 60181
+    },
+    {
+      "icon_id": "30540558",
+      "name": "极差",
+      "font_class": "jicha",
+      "unicode": "eb0f",
+      "unicode_decimal": 60175
+    },
+    {
+      "icon_id": "30540562",
+      "name": "差",
+      "font_class": "cha",
+      "unicode": "eb10",
+      "unicode_decimal": 60176
+    },
+    {
+      "icon_id": "30540563",
+      "name": "一般",
+      "font_class": "yiban",
+      "unicode": "eb11",
+      "unicode_decimal": 60177
+    },
+    {
+      "icon_id": "30540568",
+      "name": "满意",
+      "font_class": "manyi",
+      "unicode": "eb12",
+      "unicode_decimal": 60178
+    },
+    {
+      "icon_id": "30540594",
+      "name": "超赞",
+      "font_class": "chaozan",
+      "unicode": "eb13",
+      "unicode_decimal": 60179
+    },
+    {
       "icon_id": "30379633",
       "name": "浙政钉",
       "font_class": "zhezhengding",

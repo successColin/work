@@ -13,7 +13,7 @@
     :label="$t('knowledge.update_time')"
     resizable
     show-overflow-tooltip
-    :min-width="140"
+    :width="230"
   >
     <template slot-scope="scope">
       <span> {{ scope.row.modifyTime || scope.row.sysKlTree.modifyTime }}</span>

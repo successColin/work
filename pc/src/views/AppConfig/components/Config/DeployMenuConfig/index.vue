@@ -145,7 +145,6 @@
         class="config__body--select"
         v-model="activeObj.routeName"
         v-if="activeObj.type === 2 && !activeObj.isFooter"
-        @change="changeRouteName"
       >
         <el-option
           :value="item.routeName"
@@ -154,6 +153,40 @@
           :key="item.routeName"
         ></el-option>
       </el-select>
+      <p class="config__body--switch m-t-10" v-if="activeObj.type === 1 ||
+        (activeObj.type === 2 && activeObj.routeName === 'sysNotification')">
+        是否显示角标
+        <el-switch
+          class="switch"
+          active-text="是"
+          inactive-text="否"
+          :active-value="1"
+          :inactive-value="2"
+          v-model="activeObj.EnableCornerMarker"
+        >
+        </el-switch>
+      </p>
+      <h2 class="config__body--head" v-if="activeObj.EnableCornerMarker === 1 &&
+        (activeObj.type === 1 ||
+        (activeObj.type === 2 && activeObj.routeName === 'sysNotification'))">展示类型</h2>
+      <el-select
+        class="config__body--select"
+        v-model="activeObj.hornMarkType"
+        v-if="activeObj.EnableCornerMarker === 1 && (activeObj.type === 1 ||
+        (activeObj.type === 2 && activeObj.routeName === 'sysNotification'))"
+      >
+        <el-option label="展示数字" :value="1"></el-option>
+        <el-option label="展示红点" :value="2"></el-option>
+      </el-select>
+      <h2 class="config__body--head" v-if="activeObj.EnableCornerMarker === 1
+        && activeObj.type === 1">展示面板</h2>
+      <apiot-button
+        class="config__body--btn"
+        v-if="activeObj.EnableCornerMarker === 1 && activeObj.type === 1"
+        @click="showPanelConfig = true"
+      >
+        <i class="iconfont icon-shezhi m-r-4"></i>展示面板配置
+      </apiot-button>
       <OfflineCheck
         class="m-t-10"
         v-if="
@@ -164,6 +197,17 @@
         "
         :offlineCheck="activeObj.offlineCheck"
       ></OfflineCheck>
+      <!-- 面板配置弹窗 -->
+      <PanelConfig
+        v-if="renderPanelConfig"
+        :visible.sync="showPanelConfig"
+        :configData.sync="configData"
+        :activeObj.sync="activeObj"
+        :triggerCompMap="triggerCompMap"
+        :getAllcheck="getAllcheck"
+        :tabPaneConfig="tabPaneConfig"
+        @selectHornMark="selectHornMark"
+      ></PanelConfig>
     </div>
   </section>
 </template>
@@ -171,11 +215,17 @@
 <script>
 import { appRouteArr, selectColorArr } from '@/config';
 import { saveAppMenu } from '@/api/appConfig';
+import {
+  listSysDesignMenu,
+} from '@/api/menuConfig';
+import propertyMixin from '../../../../MenuManage/MenuConfig/components/PageConfig/components/compProperty/propertyMixin';
+import PanelConfig from './PanelConfig';
 import IconSelect from '../../../../MenuManage/components/IconSelect';
 import AppUpload from '../AppUpload';
 import OfflineCheck from './OfflineCheck';
 
 export default {
+  mixins: [propertyMixin],
   props: {
     activeObj: {
       type: Object
@@ -189,6 +239,10 @@ export default {
     },
     // 所有配置
     backAllConfig: {
+      type: Object
+    },
+    // 所有区域平坦化
+    getAllcheck: {
       type: Object
     }
   },
@@ -208,14 +262,19 @@ export default {
       },
       oldIndex: 0,
       appRouteArr: [],
-      selectColorArr: []
+      selectColorArr: [],
+      showPanelConfig: false,
+      panelConfig: [],
+      renderPanelConfig: false,
+      tabPaneConfig: {}
     };
   },
 
   components: {
     IconSelect,
     AppUpload,
-    OfflineCheck
+    OfflineCheck,
+    PanelConfig
   },
 
   computed: {
@@ -248,15 +307,24 @@ export default {
       return false;
     }
   },
-
   created() {
+    console.log(this.activeObj, 'this.activeObj');
     this.appRouteArr = appRouteArr;
     this.getOldIndex();
     this.initIcon();
     this.selectColorArr = selectColorArr;
+    this.listSysDesignMenu();
   },
 
   methods: {
+    async listSysDesignMenu() {
+      const data = await listSysDesignMenu({ menuId: this.activeObj.id });
+      this.tabPaneConfig = {
+        panelConfig: data[0].designOverallLayout,
+        isHornMark: true
+      };
+      this.renderPanelConfig = true;
+    },
     initIcon() {
       this.curItem.icon = this.activeObj.icon.icon;
       this.curItem.color = this.activeObj.icon.color;
@@ -384,6 +452,11 @@ export default {
       }
       console.log(params);
       await saveAppMenu({ dto: JSON.stringify(params) });
+    },
+    selectHornMark(obj) {
+      this.activeObj.panelHornMark = obj;
+      this.activeObj.panelHornMarkId = obj[0].compId;
+      console.log(this.activeObj, 'this.activeObj');
     }
   }
 };

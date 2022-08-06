@@ -302,6 +302,7 @@ export default {
       this.iconObj = obj;
     },
     enterMenuRole() {
+      this.isHover = false;
       sessionStorage.menuBackPath = this.$route.path;
       const str = `/menuConfig/${this.item.id}?menuName=${this.item.menuName}&id=${this.item.menuDesignId}`;
       // this.$router.replace(`/menuRole/${this.item.id}?menuName=${this.item.menuName}`);

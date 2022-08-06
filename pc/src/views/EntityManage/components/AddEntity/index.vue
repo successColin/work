@@ -255,7 +255,7 @@ export default {
         this.showLoading = false;
         if (error.tableName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.entity') })} ${
               error.tableName
             }`
@@ -306,7 +306,7 @@ export default {
         this.showLoading = false;
         if (error.tableName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.entity') })} ${
               error.tableName
             }`

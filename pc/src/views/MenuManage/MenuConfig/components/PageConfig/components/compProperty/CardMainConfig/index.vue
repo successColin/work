@@ -120,6 +120,18 @@
           </el-switch>
         </h2>
       </div>
+      <div class="contentConfig__box contentConfig__hasTab">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否需要数据权限
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.needPermissions"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
       <div class="contentConfig__box contentConfig__hasTab" v-if="false">
         <h2 class="contentConfig__hasTab--switchBox">
           是否初始化
@@ -358,11 +370,11 @@
 
 <script>
 import { createUnique } from '@/utils/utils';
-import RelateTableDialog from '../ContentConfig/RelateTableDialog';
 import BtnsAreaConfig from '../ContentConfig/BtnsAreaConfig';
 import FilterTerm from '../ContentConfig/FilterTerm';
-import propertyMixin from '../propertyMixin';
 import PanelConfig from '../ContentConfig/PanelConfig';
+import RelateTableDialog from '../ContentConfig/RelateTableDialog';
+import propertyMixin from '../propertyMixin';
 
 export default {
   mixins: [propertyMixin],
@@ -780,7 +792,7 @@ export default {
         this.dialogVisible = false;
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: '该排序字段已存在'
         });
       }
@@ -845,7 +857,7 @@ export default {
         alignStyle: 1, // 1 是左对齐 2右对齐
         font: {
           color: '#333333', // 字体颜色
-          size: 14, // 字体大小
+          size: 13, // 字体大小
           style: 1 // 1 常规 2 加粗
         }, // 字体大小
         labelBg: {

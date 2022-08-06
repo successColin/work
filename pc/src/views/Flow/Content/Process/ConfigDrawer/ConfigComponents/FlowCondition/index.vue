@@ -18,6 +18,7 @@
         :curTermObj="termObj"
         :flag="2"
         :tableInfo="{tableName}"
+        :relationRefs="getCurrentTab"
     />
   </div>
 </template>
@@ -33,9 +34,15 @@ export default {
       default: () => {
       }
     },
+    currentVersion: {
+      type: Object,
+      default: () => {
+      }
+    }
   },
   data() {
     return {
+      getCurrentTab: {}, // 关系引用
       key: 0,
       tableName: '',
       configData: [], // 页面配置信息
@@ -128,6 +135,8 @@ export default {
 
   methods: {
     init() {
+      const { globalAttributes: { tableRelation = '{}' } } = this.currentVersion;
+      this.getCurrentTab = JSON.parse(tableRelation);
       if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         const { conditionDesc = 1, conditions = [], tableName } = this.nodeInfo;
         this.termObj = {

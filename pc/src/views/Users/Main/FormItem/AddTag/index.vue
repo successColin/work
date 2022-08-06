@@ -2,57 +2,58 @@
 <template>
   <div class="TagWrap">
     <el-popover
-        placement="bottom-start"
-        width="294"
-        :popper-class="addTagWrap"
-        :visible-arrow="false"
-        v-model="visible"
+      placement="bottom-start"
+      width="294"
+      :popper-class="addTagWrap"
+      :visible-arrow="false"
+      v-model="visible"
     >
       <div class="box">
         <div class="colorWrap">
           <div
-              v-for="color in colorArr"
-              class="colorBox"
-              :key="color"
-              :style="'background:'+ color"
-              @click="changeColor(color)"
+            v-for="color in colorArr"
+            class="colorBox"
+            :key="color"
+            :style="'background:' + color"
+            @click="changeColor(color)"
           >
-            <i class="el-icon-check"
-               :class="{selected:selectColor===color}"
-               v-if="selectColor===color"></i>
+            <i
+              class="el-icon-check"
+              :class="{ selected: selectColor === color }"
+              v-if="selectColor === color"
+            ></i>
           </div>
         </div>
         <div class="enterTag">
           <apiot-input
-              maxlength="10"
-              show-word-limit
-              v-model="input"
-              :placeholder="$t('user.addLabelTag')"
-              @keyup.enter.native="addTag"></apiot-input>
+            maxlength="10"
+            show-word-limit
+            v-model="input"
+            :placeholder="$t('user.addLabelTag')"
+            @keyup.enter.native="addTag"
+          ></apiot-input>
         </div>
         <div class="footer">
-          <apiot-button @click="hide"
-                        size="small"
-          >{{ $t('common.cancle') }}
+          <apiot-button @click="hide" size="small"
+            >{{ $t('common.cancle') }}
           </apiot-button>
-          <apiot-button
-              type="primary"
-              @click="sureClick"
-              size="small"
-          >{{ $t('common.sure') }}
+          <apiot-button type="primary" @click="sureClick" size="small"
+            >{{ $t('common.sure') }}
           </apiot-button>
         </div>
       </div>
       <el-button size="mini" slot="reference">
-        <i class="iconfont icon-jiahao"></i> {{$t('user.doAdd')}}
+        <i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}
       </el-button>
     </el-popover>
     <el-tag
-        size="medium"
-        closable
-        :style="'background:'+ tag.color"
-        @close="delTag(tag)"
-        v-for="tag in tags" :key="tag.name">{{ tag.name }}
+      size="medium"
+      closable
+      :style="'background:' + tag.color"
+      @close="delTag(tag)"
+      v-for="tag in tags"
+      :key="tag.name"
+      >{{ tag.name }}
     </el-tag>
   </div>
 </template>
@@ -63,29 +64,38 @@ export default {
   props: {
     tags: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     updateData: {
       type: Function,
-      default: () => {
-      },
-    },
+      default: () => {}
+    }
   },
   data() {
     return {
       addTagWrap: 'addTagWrap',
       selectColor: '#5A80ED',
       input: '',
-      colorArr: ['#5A80ED', '#EE5E5E', '#FAB71C', '#FC8256', '#34C7BE', '#10B98A', '#1CA6FF', '#A853F2', '#EF4373', '#708DB7'],
+      colorArr: [
+        '#5A80ED',
+        '#EE5E5E',
+        '#FAB71C',
+        '#FC8256',
+        '#34C7BE',
+        '#10B98A',
+        '#1CA6FF',
+        '#A853F2',
+        '#EF4373',
+        '#708DB7'
+      ],
       tagArr: [], // 标签
-      visible: false,
+      visible: false
     };
   },
   components: {},
   computed: {},
   watch: {},
-  mounted() {
-  },
+  mounted() {},
   methods: {
     hide() {
       this.selectColor = '#5A80ED';
@@ -101,8 +111,8 @@ export default {
     addTag() {
       if (!this.input) {
         this.$message({
-          type: 'error',
-          message: this.$t('user.placeEnterTag'),
+          type: 'warning',
+          message: this.$t('user.placeEnterTag')
         });
         return;
       }
@@ -110,14 +120,14 @@ export default {
       const index = tags.findIndex((item) => item.name === this.input);
       if (index !== -1) {
         this.$message({
-          type: 'error',
-          message: this.$t('user.errorTag'),
+          type: 'warning',
+          message: this.$t('user.errorTag')
         });
         return;
       }
       tags.push({
         name: this.input,
-        color: this.selectColor,
+        color: this.selectColor
       });
       this.visible = false;
       this.selectColor = '#5A80ED';
@@ -131,15 +141,15 @@ export default {
       tags.splice(index, 1);
       this.updateData({ tags });
       // this.$emit('editTag', this.tagArr);
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang='scss' scoped>
 .TagWrap {
   .icon-jiahao {
     vertical-align: bottom;
-    color: #AAAAAA;
+    color: #aaaaaa;
   }
 
   ::v-deep {
@@ -173,19 +183,19 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color: #FFFFFF;
+      color: #ffffff;
       border: none;
       line-height: 30px;
     }
 
     .el-icon-close {
-      color: #FFFFFF;
+      color: #ffffff;
       font-size: 16px;
       opacity: 0.8;
       top: 0;
 
       &:hover {
-        color: #FFFFFF;
+        color: #ffffff;
         opacity: 1;
         background: none;
       }
@@ -208,7 +218,8 @@ export default {
   /*结束状态 透明度为1*/
 }
 
-@-webkit-keyframes fade-in { /*针对webkit内核*/
+@-webkit-keyframes fade-in {
+  /*针对webkit内核*/
   0% {
     opacity: 0;
   }

@@ -7,7 +7,9 @@
 -->
 <template>
   <div id="app">
-    <router-view />
+    <keep-alive :include="['Layout']">
+      <router-view />
+    </keep-alive>
   </div>
 </template>
 
@@ -24,6 +26,7 @@ export default {
     };
   },
   created() {
+    this.getSystemLanguage();
     this.$store.commit('changeIsNoodQuery', false);
     this.fetchConfig();
     window.addEventListener('beforeunload', this.beforeLoad);
@@ -32,9 +35,21 @@ export default {
     configs() {
       const { loginConfig } = this.$store.state.base;
       return loginConfig;
+    },
+    zzdConfig() {
+      return (this.configs.zzdConfig && JSON.parse(this.configs.zzdConfig)) || {};
     }
   },
   methods: {
+    // 先获取localStorage语言，如果没有在获取系统语言
+    getSystemLanguage() {
+      const lang = localStorage.getItem('apiotLanguage');
+      if (!lang) {
+        let currentLang = navigator.language || navigator.userLanguage; // 常规浏览器语言和IE浏览器
+        currentLang = currentLang.replace(/-/, ''); // 截取lang前2位字符
+        localStorage.setItem('apiotLanguage', currentLang);
+      }
+    },
     beforeLoad() {
       const arr = ['/appConfig/funcPage', '/appConfig/mine', '/homeMenuConfig/'];
       const { pathname } = window.location;
@@ -55,6 +70,9 @@ export default {
       if (+this.configs.ssoTypePc === 2) {
         await this.ssoZheZhengDing();
       }
+      // 浙政钉地址
+      const url = `${this.zzdConfig.qrCodeUrl}?response_type=code&client_id=${this.zzdConfig.clientId}&redirect_uri=${this.zzdConfig.redirectUri}&scope=get_user_info&authType=QRCODE&embedMode=true`;
+      this.$store.commit('setZzdScan', url);
       // 获取到 token 才去获取路由或其他信息
       const token = localStorage.getItem('token');
       if (this.isSuccess && token) {

@@ -21,10 +21,10 @@
         </apiot-button>
       </div>
       <div class="org-content__option__search">
-        <apiot-sys-import
+        <!-- <apiot-sys-import
           @FETCH_NEW_LIST="fetchList"
           :templateId="103"
-        ></apiot-sys-import>
+        ></apiot-sys-import> -->
         <search-input @getList="search" v-model="keywords"></search-input>
       </div>
     </div>
@@ -43,8 +43,12 @@
       >
         <template slot-scope="scope">
           <apiot-checkbox
-            :class="{ hasNoParent: scope.row.childrenTotal === 0 && scope.row.parentId === 0 ,
-                    hasNoChild: scope.row.childrenTotal === 0 && scope.row.parentId !== 0}"
+            :class="{
+              hasNoParent:
+                scope.row.childrenTotal === 0 && scope.row.parentId === 0,
+              hasNoChild:
+                scope.row.childrenTotal === 0 && scope.row.parentId !== 0,
+            }"
             v-model="scope.row.isChecked"
             @change="(item) => checkChange(item, scope.row)"
             @click.native.stop
@@ -54,6 +58,11 @@
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
+      <el-table-column
+        prop="keyCode"
+        :label="$t('org.keycode')"
+        resizable
+      ></el-table-column>
       <el-table-column
         prop="manage"
         :label="$t('org.manage')"
@@ -89,9 +98,9 @@
       destroy-on-close
       ref="apiotDrawer"
       :title="
-      type === 'add'
-        ? $t('common.add', { name: $t('org.org') })
-        : $t('common.edit', { name: $t('org.org') })
+        type === 'add'
+          ? $t('common.add', { name: $t('org.org') })
+          : $t('common.edit', { name: $t('org.org') })
       "
     >
       <detail
@@ -108,12 +117,12 @@
   </div>
 </template>
 <script>
-import apiotDrawer from '@/globalComponents/ApiotDrawer/index';
+import { addSysOrg, deleteSysOrg, editSysOrg, getOrgList } from '@/api/orgManage.js';
 import apiotButton from '@/globalComponents/ApiotButton/index';
 import apiotCheckbox from '@/globalComponents/ApiotCheckbox/index';
-import { getOrgList, addSysOrg, editSysOrg, deleteSysOrg } from '@/api/orgManage.js';
-import treeTable from './components/treeTable/index';
+import apiotDrawer from '@/globalComponents/ApiotDrawer/index';
 import detail from './components/detail/index';
+import treeTable from './components/treeTable/index';
 import userAvatar from './components/userAvatar/index';
 
 export default {
@@ -146,7 +155,7 @@ export default {
       isActive: false,
       curNodeId: null,
       isSubmit: false,
-      currentRowId: null,
+      currentRowId: null
     };
   },
 
@@ -297,7 +306,7 @@ export default {
         this.isSubmit = false;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('org.org') })} ${error.name}`
           });
         }
@@ -310,7 +319,7 @@ export default {
         let type = 1;
         // 有修改所属组织
         if (param.parentId !== 0 && String(this.editData.parentId) !== String(param.parentId)) {
-          param.rootPath = `${param.rootPath}/${param.id}`;
+          param.rootPath = `${param.rootPath}${param.id}/`;
           type = 2;
         }
         const params = {
@@ -352,7 +361,7 @@ export default {
         this.isSubmit = false;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('org.org') })} ${error.name}`
           });
         }

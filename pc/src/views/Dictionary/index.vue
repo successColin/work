@@ -164,7 +164,7 @@ export default {
     },
     // 系统分组，只有查看按钮，没有新增、编辑、删除按钮
     getButtonArr() {
-      return function(column) {
+      return function (column) {
         if (column.compName === 'OperateColumn') {
           if (this.dictGroupNodeSelected.curIndex === 0) {
             return [{ name: 'common.look1', funcName: 'lookDict' }];
@@ -275,7 +275,6 @@ export default {
       this.dictGroupNodeSelected.node = node;
       this.current = 1;
       this.total = 0;
-      this.size = 10;
       this.getDictListByType();
     },
     // 添加编辑字典项，成功需要属性列表

@@ -50,8 +50,8 @@
 </template>
 
 <script>
+import { deleteAppMenu, saveAppMenu } from '@/api/appConfig';
 import { appRouteArr } from '@/config';
-import { saveAppMenu, deleteAppMenu } from '@/api/appConfig';
 import IconSelect from '../../../../MenuManage/components/IconSelect';
 
 export default {
@@ -114,13 +114,13 @@ export default {
     async changeValue(flag = false) {
       if (!this.activeObj.menuName) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请输入菜单名单'
         });
       }
       if (!this.activeObj.routeName) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择固定菜单'
         });
       }

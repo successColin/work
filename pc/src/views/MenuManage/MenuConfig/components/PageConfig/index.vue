@@ -106,46 +106,49 @@
 </template>
 
 <script>
-import { saveLayout, getDesignTriggersLinkDiagram, getSysDesignMenu } from '@/api/menuConfig';
+import { getDesignTriggersLinkDiagram, getSysDesignMenu, saveLayout } from '@/api/menuConfig';
 import { createUnique } from '@/utils/utils';
-import selData from './selData';
-import ConfigSidebar from './components/ConfigSidebar';
-import PageLayout from './components/compProperty/PageLayout';
-import ContentConfig from './components/compProperty/ContentConfig';
-import MenuMainConfig from './components/compProperty/MenuMainConfig';
 import CardMainConfig from './components/compProperty/CardMainConfig';
-import TreeMainConfig from './components/compProperty/TreeMainConfig';
-import MultiTreeConfig from './components/compProperty/MultiTreeConfig';
-import DevicePosTreeConfig from './components/compProperty/DevicePosTreeConfig';
-import FaultTreeConfig from './components/compProperty/FaultTreeConfig';
-import TableMainConfig from './components/compProperty/TableMainConfig';
+import CascadeConfig from './components/compProperty/CascadeConfig';
+import CodingConfig from './components/compProperty/CodingConfig';
+import ContentConfig from './components/compProperty/ContentConfig';
 import BtnsAreaConfig from './components/compProperty/ContentConfig/BtnsAreaConfig';
-import SingleLineTextConfig from './components/compProperty/SingleLineTextConfig';
-import FormButtonConfig from './components/compProperty/FormButtonConfig';
-import DropDownBoxConfig from './components/compProperty/DropDownBoxConfig';
-import SingleBoxConfig from './components/compProperty/SingleBoxConfig';
-import MultiBoxConfig from './components/compProperty/MultiBoxConfig';
-import DataSingleSelConfig from './components/compProperty/DataSingleSelConfig';
 import DataMultiSelConfig from './components/compProperty/DataMultiSelConfig';
+import DataSingleSelConfig from './components/compProperty/DataSingleSelConfig';
 import DatePickerBoxConfig from './components/compProperty/DatePickerBoxConfig';
 import DateTimePickerBoxConfig from './components/compProperty/DateTimePickerBoxConfig';
-import NumberBoxConfig from './components/compProperty/NumberBoxConfig';
-import GlobalConfig from './components/compProperty/GlobalConfig';
-import MultiLineTextConfig from './components/compProperty/MultiLineTextConfig';
-import ImgAndVideoConfig from './components/compProperty/ImgAndVideoConfig';
-import EnclosureConfig from './components/compProperty/EnclosureConfig';
-import PapersUploadConfig from './components/compProperty/PapersUploadConfig';
-import LabelConfig from './components/compProperty/LabelConfig';
-import SearchConditionConfig from './components/compProperty/SearchConditionConfig';
-import CodingConfig from './components/compProperty/CodingConfig';
-import DividingLineConfig from './components/compProperty/DividingLineConfig';
-import SelDataInitConfig from './components/compProperty/SelDataInitConfig';
-import WebviewConfig from './components/compProperty/WebviewConfig';
-import RelatedDataConfig from './components/compProperty/RelatedDataConfig';
-import TextTipConfig from './components/compProperty/TextTipConfig';
-import RichTextConfig from './components/compProperty/RichTextConfig';
 import DeployProgressBarConfig from './components/compProperty/DeployProgressBarConfig';
+import DevicePosTreeConfig from './components/compProperty/DevicePosTreeConfig';
+import DividingLineConfig from './components/compProperty/DividingLineConfig';
+import DropDownBoxConfig from './components/compProperty/DropDownBoxConfig';
+import EnclosureConfig from './components/compProperty/EnclosureConfig';
+import EvaluationConfig from './components/compProperty/EvaluationConfig';
+import FaultTreeConfig from './components/compProperty/FaultTreeConfig';
+import FormButtonConfig from './components/compProperty/FormButtonConfig';
+import GlobalConfig from './components/compProperty/GlobalConfig';
+import ImgAndVideoConfig from './components/compProperty/ImgAndVideoConfig';
+import LabelConfig from './components/compProperty/LabelConfig';
+import MenuMainConfig from './components/compProperty/MenuMainConfig';
+import MultiBoxConfig from './components/compProperty/MultiBoxConfig';
+import MultiLineTextConfig from './components/compProperty/MultiLineTextConfig';
+import MultiTreeConfig from './components/compProperty/MultiTreeConfig';
+import NumberBoxConfig from './components/compProperty/NumberBoxConfig';
+import PageLayout from './components/compProperty/PageLayout';
+import PapersUploadConfig from './components/compProperty/PapersUploadConfig';
 import QueryMainConfig from './components/compProperty/QueryMainConfig';
+import RelatedDataConfig from './components/compProperty/RelatedDataConfig';
+import RichTextConfig from './components/compProperty/RichTextConfig';
+import SearchConditionConfig from './components/compProperty/SearchConditionConfig';
+import SelDataInitConfig from './components/compProperty/SelDataInitConfig';
+import SingleBoxConfig from './components/compProperty/SingleBoxConfig';
+import SingleLineTextConfig from './components/compProperty/SingleLineTextConfig';
+import TableMainConfig from './components/compProperty/TableMainConfig';
+import TextTipConfig from './components/compProperty/TextTipConfig';
+import TreeMainConfig from './components/compProperty/TreeMainConfig';
+import WebviewConfig from './components/compProperty/WebviewConfig';
+import CarouselConfig from './components/compProperty/CarouselConfig';
+import ConfigSidebar from './components/ConfigSidebar';
+import selData from './selData';
 
 export default {
   props: {
@@ -230,7 +233,10 @@ export default {
     TextTipConfig,
     RichTextConfig,
     DeployProgressBarConfig,
-    QueryMainConfig
+    QueryMainConfig,
+    EvaluationConfig,
+    CascadeConfig,
+    CarouselConfig
   },
   provide() {
     return {
@@ -262,7 +268,6 @@ export default {
     },
     // 获取所有的校验单位
     getAllcheck() {
-      console.log(this.configData[0]);
       const obj = {};
       if (this.configData[0] && this.configData[0].children.length) {
         const compPath = `${this.configData[0].name}`;
@@ -306,6 +311,9 @@ export default {
                       area.children.forEach((smallArea) => {
                         if (smallArea.children) {
                           smallArea.children.forEach((comp) => {
+                            if (comp.compName === 'DataSingleSel' && comp.textPanelId) {
+                              this.notDelPanelId.push(comp.textPanelId);
+                            }
                             obj[comp.compId] = JSON.parse(JSON.stringify(comp));
                             obj[comp.compId].compPath = areaPath;
                             obj[comp.compId].tabId = tab.compId;
@@ -525,7 +533,6 @@ export default {
           });
           return Promise.reject();
         }
-        console.log(this.configData, ' this.configData');
         const a = {
           id: this.isPanel ? this.sysMenuDesignId : this.$route.query.id,
           designOverallLayout: this.configData
@@ -566,7 +573,7 @@ export default {
         const res = this.checkDataSource();
         if (!res.flag) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: res.msg
           });
           return Promise.reject();
@@ -627,11 +634,9 @@ export default {
               break;
             }
             if (tempObj.compName === 'MultiTree') {
-              console.log(tempObj);
               break;
             }
             if (tempObj.compName === 'QueryMain') {
-              console.log(tempObj);
               break;
             }
             if (!tempObj.tableInfo.tableName) {
@@ -685,6 +690,8 @@ export default {
           case 17:
           case 21:
           case 22:
+          case 23:
+          case 24:
             // if (tempObj.canQuery && !tempObj.fieldName) {
             //   checkObj.flag = false;
             //   checkObj.msg = `${tempObj.name} 未填写字段`;
@@ -696,6 +703,32 @@ export default {
               break;
             }
             break;
+          case 25: {
+            if (tempObj.dataSource.tableName && !tempObj.dataSource.columnName) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未选择字段`;
+              break;
+            }
+            const obj = tempObj.cascadeDataSource.find((data, index) => {
+              if (index !== 0) {
+                if (!data.relateColumn.columnName) {
+                  return true;
+                }
+              }
+              if (!data.tableInfo.tableName) {
+                return true;
+              }
+              if (!data.showColumn.columnName) {
+                return true;
+              }
+              return false;
+            });
+            if (obj) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 数据来源未配置完全`;
+            }
+            break;
+          }
           case 2:
           case 3:
           case 4:
@@ -784,9 +817,37 @@ export default {
               checkObj.msg = `${tempObj.name} 未选择导出模板`;
               break;
             }
+            if (tempObj.buttonType === 14) {
+              // eslint-disable-next-line no-unused-vars
+              const {
+                layeredStrategy = '',
+                fileColumns = [],
+                downLoadType = null,
+                downloadName = ''
+              } = tempObj;
+              if (!layeredStrategy) {
+                checkObj.flag = false;
+                checkObj.msg = `${tempObj.name} 未配置文件层级`;
+                break;
+              }
+              if (!downloadName) {
+                checkObj.flag = false;
+                checkObj.msg = `${tempObj.name} 未配置导出文件名称`;
+                break;
+              }
+              if (!downLoadType) {
+                checkObj.flag = false;
+                checkObj.msg = `${tempObj.name} 未配置下载数据类型`;
+                break;
+              }
+              if ([1, 2].includes(downLoadType) && fileColumns && !fileColumns.length) {
+                checkObj.flag = false;
+                checkObj.msg = `${tempObj.name} 未配置业务文件字段`;
+                break;
+              }
+            }
             break;
           case 15:
-            console.log(tempObj);
             if (!tempObj.dataSource.relateName) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择关系`;
@@ -1018,7 +1079,6 @@ export default {
   watch: {
     configData: {
       handler(v) {
-        console.log(v);
         if (!this.isPanel) {
           sessionStorage.configData = JSON.stringify(v);
         }

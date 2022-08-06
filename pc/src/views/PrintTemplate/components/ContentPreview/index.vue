@@ -1,3 +1,10 @@
+<!--
+ * @Descripttion: 预览
+ * @Author: ytx
+ * @Date: 2022-07-19 15:43:54
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-07-19 15:43:54
+-->
 <template>
   <div style="width: 100%; height: 100%; overflow-x: hidden; overflow-y: auto">
     <div
@@ -52,13 +59,6 @@
                 : ''
             };
             vertical-align: bottom;
-            ${
-              tdValFun(i, index, celldataList, 8) === '0'
-                ? 'text-align: center'
-                : tdValFun(i, index, celldataList, 8) === '2'
-                ? 'text-align: right'
-                : ''
-            }
             font-family: ${tdValFun(i, index, celldataList, 1) || ''};
             font-size: ${tdValFun(i, index, celldataList, 2) || 14}px;
             font-weight: ${
@@ -103,6 +103,13 @@
                         ? 'align-items: end'
                         : 'align-items: center'
                     };
+                    ${
+                      tdValFun(i, index, celldataList, 8) === '0'
+                        ? 'justify-content: center'
+                        : tdValFun(i, index, celldataList, 8) === '2'
+                        ? 'justify-content: end'
+                        : 'justify-content: start'
+                    }
                     `"
                 >
                   {{ tdValFun(i, index, celldataList) }}
@@ -110,6 +117,7 @@
               </td>
             </tr>
           </tbody>
+          <!-- 图片 -->
           <img
             v-for="(val, key, index) in excelImg"
             :key="index"
@@ -123,6 +131,17 @@
           `"
           />
         </table>
+        <!-- 边框 -->
+        <div
+          v-for="(v, j) in borderInfo"
+          :key="j"
+          class="aaaaabbbbb"
+          :style="`
+            position: absolute
+          `"
+        >
+          <!-- {{ v }} -->
+        </div>
       </div>
     </div>
   </div>
@@ -155,13 +174,14 @@ export default {
       everyWidth: [],
       maxHeight: 0,
       maxWidth: 0,
-      excelImg: {}
+      excelImg: {},
+      borderInfo: []
     };
   },
   components: {},
   computed: {
     mergeWidth() {
-      return function(merge, widthtArr, i) {
+      return function (merge, widthtArr, i) {
         let num = 0;
         for (let b = 0; b < widthtArr.length; b += 1) {
           if (b === i) {
@@ -174,7 +194,7 @@ export default {
       };
     },
     mergeHeight() {
-      return function(merge, heightArr, i) {
+      return function (merge, heightArr, i) {
         let num = 0;
         for (let b = 0; b < heightArr.length; b += 1) {
           if (b === i) {
@@ -189,30 +209,31 @@ export default {
     },
     // 获取对应行的值
     tdValFun() {
-      return function(trV, tdV, list, type = '') {
+      return function (trV, tdV, list, type = '') {
         for (let i = 0; i < list.length; i += 1) {
           if (list[i].c === tdV && list[i].r === trV) {
+            const m = list[i].v.ct && list[i].v.ct.s && list[i].v.ct.s[0].v;
             switch (type) {
               case 1:
-                return list[i].v.ff;
+                return list[i].v.ff; // 字体
               case 2:
-                return list[i].v.fs;
+                return list[i].v.fs; // 字体大小
               case 3:
-                return list[i].v.bl;
+                return list[i].v.bl; // 字体加粗
               case 4:
-                return list[i].v.it;
+                return list[i].v.it; // 字体斜体
               case 5:
-                return list[i].v.fc;
+                return list[i].v.fc; // 字体颜色
               case 6:
-                return list[i].v.bg;
+                return list[i].v.bg; // 背景颜色
               case 7:
-                return list[i].v.mc;
+                return list[i].v.mc; // 合并单元格
               case 8:
-                return list[i].v.ht;
+                return list[i].v.ht; // 水平对齐
               case 9:
-                return list[i].v.vt;
+                return list[i].v.vt; // 垂直对齐
               default:
-                return list[i].v.m || list[i].v.ct.s[0].v;
+                return list[i].v.m || m; // 显示值
             }
           }
         }
@@ -228,14 +249,18 @@ export default {
       everyWidth,
       maxHeight,
       maxWidth,
-      excelImg
+      excelImg,
+      borderInfo = []
     } = this.previewObj;
+    console.log(this.previewObj);
     this.celldataList = celldataList;
     this.everyHeight = everyHeight;
     this.everyWidth = everyWidth;
     this.maxHeight = maxHeight;
     this.maxWidth = maxWidth;
     this.excelImg = excelImg;
+    this.borderInfo = borderInfo;
+    console.log(this.borderInfo);
   },
   methods: {}
 };

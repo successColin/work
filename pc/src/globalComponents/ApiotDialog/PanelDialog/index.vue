@@ -65,7 +65,7 @@ export default {
       default() {
         return {};
       }
-    },
+    }
   },
   data() {
     return {
@@ -270,7 +270,6 @@ export default {
       }
     }
     .tabMain__pane--area {
-      padding: 0px 21px 0;
       box-sizing: border-box;
       &.firstIsTable {
         padding-top: 0px;
@@ -286,6 +285,13 @@ export default {
     .tabMain__pane.showBtnsArea .btnsArea .menuMain__btnArea--compList {
       padding-right: 30px;
       padding-left: 20px;
+    }
+    .tabMain__pane .tabMain__pane--area .tableArea {
+      padding: 0 20px;
+    }
+    .tabMain__pane .tabMain__pane--area .treeArea {
+      width: 100%;
+      padding: 0 20px;
     }
     .tabMain__pane .firstIsTable .menuMain__btnArea--compList {
       padding-right: 0;

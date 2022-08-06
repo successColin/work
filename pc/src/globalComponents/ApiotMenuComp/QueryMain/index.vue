@@ -367,7 +367,9 @@ export default {
         // 不是字符串就是数组
         const arr = typeof v === 'string' ? v.split(',') : v;
         arr.forEach((item, index) => {
-          arr[index] = +item;
+          if (!Object.is(NaN, +item)) {
+            arr[index] = +item;
+          }
         });
         return arr;
       }
@@ -395,7 +397,7 @@ export default {
           v = +v;
         }
       }
-      if ([4].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
+      if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
         v = this.resolveRes(v);
       }
       return v;

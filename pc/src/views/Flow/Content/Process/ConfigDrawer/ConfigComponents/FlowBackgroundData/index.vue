@@ -53,6 +53,7 @@
         @addAffectType="addAffectType"
         :triggerCompMap="triggerCompMap"
         :showType="[1, 6]"
+        :currentVersion="currentVersion"
       />
     </transition>
   </div>

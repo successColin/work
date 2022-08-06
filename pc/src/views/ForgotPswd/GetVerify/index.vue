@@ -48,9 +48,9 @@
 </template>
 
 <script>
+import { postDoMessageVerify } from '@/api/login'; // 请求接口
 import MyModel from '@/views/Login/components/RegisterForgot/MyModel'; // 流程步骤模板组件
 import ValidationForm from '@/views/Login/components/ValidationForm'; // 表单验证
-import { postDoMessageVerify } from '@/api/login'; // 请求接口
 
 export default {
   data() {
@@ -138,7 +138,7 @@ export default {
       // 如果验证码为空，return
       if (!this.ruleForm.messageVerifyCode) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('login.verificationCodeMustBeFilled')
         });
         return;

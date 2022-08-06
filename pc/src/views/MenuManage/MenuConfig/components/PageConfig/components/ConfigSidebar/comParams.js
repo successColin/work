@@ -121,6 +121,7 @@ export const DataOneBoxCom = {
     nameAlias: '',
   },
   enableDict: false, // 是否字典值
+  textPanelId: '',
   relateType: 1, // 弹窗类型 1是面板 2是菜单
   dialogName: 'PanelDialog', // 弹窗风格
   dialogTitle: '',
@@ -288,6 +289,8 @@ export const ButtonCom = {
       // }
     ],
   },
+  enableLog: false, // 是否启用日志
+  logComp: [], // 操作日志组件数组
   execFunc: false, // 允许执行函数
   execFuncName: '', // 函数表达式
   flowType: 1, // 流程类型
@@ -311,4 +314,8 @@ export const ButtonCom = {
   extraColumn: [], // 额外导入信息
   needField: false, // 是否导出数据库表字段
   exportSetting: 1, // 导出设置 1 - 4
+  downLoadType: '', // 下载类型
+  fileColumns: [], // 导出业务字段
+  layeredStrategy: '[]', // 层级设置
+  downloadName: '下载文件', // 文件名
 };

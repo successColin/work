@@ -149,14 +149,14 @@
 </template>
 
 <script>
-import bus from '@/utils/bus';
 import {
-  sysMenuList,
+  switchLocation,
   sysMenuAdd,
-  sysMenuEdit,
   sysMenuDelete,
-  switchLocation
+  sysMenuEdit,
+  sysMenuList
 } from '@/api/menuManage';
+import bus from '@/utils/bus';
 import IconSelect from '../IconSelect';
 
 export default {
@@ -248,7 +248,7 @@ export default {
       if (this.iconObj.icon === '' && this.iconObj.imageUrl === '') {
         this.showLoading = false;
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('placeholder.pleaseSelect', { any: this.$t('menu.icon') })
         });
       }
@@ -319,7 +319,6 @@ export default {
           switchName: this.backGroupList[evt.oldIndex].menuName
         }
       };
-      console.log(params);
       this.switchLocation(params);
     },
     async handleCommand({ type, item }) {
@@ -410,7 +409,10 @@ export default {
           menuType: 2,
           clientType: 1,
           menuCode: '',
-          sno: this.customizeList[this.customizeList.length - 1].sno + 1,
+          sno:
+            this.customizeList.length === 0
+              ? 0
+              : this.customizeList[this.customizeList.length - 1].sno + 1,
           logData: {
             operateType: 1,
             menuName: {
@@ -438,10 +440,11 @@ export default {
           })
         });
       } catch (error) {
+        console.log(error);
         this.showLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.module') })} ${error.menuName}`
           });
         }
@@ -486,7 +489,7 @@ export default {
         this.showLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.module') })} ${error.menuName}`
           });
         }

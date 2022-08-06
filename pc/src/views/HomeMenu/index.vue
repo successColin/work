@@ -200,7 +200,6 @@ export default {
   },
 
   mounted() {
-    console.log('mounted');
     Bus.$off('modalOpera').$on('modalOpera', ({ visible, singleConfig }) => {
       this.visible = visible;
       this.singleConfig = singleConfig;

@@ -143,6 +143,18 @@
           设置筛选条件
         </apiot-button>
       </div>
+<!--      <div style="margin-top: 10px;">-->
+<!--        <apiot-button class="list-btn" @click="doClick">-->
+<!--          <i class="icon-xinzeng iconfont m-r-4"></i>-->
+<!--          摘要信息配置-->
+<!--        </apiot-button>-->
+<!--      </div>-->
+<!--      <div style="margin-top: 10px;">-->
+<!--        <apiot-button class="list-btn" @click="relateDialog=true">-->
+<!--          <i class="icon-xinzeng iconfont m-r-4"></i>-->
+<!--          设置关联表-->
+<!--        </apiot-button>-->
+<!--      </div>-->
     </div>
     <apiot-dialog
       :visible.sync="visible"
@@ -153,6 +165,7 @@
         ref="dataFiltering"
         :configData="configData"
         businessType="flow"
+        :needRelations="false"
         :lambdaArr="lambdaArr"
         :curTermObj="termObj"
         :flag="2"
@@ -160,6 +173,89 @@
         :triggerCompMap="triggerCompMap"
       />
     </apiot-dialog>
+    <apiot-dialog
+        :visible.sync="visible1"
+        title="设置摘要信息"
+        @sure-click="handleSaveConfig"
+    >
+      <div class="summarySettings">
+        <apiot-button @click="add">
+          <i class="iconfont icon-xinzeng m-r-4"></i
+          >{{ $t('common.add', { name: '' }) }}
+        </apiot-button>
+      </div>
+
+      <apiot-table
+          class="summarySettingsWrap"
+          :showSelection="false"
+          :isNeedRowDrop="false"
+          :isNeedColumnDrop="false"
+          :showSort="true"
+          :isAnimate="false"
+          rowKey="index"
+          :tableData="descConfigList"
+          style="width: 100%">
+        <el-table-column
+            prop="key"
+            label="字段"
+        >
+          <template slot-scope="scope">
+                          <el-select
+                              v-model="scope.row.key"
+                              filterable
+                              placeholder="请选择字段"
+                              @change="changeColumn($event, scope.row, scope.$index, 'key')"
+                          >
+                            <el-option
+                                v-for="item in fieldOptions"
+                                :key="item.columnName"
+                                :label="`${item.columnName}(${item.memo})`"
+                                :value="item.columnName"
+                            >
+                            </el-option>
+                          </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column
+            prop="enumeration"
+            label="枚举">
+          <template slot-scope="scope">
+            <filterable-input
+                v-show="visible1"
+                class="task__filterableInput"
+                placeholder="请选择字典"
+                :showInfo="scope.row.enumeration"
+                :hasPagination="true"
+                :dialogType="3"
+                @selectRes="changeColumn($event, scope.row, scope.$index, 'enumeration')"
+            ></filterable-input>
+          </template>
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="描述">
+          <template slot-scope="scope">
+            <apiot-input
+                v-model="scope.row.name"
+                @input="changeColumn($event, scope.row, scope.$index, 'name')"
+            ></apiot-input>
+          </template>
+        </el-table-column>
+        <el-table-column
+            prop="name1"
+            width="50"
+            label="操作">
+          <template slot-scope="scope">
+            <span @click="del(scope.$index)" class="iconfont icon-shanchu"></span>
+          </template>
+        </el-table-column>
+      </apiot-table>
+    </apiot-dialog>
+    <!-- 配置关联表弹窗 -->
+    <RelateTableDialog
+        :visible.sync="relateDialog"
+        :getCurrentTab="getCurrentTab"
+    ></RelateTableDialog>
   </div>
 </template>
 
@@ -167,6 +263,7 @@
 import { getFields } from '@/api/flow';
 import { lambdaArr } from '@/config/index';
 import ActionTerm from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/ActionTerm';
+import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
 
 export default {
   props: {
@@ -174,10 +271,21 @@ export default {
       // 节点流程配置信息
       type: Object,
       default: () => {}
+    },
+    currentVersion: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
     return {
+      getCurrentTab: {
+        tableInfo: { tableName: '' },
+        relateTableArr: [],
+        relateTableIndex: 0
+      },
+      relateDialog: false,
+      visible1: false,
       tableInfo: {},
       options: [],
       value: '', // 表
@@ -187,6 +295,8 @@ export default {
       visible: false, // 条件筛选弹框显示隐藏
       configData: [], // 页面配置信息
       lambdaArr,
+      descConfigList: [], // 摘要信息配置
+      descConfigListOrigin: [], // 初始数据
       termObj: {
         termType: 1, // 1 代表外层and 内层 or
         termArr: [] // 条件数组
@@ -195,7 +305,8 @@ export default {
   },
 
   components: {
-    ActionTerm
+    ActionTerm,
+    RelateTableDialog
   },
 
   computed: {
@@ -266,6 +377,7 @@ export default {
       this.configData = JSON.parse(configData);
       this.getDataSource(this.configData);
     }
+    console.log(this.currentVersion);
   },
   watch: {
     nodeInfo: {
@@ -298,13 +410,48 @@ export default {
           this.getFieldList();
         }
       }
+    },
+    visible1: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (!v) {
+          this.descConfigList = JSON.parse(JSON.stringify(this.descConfigListOrigin));
+        }
+      }
     }
   },
 
   methods: {
+    handleSaveConfig() {
+      this.descConfigListOrigin = JSON.parse(JSON.stringify(this.descConfigList));
+      if (this.descConfigList.length) {
+        let isTrue = false;
+        this.descConfigList.forEach((item) => {
+          if (!item.key || !item.name) {
+            isTrue = true;
+          }
+        });
+        if (isTrue) {
+          this.$message.error('摘要信息请填写完整!');
+        } else {
+          this.visible1 = false;
+        }
+      } else {
+        this.visible1 = false;
+      }
+    },
+    changeColumn(value, row, i, key) {
+      const obj = this.descConfigList[i];
+      const newObj = { ...obj, [key]: value };
+      this.descConfigList.splice(i, 1, newObj);
+    },
     init() {
       if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.$nextTick(() => {
+          this.descConfigList = this.nodeInfo.descConfigList || [];
+          // eslint-disable-next-line max-len
+          this.descConfigListOrigin = JSON.parse(JSON.stringify(this.nodeInfo.descConfigList || []));
           this.value = this.nodeInfo.tableName || '';
           this.radio = this.nodeInfo.triggerCond.type || 'ONLYSAVE';
           this.value1 = this.nodeInfo.triggerCond.fieldNames;
@@ -312,12 +459,19 @@ export default {
             termType: 1, // 1 代表外层and 内层 or
             termArr: [] // 条件数组
           };
+          this.getCurrentTab = {
+            tableInfo: { tableName: this.nodeInfo.tableName },
+            relateTableArr: [],
+            relateTableIndex: 0
+          };
         });
       }
     },
     selectTable(res) {
       const { tableName } = res;
-      this.value = tableName;
+      if (this.value !== tableName) {
+        this.value = tableName;
+      }
     },
     handleSaveDataFiltering() {
       const { termObj } = this.$refs.dataFiltering;
@@ -356,9 +510,32 @@ export default {
       };
       getTableName(obj, tableNameObj);
       this.options = tableNameObj;
-    }
+    },
+    doClick() {
+      if (!this.value) {
+        this.$message.error('请选择触发源!');
+        return;
+      }
+      this.visible1 = true;
+      this.getFieldList();
+    },
+    add() {
+      const n = this.descConfigList.length;
+      if (n >= 3) {
+        this.$message.error('摘要信息最多允许配置3个字段');
+        return;
+      }
+      this.descConfigList.push({
+        key: '',
+        enumeration: null,
+        name: ''
+      });
+    },
+    del(i) {
+      this.descConfigList.splice(i, 1);
+    },
   },
-  name: 'inndex'
+  name: 'index'
 };
 </script>
 
@@ -531,6 +708,30 @@ export default {
         color: #4689f5;
       }
     }
+  }
+  .summarySettingsWrap{
+    .icon-shanchu {
+      color: #BBC3CD;
+      cursor: pointer;
+    }
+    .icon-shanchu:hover {
+      color: #4689f5;
+    }
+    ::v-deep{
+      .filterableInput__result--table{
+        top: 2px;
+        right: 3px;
+        bottom: 5px;
+        left: 3px;
+      }
+      .filterableInput__con .icon-jiahao{
+        bottom: 3px;
+      }
+    }
+  }
+  .summarySettings{
+    margin-bottom: 10px;
+    text-align: left;
   }
 
   ::v-deep {

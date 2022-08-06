@@ -21,10 +21,7 @@
         </apiot-button>
       </div>
       <div class="post-content__option__search">
-        <search-input
-            @getList="search"
-            v-model="keywords"
-          ></search-input>
+        <search-input @getList="search" v-model="keywords"></search-input>
         <!-- <apiot-input
           :placeholder="$t('placeholder.pleaseEnterkeySearch')"
           v-model="keywords"
@@ -65,6 +62,11 @@
         </template>
       </el-table-column>
       <el-table-column
+        prop="keyCode"
+        :label="$t('org.keycode')"
+        resizable
+      ></el-table-column>
+      <el-table-column
         prop="memo"
         :label="$t('common.desc')"
         resizable
@@ -103,10 +105,10 @@
   </div>
 </template>
 <script>
-import apiotDrawer from '@/globalComponents/ApiotDrawer/index';
+import { addUserPost, deleteUserPost, editUserPost, getUserPostList } from '@/api/postManage.js';
 import apiotButton from '@/globalComponents/ApiotButton/index';
 import apiotCheckbox from '@/globalComponents/ApiotCheckbox/index';
-import { getUserPostList, addUserPost, editUserPost, deleteUserPost } from '@/api/postManage.js';
+import apiotDrawer from '@/globalComponents/ApiotDrawer/index';
 import treeTable from '@/views/orgManage/components/treeTable/index';
 import detail from './components/detail/index';
 
@@ -231,7 +233,7 @@ export default {
               name: this.$t('common.name', { name: '' })
             },
             parentName: {
-              name: this.$t('post.position'),
+              name: this.$t('post.position')
             },
             memo: {
               name: this.$t('common.desc')
@@ -252,7 +254,7 @@ export default {
         this.isSubmit = false;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('post.post') })} ${error.name}`
           });
         }
@@ -276,7 +278,7 @@ export default {
               name: this.$t('common.name', { name: '' })
             },
             parentName: {
-              name: this.$t('post.position'),
+              name: this.$t('post.position')
             },
             memo: {
               name: this.$t('common.desc')
@@ -301,7 +303,7 @@ export default {
         this.isSubmit = false;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('post.post') })} ${error.name}`
           });
         }

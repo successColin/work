@@ -16,11 +16,11 @@
 
 <script>
 import {
-  getEntityList,
   addEntityGroup,
+  changeGroupPos,
   deleteEntityGroup,
   editEntityGroup,
-  changeGroupPos
+  getEntityList
 } from '@/api/entityManage';
 
 export default {
@@ -71,7 +71,7 @@ export default {
         this.getSidebar.isEditKey = -1;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.group') })}${error.name}`
           });
         }
@@ -116,7 +116,7 @@ export default {
       } catch (error) {
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.group') })}${error.name}`
           });
         }
@@ -127,7 +127,7 @@ export default {
       // console.log(item);
       if (item.tableTotal) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.hasEntity')
         });
       }

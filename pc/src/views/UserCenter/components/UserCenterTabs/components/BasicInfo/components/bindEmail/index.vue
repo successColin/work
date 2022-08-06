@@ -137,7 +137,7 @@ export default {
         this.isSubmit = false;
         if (error.name) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: error.name
           });
         }

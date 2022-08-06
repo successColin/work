@@ -60,10 +60,10 @@
 </template>
 
 <script>
-import { exportTips } from '@/config';
-import { Decrypt, getBlob, saveAs } from '@/utils/utils';
 import query from '@/api/query';
 import { getTemplateInfo } from '@/api/user';
+import { exportTips } from '@/config';
+import { Decrypt, getBlob, saveAs } from '@/utils/utils';
 
 export default {
   props: {
@@ -111,7 +111,7 @@ export default {
         const type = nameArr[nameArr.length - 1];
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('icon.notSupportIcon')
           });
           reject(file);

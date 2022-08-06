@@ -37,6 +37,14 @@
           <el-select v-model="priority">
             <el-option label="100" :value="100"></el-option>
             <el-option label="90" :value="90"></el-option>
+            <el-option label="80" :value="80"></el-option>
+            <el-option label="70" :value="70"></el-option>
+            <el-option label="60" :value="60"></el-option>
+            <el-option label="50" :value="50"></el-option>
+            <el-option label="40" :value="40"></el-option>
+            <el-option label="30" :value="30"></el-option>
+            <el-option label="20" :value="20"></el-option>
+            <el-option label="10" :value="10"></el-option>
           </el-select>
         </el-form-item>
       </div>
@@ -103,15 +111,15 @@
 
 <script>
 import {
-  saveDesignTriggers,
+  getDesignTriggers,
   getDesignTriggersLinkDiagram,
-  getDesignTriggers
+  saveDesignTriggers
 } from '@/api/menuConfig';
 import { createUnique, getChartsByEx } from '@/utils/utils';
-import SelectComp from './components/SelectComp';
 import AffectComp from './components/AffectComp';
-import OtherApi from './components/OtherApi';
 import EndData from './components/EndData';
+import OtherApi from './components/OtherApi';
+import SelectComp from './components/SelectComp';
 import StoreProcess from './components/StoreProcess';
 
 export default {
@@ -289,13 +297,13 @@ export default {
       this.showLoading = false;
       if (!this.triggerComp.compId) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发组件'
         });
       }
       if (!this.actionList.length) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请新增动作'
         });
       }
@@ -407,7 +415,7 @@ export default {
       // console.log(index);
       if (index !== -1) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: `第${index + 1}步动作（${
             this.actionObj[this.actionList[index].triggerType].name
           }），${errorMsg}`
@@ -485,7 +493,7 @@ export default {
       // console.log(type);
       if (!this.triggerComp.compId) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发组件'
         });
       }

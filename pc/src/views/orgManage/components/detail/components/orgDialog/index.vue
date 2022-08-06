@@ -21,6 +21,7 @@
       <section class="org">
         <div class="personnel__content">
           <organization
+            class="org-tree"
             ref="orgTree"
             :curId="curData.id"
             :isSingle="true"
@@ -134,6 +135,11 @@ export default {
       &__content {
         flex: 1;
         height: 100%;
+        ::v-deep {
+          .el-tree{
+            height: 100%;
+          }
+        }
       }
       ::v-deep {
         .el-tabs {
@@ -190,7 +196,7 @@ export default {
 
   .el-dialog__footer {
     border-top: 1px solid #e9e9e9;
-    padding: 16px 20px 17px;
+    padding: 16px 20px 15px;
   }
 
   .el-dialog__headerbtn {

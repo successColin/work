@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import { pagePanel, batchDeletePanel, copyPanel } from '@/api/menuConfig';
+import { batchDeletePanel, copyPanel, pagePanel } from '@/api/menuConfig';
 import AddPane from './components/AddPane';
 import DesignConfig from './components/DesignConfig';
 import SelectDesignConfig from './components/SelectDesignConfig';
@@ -264,7 +264,7 @@ export default {
     deleteField() {
       if (!this.multiEntityArr.length) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('entity.selectDelData')
         });
       }
@@ -344,7 +344,7 @@ export default {
       } catch (error) {
         if (error.panelName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `面板名称 ${error.panelName}`
           });
         }

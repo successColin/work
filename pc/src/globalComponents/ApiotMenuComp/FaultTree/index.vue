@@ -327,7 +327,7 @@ export default {
       if (this.$store.state.userCenter.userInfo.isSupAdmin) {
         return false;
       }
-      return true;
+      return this.configData.needPermissions == null ? true : this.configData.needPermissions;
     }
   },
 

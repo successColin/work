@@ -314,6 +314,8 @@ export default {
             bgImgUrl: '',
             // 描述
             des: '',
+            EnableCornerMarker: false, // 是否启用角标 1 是， 2 否
+            hornMarkType: 1, // 角标样式 1数字 2红点
             // 离线点检相关
             offlineCheck: {
               // 路线层
@@ -353,16 +355,6 @@ export default {
               resultLayer: {
                 // 配置任务字段数组
                 columnArr: [
-                  //  id: createUnique(),
-                  // columnObj: {  // 字段
-                  //   id: '',
-                  //   columnName: '',
-                  //   columnTypeDict: ''
-                  // },
-                  // columnTitle: '', // 名称
-                  // compType: 1, // 组件类型
-                  // showStatus: 1, // 状态
-                  // dictObj: {} // 字典
                 ]
               }
             }

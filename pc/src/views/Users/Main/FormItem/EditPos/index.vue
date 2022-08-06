@@ -69,7 +69,7 @@ export default {
       const list = this.$refs.org ? this.$refs.org.selectKeys : [];
       if (!list.length) {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('common.placeSelectData')
         });
         return;

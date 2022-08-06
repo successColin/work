@@ -8,6 +8,7 @@
         :unique-opened="true"
         class="menuTra__menuBox"
         :default-active="activeIndex"
+        :default-openeds="getOpenedArr"
       >
         <transition-group name="move-right">
           <el-submenu
@@ -27,7 +28,7 @@
                 :style="`color:${item.icon ? item.icon.color : '#5A80ED'}`"
                 v-else
               ></i>
-              <span v-showEllipsis>{{ item.menuName }}</span>
+              <span v-showEllipsis="10">{{ item.menuName }}</span>
             </template>
             <el-menu-item-group>
               <MenuItem
@@ -57,7 +58,8 @@ export default {
       keywords: '',
       favArr: [],
       canFav: true,
-      activeIndex: ''
+      activeIndex: '',
+      openedArr: []
     };
   },
 
@@ -101,6 +103,21 @@ export default {
         return tempArr;
       }
       return allModuleArr;
+    },
+    getOpenedArr() {
+      if (this.keywords) {
+        const arr = [];
+        this.getTraRouteArr.forEach((item) => {
+          arr.push(item.id.toString());
+          if (item.children) {
+            item.children.forEach((menu) => {
+              arr.push(menu.id.toString());
+            });
+          }
+        });
+        return arr;
+      }
+      return [];
     }
   },
 
@@ -245,12 +262,12 @@ export default {
     margin-left: -2px;
     .iconfont {
       font-size: 20px;
-      margin-right: 18px;
+      margin-right: 8px;
     }
     .iconImg {
       width: 20px;
       height: 20px;
-      margin-right: 18px;
+      margin-right: 8px;
     }
     .nav--item__active {
       color: $--color-primary !important;
@@ -269,6 +286,12 @@ export default {
       .el-submenu__title {
         height: 48px;
         line-height: 48px;
+        font-size: 13px;
+        &:hover {
+          span {
+            color: $--color-primary;
+          }
+        }
       }
       .el-menu-item-group__title {
         height: 0;
@@ -285,7 +308,7 @@ export default {
         }
       }
       .el-submenu__icon-arrow {
-        left: 228px;
+        left: 192px;
         right: auto;
       }
     }

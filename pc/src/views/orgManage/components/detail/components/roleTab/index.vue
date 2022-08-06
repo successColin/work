@@ -29,7 +29,7 @@
           <span class="custom-tree-node" slot-scope="{ data }">
             <i
               v-if="!data.groupId && data.expanded"
-              class="iconfont fenzuzhankai m-r-6"
+              class="iconfont icon-fenzuzhankai m-r-6"
             ></i>
             <i
               v-else-if="!data.groupId && !data.expanded"

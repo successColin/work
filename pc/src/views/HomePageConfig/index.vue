@@ -8,48 +8,47 @@
 <!-- 页面 -->
 <template>
   <div
-      class="menu"
-      :asideLoading="asideLoading"
-      :contentLoading="contentLoading"
+    class="menu"
+    :asideLoading="asideLoading"
+    :contentLoading="contentLoading"
   >
     <template>
       <section
-          class="menu__wrapper"
-          :class="[{ apiotNoData: !menuArr.length }]"
+        class="menu__wrapper"
+        :class="[{ apiotNoData: !menuArr.length }]"
       >
         <header class="menu__header">
           <apiot-button type="primary" @click="addMenu">
-            <i class="iconfont icon-xinzeng m-r-4"></i
-            >新增页面
+            <i class="iconfont icon-xinzeng m-r-4"></i>新增页面
           </apiot-button>
           <search-input @getList="getList" v-model="keywords"></search-input>
         </header>
 
         <section class="menu__content">
           <draggable
-              v-model="menuArr"
-              group="menu"
-              animation="300"
-              handle=".icon-hengxiangtuodong"
-              @start="dragStart"
-              :move="dragMove"
-              @end="dragEnd"
+            v-model="menuArr"
+            group="menu"
+            animation="300"
+            handle=".icon-hengxiangtuodong"
+            @start="dragStart"
+            :move="dragMove"
+            @end="dragEnd"
           >
             <transition-group :name="transitionName" class="menu__father">
               <menu-card
-                  v-for="(item, index) in menuArr"
-                  :key="item.id"
-                  :isMoving="isMoving"
-                  :index="index"
-                  :item="item"
-                  class="m-r-14"
-                  :groupName="groupName"
-                  :groupId="270"
-                  @getList="getList"
-                  @addCancle="addCancle"
-                  @addSure="addSure"
-                  @editSure="editSure"
-                  @deleteMenu="deleteMenu"
+                v-for="(item, index) in menuArr"
+                :key="item.id"
+                :isMoving="isMoving"
+                :index="index"
+                :item="item"
+                class="m-r-14"
+                :groupName="groupName"
+                :groupId="270"
+                @getList="getList"
+                @addCancle="addCancle"
+                @addSure="addSure"
+                @editSure="editSure"
+                @deleteMenu="deleteMenu"
               ></menu-card>
             </transition-group>
           </draggable>
@@ -60,8 +59,14 @@
 </template>
 
 <script>
+import {
+  delFunction,
+  editHomePage,
+  getFunctionList,
+  saveFunction,
+  switchMenu
+} from '@/api/homePage';
 import bus from '@/utils/bus';
-import { getFunctionList, saveFunction, delFunction, editHomePage, switchMenu } from '@/api/homePage';
 import MenuCard from './components/MenuCard';
 
 export default {
@@ -84,7 +89,7 @@ export default {
   },
 
   components: {
-    MenuCard,
+    MenuCard
   },
 
   computed: {},
@@ -123,7 +128,7 @@ export default {
         colour: icon.color,
         designJson: 0,
         imageName: icon.icon,
-        imageUrl: icon.imageUrl,
+        imageUrl: icon.imageUrl
       };
       this.sysMenuAdd(params);
     },
@@ -194,7 +199,7 @@ export default {
           this.sysMenuEdit({ ...curItem, index: evt.newIndex, parentId: this.relateGroupId }, true);
         } else {
           this.$message({
-            type: 'error',
+            type: 'warning',
             message: this.$t('menu.noChangeModule')
           });
         }
@@ -246,7 +251,7 @@ export default {
           this.menuArr = [];
           await this.switchLocation({
             id: data.id,
-            aimSno: data.sno,
+            aimSno: data.sno
           });
           await this.sysMenuList();
         } else {
@@ -255,29 +260,25 @@ export default {
         }
         this.$message({
           type: 'success',
-          message: this.$t('common.success', { name: this.$t('common.add', { name: this.$t('menu.menu') }) })
+          message: this.$t('common.success', {
+            name: this.$t('common.add', { name: this.$t('menu.menu') })
+          })
         });
       } catch (error) {
         this.contentLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.menu') })} ${error.menuName}`
           });
         }
       }
     },
     // 编辑菜单
-    async sysMenuEdit({
-      index,
-      parentId = this.groupId,
-      id,
-      menuName,
-      icon,
-      enabled,
-      menuCode
-    },
-    isMoveGroup = false) {
+    async sysMenuEdit(
+      { index, parentId = this.groupId, id, menuName, icon, enabled, menuCode },
+      isMoveGroup = false
+    ) {
       try {
         const params = {
           colour: icon.color,
@@ -326,7 +327,7 @@ export default {
         this.contentLoading = false;
         if (error.menuName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('menu.menu') })} ${error.menuName}`
           });
         }
@@ -346,7 +347,7 @@ export default {
       });
     }
   },
-  name: 'HomePageConfig',
+  name: 'HomePageConfig'
 };
 </script>
 

@@ -62,8 +62,8 @@
 </template>
 
 <script>
-import { debounce } from '@/utils/utils';
 import { getUserPage } from '@/api/orgManage.js';
+import { debounce } from '@/utils/utils';
 
 export default {
   components: {},
@@ -112,7 +112,7 @@ export default {
         this.$emit('changeUser', users);
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('user.hasUserSelected')
         });
       }

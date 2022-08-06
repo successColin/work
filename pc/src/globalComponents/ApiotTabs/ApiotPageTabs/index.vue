@@ -63,9 +63,8 @@ $--tabTopHeight: 42px;
       margin: 0 0 10px;
     }
     .el-tabs__item {
-      height: $--tabTopHeight;
-      line-height: $--tabTopHeight;
-      font-family: PingFangSC-Medium, PingFang SC;
+      // height: $--tabTopHeight;
+      // line-height: $--tabTopHeight;
       color: #333333;
       &.is-active {
         color: $--color-primary;
@@ -84,7 +83,7 @@ $--tabTopHeight: 42px;
       box-shadow: 0px -1px 0px 0px #ebebeb;
     }
     .el-tabs__content {
-      height: calc(100% - 57px);
+      height: calc(100% - 52px);
       .el-tab-pane {
         height: 100%;
       }

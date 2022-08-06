@@ -128,8 +128,8 @@
 </template>
 
 <script>
-import bus from '@/utils/bus';
 import { addSysIndexes, listSysEntityColumns, modifyIndexes } from '@/api/entityManage';
+import bus from '@/utils/bus';
 import MultiDialog from '../../MultiDialog';
 
 export default {
@@ -255,7 +255,7 @@ export default {
           if (!this.multiStr) {
             this.showLoading = false;
             return this.$message({
-              type: 'error',
+              type: 'warning',
               message: this.$t('placeholder.pleaseSelect', {
                 any: this.$t('entity.column')
               })
@@ -329,7 +329,7 @@ export default {
         this.showLoading = false;
         if (error.indexesName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.indexes') })} ${
               error.indexesName
             }`
@@ -396,7 +396,7 @@ export default {
         this.showLoading = false;
         if (error.indexesName) {
           return this.$message({
-            type: 'error',
+            type: 'warning',
             message: `${this.$t('common.name', { name: this.$t('entity.indexes') })} ${
               error.indexesName
             }`

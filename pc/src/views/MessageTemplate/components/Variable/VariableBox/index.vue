@@ -104,7 +104,7 @@ export default {
         this.$emit('changVars', { vars: current, prop });
       } else {
         this.$message({
-          type: 'error',
+          type: 'warning',
           message: this.$t('messageTemplate.isExist', { any: variable.variableCode })
         });
       }

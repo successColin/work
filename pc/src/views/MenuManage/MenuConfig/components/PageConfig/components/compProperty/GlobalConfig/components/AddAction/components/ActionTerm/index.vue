@@ -52,6 +52,35 @@
           :key="j"
           :class="{ [getLayOut]: true }"
         >
+          <div
+            style="margin-bottom: 0"
+            v-if="businessType === 'flow' && needRelations"
+          >
+            <el-select
+              v-model="child.baseType"
+              class="action__term--liChild valueType"
+              @change="change($event, child)"
+              value-key="value"
+            >
+              <el-option
+                :label="relation.label"
+                :value="relation"
+                v-for="(relation, i) in relationArr"
+                :key="`${relation.value}_${i}`"
+              ></el-option>
+            </el-select>
+          </div>
+          <div
+            style="margin-bottom: 0"
+            v-if="businessType === 'flow' && child.baseType && needRelations"
+          >
+            <el-select
+              disabled
+              v-model="child.baseType.value"
+              class="action__term--liChild valueType"
+            >
+            </el-select>
+          </div>
           <select-comp
             class="selectCompVertical"
             :businessType="businessType"
@@ -66,7 +95,7 @@
             v-if="flag === 2"
             class="list__item--column fields"
             placeholder="请选择字段"
-            :tableName="tableInfo.tableName"
+            :tableName="getRealTableName(child)"
             :showInfo="child.columnObj"
             :dialogType="2"
             :notShowSys="notShowSys"
@@ -213,6 +242,18 @@ export default {
     showType: {
       type: Array,
       default: () => [1]
+    },
+    relationRefs: {
+      // 用于流程，关系引用
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    needRelations: {
+      // 是否需要引用关系
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -230,6 +271,33 @@ export default {
   },
 
   computed: {
+    getRealTableName() {
+      return function (params) {
+        if (this.businessType === 'flow' && this.needRelations) {
+          if (params.baseType) {
+            return params.baseType.value;
+          }
+          return '';
+        }
+        return this.tableInfo.tableName;
+      };
+    },
+    relationArr() {
+      // 引用关系
+      const arr = [];
+      const { tableInfo = {}, relateTableArr = [] } = this.relationRefs;
+      const { relateName, tableName } = tableInfo;
+      arr.push({ label: `${relateName || '主表'}(${tableName})`, value: tableName, ...tableInfo });
+      relateTableArr.forEach((item) => {
+        const { relateName: relateName1, relateTable } = item;
+        arr.push({
+          label: `${relateName1}(${item.conditionArr[0][0].firstLineColumn.columnName})`,
+          value: relateTable.tableName,
+          ...item
+        });
+      });
+      return arr;
+    },
     getLayOut() {
       // 获取布局方式
       return this.layout;
@@ -253,19 +321,37 @@ export default {
       this.termObj = this.curTermObj;
       // console.log(this.termObj);
     }
+    console.log(this.relationRefs);
   },
 
   methods: {
+    change(v, child) {
+      child.columnObj = {
+        columnName: '',
+        columnType: '',
+        tableName: ''
+      };
+      child.comp = {
+        compId: '',
+        compPath: '',
+        compType: ''
+      };
+      const { relateTable, relateName } = v;
+      child.alias =
+        relateName === '主表' ? v.tableName : relateTable.alias || relateTable.tableName;
+      child.content = '';
+    },
     // 添加外层条件 1 外层 and 内层or 2外层or 内层 and
     addTerm(flag) {
       if (this.flag === 1 && !this.businessType && !this.triggerComp.compId) {
         return this.$message({
-          type: 'error',
+          type: 'warning',
           message: '请选择触发组件'
         });
       }
       this.termObj.termType = flag;
       this.termObj.termArr.push([]);
+      console.log(33333, this.termObj.termArr[this.termObj.termArr.length - 1]);
       this.addChildTerm(this.termObj.termArr[this.termObj.termArr.length - 1]);
     },
     // 删除外层条件
@@ -287,7 +373,7 @@ export default {
           content: ''
         });
       } else {
-        item.push({
+        const obj = {
           comp: {
             compId: '',
             compPath: '',
@@ -300,7 +386,8 @@ export default {
           lambda: '=',
           valueType: 1,
           content: ''
-        });
+        };
+        item.push(obj);
       }
       console.log(item);
     },

@@ -158,7 +158,8 @@ export default {
       moreOperateArr: [],
       fileDeleteIds: [],
       isMenuMain: true,
-      backForm: null
+      backForm: null,
+      setIdTerm: ''
     };
   },
 
@@ -250,7 +251,7 @@ export default {
       if (this.configData.shouldInit) {
         if (!this.getNotInitArr().includes(this.configData.compId)) {
           if (this.getFatherPanel()) {
-            if (!this.getFatherPanel().isAdd) {
+            if (!this.getFatherPanel().isAdd || this.setIdTerm) {
               this.getSidebarSingle();
             }
           } else {
@@ -258,7 +259,6 @@ export default {
           }
         }
       }
-
       this.$bus.$on(this.getEventName, this.reloadArea);
       this.$bus.$on(`loadSomeArea_${this.parent.compId}`, this.loadArea);
     }
@@ -300,11 +300,11 @@ export default {
       }
     },
     // 更新该区域
-    reloadArea(areaArr, onlyFlag, compId) {
+    reloadArea(areaArr, onlyFlag, compId, id) {
       if (areaArr === 'all' && onlyFlag === this.onlyFlag()) {
         if (this.configData.shouldInit) {
           if (!this.getNotInitArr().includes(this.configData.compId)) {
-            if (!(this.getFatherPanel() && this.getFatherPanel().isAdd)) {
+            if (!(this.getFatherPanel() && this.getFatherPanel().isAdd) || this.setIdTerm) {
               this.getSidebarSingle();
             }
           }
@@ -317,6 +317,18 @@ export default {
         onlyFlag === this.onlyFlag() &&
         compId === this.configData.compId
       ) {
+        this.getSidebarSingle();
+        return;
+      }
+      // 设置id
+      if (
+        areaArr === 'setId' &&
+        onlyFlag === this.onlyFlag() &&
+        compId === this.configData.compId
+      ) {
+        this.setIdTerm = `${this.configData.tableInfo.tableName}.id=${id}`;
+        this.getFeatureArr.form[this.getIdCompId] = id;
+        console.log(id);
         this.getSidebarSingle();
         return;
       }
@@ -369,7 +381,9 @@ export default {
         // 不是字符串就是数组
         const arr = typeof v === 'string' ? v.split(',') : v;
         arr.forEach((item, index) => {
-          arr[index] = +item;
+          if (!Object.is(NaN, +item)) {
+            arr[index] = +item;
+          }
         });
         return arr;
       }
@@ -397,7 +411,7 @@ export default {
           v = +v;
         }
       }
-      if ([4].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
+      if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
         v = this.resolveRes(v);
       }
       return v;
@@ -438,6 +452,9 @@ export default {
       ) {
         const { tableInfo } = this.configData;
         params.workflowFilter = `${tableInfo.tableName}.id=${this.showType.dataId}`;
+      }
+      if (this.setIdTerm) {
+        params.workflowFilter = this.setIdTerm;
       }
       const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
       if (panelFilter) {

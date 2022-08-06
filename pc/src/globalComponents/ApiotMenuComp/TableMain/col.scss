@@ -31,12 +31,26 @@
   }
 }
 .columnHeader__box {
+  width: 100%;
   display: inline-flex;
   align-items: center;
   line-height: 18px;
   height: 18px;
+  width: min-content;
+  max-width: calc(100% - 10px);
+
+  &>span{
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &:hover {
+      color: #333;
+    }
+  }
   .icon-bangzhu {
-    margin-left: 5px;
+    margin-left: 2px;
+    margin-right: 2px;
     color: #aaaaaa;
     font-size: 13px;
     font-weight: normal;

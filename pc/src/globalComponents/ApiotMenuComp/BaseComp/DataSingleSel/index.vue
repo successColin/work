@@ -55,7 +55,7 @@
         v-if="parent.form[configData.compId]"
         @mouseenter="showDelete = true"
         @mouseleave="showDelete = false"
-        @click="jumpMenu"
+        @click="textClick"
       >
         {{ getContent(parent.form[`${configData.compId}_`]) }}
       </div>
@@ -143,7 +143,7 @@ export default {
         if (dictKey) {
           const tempData = this.$store.getters.getCurDict(dictKey);
           const obj = {};
-          if (tempData.length) {
+          if (Array.isArray(tempData) && tempData.length) {
             tempData.forEach((dict) => {
               obj[dict.value] = dict;
             });
@@ -228,7 +228,7 @@ export default {
   inject: ['getAllForm', 'getPanel', 'getMenu', 'onlyFlag', 'sysMenuDesignId'],
   methods: {
     // 处理过滤条件变量为真实值
-    resolveFilterVar(panelObj) {
+    resolveFilterVar(panelObj, flag = true) {
       if (panelObj) {
         panelObj.panelVarObj = {};
 
@@ -252,10 +252,10 @@ export default {
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
         panelObj.onlyFlag = this.onlyFlag();
-        if (this.configData.dialogTitle) {
-          panelObj.panelName = this.configData.dialogTitle;
-        } else {
+        if (flag) {
           panelObj.panelName = `请选择${this.configData.name}`;
+        } else if (this.configData.dialogTitle) {
+          panelObj.panelName = this.configData.dialogTitle;
         }
         return panelObj;
       }
@@ -263,7 +263,6 @@ export default {
     },
     showPanelDialog() {
       this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);
-      // console.log(this.panelObj);
       if (this.panelObj && this.panelObj.panelName) {
         this.$refs.panelDialog.initSelData(
           this.getRelateColumnName,
@@ -286,7 +285,6 @@ export default {
         return false;
       });
       if (obj) {
-        console.log(obj);
         const menu = this.$store.getters.getCurMenu(obj.id);
         if (menu) {
           const curMenu = JSON.parse(JSON.stringify(menu));
@@ -316,6 +314,16 @@ export default {
           type: 'warning',
           message: '您没有符合条件的菜单'
         });
+      }
+    },
+    textClick() {
+      if (this.configData.relateType === 1) {
+        this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.textPanelId], false);
+        if (this.panelObj && this.panelObj.panelName) {
+          this.showPanel = true;
+        }
+      } else {
+        this.jumpMenu();
       }
     },
     setDataSel(arr) {
@@ -356,7 +364,7 @@ export default {
   overflow: hidden;
   &.noHover {
     min-height: 76px;
-    padding: 0px 15px 18px 15px;
+    padding: 0px 15px 18px 35px;
   }
   &.isTable {
     padding: 0;

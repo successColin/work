@@ -91,18 +91,18 @@ export default {
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
   }
   &--content {
+    top: 46px !important;
     margin: 10px 10px 0;
     box-shadow: 0px 0px 4px 0px rgb(0 0 0 / 30%);
     height: calc(100% - 46px - 10px) !important;
 
     .tabMain__pane--area {
-      padding: 0px 21px 0;
       box-sizing: border-box;
       &.firstIsTable {
         padding-top: 0px;
       }
     }
-    .tabMain__pane.showBtnsArea.inBottom {
+    .tabMain__tabs .tabMain__pane.showBtnsArea.inBottom {
       padding-bottom: 64px;
     }
     .tabMain__pane.showBtnsArea.inBottom .btnsArea {

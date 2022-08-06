@@ -569,7 +569,7 @@ export default {
   }
   &.noHover {
     min-height: 28px;
-    padding: 0px 15px 0px 15px;
+    padding: 0px 15px 0px 35px;
   }
   &.isConfigId {
     min-height: 36px;

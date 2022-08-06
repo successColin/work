@@ -70,8 +70,7 @@ export default {
     return {
       loading: true,
       appScan: 2,
-      zheZhengDingScan: 3,
-      zheSrc: `https://login.dg-work.cn/qrlogin/webAppLogin.htm?APP_NAME=apiotV10_dingoa&protocolKey=0eac8d40-ceef-4f6d-ad03-213bffff9d99&protocol=oauth2&BACK_URL=${window.location.href}&embedMode=true&scope=get_user_info&state=`
+      zheZhengDingScan: 3
     };
   },
   components: {
@@ -84,7 +83,11 @@ export default {
   destroyed() {
     window.removeEventListener('message', this.scanCode);
   },
-  computed: {},
+  computed: {
+    zheSrc() {
+      return this.$store.state.globalConfig.zzdScan;
+    }
+  },
   watch: {},
   methods: {
     loadingFun() {

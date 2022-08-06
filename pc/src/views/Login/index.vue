@@ -64,7 +64,8 @@ export default {
   .el-checkbox__input.is-checked + .el-checkbox__label {
     color: $loginThemeColor !important;
   }
-  .icon-mimayincang:hover {
+  .icon-mimayincang:hover,
+  .icon-mimaxianshi:hover {
     color: $loginThemeColor !important;
   }
 }

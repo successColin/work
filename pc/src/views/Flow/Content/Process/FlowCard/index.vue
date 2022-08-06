@@ -315,12 +315,12 @@ function addNodeButton(ctx, data, h, isBranch = false) {
       color: '#34C7BE',
       icon: 'icon-tianxie'
     },
-    // {
-    //   name: '外部接口',
-    //   eventName: 'addWebHookNode',
-    //   color: '#FAB71C',
-    //   icon: 'icon-waibujiekou'
-    // },
+    {
+      name: '外部接口',
+      eventName: 'addWebHookNode',
+      color: '#FAB71C',
+      icon: 'icon-waibujiekou'
+    },
     {
       name: '后台数据',
       eventName: 'addBackEndDataNode',
@@ -415,7 +415,7 @@ function NodeFactory(ctx, data, h) {
         <div class="branch-box-wrap">
           <div class="branch-box  flex justify-center relative">
             <button class="btn" onClick={this.eventLancher.bind(ctx, 'appendConditionNode', data)}>
-              添加条件
+              添加分支
             </button>
             {data.conditionNodes.map((d) => NodeFactory.call(ctx, ctx, d, h))}
           </div>

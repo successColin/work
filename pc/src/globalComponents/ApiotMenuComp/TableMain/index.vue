@@ -1,6 +1,6 @@
 <template>
   <div
-    class="menuMain"
+    class="menuMain tableArea"
     :class="[
       { flexReserve: configData.pageType === 3 },
       { notConfig: !isConfig },
@@ -115,7 +115,7 @@
         <div
           style="height: 100%"
           ref="curTable"
-          :class="`table__main menuMain__feature--compList ${dropClass}`"
+          :class="`configTable table__main menuMain__feature--compList ${dropClass}`"
           v-else
         >
           <apiot-table
@@ -209,8 +209,8 @@
 </template>
 
 <script>
-import { createUnique, formatDate } from '@/utils/utils';
 import { getSidebarList, getSidebarPage } from '@/api/menuConfig';
+import { createUnique, formatDate } from '@/utils/utils';
 import initAreaMixin from '../initAreaMixin';
 
 export default {
@@ -405,7 +405,7 @@ export default {
       if (this.showType && this.showType.type === 'flow') {
         return false;
       }
-      return true;
+      return this.configData.needPermissions == null ? true : this.configData.needPermissions;
     },
     // 获取组件数据的map
     getCompIdMap() {
@@ -444,6 +444,7 @@ export default {
           this.getSidebarList();
         }
       });
+
       this.$bus.$on(this.getEventName, this.reloadArea);
       this.$bus.$on(`loadSomeArea_${this.parent.compId}`, this.loadArea);
       this.$bus.$on('getSelMultiArr', this.getSelMultiArr);
@@ -624,6 +625,7 @@ export default {
       const width = this.$refs.curTable.offsetWidth - 40;
       // 初始化父节点唯一class
       this.dropClass = `table_${createUnique()}`;
+
       // 初始化列表
       this.dropColumnData = this.getFeatureArr.children.filter((item) => {
         item.showTip = true;
@@ -655,7 +657,6 @@ export default {
         }
         return item.canShow;
       });
-
       // 初始化序号以及多选
       this.numAndSel = {
         showSort: false,
@@ -807,14 +808,14 @@ export default {
       }
     },
     // 更新该区域
-    reloadArea(areaArr, onlyFlag, compId) {
+    reloadArea(areaArr, onlyFlag, compId, filterObj) {
       // 按钮全部刷新
       if (areaArr === 'all' && onlyFlag === this.onlyFlag()) {
         if (!this.getNotInitArr().includes(this.configData.compId)) {
           this.currentRadioObj = null;
           this.multiEntityArr = [];
           this.$refs.tableMain.clearSelection();
-          this.getSidebarList(null, 'all');
+          this.getSidebarList();
         }
         return;
       }
@@ -837,9 +838,36 @@ export default {
       if (
         areaArr === 'searchCurrent' &&
         onlyFlag === this.onlyFlag() &&
-        compId === this.configData.compId
+        compId === this.configData.compId &&
+        this.configData.compName === 'TableMain'
       ) {
         this.current = 1;
+        this.configData.headerSearch = null;
+        this.$refs.column.forEach((vueComp) => {
+          if (vueComp.$refs.filterCol) {
+            vueComp.$refs.filterCol.clearFilter();
+          }
+        });
+        this.getSidebarList();
+        return;
+      }
+      if (
+        areaArr === 'filterList' &&
+        onlyFlag === this.onlyFlag() &&
+        compId === this.configData.compId &&
+        this.configData.compName === 'TableMain'
+      ) {
+        this.current = 1;
+        this.configData.searchInfo = null;
+        if (!this.configData.headerSearch) {
+          this.configData.headerSearch = {};
+        }
+        if (filterObj.arr.length) {
+          this.configData.headerSearch[filterObj.compId] = filterObj.arr;
+        } else {
+          delete this.configData.headerSearch[filterObj.compId];
+        }
+
         this.getSidebarList();
         return;
       }
@@ -916,8 +944,23 @@ export default {
       }
       return '';
     },
+    // 获取表头过滤条件
+    getHeaderSearch() {
+      if (this.configData.headerSearch) {
+        const arr = [];
+        Object.keys(this.configData.headerSearch).forEach((key) => {
+          arr.push(...this.configData.headerSearch[key]);
+        });
+        if (arr.length) {
+          return {
+            columnsInfo: arr
+          };
+        }
+      }
+      return '';
+    },
     // 获取列表数据
-    async getSidebarList(sortStr, type) {
+    async getSidebarList(sortStr) {
       // console.log(this.getFatherPanel());
       // console.log(this.onlyFlag());
       this.loading = true;
@@ -950,12 +993,12 @@ export default {
             }
           }
         }
-        if (type === 'all') {
-          delete params.panelFilter;
-          delete params.compMap;
-        }
         if (this.configData.searchInfo) {
           params.searchInfo = this.configData.searchInfo;
+        }
+        const headerSearch = this.getHeaderSearch();
+        if (headerSearch) {
+          params.headerSearch = headerSearch;
         }
         const { compName } = this.configData;
         if (this.showType && this.showType.type === 'flow' && compName === 'CardMain') {
@@ -989,6 +1032,10 @@ export default {
         }
         if (this.configData.searchInfo) {
           params.searchInfo = this.configData.searchInfo;
+        }
+        const headerSearch = this.getHeaderSearch();
+        if (headerSearch) {
+          params.headerSearch = headerSearch;
         }
         const { compName } = this.configData;
         if (this.showType && this.showType.type === 'flow' && compName === 'CardMain') {
@@ -1043,6 +1090,9 @@ export default {
     },
     // 列表排序  ASC ascending升序  DESC descending降序
     sortChange(column) {
+      if (this.tableData.length === 0) {
+        return;
+      }
       this.current = 1;
       const obj = this.dropColumnData.find((data) => {
         if (data.name === column.column.label && data.dataSource.columnName === column.prop) {
@@ -1062,11 +1112,12 @@ export default {
     },
     // 处理值去设置
     resolveRes(v) {
-      if (v && typeof v === 'string') {
-        // console.log(v);
-        const arr = v.split(',');
+      if (v) {
+        const arr = typeof v === 'string' ? v.split(',') : v;
         arr.forEach((item, index) => {
-          arr[index] = +item;
+          if (!Object.is(NaN, +item)) {
+            arr[index] = +item;
+          }
         });
         return arr;
       }
@@ -1090,7 +1141,7 @@ export default {
             v = +v;
           }
         }
-        if ([4].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
+        if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
           v = this.resolveRes(v);
         }
         // 时间初始化
@@ -1343,6 +1394,13 @@ export default {
       this.selectTableRow();
       this.$nextTick(() => {
         this.notTouch = false;
+      });
+    },
+    hideOtherFilter(compId) {
+      this.$refs.column.forEach((vueComp) => {
+        if (vueComp.$refs.filterCol) {
+          vueComp.$refs.filterCol.hide(compId);
+        }
       });
     }
   },
@@ -1602,6 +1660,16 @@ export default {
     font-size: 13px;
     font-weight: 400;
     color: #808080;
+  }
+}
+.configTable {
+  ::v-deep {
+    .el-table th {
+      padding: 6px 26px 6px 6px !important;
+      .cell {
+        overflow: visible !important;
+      }
+    }
   }
 }
 </style>
