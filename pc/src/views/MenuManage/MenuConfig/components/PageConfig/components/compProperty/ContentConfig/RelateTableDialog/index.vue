@@ -337,6 +337,7 @@ export default {
       // 目前别名规则 表前两个字母__时间戳
       if (relateObj.relateTable.tableName === this.getCurrentTab.tableInfo.tableName) {
         relateObj.relateTable.alias = `${relateObj.relateTable.tableName}__${this.getCurrentTab.relateTableIndex}`;
+        relateObj.relateTable.nameAlias = `${relateObj.relateTable.tableName}__${this.getCurrentTab.relateTableIndex}`;
       }
       const index = this.getCurrentTab.relateTableArr.findIndex(
         (item) => item.relateTable.tableName === relateObj.relateTable.tableName

@@ -12,7 +12,7 @@
       v-if="!config.icon.imageUrl && !config.icon.icon"
     ></i>
     <img
-      :src="config.icon.imageUrl"
+      :src="$parseImgUrl(config.icon.imageUrl)"
       alt=""
       v-if="config.icon.imageUrl"
       class="full"

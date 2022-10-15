@@ -8,17 +8,18 @@
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
       { disabled: configData.canReadonly },
-      { onelineCalss: isLayoutStyle },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span style="white-space: nowrap"> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
           placement="top"
@@ -51,7 +52,10 @@
       ></i>
       <div
         class="dataSingleSel__showData"
-        :class="[{ disabled: configData.canReadonly }, { hasMenu: hasMenu }]"
+        :class="[
+          { disabled: configData.canReadonly },
+          { hasMenu: hasMenu || shouldOpenPanel },
+        ]"
         v-if="parent.form[configData.compId]"
         @mouseenter="showDelete = true"
         @mouseleave="showDelete = false"
@@ -78,6 +82,12 @@
       :panelObj="panelObj"
       @setDataSel="setDataSel"
     ></Panel-dialog>
+    <component
+      :is="(panelObj && panelObj.dialogName) || 'PanelDialog'"
+      :visible.sync="showTextPanel"
+      :showPanel="showTextPanel"
+      :panelObj="panelObj"
+    ></component>
     <!-- </transition> -->
   </div>
 </template>
@@ -87,11 +97,17 @@ import { selectList } from '@/api/menuConfig';
 import compMixin from '../../compMixin';
 
 export default {
+  props: {
+    backForm: {
+      type: Object
+    }
+  },
   data() {
     return {
       curCompType: 2,
       panelObj: null, // 面板相关信息
       showPanel: false,
+      showTextPanel: false,
       curData: [],
       unwatch: null,
       showDelete: false
@@ -112,6 +128,19 @@ export default {
           .columnName;
       }
       return 'id';
+    },
+    // 是否需要点击打开panel
+    shouldOpenPanel() {
+      if (this.isConfig) {
+        return false;
+      }
+      if (this.configData.textPanelId && this.configData.textPanelId.indexOf(',') === -1) {
+        const panel = this.getPanel()[this.configData.textPanelId];
+        if (!panel) {
+          return false;
+        }
+      }
+      return this.configData.textPanelId;
     },
     hasMenu() {
       if (this.isConfig) {
@@ -225,7 +254,7 @@ export default {
       );
     }
   },
-  inject: ['getAllForm', 'getPanel', 'getMenu', 'onlyFlag', 'sysMenuDesignId'],
+  inject: ['getAllForm', 'getPanel', 'getMenu', 'onlyFlag', 'sysMenuDesignId', 'resolveFormula'],
   methods: {
     // 处理过滤条件变量为真实值
     resolveFilterVar(panelObj, flag = true) {
@@ -244,6 +273,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           }
@@ -254,8 +288,8 @@ export default {
         panelObj.onlyFlag = this.onlyFlag();
         if (flag) {
           panelObj.panelName = `请选择${this.configData.name}`;
-        } else if (this.configData.dialogTitle) {
-          panelObj.panelName = this.configData.dialogTitle;
+        } else if (panelObj.name) {
+          panelObj.panelName = panelObj.name;
         }
         return panelObj;
       }
@@ -272,6 +306,12 @@ export default {
       }
     },
     jumpMenu() {
+      if (this.$route.name === 'sharePage') {
+        return this.$message({
+          type: 'warning',
+          message: '分享页面无跳转菜单的权限'
+        });
+      }
       const curMenuArr = this.getMenu()[this.configData.compId];
       const obj = curMenuArr.find((menu) => {
         if (!menu.jumpTerm) {
@@ -318,9 +358,33 @@ export default {
     },
     textClick() {
       if (this.configData.relateType === 1) {
-        this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.textPanelId], false);
-        if (this.panelObj && this.panelObj.panelName) {
-          this.showPanel = true;
+        const arr = this.configData.textPanelId.split(',');
+        const panelArr = [];
+        arr.forEach((panelId) => {
+          console.log(this.getPanel()[panelId]);
+          if (panelId && this.getPanel()[panelId]) {
+            panelArr.push(this.getPanel()[panelId]);
+          }
+        });
+        console.log(panelArr);
+        const obj = panelArr.find((panel) => {
+          if (!panel.jumpTerm) {
+            return true;
+          }
+          const res = this.resolveFormula(true, panel.jumpTerm);
+          // console.log(res);
+          if (res) {
+            return true;
+          }
+          return false;
+        });
+        console.log(obj);
+        if (obj) {
+          this.panelObj = this.resolveFilterVar(obj, false);
+          console.log(this.panelObj);
+          if (this.panelObj && this.panelObj.panelName) {
+            this.showTextPanel = true;
+          }
         }
       } else {
         this.jumpMenu();
@@ -349,6 +413,9 @@ export default {
   beforeDestroy() {
     if (this.unwatch) {
       this.unwatch();
+      if (this.backForm) {
+        this.parent.form[this.configData.compId] = this.backForm[this.configData.compId];
+      }
     }
   }
 };
@@ -471,7 +538,7 @@ export default {
     }
     &.disabled {
       background-color: #f5f7fa;
-      color: #c0c4cc;
+      color: #808080;
     }
   }
   .table {

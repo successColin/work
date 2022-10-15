@@ -44,11 +44,11 @@ export default {
     imgUrl: 'baseComp/MultiLineText.svg',
   },
   12: {
-    compType: 12,
+    compType: 24,
     imgUrl: 'highComp/Video.svg',
   },
   24: {
-    compType: 24,
+    compType: 12,
     imgUrl: 'highComp/Image.svg',
   },
   13: {
@@ -101,6 +101,10 @@ export default {
   },
   26: {
     compType: 26,
+    imgUrl: 'highComp/Image.svg',
+  },
+  27: {
+    compType: 27,
     imgUrl: 'highComp/Image.svg',
   },
 };

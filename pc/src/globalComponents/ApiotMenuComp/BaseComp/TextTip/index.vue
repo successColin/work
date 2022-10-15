@@ -18,7 +18,7 @@
           "
         >
           <img
-            :src="configData.icon.imageUrl"
+            :src="$parseImgUrl(configData.icon.imageUrl)"
             alt=""
             v-if="configData.icon.imageUrl"
             class="full"
@@ -43,7 +43,7 @@
           "
         >
           <img
-            :src="configData.icon.imageUrl"
+            :src="$parseImgUrl(configData.icon.imageUrl)"
             alt=""
             v-if="configData.icon.imageUrl"
             class="full"
@@ -202,6 +202,8 @@ export default {
     margin: 0px 15px 18px;
   }
   &__title {
+    display: flex;
+    align-items: center;
     line-height: 30px;
     .text__icon {
       vertical-align: -1px;

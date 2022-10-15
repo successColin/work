@@ -161,7 +161,7 @@ export default {
       const api = value ? doUpdateVersion : doDisabledVersion;
       try {
         await api({ workflowVersionId: item.id });
-        this.fetchVersionList(false);
+        await this.fetchVersionList(true);
         this.$bus.$emit('shouldChangeFlowList'); // 每次删除或者修改要更新流程列表
       } catch (e) {
         // console.log(e);
@@ -206,17 +206,16 @@ export default {
         const list = await getFlowVersion({ workflowId: this.activeFlow.id });
         const newList = list.sort((a, b) => b.version - a.version);
         this.list = newList;
-        const len = this.list.length;
         // 首先找到有没有在使用中的流程
         // eslint-disable-next-line max-len
         const useVersion = this.list.find((item) => item.version === (this.currentVersion.version || this.activeFlow.activeVersion));
         if (useVersion && flag) {
           this.$bus.$emit('chooseFlowVersion', useVersion);
-        } else if (flag) {
+        } else if (!useVersion && flag) {
           // 如果没有找到使用中的流程，默认显示最后一个版本的数据
-          this.$bus.$emit('chooseFlowVersion', this.list[len - 1] || {});
+          this.$bus.$emit('chooseFlowVersion', this.list.at(-1) || {});
         } else if (this.list.length === 1) {
-          this.$bus.$emit('chooseFlowVersion', this.list[len - 1] || {});
+          this.$bus.$emit('chooseFlowVersion', this.list.at(-1) || {});
         }
       } catch (e) {
         this.list = [];

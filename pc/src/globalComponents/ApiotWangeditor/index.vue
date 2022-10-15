@@ -185,6 +185,16 @@ export default {
     &.w-e-full-screen-container {
       z-index: 2000;
     }
+    p,
+    ol,
+    ul,
+    blockquote {
+      line-height: 1.15;
+    }
+    .w-e-text-placeholder {
+      position: absolute;
+      top: 7px;
+    }
   }
 }
 </style>

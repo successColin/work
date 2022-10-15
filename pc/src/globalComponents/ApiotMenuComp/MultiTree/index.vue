@@ -10,7 +10,6 @@
     ]"
     @click="changeCurActiveObj(1, $event)"
     :tip="configData.name"
-    :title="isConfig ? configData.name : ''"
   >
     <BtnsArea
       class="menuMain__btns"
@@ -27,7 +26,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[3, 5]"
+      :btnTypesArr="[3, 5, 15]"
     ></BtnsArea>
     <section
       v-if="configData.children.length !== 0"
@@ -90,7 +89,7 @@
               :getBtnsArr="child"
               :getFeatureArr="getFeatureArr"
               :moreOperateArr="[]"
-              :btnTypesArr="[2, 3, 5]"
+              :btnTypesArr="[2, 3, 5, 15]"
               :isSidebar="isSidebar"
               :isMulTree="true"
             ></component> </transition-group
@@ -1121,6 +1120,7 @@ export default {
     width: calc(100% - 20px);
   }
   &.showTitle {
+    font-size: 15px;
     padding-top: 40px;
     position: relative;
     &::before {

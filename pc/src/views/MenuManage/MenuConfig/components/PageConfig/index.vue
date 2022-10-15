@@ -91,6 +91,7 @@
           :configData="configData"
           :triggerCompMap="triggerCompMap"
           :hasTriggerComp="hasTriggerComp"
+          :isPanel="isPanel"
         ></global-config>
         <apiot-button
           class="pageConfig__wrapper--globalBtn"
@@ -143,10 +144,12 @@ import SelDataInitConfig from './components/compProperty/SelDataInitConfig';
 import SingleBoxConfig from './components/compProperty/SingleBoxConfig';
 import SingleLineTextConfig from './components/compProperty/SingleLineTextConfig';
 import TableMainConfig from './components/compProperty/TableMainConfig';
+import TreeTableConfig from './components/compProperty/TreeTableConfig';
 import TextTipConfig from './components/compProperty/TextTipConfig';
 import TreeMainConfig from './components/compProperty/TreeMainConfig';
 import WebviewConfig from './components/compProperty/WebviewConfig';
 import CarouselConfig from './components/compProperty/CarouselConfig';
+import StepsConfig from './components/compProperty/StepsConfig';
 import ConfigSidebar from './components/ConfigSidebar';
 import selData from './selData';
 
@@ -206,6 +209,7 @@ export default {
     MultiTreeConfig,
     DevicePosTreeConfig,
     TableMainConfig,
+    TreeTableConfig,
     BtnsAreaConfig,
     SingleLineTextConfig,
     FormButtonConfig,
@@ -236,13 +240,15 @@ export default {
     QueryMainConfig,
     EvaluationConfig,
     CascadeConfig,
-    CarouselConfig
+    CarouselConfig,
+    StepsConfig
   },
   provide() {
     return {
       isConfig: true,
       resolveFormula: '', // 真实页面使用的方法，定义空，占位防报错
       getAllForm: '', // 真实页面使用的方法，定义空，占位防报错
+      getAllComp: '',
       getPanel: '', // 真实页面使用的方法，定义空，占位防报错
       getMenu: '', // 真实页面使用的方法，定义空，占位防报错
       getFatherPanel: '', // 真实页面使用的方法，定义空，占位防报错
@@ -312,7 +318,7 @@ export default {
                         if (smallArea.children) {
                           smallArea.children.forEach((comp) => {
                             if (comp.compName === 'DataSingleSel' && comp.textPanelId) {
-                              this.notDelPanelId.push(comp.textPanelId);
+                              this.notDelPanelId.push(...comp.textPanelId.split(','));
                             }
                             obj[comp.compId] = JSON.parse(JSON.stringify(comp));
                             obj[comp.compId].compPath = areaPath;
@@ -452,7 +458,6 @@ export default {
         this.$nextTick(() => {
           [, this.activeObj] = this.configData[0].children[0].children[0].children;
           this.activeObj.areaType = 1;
-
           if (this.curDrawerType === 1) {
             this.activeObj.compId = createUnique();
           }
@@ -825,7 +830,7 @@ export default {
                 downLoadType = null,
                 downloadName = ''
               } = tempObj;
-              if (!layeredStrategy) {
+              if (!layeredStrategy || layeredStrategy === '[]') {
                 checkObj.flag = false;
                 checkObj.msg = `${tempObj.name} 未配置文件层级`;
                 break;
@@ -885,6 +890,19 @@ export default {
               }
             }
 
+            break;
+          case 27:
+            console.log(tempObj);
+            if (!tempObj.relateDateId) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未选择关联组件`;
+              break;
+            }
+            if (tempObj.dataSource.stepsArr && !tempObj.dataSource.stepsArr.length) {
+              checkObj.flag = false;
+              checkObj.msg = `${tempObj.name} 未添加步骤条数据`;
+              break;
+            }
             break;
           default:
         }
@@ -969,7 +987,6 @@ export default {
         area.propertyCompName = 'MultiTreeConfig';
         area.isTree = true;
       }
-      console.log(area);
       // 重置子节点
       area.tableInfo = {
         id: 0,

@@ -6,33 +6,40 @@
  * @Last Modified time: 2022-06-10 14:28:32
 -->
 <template>
-  <div class="excDetails" v-if="tableData.length !== 0">
+  <!-- v-if="tableData.length !== 0" -->
+  <div class="excDetails">
     <header>
       <div>异常明细</div>
-      <apiot-button class="excDetails__button" @click="handleExport">
+      <apiot-button
+        class="excDetails__button"
+        :disabled="isDisabeld"
+        @click="handleExport"
+      >
         <i class="iconfont icon-daochu"></i>
         错误信息导出
       </apiot-button>
     </header>
-    <apiot-table
-      row-key="columnName"
-      class="excDetails__table"
-      ref="fieldTable"
-      dropClass=".excDetails__table"
-      :tableData="tableData"
-      :highlight-current-row="true"
-      :dropColumnData="dropColumnData"
-      :showSort="true"
-    >
-      <component
-        v-for="(item, index) in dropColumnData"
-        :key="`${item.prop}_${index}`"
-        :label="item.label"
-        :prop="item.prop"
-        show-overflow-tooltip
-        :is="item.compName"
-      ></component>
-    </apiot-table>
+    <el-table :data="currentDate" height="425" style="width: 100%">
+      <el-table-column
+        prop="name"
+        :label="$t('importAndExport.location')"
+        :show-overflow-tooltip="true"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="msg"
+        :label="$t('importAndExport.errormessage')"
+        :show-overflow-tooltip="true"
+      >
+      </el-table-column>
+    </el-table>
+    <ApiotPagination
+      :total="total"
+      :size.sync="size"
+      :current-page.sync="current"
+      @size-change="sizeChange"
+      @current-change="currentChange"
+    ></ApiotPagination>
   </div>
 </template>
 
@@ -46,44 +53,112 @@ export default {
   },
   data() {
     return {
-      tableData: [], // 表格结果数据
+      // tableData: [], // 表格结果数据
       dropColumnData: [
         {
           label: '定位',
-          prop: 'positon',
+          prop: 'name',
           compName: 'ElTableColumn'
         },
         {
           label: '错误信息',
-          prop: 'error',
+          prop: 'msg',
           compName: 'ElTableColumn'
         }
-      ]
+      ],
+      tableData: [],
+      total: 0,
+      current: 1,
+      size: 20,
+      currentDate: [],
+      isDisabeld: true
     };
   },
   components: {},
   computed: {},
   watch: {
-    checkInfo(v) {
-      console.log(v);
-      const { errorRow, isCheckFinish, List } = v;
-      this.tableData = [];
-      if (errorRow && isCheckFinish) {
-        List.forEach((item) => {
-          const msgArr = item.split(',');
-          this.tableData.push({
-            positon: msgArr[0],
-            error: msgArr[1]
-          });
-        });
-        console.log(this.tableData);
-      }
+    checkInfo: {
+      handler() {
+        this.init();
+      },
+      deep: true
     }
   },
-  mounted() {},
+  mounted() {
+    this.init();
+  },
   methods: {
+    init() {
+      this.current = 1;
+      this.tableData = [];
+      this.currentDate = [];
+      const { List = [], errorRow, isCheckFinish } = this.checkInfo;
+      if (List.length === 0) {
+        this.isDisabeld = true;
+      }
+      List.forEach((item) => {
+        const index = item.indexOf(',');
+        this.tableData.push({
+          name: item.slice(0, index),
+          msg: item.slice(index + 1)
+        });
+      });
+      this.currentDate = JSON.parse(JSON.stringify(this.tableData)).splice(
+        (this.current - 1) * this.size,
+        this.size
+      );
+      if (errorRow && isCheckFinish) {
+        this.isDisabeld = false;
+      }
+      this.total = this.tableData.length;
+    },
+    // 每页大小改变
+    sizeChange(size) {
+      console.log(size);
+      this.current = 1;
+      this.size = size;
+      this.currentDate = JSON.parse(JSON.stringify(this.tableData)).splice(
+        (this.current - 1) * this.size,
+        this.size
+      );
+      console.log(this.tableData, this.currentDate);
+    },
+    // 改变页码
+    currentChange(current) {
+      this.current = current;
+      this.currentDate = JSON.parse(JSON.stringify(this.tableData)).splice(
+        (this.current - 1) * this.size,
+        this.size
+      );
+      console.log(this.current, this.size);
+      console.log(this.tableData, this.currentDate);
+    },
     handleExport() {
-      this.$emit('export');
+      // 列标题
+      let str = '<tr><td>定位</td><td>错误信息</td></tr>';
+      this.tableData.forEach((item) => {
+        str += `<tr><td>${`${item.name}\t`}</td><td>${`${item.msg}\t`}</td></tr>`;
+      });
+      // Worksheet名
+      const worksheet = 'Sheet1';
+      const uri = 'data:application/vnd.ms-excel;base64,';
+
+      // 下载的表格模板数据
+      const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+          <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+          <x:Name>${worksheet}</x:Name>
+          <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+          </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+          </head><body><table>${str}</table></body></html>`;
+      // 下载模板
+      const url = uri + window.btoa(unescape(encodeURIComponent(template)));
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = '错误信息明细.xls';
+      link.click();
     }
   }
 };
@@ -102,13 +177,20 @@ export default {
       margin: 13px 0 13px 1px;
     }
   }
+  &__table {
+    height: 200px;
+  }
   &__button {
     font-size: 14px;
-    color: #333333;
     i {
       font-size: 16px;
       color: #4689f5;
       margin-right: 4px;
+    }
+  }
+  &__button.is-disabled {
+    i {
+      opacity: 0.4;
     }
   }
 }

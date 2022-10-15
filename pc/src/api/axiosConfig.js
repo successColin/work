@@ -206,7 +206,15 @@ class FetchData {
           config.url !== 'zwdingtalkScanLogin' ||
           config.url !== 'zwdingtalkLogin'
         ) {
-          config.headers.token = Decrypt(localStorage.getItem('token') || '');
+          const { hasOwnProperty } = Object.prototype;
+          if (
+            hasOwnProperty.call(config.data || {}, 'cToken') ||
+            hasOwnProperty.call(config.params || {}, 'cToken')
+          ) {
+            config.headers.token = config.data?.cToken || config.params?.cToken;
+          } else {
+            config.headers.token = Decrypt(localStorage.getItem('token') || '');
+          }
         }
         if (localStorage.apiotLanguage) {
           const language = localStorage.apiotLanguage.split('');
@@ -226,6 +234,10 @@ class FetchData {
           res.config.url === 'zwdingtalkLogin'
         ) {
           const token = res.headers.token || '';
+          localStorage.setItem('token', Encrypt(token));
+        }
+        if (res.config.url === 'system/ssoLogin/getToken') {
+          const token = res.data.data || '';
           localStorage.setItem('token', Encrypt(token));
         }
         // 关闭loading
@@ -280,16 +292,23 @@ class FetchData {
           const pathArr = window.location.pathname.split('/');
           const pathName = pathArr[pathArr.length - 1];
           if (!whitePathName.includes(pathName) || pathName === '404') {
+            let shareUrl = '';
+            if (window.vue.$route.name === 'sharePage') {
+              shareUrl = window.vue.$route.fullPath;
+            }
             window.vue.$router.push('/login');
             const ignoreArr = ['system/sysMenu/menuCenter'];
             if (!ignoreArr.includes(error.response.config.url)) {
-              resetMessage.error({
+              resetMessage.warning({
                 showClose: true,
                 message: '登录失效',
               });
             }
             localStorage.removeItem('token');
             sessionStorage.clear();
+            if (shareUrl) {
+              sessionStorage.shareUrl = shareUrl;
+            }
           }
 
           return Promise.reject(error);

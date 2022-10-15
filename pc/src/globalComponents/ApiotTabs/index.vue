@@ -14,6 +14,7 @@
       >
         <i :class="`iconfont ${icon}`"></i>{{ $t('common.return') }}
       </apiot-button>
+      <slot name="button"></slot>
       <el-tabs v-on="$listeners" v-bind="$attrs">
         <el-tab-pane
           :label="item.label"
@@ -80,7 +81,7 @@ export default {
     .tabs__return {
       top: $tabsHeaderToHeader;
     }
-    .el-tabs {
+    & > .el-tabs {
       position: absolute;
       left: 0;
       right: 0;

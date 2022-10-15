@@ -15,7 +15,9 @@
       :class="`carousel__box type__${configData.indicatorType}`"
       :initial-index="activeIndex"
       :height="`${configData.heightMul * 82}px`"
-      :type="`${configData.showType === 2 ? 'card' : ''}`"
+      :type="`${
+        configData.showType === 2 && getImgArr.length >= 3 ? 'card' : ''
+      }`"
     >
       <el-carousel-item v-for="item in getImgArr" :key="item.parperId">
         <!-- <img :src="" alt="" /> -->

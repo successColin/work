@@ -30,13 +30,20 @@
         ref="filterCol"
         :configData="configData"
         :grandFather="grandFather"
+        v-if="configData.enableTableSearch"
       ></FilterCol>
     </template>
     <div slot-scope="scope">
-      <!-- :class="[{ textDec: shouldOpenPanel }]" -->
+      <SelectBox
+        :curData="scope.row"
+        :getIdCompId="getIdCompId"
+        :multiEntityArr="multiEntityArr"
+        v-on="$listeners"
+        v-bind="$attrs"
+      ></SelectBox>
       <div
         class="column__notEditable"
-        :class="[{ hasMenu: showMenuColor }]"
+        :class="[{ hasMenu: showMenuColor }, { textDec: shouldOpenPanel }]"
         @click="labelClick"
         v-if="configData.labelShowStyle !== 2"
       >
@@ -48,7 +55,7 @@
           "
         >
           <img
-            :src="configData.icon.imageUrl"
+            :src="$parseImgUrl(configData.icon.imageUrl)"
             alt=""
             v-if="configData.icon.imageUrl"
             class="full"
@@ -73,7 +80,7 @@
           <span :style="getStyle">{{ getDictInfo(item, 'name') || item }}</span>
         </span>
       </div>
-      <div class="column__notEditable rr" @click="labelClick" v-else>
+      <div class="column__notEditable" @click="labelClick" v-else>
         <el-tooltip
           :content="`${configData.name}:${scope.row[configData.compId]}`"
           placement="top"
@@ -101,6 +108,15 @@
 import tableCol from '../tableCol';
 
 export default {
+  props: {
+    getIdCompId: {
+      type: String
+    },
+    multiEntityArr: {
+      type: Array,
+      default: () => []
+    }
+  },
   name: '',
   mixins: [tableCol],
   data() {
@@ -115,6 +131,21 @@ export default {
     getContentArr() {
       return (data) => {
         let content = data[`${this.configData.compId}`];
+        if (this.configData.enableCascade) {
+          if (content) {
+            const arr = [];
+            content.split(',').forEach((item) => {
+              const tempArr = item.split('(');
+              if (tempArr.length) {
+                const name = tempArr[0];
+                arr.push(name);
+              }
+            });
+            if (arr.length) {
+              return arr.join('/');
+            }
+          }
+        }
         if (this.configData.dataSource.relateName === '主表') {
           if (this.configData.enableMultiColumn) {
             // 数据多选框
@@ -131,6 +162,19 @@ export default {
           if (+this.configData.dataSource.columnTypeDict === 3) {
             if (this.configData.timeShowType === 1 && content) {
               content = content.toString().slice(0, 10);
+            }
+            if (this.configData.timeShowType === 3 && content) {
+              content = content.toString().slice(0, -3);
+            }
+          }
+          if (+this.configData.dataSource.columnTypeDict === 1) {
+            if (this.configData.numberShowType === 2 && content) {
+              content = this.showRes(content);
+            }
+          }
+          if (+this.configData.dataSource.columnTypeDict === 4) {
+            if (this.configData.numberShowType === 2) {
+              content = this.showRes(+content);
             }
           }
           return [content];
@@ -296,6 +340,19 @@ export default {
   ],
   mounted() {},
   methods: {
+    // 处理结果
+    showRes(value) {
+      let inputValue = value.toString();
+      const index = inputValue.indexOf('.');
+      if (index !== -1) {
+        const intNum = inputValue.substring(0, index).replace(/\B(?=(?:\d{3})+$)/g, ',');
+        const dot = inputValue.substring(index, inputValue.length);
+        inputValue = intNum + dot;
+      } else {
+        inputValue = inputValue.substring(0, inputValue.length).replace(/\B(?=(?:\d{3})+$)/g, ',');
+      }
+      return inputValue;
+    },
     // 处理过滤条件变量为真实值
     resolveFilterVar(panelObj) {
       if (panelObj && panelObj.panelName) {
@@ -327,6 +384,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           }
@@ -353,6 +415,12 @@ export default {
       }
     },
     jumpMenu() {
+      if (this.$route.name === 'sharePage') {
+        return this.$message({
+          type: 'warning',
+          message: '分享页面无跳转菜单的权限'
+        });
+      }
       const curMenuArr = this.getMenu()[this.configData.compId];
       const obj = curMenuArr.find((menu) => {
         if (!menu.jumpTerm) {
@@ -406,11 +474,11 @@ export default {
 @import '../col.scss';
 .column__notEditable {
   display: flex;
-  height: 18px;
-  line-height: 18px;
+  height: 24px;
+  line-height: 24px;
   align-items: center;
   &.textDec {
-    text-decoration: underline;
+    // text-decoration: underline;
     cursor: pointer;
   }
   &.hasMenu {
@@ -420,16 +488,16 @@ export default {
   .appMenu__icon {
     margin-right: 4px;
     .full {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
       vertical-align: bottom;
     }
   }
   .span-box__content {
     display: flex;
     align-items: center;
-    height: 18px;
+    height: 24px;
   }
 }
 </style>

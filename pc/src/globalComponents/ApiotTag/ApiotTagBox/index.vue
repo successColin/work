@@ -8,6 +8,7 @@
       v-for="(item, index) in getCurrntMultiArr"
       :key="index"
       :item="item"
+      :closable="!disabled"
       v-show="index < hiddenIndex"
     ></apiot-tag>
     <el-popover
@@ -24,6 +25,7 @@
           @deleteSelf="getCurrntMultiArr = item"
           :configData="configData"
           :item="item"
+          :closable="!disabled"
         ></apiot-tag>
       </section>
       <apiot-tag
@@ -33,9 +35,14 @@
         itemIconClass="icon-gengduocaozuo"
         :closable="false"
       >
+        <el-badge
+          class="tagBox__badge"
+          :value="getCurrntMultiArr.length"
+          v-show="hiddenIndex !== getCurrntMultiArr.length"
+        ></el-badge>
       </apiot-tag>
     </el-popover>
-    <div class="readonly" v-if="disabled"></div>
+    <!-- <div class="readonly" v-if="disabled"></div> -->
   </div>
 </template>
 
@@ -60,6 +67,7 @@ export default {
         const arr = this.form[`${this.configData.compId}_`]
           ? this.form[`${this.configData.compId}_`].split(',')
           : [];
+        console.log(arr);
         return arr;
       },
       set(value) {
@@ -128,6 +136,12 @@ export default {
   &__more {
     margin-bottom: 0 !important;
     height: 32px !important;
+    cursor: pointer;
+  }
+  &__badge {
+    position: absolute;
+    top: -4px;
+    right: -15px;
     cursor: pointer;
   }
   .readonly {

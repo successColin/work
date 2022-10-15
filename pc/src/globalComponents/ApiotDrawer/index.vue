@@ -18,6 +18,9 @@
     class="drawer"
     :class="[{ curMask: modal }]"
   >
+    <span slot="title" class="dialog-title" v-if="showCustomTitle">
+      <slot name="title"></slot>
+    </span>
     <section class="drawer__content" :style="`bottom:${hasFooter ? 56 : 0}px`">
       <slot></slot>
     </section>
@@ -64,6 +67,10 @@ export default {
     hasFooter: {
       type: Boolean,
       default: true
+    },
+    showCustomTitle: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -185,7 +192,9 @@ export default {
         flex: 1;
         // flex: 0 0 460px;
         margin-bottom: 24px;
-
+        &.half {
+          max-width: calc(50% - 15px);
+        }
         &:nth-child(2n) {
           margin-left: 30px;
         }

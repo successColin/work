@@ -18,7 +18,7 @@ export class NodeUtils {
    * @returns 64进制id字符串
    */
   static idGenerator() {
-    let qutient = new Date() - new Date('2020-08-01');
+    let qutient = new Date() - new Date('2020/08/01');
     qutient += Math.ceil(Math.random() * 1000); // 防止重複
     const chars =
       '0123456789ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz';
@@ -836,8 +836,10 @@ export class NodeUtils {
    */
   static setDefaultCondition(cnode, processData) {
     const DEFAULT_TEXT = '其他情况进入此流程';
-    const conditions = this.getPreviousNode(cnode.prevId, processData)
-      .conditionNodes;
+    const conditions = this.getPreviousNode(
+      cnode.prevId,
+      processData,
+    ).conditionNodes;
     // eslint-disable-next-line max-len
     const hasCondition = (node) =>
       node.properties &&

@@ -130,8 +130,10 @@ export default {
     show: {
       deep: true,
       immediate: true,
-      handler() {
-        this.getParentList();
+      handler(v) {
+        if (v) {
+          this.getParentList();
+        }
       }
     }
   },

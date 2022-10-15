@@ -4,37 +4,44 @@
     <div class="zoomWrap">
       <div class="audio">
         <div class="audio-controller">
-          <i v-show="!isStart"
-             class="icon-bofangyinpin iconfont" @click="changeAudioState"></i>
-          <i v-show="isStart"
-             class="icon-zantingbofangyinpin iconfont" @click="changeAudioState"></i>
+          <i
+            v-show="!isStart"
+            class="icon-bofangyinpin iconfont"
+            @click="changeAudioState"
+          ></i>
+          <i
+            v-show="isStart"
+            class="icon-zantingbofangyinpin iconfont"
+            @click="changeAudioState"
+          ></i>
         </div>
         <div class="audio-progress">
-          <span class="time__current">{{formatTime(currentTime)}}</span>
+          <span class="time__current">{{ formatTime(currentTime) }}</span>
           <div class="slider-container">
             <div class="slider silder__hook" @click="changeView">
               <div class="slider-progress" :style="getPrecent('width')">
                 <div class="progress-buffer"></div>
               </div>
               <div
-                  class="slider-runway"
-                  @mousedown="startDrag"
-                  :style="getPrecent('left')"
+                class="slider-runway"
+                @mousedown="startDrag"
+                :style="getPrecent('left')"
               >
                 <div class="thumb"></div>
               </div>
             </div>
           </div>
-          <span class="time__end">{{formatTime(duration)}}</span>
+          <span class="time__end">{{ formatTime(duration) }}</span>
         </div>
         <div class="audio-volume">
           <i class="iconfont icon-guanbi" @click="handleClose"></i>
         </div>
       </div>
-      <audio :src="url"
-             style="visibility:hidden"
-             ref="audio"
-             @timeupdate="timeChange"
+      <audio
+        :src="$parseImgUrl(url)"
+        style="visibility: hidden"
+        ref="audio"
+        @timeupdate="timeChange"
       >
         Your browser does not support the audio element.
       </audio>
@@ -43,13 +50,12 @@
 </template>
 
 <script>
-
 export default {
   props: {
     previewObj: {
       type: Object,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   data() {
     return {
@@ -58,7 +64,7 @@ export default {
       currentTime: 0, // 播放时间长度
       isStart: false,
       isDrag: false,
-      dragCurrentTime: 0, // 拖拽的时间
+      dragCurrentTime: 0 // 拖拽的时间
     };
   },
 
@@ -69,11 +75,11 @@ export default {
       return function (key) {
         if (this.isDrag) {
           // eslint-disable-next-line no-mixed-operators
-          const precentDrag = this.dragCurrentTime / this.duration * 100;
+          const precentDrag = (this.dragCurrentTime / this.duration) * 100;
           return `${key}: ${precentDrag.toFixed(2)}%`;
         }
         // eslint-disable-next-line no-mixed-operators
-        const precent = this.currentTime / this.duration * 100;
+        const precent = (this.currentTime / this.duration) * 100;
         return `${key}: ${precent.toFixed(2)}%`;
       };
     },
@@ -91,14 +97,14 @@ export default {
         // eslint-disable-next-line radix
         mins = parseInt((time / 60) % 60);
         // eslint-disable-next-line radix
-        hours = parseInt(((time / 60) / 60) % 60);
+        hours = parseInt((time / 60 / 60) % 60);
         // eslint-disable-next-line radix,prefer-const
-        displayHours = (parseInt(((time / 60) / 60) % 60) > 0);
-        secs = (`0${secs}`).slice(-2);
-        mins = (`0${mins}`).slice(-2);
+        displayHours = parseInt((time / 60 / 60) % 60) > 0;
+        secs = `0${secs}`.slice(-2);
+        mins = `0${mins}`.slice(-2);
         return (displayHours ? `${hours}:` : '') + mins + seperator + secs;
       };
-    },
+    }
   },
 
   mounted() {
@@ -109,15 +115,15 @@ export default {
       this.isStart = true;
     });
   },
-  destroyed () {
-  },
+  destroyed() {},
   methods: {
     handleClose() {
       const { audio } = this.$refs;
       audio.pause();
       this.$emit('close-audio');
     },
-    startDrag(e) { // 开始拖动移动进度条
+    startDrag(e) {
+      // 开始拖动移动进度条
       this.isDrag = true;
       this.changePostion(e);
       window.addEventListener('mousemove', this.dragging);
@@ -135,18 +141,20 @@ export default {
       const { audio } = this.$refs;
       audio.currentTime = this.dragCurrentTime;
     },
-    changePostion(e) { // 改变位置但不改变播放进度
+    changePostion(e) {
+      // 改变位置但不改变播放进度
       const silder = document.querySelector('.silder__hook').getBoundingClientRect();
       const { clientX } = e;
       const { left, width } = silder;
       let percent = (clientX - left) / width;
       // 做成判断，如果拖动对象不能越界
       if (clientX < left) percent = 0;
-      if (clientX >= (left + width)) percent = 1;
+      if (clientX >= left + width) percent = 1;
       const currentTime = percent * this.duration;
       this.dragCurrentTime = currentTime;
     },
-    changeView(e) { // 点击更改位置
+    changeView(e) {
+      // 点击更改位置
       const { clientX } = e;
       const silder = document.querySelector('.silder__hook').getBoundingClientRect();
       const percent = (clientX - silder.left) / silder.width;
@@ -155,7 +163,8 @@ export default {
       const { audio } = this.$refs;
       audio.currentTime = currentTime;
     },
-    changeAudioState() { // 暂停 == 启动
+    changeAudioState() {
+      // 暂停 == 启动
       this.isStart = !this.isStart;
       const { audio } = this.$refs;
       if (this.isStart) {
@@ -168,7 +177,8 @@ export default {
         audio.pause();
       }
     },
-    timeChange() { // 播放时间
+    timeChange() {
+      // 播放时间
       const { audio } = this.$refs;
       if (audio) {
         const { duration, currentTime } = audio; // 获取总播放时间, 获取播放进度
@@ -178,23 +188,23 @@ export default {
           this.isStart = false;
         }
       }
-    },
+    }
   },
-  name: 'index',
+  name: 'index'
 };
 </script>
 
 <style lang='scss' scoped>
-.zoomWrap{
+.zoomWrap {
   width: 554px;
   height: 42px;
   color: #fff;
   position: fixed;
   left: 0;
   right: 0;
-  margin:0 auto;
+  margin: 0 auto;
   bottom: 60px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 4px;
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.14);
   z-index: 101;
@@ -205,12 +215,13 @@ export default {
     height: 42px;
     color: #fff;
     user-select: none;
-    ::v-deep{
-      .icon-bofangyinpin, .icon-zantingbofangyinpin{
-        color: #BBC3CD;
+    ::v-deep {
+      .icon-bofangyinpin,
+      .icon-zantingbofangyinpin {
+        color: #bbc3cd;
         font-size: 30px;
         cursor: pointer;
-        &:hover{
+        &:hover {
           color: $--hover-fontColor;
         }
       }
@@ -235,7 +246,7 @@ export default {
     height: 100%;
     width: 0;
     border-radius: 3px;
-    background: #5A80ED;
+    background: #5a80ed;
   }
 
   .slider .slider-runway {
@@ -254,7 +265,7 @@ export default {
     width: 12px;
     height: 12px;
     margin: -6px 0 0 -6px;
-    background: #5A80ED;
+    background: #5a80ed;
     border-radius: 50%;
     box-sizing: border-box;
   }
@@ -299,11 +310,11 @@ export default {
     width: 42px;
     height: 100%;
     justify-content: space-around;
-    .icon-guanbi{
-      color: #BBC3CD;
+    .icon-guanbi {
+      color: #bbc3cd;
       font-size: 16px;
       cursor: pointer;
-      &:hover{
+      &:hover {
         color: $--hover-fontColor;
       }
     }
@@ -320,60 +331,60 @@ export default {
   @-webkit-keyframes fa-spin {
     0% {
       -webkit-transform: rotate(0deg);
-      transform: rotate(0deg)
+      transform: rotate(0deg);
     }
 
     100% {
       -webkit-transform: rotate(359deg);
-      transform: rotate(359deg)
+      transform: rotate(359deg);
     }
   }
 
   @keyframes fa-spin {
     0% {
       -webkit-transform: rotate(0deg);
-      transform: rotate(0deg)
+      transform: rotate(0deg);
     }
 
     100% {
       -webkit-transform: rotate(359deg);
-      transform: rotate(359deg)
+      transform: rotate(359deg);
     }
   }
 
   .fa-rotate-90 {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=1)';
     -webkit-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
-    transform: rotate(90deg)
+    transform: rotate(90deg);
   }
 
   .fa-rotate-180 {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=2)';
     -webkit-transform: rotate(180deg);
     -ms-transform: rotate(180deg);
-    transform: rotate(180deg)
+    transform: rotate(180deg);
   }
 
   .fa-rotate-270 {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)';
     -webkit-transform: rotate(270deg);
     -ms-transform: rotate(270deg);
-    transform: rotate(270deg)
+    transform: rotate(270deg);
   }
 
   .fa-flip-horizontal {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)';
     -webkit-transform: scale(-1, 1);
     -ms-transform: scale(-1, 1);
-    transform: scale(-1, 1)
+    transform: scale(-1, 1);
   }
 
   .fa-flip-vertical {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)';
     -webkit-transform: scale(1, -1);
     -ms-transform: scale(1, -1);
-    transform: scale(1, -1)
+    transform: scale(1, -1);
   }
 
   :root .fa-rotate-90,
@@ -381,7 +392,7 @@ export default {
   :root .fa-rotate-270,
   :root .fa-flip-horizontal,
   :root .fa-flip-vertical {
-    filter: none
+    filter: none;
   }
 
   .fa-stack {
@@ -390,26 +401,27 @@ export default {
     width: 2em;
     height: 2em;
     line-height: 2em;
-    vertical-align: middle
+    vertical-align: middle;
   }
 
-  .fa-stack-1x,.fa-stack-2x {
+  .fa-stack-1x,
+  .fa-stack-2x {
     position: absolute;
     left: 0;
     width: 100%;
-    text-align: center
+    text-align: center;
   }
 
   .fa-stack-1x {
-    line-height: inherit
+    line-height: inherit;
   }
 
   .fa-stack-2x {
-    font-size: 2em
+    font-size: 2em;
   }
 
   .fa-inverse {
-    color: #fff
+    color: #fff;
   }
 
   .sr-only {
@@ -420,17 +432,17 @@ export default {
     margin: -1px;
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
-    border: 0
+    border: 0;
   }
 
-  .sr-only-focusable:active,.sr-only-focusable:focus {
+  .sr-only-focusable:active,
+  .sr-only-focusable:focus {
     position: static;
     width: auto;
     height: auto;
     margin: 0;
     overflow: visible;
-    clip: auto
+    clip: auto;
   }
-
 }
 </style>

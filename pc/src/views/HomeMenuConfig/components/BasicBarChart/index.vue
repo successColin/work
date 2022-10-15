@@ -405,15 +405,12 @@ export default {
         || window.WebKitMutationObserver
         || window.MozMutationObserver;
     const element = document.querySelector(`#basicPie_${this.config.componentId}`);
-    console.log(element, 'element');
     this.observer = new MutationObserver(() => {
       const width = getComputedStyle(element).getPropertyValue('width');
       const height = getComputedStyle(element).getPropertyValue('height');
-      console.log(width, height, 'height, width', this.recordOldValue);
       if (width === this.recordOldValue.width && height === this.recordOldValue.height) {
         return;
       }
-      console.log(332);
       this.recordOldValue = {
         width,
         height

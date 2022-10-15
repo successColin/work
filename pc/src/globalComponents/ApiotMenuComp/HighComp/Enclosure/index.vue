@@ -5,12 +5,14 @@
     :style="`width:${configData.width}`"
     :class="[
       { noHover: !isConfig },
+      { noBottom: !configData.showLabelTitle },
       { active: isConfig && activeObj.compId === configData.compId },
     ]"
     v-if="showInput"
+    v-loading="loading"
   >
     <el-form-item :prop="`${configData.compId}`">
-      <span class="span-box" slot="label">
+      <span class="span-box" slot="label" v-if="configData.showLabelTitle">
         <span> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
@@ -27,6 +29,7 @@
       ></apiot-input>
       <el-upload
         class="upload"
+        :class="[{ isDisabled: !isConfig && configData.canReadonly }]"
         drag
         multiple
         action=""
@@ -41,7 +44,7 @@
             class="uploadBtn"
             :disabled="configData.singleStatus === 2"
             ><i class="iconfont icon-shangchuan m-r-4"></i
-            >上传附件</apiot-button
+            >{{ configData.placeholder }}</apiot-button
           >
           将文件拖到框内，或点击按钮上传
         </div>
@@ -49,21 +52,39 @@
           slot="file"
           slot-scope="{ file }"
           class="file"
-          @mouseenter="file.showOperate = true"
-          @mouseleave="file.showOperate = false"
+          @mouseenter="mouseenter(file)"
+          @mouseleave="mouseleave(file)"
         >
           <img
             class="file__img"
+            :class="[
+              {
+                canPreview: ['imageFile', 'vedio', 'PDF'].includes(
+                  getCurIconName(file.name)
+                ),
+              },
+            ]"
             :src="require(`@/assets/img/${getCurIconName(file.name)}.svg`)"
+            @click="preview(file)"
           />
-          <span class="file__name font__ellipsis" :title="file.name">{{
-            file.name
-          }}</span>
           <span
+            class="file__name font__ellipsis"
+            :class="[
+              {
+                canPreview: ['imageFile', 'vedio', 'PDF'].includes(
+                  getCurIconName(file.name)
+                ),
+              },
+            ]"
+            :title="file.name"
+            @click="preview(file)"
+            >{{ file.name }}</span
+          >
+          <!-- <span
             class="file__size"
             v-show="file.percentage === 100 && !file.showOperate"
             >{{ resolveSize(file.size) }}</span
-          >
+          > -->
           <span
             class="file__time"
             v-show="file.percentage === 100 && !file.showOperate"
@@ -89,20 +110,48 @@
           >
             <a
               class="file__operateBox--xiazai file__operateBox--line"
-              @click.stop="
-                download(
-                  `${file.url}?response-content-type=application/octet-stream`,
-                  file.name
-                )
-              "
+              :class="[{ isDisabled: configData.canReadonly }]"
+              @click.stop="download(`${file.url}`, file.name)"
             >
               <i class="iconfont icon-xiazai"></i>
               下载
             </a>
-            <i class="iconfont icon-guanbi" @click="delFile(file)"></i>
+            <i
+              class="iconfont icon-guanbi"
+              @click="delFile(file)"
+              v-if="!configData.canReadonly"
+            ></i>
           </div>
         </div>
       </el-upload>
+      <image-zoom
+        v-if="previewVisible"
+        :previewObj="previewObj"
+        :picList="picList"
+        v-on:hideImgPreview="hideImgPreview"
+        :isShowDelBtn="false"
+        :isShowShareBtn="false"
+      ></image-zoom>
+      <apiot-dialog
+        width="68%"
+        :title="dialogFile.name"
+        :visible.sync="videoVisible"
+        :isShowSure="false"
+        v-on:cancle-click="cancelPreview"
+      >
+        <video-preview
+          :previewObj="previewObj"
+          v-if="videoVisible"
+        ></video-preview>
+      </apiot-dialog>
+      <PdfPreview
+        :title="dialogFile.name"
+        :visible.sync="pdfVisible"
+        v-if="pdfVisible"
+        :isShowSure="false"
+        :previewObj="previewObj"
+        :isBigDialog="true"
+      ></PdfPreview>
     </el-form-item>
     <config-manage
       v-if="isConfig"
@@ -116,8 +165,10 @@
 <script>
 import axios from 'axios';
 import { batchUpload, getFileList } from '@/api/menuConfig';
-import { getBlob, saveAs } from '@/utils/utils';
+import { downloadSingle } from '@/api/knowledge';
+import { saveAs } from '@/utils/utils';
 import compMixin from '../../compMixin';
+import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
 
 export default {
   props: {
@@ -142,12 +193,19 @@ export default {
       ],
       idsArr: [],
       flag: true,
-      unwatch: null
+      unwatch: null,
+      dialogFile: {},
+      previewVisible: false,
+      videoVisible: false,
+      previewObj: {},
+      picList: [],
+      loading: false,
+      pdfVisible: false
     };
   },
   mixins: [compMixin],
 
-  components: {},
+  components: { imageZoom },
 
   computed: {},
 
@@ -163,10 +221,9 @@ export default {
   },
 
   methods: {
-    download(url, filename) {
-      getBlob(url, (blob) => {
-        saveAs(blob, filename);
-      });
+    async download(url, filename) {
+      const data = await downloadSingle({ url });
+      saveAs(data, filename);
     },
     async getFileList() {
       if (this.parent.form[this.configData.compId]) {
@@ -191,11 +248,11 @@ export default {
         PDF: ['pdf'],
         DOC: ['doc', 'docx'],
         imageFile: ['png', 'jpg', 'jpeg', 'gif'],
-        vedio: ['mp4', 'avi'],
+        vedio: ['mp4', 'avi', 'mov'],
         audioFile: ['mp3']
       };
       const res = Object.keys(obj).find((key) => {
-        if (obj[key].includes(ext)) {
+        if (obj[key].includes(ext.toLowerCase())) {
           return true;
         }
         return false;
@@ -224,17 +281,16 @@ export default {
     // 上传之前
     beforeUpload(file) {
       return new Promise((resolve, reject) => {
-        const { size, type } = file;
+        const { size } = file;
         const newSize = size <= this.configData.maxFileSize * 1024 * 1024;
-
-        if (!type) {
-          this.$message({
-            type: 'warning',
-            message: '不支持该类型附件上传'
-          });
-          reject(file);
-          return;
-        }
+        // if (!type) {
+        //   this.$message({
+        //     type: 'warning',
+        //     message: '不支持该类型附件上传'
+        //   });
+        //   reject(file);
+        //   return;
+        // }
 
         if (!newSize) {
           this.$message({
@@ -317,6 +373,57 @@ export default {
       if (index !== -1) {
         this.fileList.splice(index, 1);
       }
+    },
+    mouseenter(file) {
+      this.timer = setTimeout(() => {
+        file.showOperate = true;
+      }, 200);
+    },
+    mouseleave(file) {
+      clearTimeout(this.timer);
+      file.showOperate = false;
+    },
+    async preview(file) {
+      // console.log(file);
+      this.dialogFile = file;
+      // this.dialogVisible = true;
+      if (this.getCurIconName(file.name) === 'imageFile') {
+        this.previewObj.sysKlTree = this.dialogFile;
+        this.picList = [];
+        this.fileList.forEach((liObj) => {
+          if (this.getCurIconName(liObj.name) === 'imageFile') {
+            this.picList.push({
+              sysKlTree: liObj
+            });
+          }
+        });
+        if (this.$store.state.globalConfig.waterConfig.enableWaterMask === '1') {
+          const index = this.picList.findIndex((item) => item.sysKlTree.id === file.id);
+          if (index !== -1) {
+            this.loading = true;
+            const data = await downloadSingle({ url: this.picList[index].sysKlTree.url });
+            this.loading = false;
+            this.picList[index].sysKlTree.blob = data;
+          }
+        }
+        this.previewVisible = true;
+      }
+      if (this.getCurIconName(file.name) === 'vedio') {
+        this.previewObj.sysKlTree = this.dialogFile;
+        this.videoVisible = true;
+      }
+      if (this.getCurIconName(file.name) === 'PDF') {
+        this.previewObj.sysKlTree = this.dialogFile;
+        console.log(this.previewObj);
+        this.pdfVisible = true;
+      }
+    },
+    hideImgPreview() {
+      // 关闭预览
+      this.previewVisible = false;
+    },
+    cancelPreview() {
+      this.previewObj = {};
     }
   },
   watch: {
@@ -325,7 +432,9 @@ export default {
         this.flag = false;
         // this.parent.form[this.configData.compId] = v.join();
         this.$set(this.parent.form, this.configData.compId, v.join());
-        this.flag = true;
+        this.$nextTick(() => {
+          this.flag = true;
+        });
       },
       deep: true
     },
@@ -357,6 +466,10 @@ export default {
   &.noHover {
     min-height: 76px;
     padding: 0px 15px 18px 35px;
+    &.noBottom {
+      padding-bottom: 0;
+      min-height: 58px;
+    }
   }
   &.active,
   &:hover:not(.noHover) {
@@ -405,6 +518,7 @@ export default {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          color: #aaaaaa;
           .uploadBtn {
             height: 26px;
             line-height: 26px;
@@ -423,6 +537,11 @@ export default {
     .el-upload-list__item {
       transition: none !important;
     }
+    .isDisabled {
+      .el-upload--text {
+        display: none;
+      }
+    }
   }
   .upload {
     line-height: 0;
@@ -438,16 +557,26 @@ export default {
       box-sizing: border-box;
       padding-left: 10px;
       padding-right: 10px;
+      .canPreview {
+        cursor: pointer;
+      }
       &__img {
         width: 24px;
         margin-right: 4px;
       }
       &__name {
+        flex: 1;
         width: 134px;
+        color: #333333;
       }
       &__size {
         margin-left: auto;
         margin-right: 10px;
+        color: #808080;
+      }
+      &__time {
+        margin-left: auto;
+        color: #808080;
       }
       &__cancleUpload {
         position: absolute;
@@ -488,6 +617,14 @@ export default {
           font-size: 13px;
           cursor: pointer;
           margin-right: 28px;
+          &.isDisabled {
+            margin-right: 0;
+            &:after {
+              content: '';
+              width: 0;
+              height: 0;
+            }
+          }
           .iconfont {
             font-weight: normal;
             color: #bbc3cd;

@@ -42,7 +42,7 @@
               <transition-group class="configSidebar__comp--compList" tag="ul">
                 <li
                     class="configSidebar__comp--compItem"
-                    v-for="(comp, index) in group.children"
+                    v-for="(comp, index) in getAreaArr(group.children)"
                     :key="index + 3232"
                 >
                   <img
@@ -83,7 +83,7 @@
           <li
               class="configSidebar__comp--compItem"
               :class="[{ btnBox: comp.areaType === 2 }]"
-              v-for="(comp, index) in group.children"
+              v-for="(comp, index) in getAreaArr(group.children)"
               :key="index + 1234"
           >
             <img
@@ -123,7 +123,7 @@
                 <li
                   class="configSidebar__comp--compItem"
                   :class="[{ btnBox: comp.areaType === 2 }]"
-                  v-for="comp in group.children"
+                  v-for="comp in getAreaArr(group.children)"
                   :key="comp.componentName"
                 >
                   <img
@@ -195,7 +195,34 @@ export default {
             },
             {
               name: '公告',
-              imgUrl: 'homePage/Notice.svg'
+              imgUrl: 'homePage/Notice.svg',
+              componentName: 'Notice',
+              clientType: 1,
+              width: 600,
+              height: 400,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              content: '公告',
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              stylesObj: {
+                dataShowType: 2, // 1, 全部， 2， 分组
+                titleFontFamily: 'Arial,苹方,微软雅黑',
+                titleFontSize: 16,
+                titleColor: '#333333',
+                titleFontWeight: 'normal',
+                titleHeight: 40,
+                contentFontFamily: 'Arial,苹方,微软雅黑',
+                contentFontSize: 13,
+                contentColor: '#333333',
+                contentFontWeight: 'normal',
+                colHeight: 36,
+                zIndex: 1,
+                animationSet: 1, // 动画
+              },
             },
             {
               name: '日历',
@@ -339,6 +366,7 @@ export default {
                   fieldFontWeight: 'normal',
                   fieldFontSize: 16,
                   fieldColor: '#fff',
+                  isEllipsis: true,
                   fieldTextAlign: 'center',
                   fieldPrefix: '', // 文字前缀
                   fieldPrefixWidth: 20, // 文字前缀宽度
@@ -362,6 +390,7 @@ export default {
                   fieldColor: '#fff',
                   fieldTextAlign: 'center',
                   fieldPrefix: '',
+                  isEllipsis: true,
                   isApplyPicture: false, // 是否应用与图片
                   enableConditions: false, // 是否启用字段条件
                   fieldRelColor: '#fff', // 配置了启用条件及条件满足，则该字段生效
@@ -1188,7 +1217,14 @@ export default {
     ZoomCenter
   },
 
-  computed: {},
+  computed: {
+    getAreaArr() {
+      return function (arr) {
+        const { clientType } = sessionStorage;
+        return arr.filter((item) => !item.clientType || item.clientType === +clientType);
+      };
+    }
+  },
 
   mounted() {},
 

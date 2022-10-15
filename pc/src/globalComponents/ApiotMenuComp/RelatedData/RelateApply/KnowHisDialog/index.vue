@@ -16,9 +16,9 @@
           <p class="hisBody__file--name" :title="getCurObj.name">
             {{ renderFileName(getCurObj.name) }}
           </p>
-          <p class="hisBody__file--normal">
+          <!-- <p class="hisBody__file--normal">
             {{ calculateSize(getCurObj.size) }}
-          </p>
+          </p> -->
           <p class="hisBody__file--normal">
             创建人：{{ getCurObj.uploadUserName }}
           </p>
@@ -40,7 +40,7 @@
               </span>
               {{ item.uploadUserName }}
             </div>
-            <span class="des">更新了版本{{ hisArr.length - index }}</span>
+            <!-- <span class="des">更新了版本{{ hisArr.length - index }}</span> -->
             <span class="time">{{ item.modifyTime }}</span>
           </div>
           <div
@@ -82,8 +82,8 @@
 
 <script>
 import cnchar from 'cnchar';
-import { getHistory } from '@/api/knowledge';
-import { getBlob, saveAs } from '@/utils/utils';
+import { getHistory, downloadSingle } from '@/api/knowledge';
+import { saveAs } from '@/utils/utils';
 
 export default {
   name: '',
@@ -121,12 +121,12 @@ export default {
           return '';
         }
         const realNameArr = name.split('.');
-        if (realNameArr[0].length > 10) {
-          realNameArr[0] = `${realNameArr[0].slice(0, 5)}...${realNameArr[0].slice(
-            -2,
-            realNameArr[0].length
-          )}`;
-        }
+        // if (realNameArr[0].length > 10) {
+        //   realNameArr[0] = `${realNameArr[0].slice(0, 5)}...${realNameArr[0].slice(
+        //     -2,
+        //     realNameArr[0].length
+        //   )}`;
+        // }
         return realNameArr.join('.');
       };
     },
@@ -181,10 +181,12 @@ export default {
         ...item
       }));
     },
-    download(item) {
-      getBlob({ url: item.url }, (blob) => {
-        saveAs(blob, item.name);
-      });
+    async download(item) {
+      // 下载
+      this.loading = true;
+      const data = await downloadSingle({ url: item.url });
+      this.loading = false;
+      saveAs(data, item.name);
     }
   },
 
@@ -227,6 +229,10 @@ export default {
       font-weight: 600;
       color: #333333;
       line-height: 22px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 346px;
     }
     &--normal {
       margin-top: 3px;
@@ -302,6 +308,13 @@ export default {
     }
     .mlu {
       margin-left: auto;
+    }
+    &--fileName {
+      width: 280px;
+      line-height: 20px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     &--fileDown {
       position: relative;

@@ -8,7 +8,18 @@
     :class="[{ isSel: dataSelObj }]"
     :append-to-body="true"
     :isShowFooter="false"
+    :showCustomTitle="true"
   >
+    <span slot="title" style="display: flex; align-items: center">
+      <span class="panel__dialog--title">{{
+        panelObj ? panelObj.panelName : ''
+      }}</span>
+      <i
+        class="iconfont icon-fenxiang"
+        v-if="getCanShare"
+        @click="getShare"
+      ></i>
+    </span>
     <div class="tagParent" v-if="isMulti">
       <ApiotTagBox
         class="tag"
@@ -36,6 +47,10 @@
       @multiArrChange="multiArrChange"
       ref="menu"
     ></ApiotMenu>
+    <ApiotShareDialog
+      :visible.sync="showShare"
+      :panelObj="panelObj"
+    ></ApiotShareDialog>
   </apiot-dialog>
 </template>
 
@@ -77,10 +92,13 @@ export default {
         tagValue: '',
         tagValue_: ''
       },
-      notTouch: false
+      notTouch: false,
+      showShare: false
     };
   },
-  mounted() {},
+  mounted() {
+    // console.log(this.panelObj);
+  },
   computed: {
     getChangeShow() {
       if (this.panelObj) {
@@ -101,9 +119,18 @@ export default {
         }
       }
       return false;
+    },
+    getCanShare() {
+      if (this.panelObj) {
+        return +this.panelObj.enableshare === 1;
+      }
+      return false;
     }
   },
   methods: {
+    getShare() {
+      this.showShare = true;
+    },
     // 根据字段获取map的key
     getMapKey(name) {
       const res = Object.keys(this.multiMap).find((key) => {
@@ -216,6 +243,24 @@ export default {
 
 <style lang='scss' scoped>
 .panel__dialog {
+  &--title {
+    vertical-align: top;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+    font-family: PingFangSC-Medium, PingFang SC;
+    line-height: 24px;
+  }
+  .icon-fenxiang {
+    position: absolute;
+    right: 0;
+    color: #909399;
+    margin-right: 44px;
+    cursor: pointer;
+    &:hover {
+      color: $--color-primary;
+    }
+  }
   .tagParent {
     box-sizing: border-box;
     margin: 10px 21px 0 21px;

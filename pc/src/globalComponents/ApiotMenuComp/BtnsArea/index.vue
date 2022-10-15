@@ -32,7 +32,7 @@
     :configData="areaName"
     :tablename="getBtnsArr.dataSource && getBtnsArr.dataSource.tableName"
   >
-    <div v-if="isTableBtn" class="isTableBtn__title">操作</div>
+    <div v-if="isTableBtn" class="isTableBtn__title">{{ getBtnsArr.name }}</div>
     <!-- 配置 -->
     <draggable
       v-if="getBtnsArr && isConfig"
@@ -42,6 +42,7 @@
       ghostClass="featGhost"
       :areaType="2"
       :isSidebar="isSidebar"
+      :isQuery="isQuery"
       :canSearch="canSearch"
       :length="getBtnsArr.children.length"
       @start="btnDragStart"
@@ -77,6 +78,8 @@
           :getIdCompId="getIdCompId"
           :rowData="rowData"
           :isTree="isTree"
+          :isQuery="isQuery"
+          :isCardOpeBtn="isCardOpeBtn"
           @addTableRow="addTableRow"
           @tableAreaDelete="tableAreaDelete"
           @btnPosChange="btnPosChange"
@@ -112,6 +115,7 @@
         :getIdCompId="getIdCompId"
         :rowData="rowData"
         :isTree="isTree"
+        :isQuery="isQuery"
         @addTableRow="addTableRow"
         @tableAreaDelete="tableAreaDelete"
         @btnPosChange="btnPosChange"
@@ -221,7 +225,15 @@ export default {
       type: Boolean,
       default: false
     },
+    isCardOpeBtn: {
+      type: Boolean,
+      default: false
+    },
     isMulTree: {
+      type: Boolean,
+      default: false
+    },
+    isQuery: {
       type: Boolean,
       default: false
     }

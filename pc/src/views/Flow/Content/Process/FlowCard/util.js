@@ -18,7 +18,7 @@ export class NodeUtils {
    * @returns 64进制id字符串
    */
   static idGenerator() {
-    let qutient = new Date() - new Date('2020-08-01');
+    let qutient = new Date() - new Date('2020/08/01');
     qutient += Math.ceil(Math.random() * 1000); // 防止重複
     const chars =
       '0123456789ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz';

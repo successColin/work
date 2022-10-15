@@ -57,6 +57,18 @@
         ></filterable-input>
       </el-form-item>
       <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
+      </el-form-item>
+      <el-form-item
         label="最小宽度"
         v-if="relateObj && relateObj.compName === 'TableMain'"
       >

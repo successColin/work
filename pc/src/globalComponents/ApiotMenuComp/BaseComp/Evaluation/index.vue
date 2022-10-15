@@ -24,7 +24,7 @@
     <el-form-item
       :prop="`${configData.compId}`"
       v-else-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>

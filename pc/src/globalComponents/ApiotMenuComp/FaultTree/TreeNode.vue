@@ -7,7 +7,7 @@
           :class="`iconfont m-r-4 ${getCurDict(data, 1)}`"
           :style="`color:${getCurDict(data, 2)}`"
         ></i>
-        <img v-else class="m-r-4" :src="getCurDict(data)" />
+        <img v-else class="m-r-4" :src="$parseImgUrl(getCurDict(data))" />
       </div>
       <div class="treeNode__label" :title="getTreeNodeText">
         {{ getTreeNodeText }}
@@ -310,6 +310,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           }

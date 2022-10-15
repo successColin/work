@@ -186,4 +186,69 @@ export default {
       ],
     },
   ],
+  // dingding
+  Column_5: [
+    {
+      label: 'messageTemplate.serveColumn.name',
+      prop: 'serverName',
+      compName: 'EditInputColumn',
+      width: 150,
+      rules: [
+        {
+          required: true,
+          message: 'messageTemplate.serveColumn.rules.required',
+        },
+      ],
+    },
+    {
+      type: 'serverProps',
+      label: 'messageTemplate.serveColumn.corpId',
+      prop: 'corpId',
+      compName: 'EditInputColumn',
+      width: 150,
+      rules: [
+        {
+          required: true,
+          message: 'messageTemplate.serveColumn.rules.required',
+        },
+      ],
+    },
+    {
+      type: 'serverProps',
+      label: 'messageTemplate.serveColumn.accessKeyId',
+      prop: 'agentId',
+      compName: 'EditInputColumn',
+      width: 150,
+      rules: [
+        {
+          required: true,
+          message: 'messageTemplate.serveColumn.rules.required',
+        },
+      ],
+    },
+    {
+      type: 'serverProps',
+      label: 'messageTemplate.serveColumn.applyPublicKey',
+      prop: 'appKey',
+      compName: 'EditInputColumn',
+      rules: [
+        {
+          required: true,
+          message: 'messageTemplate.serveColumn.rules.required',
+        },
+      ],
+    },
+    {
+      type: 'serverProps',
+      label: 'messageTemplate.serveColumn.applyPrivateKey',
+      prop: 'appSecret',
+      compName: 'EditInputColumn',
+      rules: [
+        {
+          required: true,
+          message: 'messageTemplate.serveColumn.rules.required',
+        },
+      ],
+    },
+  ],
 };

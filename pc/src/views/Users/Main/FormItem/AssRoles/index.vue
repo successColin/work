@@ -2,11 +2,19 @@
 <template>
   <div class="rolesWrap">
     <el-button size="mini" @click="toggle"
-      ><i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}</el-button
-    >
-    <el-tag v-for="tag in roles" :key="tag.id" closable @close="deleteTag(tag)">
-      <i class="iconfont icon-jiaose"></i>{{ tag.roleName }}
-    </el-tag>
+      ><i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}</el-button>
+<!--    <el-tag v-for="tag in roles" :key="tag.id" closable @close="deleteTag(tag)">-->
+<!--      <i class="iconfont icon-jiaose"></i>{{ tag.roleName }}-->
+<!--    </el-tag>-->
+    <apiot-tag
+        class="m-r-6"
+        :itemTheme="2"
+        v-for="tag in roles"
+        :key="tag.id"
+        @deleteSelf="deleteTag(tag)"
+        :item="tag.roleName"
+        itemIconClass="icon-jiaose"
+    ></apiot-tag>
     <el-input
       class="search"
       v-model="input"
@@ -134,6 +142,9 @@ export default {
   ::v-deep {
     .el-dialog__body {
       padding: 0 20px;
+    }
+    .wz {
+      line-height: 30px;
     }
   }
 

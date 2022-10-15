@@ -5,7 +5,7 @@
     @sure-click="sureClick"
     v-on="$listeners"
     v-bind="$attrs"
-    :width="960"
+    width="960"
     custom-class="affectTypeDialog"
   >
     <el-form
@@ -396,7 +396,6 @@ export default {
       });
     },
     selectTable(table) {
-      console.log(table);
       this.tableInfo = {
         tableName: table.tableName,
         id: table.id
@@ -422,7 +421,7 @@ export default {
       height: 640px;
     }
     //.affectTypeDialog .el-dialog__body{
-    //  height: 525px;
+    //  height: 522px;
     //}
     .Horizontal .valueType {
       width: 145px;

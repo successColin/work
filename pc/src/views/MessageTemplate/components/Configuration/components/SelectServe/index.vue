@@ -82,8 +82,12 @@ export default {
   },
 
   watch: {
-    value(newValue) {
-      this.selectValue = newValue.id;
+    value: {
+      deep: true,
+      immediate: true,
+      handler(newValue) {
+        this.selectValue = newValue.id;
+      }
     }
   },
 

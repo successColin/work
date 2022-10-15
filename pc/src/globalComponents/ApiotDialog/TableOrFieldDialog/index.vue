@@ -67,6 +67,7 @@ import { getListSysEntityTables, listSysEntityColumns } from '@/api/entityManage
 import { listDictByType, listDict } from '@/api/dictManage';
 import { pagePanel, getPageSysImportTemplateList } from '@/api/menuConfig';
 import { sysMenuPage, ureportfiles } from '@/api/menuManage';
+import { getListSysPrintTemplate } from '@/api/printTemplate';
 
 export default {
   props: {
@@ -107,7 +108,7 @@ export default {
       default: ''
     },
     isSelPanel: {
-      type: Boolean,
+      type: [Boolean, Number],
       default: false
     },
     otherParams: {
@@ -120,6 +121,10 @@ export default {
     tableArr: {
       type: Array,
       default: () => []
+    },
+    isApp: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -161,6 +166,9 @@ export default {
       if (this.dialogType === 7) {
         return '选择文件名';
       }
+      if (this.dialogType === 8) {
+        return '选择关联打印模板';
+      }
       return this.title || '';
     },
     getLable() {
@@ -178,6 +186,8 @@ export default {
         case 6:
           return 'id';
         case 7:
+          return 'name';
+        case 8:
           return 'name';
         default:
           return 'id';
@@ -325,6 +335,19 @@ export default {
           prop: 'name',
           compName: 'ElTableColumn'
         });
+      } else if (this.dialogType === 8) {
+        this.dropColumnData.push(
+          {
+            label: this.$t('common.name', { name: '' }),
+            prop: 'name',
+            compName: 'ElTableColumn'
+          },
+          {
+            label: '创建人',
+            prop: 'createUserName',
+            compName: 'ElTableColumn'
+          }
+        );
       }
     },
     // 获取列表数据
@@ -407,6 +430,7 @@ export default {
         this.tableData = dictList;
         this.total = res.total;
       } else if (this.dialogType === 4) {
+        console.log(this.isApp === 1, 'this.isApp === 1');
         const params = {
           current: this.current,
           keywords: this.dictKeywords,
@@ -415,9 +439,12 @@ export default {
           relationMenuDesignId: this.$route.query.id,
           unDesign: 1,
           panelClassify: this.isSelPanel ? 2 : 1,
-          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          clientType: this.$route.query.isApp === '1' || this.isApp === 1 ? 2 : 1,
           ...this.otherParams
         };
+        if (this.isSelPanel === 0) {
+          delete params.panelClassify;
+        }
         // console.log(params);
         const res = await pagePanel(params);
         this.tableData = res.records;
@@ -432,10 +459,11 @@ export default {
         this.tableData = res.records;
         this.total = res.total;
       } else if (this.dialogType === 6) {
+        console.log(this.isApp === 1, 'this.isApp === 1');
         const res = await sysMenuPage({
           size: this.size,
           current: this.current,
-          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          clientType: this.$route.query.isApp === '1' || this.isApp === 1 ? 2 : 1,
           menuLevel: 2,
           menuType: 2,
           keywords: this.dictKeywords
@@ -457,11 +485,21 @@ export default {
         });
         this.tableData = arr;
         this.total = res.total;
+      } else if (this.dialogType === 8) {
+        const res = await getListSysPrintTemplate({
+          menuId: this.$route.query.id
+        });
+        this.tableData = res;
       }
     },
     // 设置字典选择值
     async setSelectDictArr() {
-      if (!this.$store.state.dictManage.DICT_TYPE) {
+      console.log();
+      if (
+        this.$store.state.dictManage.DICT_TYPE
+          ? !this.$store.state.dictManage.DICT_TYPE.length
+          : false
+      ) {
         const { DICT_TYPE } = await listDict({ dictKeys: 'DICT_TYPE' });
         DICT_TYPE.forEach((item) => {
           if (item[`${localStorage.apiotLanguage}`]) {
@@ -475,7 +513,9 @@ export default {
     },
     // 设置面板
     async setSelectPanelArr() {
-      if (!this.$store.state.dictManage.PANEL_TYPE) {
+      if (
+        this.$store.state.dictManage.PANEL_TYPE ? !this.$store.state.dictManage.PANEL_TYPE : false
+      ) {
         const { PANEL_TYPE } = await listDict({ dictKeys: 'PANEL_TYPE' });
         PANEL_TYPE.forEach((item) => {
           if (item[`${localStorage.apiotLanguage}`]) {

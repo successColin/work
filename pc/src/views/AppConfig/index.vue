@@ -33,7 +33,11 @@ export default {
   },
 
   components: {},
-
+  provide() {
+    return {
+      isConfig: true,
+    };
+  },
   computed: {
     tabsArr() {
       return [

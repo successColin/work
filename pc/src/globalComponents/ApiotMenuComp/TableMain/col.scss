@@ -23,6 +23,7 @@
     }
   }
   &__notEditable {
+    display: inline-flex !important;
     height: 36px;
     line-height: 36px;
     overflow: hidden;

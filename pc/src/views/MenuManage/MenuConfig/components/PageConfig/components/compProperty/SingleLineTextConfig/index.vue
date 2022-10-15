@@ -72,6 +72,18 @@
           @selectRes="selectColumnRes"
         ></filterable-input>
       </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -107,6 +119,18 @@
         ></apiot-input>
       </el-form-item>
       <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
+      </el-form-item>
+      <el-form-item
         label="最小宽度"
         v-if="relateObj && relateObj.compName === 'TableMain'"
       >
@@ -138,6 +162,7 @@
           >
         </el-button-group>
       </el-form-item>
+
       <el-form-item label="宽度" v-else>
         <span slot="label">
           <span class="span-box">
@@ -195,7 +220,7 @@
         </el-button-group>
       </el-form-item>
 
-      <el-form-item label="验证" v-if="isShow">
+      <el-form-item label="验证">
         <p class="switchBox">
           是否必填
           <!-- :value="activeObj.showTab"
@@ -209,7 +234,7 @@
           >
           </el-switch>
         </p>
-        <p class="switchBox">
+        <p class="switchBox" v-if="isShow">
           是否不允许重复值
           <el-switch
             v-model="activeObj.shouldRepeat"
@@ -219,7 +244,7 @@
           >
           </el-switch>
         </p>
-        <div class="numberLength">
+        <div class="numberLength" v-if="isShow">
           长度限制
           <div class="numberLength__inputBox">
             <apiot-input
@@ -312,7 +337,7 @@ export default {
           value: 2,
           rule: [
             {
-              pattern: '^1[3|4|5|7|8][0-9]{9}$',
+              pattern: '^1[3|4|5|6|7|8|9][0-9]{9}$',
               message: '请输入手机号',
               trigger: 'change'
             }
@@ -335,7 +360,7 @@ export default {
           value: 4,
           rule: [
             {
-              pattern: '^[1-9]d{5}(?!d)$',
+              pattern: '^[1-9]\\d{5}$',
               message: '请输入邮编',
               trigger: 'change'
             }
@@ -348,7 +373,7 @@ export default {
             {
               pattern:
                 '^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$',
-              message: '请输入邮编',
+              message: '请输入邮箱',
               trigger: 'change'
             }
           ]
@@ -359,7 +384,7 @@ export default {
           rule: [
             {
               pattern: '(^(?:(?![IOZSV])[dA-Z]){2}d{6}(?:(?![IOZSV])[dA-Z]){10}$)|(^d{15}$)',
-              message: '请输入邮编',
+              message: '请输入企业营业执照号',
               trigger: 'change'
             }
           ]

@@ -1,11 +1,12 @@
 import { getQueryObj } from '@/utils/utils';
-import ZheZhengdd from 'gdt-jsapi';
+// import getAuthCode from 'gdt-jsapi/getAuthCode';
 
 // 获取浙政钉code
 export function getDingDingCode() {
   const ua = navigator.userAgent.toLowerCase();
   if (ua.indexOf('saas') > -1) {
-    return ZheZhengdd.getAuthCode({}).then((result) => {
+    // eslint-disable-next-line no-undef
+    return dd.getAuthCode({}).then((result) => {
       if (result) {
         return result.auth_code;
       }

@@ -183,7 +183,8 @@ import {
   DataOneBoxCom,
   DataMultiBoxCom,
   DateTimeCom,
-  ButtonCom
+  ButtonCom,
+  dateBox
 } from './comParams';
 
 export default {
@@ -265,6 +266,7 @@ export default {
               showNum: true, // 是否显示序号
               selectType: 1, // 多选类型 0 无 1 是多选 2是单选
               canOperate: false, // 是否启用操作列
+              operateName: '操作', // 操作列名称
               operateWidth: '0.2', // 操作列宽度
               showLine: 5, // 显示行数
               lineEditable: false, // 是否启用行编辑
@@ -374,22 +376,22 @@ export default {
               relateTableArr: [],
               relateTableIndex: 0,
               children: [],
-              cascadeDataSource: [
-                {
-                  relateColumn: {
-                    id: '',
-                    columnName: ''
-                  },
-                  tableInfo: {
-                    id: '',
-                    tableName: ''
-                  },
-                  showColumn: {
-                    id: '',
-                    columnName: ''
-                  }
-                }
-              ],
+              // cascadeDataSource: [
+              //   {
+              //     relateColumn: {
+              //       id: '',
+              //       columnName: ''
+              //     },
+              //     tableInfo: {
+              //       id: '',
+              //       tableName: ''
+              //     },
+              //     showColumn: {
+              //       id: '',
+              //       columnName: ''
+              //     }
+              //   }
+              // ],
               multiDataSource: [
                 {
                   name: '一级表',
@@ -501,6 +503,50 @@ export default {
               shouldInit: true, // 是否初始化
               reloadArea: [], // 要刷新的区域
               isTree: false // 是否是树区
+            },
+            // 树表区
+            {
+              name: '树表',
+              compType: 1009,
+              propertyCompName: 'TreeTableConfig',
+              imgUrl: 'areaComp/TableMain.svg',
+              compId: createUnique(),
+              compName: 'TreeTable',
+              pageType: 1,
+              shouldTab: true,
+              areaType: 1,
+              showTitle: false, // 显示标题
+              canChangeName: true, // 标记名字是否可以变更，用于组件树上名字的替换
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
+              },
+              relateTableArr: [],
+              relateTableIndex: 0,
+              children: [],
+              filterTermType: 1, // 1 是普通 2是sql
+              filterTermStr: '', // 普通字符串
+              filterTermSql: '', // sql字符串
+              termParams: '', // 过滤条件需要的组件参数id
+              shouldInit: true, // 是否初始化
+              needPermissions: true,
+              reloadArea: [], // 要刷新的区域
+              isTree: false, // 是否是树区
+              required: false, // 是否必填
+              showNum: true, // 是否显示序号
+              selectType: 1, // 多选类型 0 无 1 是多选 2是单选
+              canOperate: false, // 是否启用操作列
+              operateName: '操作', // 操作列名称
+              operateWidth: '0.2', // 操作列宽度
+              showLine: 5, // 显示行数
+              lineEditable: false, // 是否启用行编辑
+              fixedLeft: 0, // 左侧固定列
+              fixedRight: 0, // 右侧固定列
+              hasPagination: false, // 是否启用分页
+              rowNum: 10, // 分页条数
+              sortArr: [], // 排序数组
+              sortStr: '' // 排序字符串
             }
           ]
         }
@@ -535,7 +581,9 @@ export default {
                 dictObj: null // 字典表数据
               },
               sort: 1, // 1 升序 2 降序
+              effectDict: [], // 字典生效值
               dropDownStyle: 1, // 1 普通风格 2 背景展示风格 3 个性图标风格
+              enableTableSearch: false, // 是否启用表头搜索
               singleStatus: 1,
               canShow: true,
               canReadonly: false,
@@ -567,7 +615,9 @@ export default {
                 dictObj: null // 字典表数据
               },
               sort: 1, // 1 升序 2 降序
+              effectDict: [], // 字典生效值
               dropDownStyle: 1, // 1 普通风格 2 背景展示风格 3 个性图标风格
+              enableTableSearch: false, // 是否启用表头搜索
               singleStatus: 1,
               canShow: true,
               canReadonly: false,
@@ -579,47 +629,7 @@ export default {
             ButtonCom,
             DataOneBoxCom,
             DataMultiBoxCom,
-            {
-              name: '日期框',
-              areaType: 1, // 表示内容区
-              dragTable: true, // 能否拖入表格区
-              imgUrl: 'baseComp/DatePickerBox.svg',
-              compType: 8,
-              compId: createUnique(),
-              compName: 'DatePickerBox',
-              tableCompName: 'TableDatePickerCol',
-              propertyCompName: 'DatePickerBoxConfig',
-              labelName: '日期框',
-              placeholder: '请选择日期框',
-              helpInfo: '',
-              dataSource: {
-                relateName: '主表',
-                tableName: '',
-                columnName: '',
-                columnTypeDict: 0,
-                id: 0,
-                alias: '',
-                dictObj: null // 字典表数据
-              },
-              singleStatus: 1,
-              canShow: true,
-              canReadonly: false,
-              defaultType: '', // 默认值类型 空 无 1 当前时间 2 自定义
-              width: '50%',
-              tableWidth: '0.1',
-              shouldRequired: false,
-              minTimeObj: {
-                type: 1,
-                minTime: '',
-                formula: ''
-              }, // 最小时间
-              maxTimeObj: {
-                type: 1,
-                maxTime: '',
-                formula: ''
-              }, // 最大时间
-              submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
-            },
+            dateBox,
             DateTimeCom,
             {
               name: '数值框',
@@ -649,6 +659,7 @@ export default {
                 alias: '',
                 dictObj: null // 字典表数据
               },
+              enableTableSearch: false, // 是否启用表头搜索
               singleStatus: 1,
               canShow: true,
               canReadonly: false,
@@ -723,6 +734,7 @@ export default {
               enableMultiColumn: false, // 是否多选字段
               labelNotChange: false, // label 不可更改
               enableDict: false, // 是否字典值
+              enableCascade: false, // 是否是级联组件
               dataSource: {
                 relateName: '', // 关系名称
                 tableName: '', //  表名
@@ -734,6 +746,7 @@ export default {
                 mainColumnInfo: null // 主表相关信息
               },
               timeShowType: 1, // 1 是日期 2是日期时间
+              numberShowType: 1, // 1 是普通 2是千分位
               multiTable: {
                 table: {
                   tableName: '',
@@ -746,6 +759,7 @@ export default {
                   columnTypeDict: 0
                 }
               },
+              enableTableSearch: false, // 是否启用表头搜索
               singleStatus: 1,
               canShow: true,
               canReadonly: false,
@@ -769,7 +783,7 @@ export default {
                 color: '',
                 imageUrl: ''
               }, // label 图标
-              relateType: 1, // 弹窗类型 1是面板 2是菜单
+              relateType: 1, // 弹窗类型 1是面板 2是菜单 3是外部地址
               dialogName: 'PanelDialog', // 弹窗风格
               dialogTitle: '', // 弹窗标题
               shouldRequired: false,
@@ -964,6 +978,7 @@ export default {
           children: [
             {
               name: '图片',
+              showLabelTitle: true, // 是否显示图片的标题
               areaType: 1, // 表示内容区
               imgUrl: 'highComp/Image.svg',
               compType: 12,
@@ -988,12 +1003,13 @@ export default {
               canReadonly: false,
               width: '100%',
               shouldRequired: false,
-              maxFileCount: 5, // 最大文件个数
+              maxFileCount: 0, // 最大文件个数
               maxFileSize: 200, // 单个文件最大体积
               submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
             },
             {
               name: '视频',
+              showLabelTitle: true, // 是否显示视屏的标题
               areaType: 1, // 表示内容区
               imgUrl: 'highComp/Video.svg',
               compType: 24,
@@ -1024,6 +1040,7 @@ export default {
             },
             {
               name: '附件',
+              showLabelTitle: true, // 是否显示附件的标题
               areaType: 1, // 表示内容区
               imgUrl: 'highComp/Enclosure.svg',
               compType: 13,
@@ -1053,6 +1070,7 @@ export default {
             },
             {
               name: '证件',
+              showLabelTitle: true, // 是否显示证件的标题
               areaType: 1, // 表示内容区
               imgUrl: 'highComp/PapersUpload.svg',
               compType: 14,
@@ -1245,6 +1263,44 @@ export default {
               imgArr: [], // 图片数组
               canShow: true,
               canReadonly: false
+            },
+            {
+              name: '步骤条',
+              areaType: 1,
+              imgUrl: 'baseComp/DividingLine.svg',
+              compType: 27,
+              compId: createUnique(),
+              compName: 'Steps',
+              propertyCompName: 'StepsConfig',
+              placeholder: '',
+              helpInfo: '',
+              width: '100%',
+              canShow: true,
+              canReadonly: false,
+              dataSource: {
+                relateName: '主表',
+                tableName: '',
+                columnName: '',
+                columnTypeDict: 0,
+                id: 0,
+                alias: '',
+                dictObj: null // 字典表数据
+              },
+              multiTable: {
+                table: {
+                  tableName: '',
+                  alias: '',
+                  id: ''
+                },
+                column: {
+                  columnName: '',
+                  id: '',
+                  columnTypeDict: 0
+                }
+              }, // 数据表
+              dataFrom: 1, // 数据来源
+              relateDateId: '', // 关联组件id
+              stepsArr: [] // 步骤集合数组
             }
           ]
         },
@@ -1278,6 +1334,13 @@ export default {
             },
             {
               ...DateTimeCom,
+              dragQuery: true, // 是否允许拖入查询区
+              noDragForm: true, // 不能拖入表单区
+              canQuery: true,
+              timeInterval: true // 是否选择区间
+            },
+            {
+              ...dateBox,
               dragQuery: true, // 是否允许拖入查询区
               noDragForm: true, // 不能拖入表单区
               canQuery: true
@@ -1474,7 +1537,10 @@ export default {
       if (data.compId) {
         window.location.hash = `#${data.compId}`;
       }
-      if ((data.dataSource && data.dataSource.columnName === 'id') || data.name === '操作') {
+      if (
+        (data.dataSource && data.dataSource.columnName === 'id') ||
+        data.tableCompName === 'OperateCol'
+      ) {
         return;
       }
       this.$bus.$emit('changeCurActiveObj', data);
@@ -1635,8 +1701,8 @@ export default {
       if (this.$route.query.isApp !== '1') {
         // pc 端
         if (!component.$attrs.isSidebar) {
-          // 不是侧边 不是表单 跟表格 不允许拖进
-          if (![1000, 1001, 1006, 1008].includes(dragElement.compType)) {
+          // 不是侧边 不是表单 不是表格 不是树表 不允许拖进
+          if (![1000, 1001, 1006, 1008, 1009].includes(dragElement.compType)) {
             return false;
           }
         } else {

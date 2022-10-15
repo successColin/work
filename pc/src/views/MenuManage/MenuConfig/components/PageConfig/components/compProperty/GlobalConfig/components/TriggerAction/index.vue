@@ -273,7 +273,8 @@ export default {
     async modifyDesignTriggers(v) {
       await enableAndDisableTriggers({
         triggerEnabled: v.triggerEnabled,
-        linkCode: v.linkCode
+        linkCode: v.linkCode,
+        sysMenuDesignId: this.isPanel ? this.sysMenuDesignId : this.$route.query.id
       });
       this.$message({
         type: 'success',

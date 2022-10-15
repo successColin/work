@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2021-08-18 17:30:31
+ * @Last Modified time: 2022-08-22 10:02:59
  */
 export default {
   helpCenter: {
@@ -40,7 +40,7 @@ export default {
       '上传视频只能是 AVI、mov、rmvb、rm、FLV、mp4、3GP格式！',
     deleteVideo: '删除视频',
     videoFile: '视频文件',
-    uploadaAvatarPictureSizeMustNotExceed: '上传头像图片大小不能超过 2MB!',
+    uploadaAvatarPictureSizeMustNotExceed: '上传图片大小不能超过 2MB!',
     PleaseUploadJPEGPNGJPGFormat: '请上传 jpeg,png,jpg 格式!',
     onlyOneImageCanBeUploadedForTheVideoCover: '视频封面只能上传一张图片',
     aPIOTHelpCenter: 'APIoT帮助中心',

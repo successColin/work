@@ -25,13 +25,16 @@
         :configData="configData"
         :isMove.sync="isMove"
         :dropObj.sync="dropObj"
+        :allNode.sync="allNode"
         class="printTemplate__wrapper--left"
       ></config-sidebar>
       <!-- 中间 -->
       <edit-excel
         :ruleForm="ruleForm"
         ref="myPrint"
+        :currentType="currentType"
         :dropObj="dropObj"
+        :allNode="allNode"
         :isMove="isMove"
         :isFill="isFill"
         :excelArr.sync="excelArr"
@@ -40,11 +43,11 @@
         :excelPosition.sync="excelPosition"
         :fillExcelArr.sync="fillExcelArr"
         :excelSelectedObj.sync="excelSelectedObj"
-        :imgArr.sync="imgArr"
         :previewObj.sync="previewObj"
         :areaHeight.sync="areaHeight"
         :areaWidth.sync="areaWidth"
         class="printTemplate__wrapper--center"
+        :allTableFieldArr="allTableFieldArr"
       ></edit-excel>
       <!-- 右边 -->
       <div class="printTemplate__wrapper--right">
@@ -65,17 +68,55 @@
         </apiot-button>
       </div>
     </section>
-
-    <!-- 拖拽内容 -->
+    <!-- 表单字段拖拽内容 -->
     <div
       :style="`position: absolute; left: ${dragX}px; top: ${dragY}px; z-index: 999`"
-      v-if="isMove"
+      v-if="
+        (isMove && currentType === 'MenuMain') ||
+        (isMove && currentType === 'CardMain')
+      "
     >
       <section class="printTemplate__drop">
-        {{ dropObj.name }}
+        <div>
+          {{ dropObj.name }}
+        </div>
+        <div class="printTemplate__drop--borderLeft">
+          ${ {{ dropObj.name }}
+          {{
+            dropObj.dataSource && dropObj.dataSource.relateName
+              ? `(${dropObj.dataSource.relateName})`
+              : ''
+          }}
+          }
+        </div>
       </section>
     </div>
-
+    <!-- 表格单个字段拖拽内容 -->
+    <div
+      :style="`position: absolute; left: ${dragX}px; top: ${dragY}px; z-index: 999`"
+      v-if="isMove && currentType === 'TableMain'"
+    >
+      <section class="printTemplate__drop1">
+        <div>{{ dropObj.name }}</div>
+        <div>${ {{ dropObj.compId }} }</div>
+      </section>
+    </div>
+    <!-- 整个表格个字段拖拽内容 -->
+    <div
+      :style="`position: absolute; left: ${dragX}px; top: ${dragY}px; z-index: 999`"
+      v-if="isMove && allTableFieldArr.length"
+    >
+      <div class="printTemplate__boxDrpo">
+        <section
+          v-for="(v, i) in allTableFieldArr"
+          :key="i"
+          class="printTemplate__drop1"
+        >
+          <div>{{ v.name }}</div>
+          <div>${ {{ v.compId }} }</div>
+        </section>
+      </div>
+    </div>
     <!-- 预览 -->
     <apiot-tabs
       class="printTemplate__tabs"
@@ -97,7 +138,6 @@
 </template>
 
 <script>
-import { postUploadHelp } from '@/api/helpCenter';
 import { getSysDesignMenu } from '@/api/menuConfig';
 import { editSysPrintTemplate, insertSysPrintTemplate } from '@/api/printTemplate';
 import ConfigParams from './components/ConfigParams';
@@ -113,9 +153,8 @@ export default {
       excelArr: [],
       globalConfig: {},
       excelImg: {},
-      imgArr: [],
-      areaWidth: '176mm',
-      areaHeight: '257mm',
+      areaWidth: '210mm',
+      areaHeight: '292mm',
 
       excelPosition: '', // 选中位置
       copyDropObj: {},
@@ -132,14 +171,13 @@ export default {
         paperSizeWidth: '210',
         paperSizeHeight: '297'
       },
-      // 纸张大小是否自定义
-      isPaperSizeCustom: true,
       drag: {
         dragX: 0,
         dragY: 0
       },
       isMove: false,
       dropObj: {},
+      allNode: {},
       isFill: false,
       showGlobal: true,
       detailId: '',
@@ -154,8 +192,6 @@ export default {
     ConfigParams,
     ContentPreview
   },
-
-  watch: {},
 
   computed: {
     dragX() {
@@ -172,7 +208,6 @@ export default {
     },
     // tabs标题
     tabsArr() {
-      // console.log(this.globalConfig);
       return [
         {
           label: `${this.globalConfig.name || ''}打印模板`,
@@ -180,44 +215,61 @@ export default {
           key: 'ContentPreview'
         }
       ];
+    },
+    currentType() {
+      return (
+        this.allNode &&
+        this.allNode.parent &&
+        this.allNode.parent.parent &&
+        this.allNode.parent.parent.data &&
+        this.allNode.parent.parent.data.compName
+      );
+    },
+    allTableFieldArr() {
+      return (
+        (this.dropObj &&
+          this.dropObj.children &&
+          this.dropObj.children[0] &&
+          this.dropObj.children[0].children) ||
+        []
+      );
     }
   },
 
   mounted() {
     this.$store.dispatch('getCurrentDict', 'PRINT_TYPE,PRINT_ELE_TYPE');
     this.getSysDesignMenu();
-    document.addEventListener(
-      'mousemove',
-      (e) => {
-        e = e || window.event;
-        this.drag.dragX = e.pageX;
-        this.drag.dragY = e.pageY;
-        if (e.pageX > 290) {
-          this.isFill = true;
-        } else {
-          this.isFill = false;
-        }
-      },
-      true
-    );
-    document.addEventListener(
-      'mouseup',
-      () => {
-        setTimeout(() => {
-          if (this.isMove) {
-            this.$refs.myPrint.getPosition();
-            this.showGlobal = false;
-            this.copyDropObj = JSON.parse(JSON.stringify(this.dropObj));
-            this.dropObj = {};
-          }
-          this.isMove = false;
-        }, 100);
-      },
-      true
-    );
+    document.addEventListener('mousemove', this.mousemoveFun, true);
+    document.addEventListener('mouseup', this.mouseupFun, true);
+  },
+
+  beforeDestroy() {
+    document.removeEventListener('mousemove', this.mousemoveFun, true);
+    document.removeEventListener('mouseup', this.mouseupFun, true);
   },
 
   methods: {
+    mousemoveFun(e) {
+      e = e || window.event;
+      this.drag.dragX = e.pageX;
+      this.drag.dragY = e.pageY;
+      if (e.pageX > 290) {
+        this.isFill = true;
+      } else {
+        this.isFill = false;
+      }
+    },
+    mouseupFun() {
+      setTimeout(() => {
+        if (this.isMove) {
+          this.$refs.myPrint.getPosition();
+          this.showGlobal = false;
+          this.copyDropObj = JSON.parse(JSON.stringify(this.dropObj));
+          this.dropObj = {};
+        }
+        this.isMove = false;
+      }, 100);
+    },
     base64toFile(dataurl, filename = 'file') {
       const arr = dataurl.split(',');
       const mime = arr[0].match(/:(.*?);/)[1];
@@ -235,6 +287,7 @@ export default {
     },
     // 回退
     handleBack() {
+      window.luckysheet.exitEditMode();
       this.$router.replace(
         `/menuConfig/${this.$route.params.id}?menuName=${this.menuName}&id=${this.menuId}&compName=ParamsConfig`
       );
@@ -246,44 +299,12 @@ export default {
       this.showTabs = true;
     },
 
-    uploadImg() {
-      return new Promise((resolve) => {
-        // console.log(this.excelImg);
-        const len = Object.keys(this.excelImg).length;
-        let num = 0;
-        this.imgArr = [];
-        if (!len) {
-          resolve(this.imgArr);
-        }
-        Object.keys(this.excelImg).forEach(async (key) => {
-          if (key.indexOf('img_') !== -1) {
-            const { src } = this.excelImg[key];
-            const formData = new FormData();
-            const file = this.base64toFile(src, key);
-            formData.append('file', file);
-            const res = await postUploadHelp(formData);
-            this.imgArr.push({
-              ...this.excelImg[key],
-              src: res
-            });
-            num += 1;
-          } else {
-            this.imgArr.push({
-              ...this.excelImg[key]
-            });
-            num += 1;
-          }
-          if (len === num) {
-            resolve(this.imgArr);
-          }
-        });
-      });
-    },
     // 保存
     async handleSave() {
       // console.log('保存');
       this.$refs.myPrint.changeExcelObj();
       this.$refs.configParams.giveRuleForm();
+      this.$refs.myPrint.excelPreview();
       const { name, type } = this.globalConfig;
       if (!name) {
         this.$message({
@@ -292,14 +313,11 @@ export default {
         });
         return;
       }
-      if (this.excelImg) {
-        await this.uploadImg();
-      }
       const designJson = {
         globalConfig: this.globalConfig,
         excelArr: this.excelArr,
-        imgArr: this.imgArr,
-        borderInfo: this.$refs.myPrint.borderInfo
+        borderInfo: this.$refs.myPrint.borderInfo,
+        previewObj: this.previewObj
       };
       // 新增
       if (this.detailId) {
@@ -425,9 +443,37 @@ export default {
     }
   }
   &__drop {
-    outline: 1px dashed #107fff;
-    padding: 5px 10px;
+    border: 1px dashed #107fff;
     cursor: move;
+    color: #107fff;
+    font-size: 14px;
+    display: flex;
+    &--borderLeft {
+      border-left: 1px dashed #107fff;
+    }
+    div {
+      line-height: 22px;
+      padding: 4px 10px;
+    }
+  }
+  &__boxDrpo {
+    display: flex;
+  }
+  &__drop1:not(:nth-child(1)) {
+    border-left: 0;
+  }
+  &__drop1 {
+    border: 1px dashed #107fff;
+    cursor: move;
+    color: #107fff;
+    font-size: 14px;
+    div:nth-child(2) {
+      border-top: 1px dashed #107fff;
+    }
+    div {
+      line-height: 22px;
+      padding: 4px 10px;
+    }
   }
   &__tabs {
     ::v-deep {
@@ -444,9 +490,9 @@ export default {
       }
       .el-tabs__item.is-active {
         font-size: 16px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #333333;
+        font-family: PingFangSC-Regular, PingFang SC !important;
+        font-weight: 400 !important;
+        color: #333333 !important;
       }
       .el-tabs__nav-scroll {
         height: 46px;
@@ -455,10 +501,6 @@ export default {
         position: absolute;
         top: 0;
         left: 20px;
-      }
-      .el-tabs__item.is-active {
-        font-size: 16px;
-        color: #333333 !important;
       }
     }
   }

@@ -42,7 +42,7 @@
           >
             <apiot-input
               v-model="formData.dictName"
-              :disabled="currentPageType === 2"
+              :disabled="isDisabled"
               :placeholder="
                 $t('placeholder.pleaseEnterAny', {
                   any: $t('dictionary.dictionaryEntry'),
@@ -53,7 +53,7 @@
           <el-form-item :label="$t('dictionary.group')" class="form--child">
             <el-select
               v-model="formData.dictType"
-              :disabled="currentPageType !== 1"
+              :disabled="isDisabled"
               :placeholder="
                 $t('placeholder.pleaseSelect', {
                   any: $t('dictionary.group'),
@@ -80,7 +80,7 @@
           class="addDict__tanble--main"
           :tableData.sync="formData.dictValue"
           :showSelection="false"
-          :isEdit="currentPageType !== 2"
+          :isEdit="!isEdit"
         ></dict-value-table>
       </div>
     </section>
@@ -129,6 +129,15 @@ export default {
       return this.$t(showTitleArry[this.currentPageType], {
         name: this.$t('dictionary.dictionary')
       });
+    },
+    isEdit() {
+      if (this.formData.dictType === 1) return true;
+      return false;
+    },
+    isDisabled() {
+      if (this.formData.dictType === 1) return true;
+      if (this.formData.dictType === 6) return true;
+      return false;
     }
   },
   methods: {

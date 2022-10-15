@@ -65,16 +65,46 @@
           @change="defaultTypeChange"
           clearable
         >
-          <el-option label="当前时间" :value="1"></el-option>
+          <el-option
+            :label="`${intervalTimeShow ? '当天' : '当前时间'}`"
+            :value="1"
+          ></el-option>
           <el-option label="自定义" :value="2"></el-option>
         </el-select>
         <el-date-picker
-          v-if="activeObj.defaultType === 2"
+          v-if="activeObj.defaultType === 2 && !intervalTimeShow"
           class="m-t-10"
           type="datetime"
           placeholder="请选择日期"
           value-format="yyyy-MM-dd HH:mm:ss"
+          format="yyyy-MM-dd HH:mm:ss"
           v-model="fatherObj.form[activeObj.compId]"
+        >
+        </el-date-picker>
+        <el-date-picker
+          v-if="activeObj.defaultType === 2 && intervalTimeShow"
+          class="m-t-10"
+          type="datetime"
+          placeholder="请选择开始时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          format="yyyy-MM-dd HH:mm:ss"
+          v-model="startDate"
+          :clearable="false"
+          @change="handleChangeStartTime"
+          :picker-options="pickerOptions3"
+        >
+        </el-date-picker>
+        <el-date-picker
+          v-if="activeObj.defaultType === 2 && intervalTimeShow"
+          class="m-t-10"
+          type="datetime"
+          placeholder="请选择结束时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          format="yyyy-MM-dd HH:mm:ss"
+          v-model="endDate"
+          :clearable="false"
+          @change="handleChangeEndTime"
+          :picker-options="pickerOptions4"
         >
         </el-date-picker>
       </el-form-item>
@@ -84,6 +114,18 @@
           placeholder="请填写字段名"
         ></apiot-input>
       </el-form-item> -->
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -108,6 +150,18 @@
             >隐藏</el-button
           >
         </el-button-group>
+      </el-form-item>
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
       </el-form-item>
       <el-form-item
         label="最小宽度"
@@ -197,7 +251,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证" v-if="isShow">
+      <el-form-item label="验证">
         <p class="switchBox">
           是否必填
           <!-- @change="setRequiredRule" -->
@@ -213,12 +267,18 @@
       <el-form-item v-if="!isShow">
         <p class="switchBox">
           是否选择区间
+          <el-tooltip
+            content="webview传入参数，开始时间加_start，结束时间加_end"
+            placement="top"
+          >
+            <i class="iconfont icon-bangzhu" />
+          </el-tooltip>
           <el-switch
             v-model="activeObj.timeInterval"
             class="switchBox__switch"
             active-text="是"
             inactive-text="否"
-            @change="setRequiredRule"
+            @change="handleChangeTimeInterval"
           >
           </el-switch>
         </p>
@@ -287,6 +347,7 @@
 </template>
 
 <script>
+import { formatDate } from '@/utils/utils';
 import propertyMixin from '../propertyMixin';
 import SelectFormula from '../GlobalConfig/components/AddAction/components/SelectFormula';
 
@@ -294,6 +355,8 @@ export default {
   mixins: [propertyMixin],
   data() {
     return {
+      startDate: '',
+      endDate: '',
       value: '',
       tableArr: [],
       pickerOptions1: {
@@ -309,6 +372,22 @@ export default {
         disabledDate: (time) => {
           if (this.activeObj.minTimeObj.minTime) {
             return time.getTime() < this.activeObj.minTimeObj.minTime;
+          }
+          return false;
+        }
+      },
+      pickerOptions3: {
+        disabledDate: (time) => {
+          if (this.endDate) {
+            return time.getTime() > new Date(this.endDate).valueOf();
+          }
+          return false;
+        }
+      },
+      pickerOptions4: {
+        disabledDate: (time) => {
+          if (this.startDate) {
+            return time.getTime() < new Date(this.startDate).valueOf();
           }
           return false;
         }
@@ -335,7 +414,40 @@ export default {
     this.setRequiredRule();
   },
 
+  watch: {
+    'fatherObj.form': {
+      handler(v) {
+        const copy = JSON.parse(JSON.stringify(v));
+        const val = copy[this.activeObj.compId] && copy[this.activeObj.compId].split(',');
+        if (val) {
+          const i = 0;
+          this.startDate = val[i];
+          const index = 1;
+          this.endDate = val[index];
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    'activeObj.minTimeObj.minTime': function (v) {
+      console.log(v);
+      if (v == null) {
+        this.activeObj.minTimeObj.minTime = '';
+      }
+    },
+    'activeObj.maxTimeObj.maxTime': function (v) {
+      if (v == null) {
+        this.activeObj.maxTimeObj.maxTime = '';
+      }
+    }
+  },
+
   methods: {
+    handleChangeTimeInterval(v) {
+      console.log(v);
+      this.activeObj.defaultType = '';
+      this.fatherObj.form[this.activeObj.compId] = '';
+    },
     // 字段选择结果
     selectColumnRes(table) {
       this.activeObj.dataSource.id = table.id;
@@ -366,12 +478,41 @@ export default {
 
     // 默认值类型改变
     defaultTypeChange(v) {
+      console.log(v);
+      const t = new Date(new Date().toLocaleDateString()).getTime() + 3600 * 1000 * 24;
+      const end = new Date(t - 1000);
+      const start = new Date(t - 3600 * 1000 * 24 * 1);
+      const endTime = formatDate(end, 'yyyy-MM-dd hh:mm:ss');
+      const startTime = formatDate(start, 'yyyy-MM-dd hh:mm:ss');
       if (!v) {
         this.fatherObj.form[this.activeObj.compId] = '';
+      } else if (v === 1) {
+        if (!this.intervalTimeShow) {
+          this.fatherObj.form[this.activeObj.compId] = formatDate(
+            new Date(),
+            'yyyy-MM-dd hh:mm:ss'
+          );
+        } else {
+          this.fatherObj.form[this.activeObj.compId] = `${startTime},${endTime}`;
+        }
+      } else if (this.intervalTimeShow && v === 2) {
+        console.log(this.fatherObj.form[this.activeObj.compId]);
+        this.fatherObj.form[this.activeObj.compId] = `${startTime},${endTime}`;
+        this.$nextTick(() => {
+          this.startDate = startTime;
+          this.endDate = endTime;
+        });
       }
-      if (v === 1) {
-        this.fatherObj.form[this.activeObj.compId] = new Date();
-      }
+    },
+    handleChangeStartTime(v) {
+      const val = JSON.parse(JSON.stringify(this.fatherObj.form[this.activeObj.compId]));
+      const arr = val.split(',');
+      this.fatherObj.form[this.activeObj.compId] = `${v},${arr[1]}`;
+    },
+    handleChangeEndTime(v) {
+      const val = JSON.parse(JSON.stringify(this.fatherObj.form[this.activeObj.compId]));
+      const arr = val.split(',');
+      this.fatherObj.form[this.activeObj.compId] = `${arr[0]},${v}`;
     }
   }
 };

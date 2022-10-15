@@ -18,7 +18,7 @@
       <div class="treeNode__treeIcon">
         <img
           class="treeNode__treeIcon--img m-r-4"
-          :src="configData.treeIcon.imageUrl"
+          :src="$parseImgUrl(configData.treeIcon.imageUrl)"
           v-if="
             configData.hasTreeIcon &&
             configData.treeIcon.imageUrl &&

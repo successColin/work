@@ -14,15 +14,15 @@
           :editable="true"
           type="card"
           closable
+          @tab-click="tabClick"
           @tab-remove="removeTab"
           @tab-add="addTab"
       >
         <el-tab-pane
             v-for="(item, i) in config"
-            :key="`a_${i}`"
-            :label="`列${item.index+1}`"
-            :name="`a_${i}`"
-            lazy
+            :key="`${item.key ||i }`"
+            :label="`${item.fieldName}`"
+            :name="`${item.key}`"
         >
           <div>
             <div class="propsSetting">
@@ -150,9 +150,25 @@
               >
                 <el-radio-button :label="1">无</el-radio-button>
                 <el-radio-button :label="2">弹框</el-radio-button>
-                <el-radio-button :label="3">链接</el-radio-button>
+                <el-radio-button :label="3">菜单</el-radio-button>
                 <el-radio-button :label="4">下载</el-radio-button>
               </el-radio-group>
+            </div>
+            <div class="btnWrap">
+              <apiot-button
+                  class="panelBtn"
+                  v-if="item.interactionMode === 2"
+                  @click="doShowPane(item)"
+              >
+                <i class="iconfont icon-shezhi m-r-4"></i>弹出面板配置
+              </apiot-button>
+              <apiot-button
+                  class="panelBtn"
+                  v-if="item.interactionMode === 3"
+                  @click="showMenuConfig=true"
+              >
+                <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
+              </apiot-button>
             </div>
             <div class="propsSetting" v-if="item.interactionMode === 4">
               <span class="setTitle">回调字段</span>
@@ -176,6 +192,36 @@
           </div>
         </el-tab-pane>
       </el-tabs>
+      <PanelConfig
+          :visible.sync="visible"
+          :tabPaneConfig="paneConfig.tabPaneConfig"
+          :activeObj="paneConfig.activeObj"
+          :isSelPanel="false"
+          :showType="showType"
+          :key="`${active}_p`"
+          :otherParams="{ panelType: 5,
+                 unDesign: 1,
+                 panelClassify: 1,
+                 clientType: getClientType
+                 }"
+          @cancle-click="handleCancel"
+          :isCustomPage="true"
+          :treeType="5"
+          ref="panelConfig"
+      ></PanelConfig>
+      <ToMenuConfig
+          :key="`${active}_m`"
+          ref="ToMenuConfig"
+          @cancle-click="handleMenuCancel"
+          class="ToMenuConfig"
+          :visible.sync="showMenuConfig"
+          :activeObj="skipMenuConfig"
+          :sourceType="1"
+          :treeType="5"
+          :showType="showType"
+          :showContent="true"
+          :clientType="getClientType"
+      ></ToMenuConfig>
     </div>
   </div>
 </template>
@@ -183,9 +229,12 @@
 <script>
 import Sortable from 'sortablejs';
 import { predefineColors } from '@/views/HomeMenuConfig/constants/global';
+import { createUnique } from '@/utils/utils';
 import CUpload from '@/views/HomeMenuConfig/basicWidgets/CUpload/index';
 
 const TextStylesConfig = () => import('@/views/HomeMenuConfig/Layout/TextStylesConfig/index');
+const PanelConfig = () => import('@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/PanelConfig');
+const ToMenuConfig = () => import('@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/ToMenuConfig');
 
 export default {
   props: {
@@ -198,6 +247,15 @@ export default {
   },
   data() {
     return {
+      visible1: false,
+      showMenuConfig: false,
+      visible: false,
+      skipMenuConfig: [], // 跳菜单
+      paneConfig: { // 面板配置
+        tabPaneConfig: {},
+        activeObj: {}
+      }, // 面板配置
+      showType: [1, 5],
       config: null,
       active: null,
       predefineColors,
@@ -218,16 +276,36 @@ export default {
   },
 
   components: {
+    PanelConfig,
+    ToMenuConfig,
     TextStylesConfig,
     CUpload
   },
 
-  computed: {},
+  computed: {
+    getClientType() {
+      const { clientType } = sessionStorage;
+      return +clientType;
+    },
+  },
   watch: {},
-  mounted() {
-    this.config = JSON.parse(JSON.stringify(this.value));
-    if (this.config.length) {
-      this.active = 'a_0';
+  created() {
+    if (this.value.length) {
+      this.config = this.value.map((item) => {
+        const { key = '', ...rest } = item;
+        if (!key) {
+          const lastKey = createUnique();
+          return {
+            ...rest,
+            key: lastKey
+          };
+        }
+        return item;
+      });
+      this.active = `${this.config[0].key}`;
+      this.reduceData(this.config[0]);
+    } else {
+      this.config = [];
     }
     this.$nextTick(() => {
       this.rowDrop(); // 行拖拽效果
@@ -235,6 +313,26 @@ export default {
   },
 
   methods: {
+    doShowPane() { // 显示面板
+      this.visible = true;
+    },
+    handleMenuCancel() { // 菜单保存
+      const { menuList = [] } = this.$refs.ToMenuConfig;
+      console.log(menuList);
+      const i = this.config.findIndex((item) => `${item.key}` === this.active);
+      if (i === -1) return;
+      this.changeStyles(menuList, 'skipMenuConfig', i, this.config[i]);
+    },
+    handleCancel() {
+      const { curPaneObj, activeObj } = this.$refs.panelConfig;
+      const value = {
+        tabPaneConfig: curPaneObj,
+        activeObj
+      };
+      const i = this.config.findIndex((item) => `${item.key}` === this.active);
+      if (i === -1) return;
+      this.changeStyles(value, 'paneConfig', i, this.config[i]);
+    },
     beforeAvatarUpload(file) {
       const isJPG = ['image/png', 'image/jpg', 'image/jpeg', 'image/svg+xml'].includes(file.type);
       const isLt2M = file.size / 1024 < 50;
@@ -266,35 +364,64 @@ export default {
         }
       });
     },
+    tabClick({ name }) {
+      const Obj = this.config.find((item) => `${item.key}` === `${name}`);
+      this.reduceData(Obj);
+    },
+    reduceData(Obj) { // 切换处理数据
+      const { paneConfig, skipMenuConfig = [] } = Obj;
+      if (!paneConfig) {
+        this.paneConfig = {
+          tabPaneConfig: {},
+          activeObj: {
+            dialogName: 'PanelDrawer'
+          }
+        };
+      }
+      if (paneConfig && typeof paneConfig === 'object') {
+        this.paneConfig = paneConfig;
+      }
+      this.skipMenuConfig = skipMenuConfig;
+    },
     removeTab(name) {
-      const i = +name.split('_')[1];
+      const i = this.config.findIndex((item) => `${item.key}` === `${name}`);
       this.config.splice(i, 1);
       this.$emit('change', this.config);
-      this.active = `a_${this.config.length - 1}`;
+      if (this.config.length) {
+        const obj = this.config.at(-1);
+        this.active = `${obj.key}`;
+      }
     },
     addTab() {
       const n = this.config.length;
-      this.config.push({
-        index: n,
-        name: 1,
-        title: `列${n + 1}`,
+      const key = createUnique();
+      const obj = {
+        key,
         field: '',
         fieldWidth: 20,
-        fieldName: '',
+        fieldName: `列${n + 1}`,
         fieldFontFamily: '微软雅黑',
         fieldFontWeight: 'normal',
         fieldFontSize: 16,
         fieldColor: '#fff',
+        interactionMode: 1,
         fieldTextAlign: 'center',
         enableConditions: false,
-        isEllipsis: true, // 默认省略号
         conditionsArr: [], // 条件数组，二维数组，子数组对象，包括状态 并且---或者
-        isApplyPicture: false // 是否应用与图片
-      });
+        isApplyPicture: false, // 是否应用与图片
+        isEllipsis: true, // 默认省略号
+        skipMenuConfig: [], // 跳菜单
+        paneConfig: { // 面板配置
+          tabPaneConfig: {},
+          activeObj: {}
+        },
+      };
+      this.config.push(obj);
       this.$emit('change', this.config);
-      this.active = `a_${this.config.length - 1}`;
+      this.active = `${obj.key}`;
     },
     changeStyles(val, key, i, obj) {
+      if (!Array.isArray(this.config)) { return; }
       const newObj = {
         ...obj,
         [key]: val
@@ -335,7 +462,7 @@ export default {
           .el-radio-button__inner {
             width: 100%;
             padding: 5px 15px;
-            border-color: $component-border-color;
+            border-color: $--hover-iconColor;
             background: $component-background-color;
 
             .iconfont {
@@ -446,6 +573,14 @@ export default {
       }
     }
   }
+  .btnWrap {
+    width: 100%;
+    margin: 10px auto;
+
+    .panelBtn {
+      width: 100%;
+    }
+  }
 
   .around {
     justify-content: space-between;
@@ -464,6 +599,28 @@ export default {
       .el-slider {
         width: 200px;
         margin: 0 auto;
+      }
+    }
+  }
+  .ToMenuConfig {
+    ::v-deep{
+      .ToMenuConfig__li--select{
+        width: 200px;
+      }
+      .el-collapse-item__arrow{
+        margin: 0 8px 0 auto;
+      }
+      .el-collapse-item__header {
+        position: relative;
+        background: #f1f7ff;
+        border-radius: 4px;
+        border: 1px solid #e9e9e9;
+        height: 38px;
+        line-height: 38px;
+      }
+      .el-collapse-item__content {
+        padding: 0 0 8px 0;
+        background-color: #fff;
       }
     }
   }

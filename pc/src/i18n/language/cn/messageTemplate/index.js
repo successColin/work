@@ -49,6 +49,8 @@ export default {
       endpoint: '接口域名',
       accessKeyId: '应用ID',
       accessKeySecret: '应用密钥',
+      applyPublicKey: '应用公钥',
+      applyPrivateKey: '应用私钥',
       corpId: '企业ID',
       host: '代理地址',
       port: '代理端口',

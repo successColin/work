@@ -47,6 +47,10 @@ export function numToChinese(num) {
   return str;
 }
 
+// 判断时间是否为invalid date
+export function isValidDate(date) {
+  return date instanceof Date && !Number.isNaN(date.getTime());
+}
 /**
  * 将时间戳转换成日期
  */
@@ -204,9 +208,15 @@ export function Encrypt(word) {
  * @param callback
  */
 export function errorMessageProcessing(errorObj = {}, callback) {
+  if (typeof errorObj === 'string') return errorObj;
   let message = '';
   Object.keys(errorObj).forEach((item) => {
-    const html = `${item}${errorObj[item]}`;
+    let html = '';
+    if (item === 'undefined') {
+      html = `${errorObj[item] || ''}`;
+    } else {
+      html = `${item || ''}${errorObj[item] || ''}`;
+    }
     message += html;
   });
   callback(message);
@@ -272,6 +282,7 @@ export function showTimeName(timeString) {
 // 根据文件的绝对路径获取对应的文件
 export function getBlob({ url, token, method = 'get', contentType }, cb) {
   const xhr = new XMLHttpRequest();
+
   xhr.open(method, url, true);
   xhr.responseType = 'blob';
   xhr.setRequestHeader('token', token);
@@ -280,7 +291,6 @@ export function getBlob({ url, token, method = 'get', contentType }, cb) {
   }
   xhr.onload = function () {
     if (xhr.status === 200) {
-      console.log(xhr.response);
       cb(xhr.response);
     }
   };
@@ -296,7 +306,13 @@ export function saveAs(blob, filename) {
     const body = document.querySelector('body');
 
     link.href = window.URL.createObjectURL(blob);
-    link.download = filename;
+    const nameArr = filename.split('.');
+    nameArr.forEach((t, i) => {
+      if (i !== 0) {
+        nameArr[i] = t.toLowerCase();
+      }
+    });
+    link.download = nameArr.join('.');
 
     // fix Firefox
     link.style.display = 'none';
@@ -448,3 +464,20 @@ export const toFixed = (num, s) => {
 // 判断对象中是否存在对应的key
 export const isExistInObj = (obj, keyName) =>
   Object.prototype.hasOwnProperty.call(obj, keyName);
+
+// 获取服务器时间
+export function getServerTime() {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    // if (!xhr) {
+    //   xhr = new ActiveXObject('Microsoft.XMLHTTP');
+    // }
+    xhr.open('HEAD', '/', false);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        resolve(xhr.getResponseHeader('Date'));
+      }
+    };
+    xhr.send(null);
+  });
+}

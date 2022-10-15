@@ -17,7 +17,7 @@
     <div class="header__scale">
       <div class="header__scale--autoZoom">
         <apiot-select
-          :options="options"
+          :options="getOptions"
           v-model="selectScale"
           @change="changeSelectSacle"
         ></apiot-select>
@@ -29,7 +29,7 @@
             :value="reduceScale"
             :step="4"
             :min="1"
-            :max="100"
+            :max="getMax"
             @input="changeScale"
             @change="change"
           ></el-slider>
@@ -51,14 +51,25 @@ export default {
       // 缩放比列
       type: Number,
       default: 1
+    },
+    autoScale: { // 是否是自适应
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
       timer: null,
       selectScale: 0, // 默认自适应
-      isAuto: true, // 默认自适应
-      options: [
+    };
+  },
+
+  components: {},
+
+  computed: {
+    getOptions() {
+      const { clientType } = sessionStorage;
+      const arr = [
         {
           name: '自适应',
           value: 0
@@ -83,13 +94,31 @@ export default {
           name: '100%',
           value: 1
         }
-      ]
-    };
-  },
-
-  components: {},
-
-  computed: {
+      ];
+      const arr1 = [{
+        name: '120%',
+        value: 1.2
+      }, {
+        name: '140%',
+        value: 1.4
+      }, {
+        name: '160%',
+        value: 1.6
+      }, {
+        name: '180%',
+        value: 1.8
+      }, {
+        name: '200%',
+        value: 2
+      }];
+      if (+clientType === 2) return [...arr, ...arr1];
+      return arr;
+    },
+    getMax() {
+      const { clientType } = sessionStorage;
+      if (+clientType === 2) return 200;
+      return 100;
+    },
     reduceScale() {
       const value = this.scale * 100;
       return Math.floor(value);
@@ -101,7 +130,12 @@ export default {
     }
   },
 
-  mounted() {},
+  mounted() {
+    const { clientType } = sessionStorage;
+    if (+clientType !== 1) {
+      this.selectScale = 1;
+    }
+  },
 
   methods: {
     handleSave() {
@@ -116,17 +150,17 @@ export default {
       // 返回
       this.$emit('doBack');
     },
-    change(v) {
+    change(v) { // 鼠标松开的值
       this.isAuto = false;
       this.selectScale = 1;
       this.commonScale(v);
       const newValue = this.resetScale(v);
       this.$emit('changeScaleObj', { value: newValue, isAuto: false });
     },
-    changeScale(v) {
+    changeScale(v) { // 鼠标拖动的值
       // 改变缩放比列
       const newValue = this.resetScale(v);
-      this.$emit('changeScale', newValue);
+      this.$emit('changeSliderScale', newValue);
     },
     doReduce() {
       // 减
@@ -134,6 +168,8 @@ export default {
       if (value < 0) {
         value = 0;
       }
+      this.isAuto = false;
+      this.selectScale = 1;
       this.commonScale(value);
       const newValue = this.resetScale(value);
       this.$emit('changeScale', newValue);
@@ -141,16 +177,24 @@ export default {
     doAdd() {
       // 加
       let value = this.reduceScale + 4;
-      if (value > 100) {
-        value = 100;
+      const max = this.getMax;
+      if (value > max) {
+        value = max;
       }
+      this.isAuto = false;
+      this.selectScale = 1;
+      console.log(value);
       this.commonScale(value);
       const newValue = this.resetScale(value);
       this.$emit('changeScale', newValue);
     },
     commonScale(value) {
       if (!this.isAuto && this.selectScale !== 0) {
-        if ([20, 40, 60, 80, 100].includes(value)) {
+        const { clientType } = sessionStorage;
+        const a1 = [20, 40, 60, 80, 100];
+        const a2 = [120, 140, 160, 180, 200];
+        const limitArr = +clientType === 2 ? [...a1, ...a2] : a1;
+        if (limitArr.includes(value)) {
           this.selectScale = value / 100;
         } else {
           this.selectScale = `${value}%`;

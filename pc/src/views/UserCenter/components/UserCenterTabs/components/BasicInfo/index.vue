@@ -102,7 +102,7 @@
         </div>
       </div>
     </div> -->
-    <div class="basic__item">
+    <div class="basic__item" v-if="+loginConfig.ssoTypePc === 2">
       <label class="basic__item__label">绑定浙政钉</label>
       <div class="basic__item__content">
         <p>{{ info.dingTalk }}</p>
@@ -115,7 +115,9 @@
       </div>
     </div>
     <!-- whole-line -->
-    <div class="basic__item">
+    <div
+      :class="`basic__item ${+loginConfig.ssoTypePc === 2 ? '' : 'whole-line'}`"
+    >
       <label class="basic__item__label even-label">{{
         $t('userCenter.personalSignature')
       }}</label>
@@ -232,6 +234,12 @@ export default {
 
   destroyed() {
     window.removeEventListener('message', this.scanCode);
+  },
+
+  computed: {
+    loginConfig() {
+      return this.$store.state.base.loginConfig;
+    }
   },
 
   methods: {

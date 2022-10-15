@@ -1,5 +1,6 @@
 <template>
   <div class="menu">
+    <print-com></print-com>
     <component
       v-if="
         show &&
@@ -42,6 +43,7 @@
 import { getDesignMenu, operationTriggers, selectList } from '@/api/menuConfig';
 import parser from '@/utils/formula';
 import { isExistInObj, createUnique, formatDate } from '@/utils/utils';
+import PrintCom from '@/views/ApiotMenu/PrintCom';
 
 let getAllPaneBack = null;
 
@@ -92,6 +94,7 @@ export default {
       isConfig: false,
       resolveFormula: this.resolveFormula,
       getAllForm: this.getAllForm,
+      getAllComp: this.getAllComp,
       findForm: this.findForm,
       getPanel: this.getPanel,
       getMenu: this.getMenu,
@@ -112,7 +115,7 @@ export default {
     };
   },
 
-  components: {},
+  components: { PrintCom },
 
   computed: {
     // 获取所有单位
@@ -226,14 +229,10 @@ export default {
       // 最多3秒 去除骨架屏
       setTimeout(() => {
         this.changeShowSkeleton();
-      }, 3000);
+      }, 2000);
     }
   },
-  // beforeRouteUpdate(to, from, next) {
-  //   next();
-  //   this.show = false;
-  //   this.getDesignMenu(to.params.id);
-  // },
+
   beforeDestroy() {
     // 在最外层的数据上才销毁
     if (!this.panelObj) {
@@ -361,6 +360,9 @@ export default {
             obj[key] = obj[key].join();
           }
         });
+        if (obj[`${params[0]}_`] == null) {
+          return '';
+        }
         return obj[`${params[0]}_`];
       });
       // GET_TABLE_VALUE
@@ -373,7 +375,7 @@ export default {
           return false;
         });
         let multiArr = [];
-        this.$bus.$emit('getSelMultiArr', this.onlyFlag, formObj[formId].parentCompId, (arr) => {
+        this.$bus.$emit('getSelMultiArr', formObj[formId].parentCompId, (arr) => {
           multiArr = arr;
         });
         if (multiArr.length) {
@@ -390,10 +392,32 @@ export default {
         }
         return '';
       });
-
+      // GET_TABLE_DATA
+      parser.setFunction('GET_TABLE_IS_NULL', (params) => {
+        const { formObj } = getAllPaneBack;
+        const formId = Object.keys(formObj).find((key) => {
+          if (Object.prototype.hasOwnProperty.call(formObj[key].form, params[0])) {
+            return true;
+          }
+          return false;
+        });
+        let multiArr = [];
+        this.$bus.$emit('getAllTableData', formObj[formId].parentCompId, (arr) => {
+          console.log(arr);
+          multiArr = arr;
+        });
+        if (multiArr.length) {
+          return false;
+        }
+        return true;
+      });
       parser.setFunction('GET_TIME_GAP', (params) => {
-        const start = new Date(params[0]).getTime();
-        const end = new Date(params[1]).getTime();
+        const start = new Date(
+          params[0].replace ? params[0].replace(/-/g, '/') : params[0]
+        ).getTime();
+        const end = new Date(
+          params[1].replace ? params[1].replace(/-/g, '/') : params[1]
+        ).getTime();
         if (!Number.isNaN(start) && !Number.isNaN(end)) {
           const dis = (end - start) / 1000; // 间隔为秒
           let res = 0;
@@ -433,7 +457,70 @@ export default {
         }
         return '';
       });
-
+      const resolveTime = (Y, M, D, h, m, s) => {
+        if (M > 12) {
+          Y += 1;
+          M -= 12;
+        }
+        if (M <= 0) {
+          Y -= 1;
+          M += 12;
+        }
+        const maxDay = new Date(Y, parseInt(M, 10), 0).getDate();
+        if (D > maxDay) {
+          D = maxDay;
+        }
+        return new Date(`${Y}/${M}/${D} ${h}:${m}:${s}`).getTime();
+      };
+      parser.setFunction('GET_TIME_RES', (params) => {
+        // 第一个参数代表类型 1是 相加 2是相减
+        // 第二个参数代表起始时间
+        // 第三个参数代表天数
+        // 第4个参数代表间隔类型 1 是天 2 是周 3 是月 4 是年
+        // 返回结果日期
+        const start = new Date(params[1].replace ? params[1].replace(/-/g, '/') : params[1]);
+        const curTime = start.getTime();
+        const year = start.getFullYear();
+        const month = start.getMonth() + 1; // 0-11表示1-12月
+        const day = start.getDate();
+        const hour = start.getHours();
+        const min = start.getMinutes();
+        const second = start.getSeconds();
+        const dis = params[2];
+        let res;
+        if (+params[0] === 1) {
+          if (params[3] && +params[3] !== 1) {
+            if (+params[3] === 2) {
+              res = curTime + dis * 7 * 24 * 3600 * 1000;
+            }
+            if (+params[3] === 3) {
+              const resM = +month + +dis;
+              res = resolveTime(year, resM, day, hour, min, second);
+            }
+            if (+params[3] === 4) {
+              const resY = +year + +dis;
+              res = resolveTime(resY, month, day, hour, min, second);
+            }
+          } else {
+            res = curTime + dis * 24 * 3600 * 1000;
+          }
+        } else if (params[3] && +params[3] !== 1) {
+          if (+params[3] === 2) {
+            res = curTime - dis * 7 * 24 * 3600 * 1000;
+          }
+          if (+params[3] === 3) {
+            const resM = +month - +dis;
+            res = resolveTime(year, resM, day, hour, min, second);
+          }
+          if (+params[3] === 4) {
+            const resY = +year - +dis;
+            res = resolveTime(resY, month, day, hour, min, second);
+          }
+        } else {
+          res = curTime - dis * 24 * 3600 * 1000;
+        }
+        return formatDate(new Date(res), 'YYYY-MM-dd hh:mm:ss');
+      });
       parser.setFunction('CREATE_UNIQUE', (params) => {
         const obj = {};
         [obj.compId] = params;
@@ -521,12 +608,12 @@ export default {
     },
     reduceData(list = [], parentNode = {}) {
       const { checkFormConfig = [] } = this.nodeConfig;
-      if (!checkFormConfig.length) return;
+      // if (!checkFormConfig.length) return;
       list.forEach((item) => {
+        const { isDisabled } = this.showType;
         const { compId, children, name } = item;
         const index = checkFormConfig.findIndex((config) => config.compId === compId);
-        // console.log(index, name, compId);
-        if (index !== -1) {
+        if (index !== -1 && !isDisabled) {
           const config = checkFormConfig[index];
           // 如果流程配置中 和当前控件中都存在必填属性，将控件属性修改成配置的值
           if (isExistInObj(config, 'shouldRequired') && isExistInObj(item, 'shouldRequired')) {
@@ -541,6 +628,7 @@ export default {
             }
           }
           if (isExistInObj(config, 'shouldRequired') && isExistInObj(item, 'shouldRequired')) {
+            console.log(config, item);
             item.shouldRequired = config.shouldRequired;
             // 如果流程中的配置，修改rules的必填属性
             const { rules = {} } = parentNode;
@@ -556,18 +644,9 @@ export default {
                 message: `请输入${name}`,
                 trigger: 'change'
               });
-            } else {
-              rules[compId] = [
-                {
-                  flag: 'requiredRule',
-                  required: config.shouldRequired,
-                  message: `请输入${name}`,
-                  trigger: 'change'
-                }
-              ];
             }
           }
-          if (isExistInObj(config, 'canEdit') && isExistInObj(item, 'singleStatus')) {
+          if (isExistInObj(config, 'canEdit')) {
             // if (config.canEdit) {
             //   item.singleStatus = 1;
             // } else {
@@ -575,8 +654,11 @@ export default {
             // }
             item.canReadonly = !config.canEdit;
           }
-          if (isExistInObj(config, 'canShow') && isExistInObj(item, 'singleStatus')) {
-            item.canShow = config.config;
+          if (isExistInObj(config, 'canShow')) {
+            item.canShow = config.canShow;
+            if (!config.canShow) {
+              item.singleStatus = 4;
+            }
             // if (config.canShow) {
             //   if (config.canEdit) {
             //     item.singleStatus = 1;
@@ -594,6 +676,9 @@ export default {
           if (item.compName === 'FormButton' && isExistInObj(config, 'canEdit')) {
             item.canReadonly = !config.canEdit;
           }
+        } else if (isDisabled) {
+          delete item.singleStatus;
+          item.canReadonly = true;
         }
         if (children && Array.isArray(children) && children.length) {
           this.reduceData(children, item);
@@ -605,6 +690,10 @@ export default {
       let data = null;
       const isTrue =
         this.showType && JSON.stringify(this.showType) !== '{}' && this.showType.type === 'flow';
+      // 代表分享的是面板的
+      if (+this.$route.params.flag === 2) {
+        this.panelObj = JSON.parse(this.$route.query.panelObj);
+      }
       if (this.panelObj && this.panelObj.id) {
         if (this.panelObj.pageConfig) {
           data = this.panelObj.pageConfig;
@@ -641,7 +730,7 @@ export default {
       }, 500);
     },
     async getAllPanel() {
-      if (!this.configData) {
+      if (!this.configData || !this.configData.paneObj) {
         return;
       }
       const panelKey = Object.keys(this.configData.paneObj);
@@ -681,6 +770,14 @@ export default {
       dictArr = [...new Set(dictArr)];
       panelKey.forEach((key) => {
         this.configData.paneObj[key].pageConfig = [obj[this.configData.paneObj[key].id]];
+        // 面板是否可以分享
+        this.configData.paneObj[key].enableshare = obj[this.configData.paneObj[key].id].enableshare;
+        // 记下权限项id
+        if (+this.$route.params.flag === 2 && this.panelObj) {
+          this.configData.paneObj[key].menuId = this.panelObj.menuId;
+        } else {
+          this.configData.paneObj[key].menuId = this.$route.params.id;
+        }
       });
       if (dictArr.length !== 0) {
         this.$store.dispatch('getCurrentDict', dictArr.join());
@@ -690,18 +787,13 @@ export default {
     // 初始化配置，默认第一个
     async initPage(i) {
       // console.log(this.configDataArr[i], 'zzzzzzzzz');
-      if (this.configDataArr[i].designOverallLayout) {
+      if (this.configDataArr[i] && this.configDataArr[i].designOverallLayout) {
         this.sysMenuDesignId = this.configDataArr[i].id;
         [this.configData] = this.configDataArr[i].designOverallLayout;
         if (this.configData.dictArr.length) {
-          if (this.panelObj && this.panelObj.id) {
-            // this.$store.dispatch('getCurrentDict', this.configData.dictArr.join());
-          } else {
-            await this.$store.dispatch('getCurrentDict', this.configData.dictArr.join());
-          }
+          await this.$store.dispatch('getCurrentDict', this.configData.dictArr.join());
         }
       }
-
       // console.log(this.configData, 555555555);
       const { triggerMap } = this.configDataArr[i];
       this.triggerMap = triggerMap;
@@ -1022,7 +1114,15 @@ export default {
         return str;
       });
       // 获取表格选中列的该值
-      formulaRes = formulaRes.replace(/GET_TABLE_VALUE\(\$([A-Za-z0-9]{6})\$\)(|,1|,2)/g, (v) => {
+      formulaRes = formulaRes.replace(
+        /GET_TABLE_VALUE\(\$([A-Za-z0-9]{6})\$(\)|,1\)|,2\))/g,
+        (v) => {
+          const str = v.replace(/\$/g, "'");
+          return str;
+        }
+      );
+      // 获取表格是否有值
+      formulaRes = formulaRes.replace(/GET_TABLE_IS_NULL\(\$([A-Za-z0-9]{6})\$\)/g, (v) => {
         const str = v.replace(/\$/g, "'");
         return str;
       });
@@ -1034,12 +1134,10 @@ export default {
           return str;
         }
       );
-
       formulaRes = formulaRes.replace(
         /\$\d+-(\d+)-([a-zA-Z0-9_\-\u4e00-\u9fa5]+)\$/g,
         (...arr) => `${arr[1]}`
       );
-      // console.log(formulaRes);
       let str = formulaRes.replace(/\$([A-Za-z0-9]{6})\$/g, (v, v1) => {
         const form =
           data && Object.prototype.hasOwnProperty.call(data, v1)
@@ -1047,7 +1145,7 @@ export default {
             : this.findForm({
               compId: v1
             });
-        if (form && form.form[v1]) {
+        if (form && String(form.form[v1])) {
           const res = form.form[v1];
           return Number.isNaN(+res) ? `'${res}'` : res;
         }
@@ -1079,7 +1177,7 @@ export default {
           }
           const { checkFormConfig = [] } = this.nodeConfig;
           let isTrue = false;
-          if (this.showType && this.showType.type === 'flow') {
+          if (this.showType && this.showType.type === 'flow' && !this.showType.isDisabled) {
             const targetComp = checkFormConfig.find((Config) => Config.compId === comp.compId);
             if (targetComp && [1, 2, 5].includes(item.affectType)) {
               isTrue = true;
@@ -1098,9 +1196,12 @@ export default {
                 comp.canShow = item.canShow;
                 break;
               case 2:
-                // console.log(comp);
                 // 只读
-                comp.canReadonly = item.canReadonly;
+                if (this.showType && this.showType.isDisabled) {
+                  comp.canReadonly = true;
+                } else {
+                  comp.canReadonly = item.canReadonly;
+                }
                 break;
               case 5:
                 {
@@ -1136,7 +1237,11 @@ export default {
                   let v = item.normalValue;
                   if (comp.compType === 2) {
                     if (comp.dropDownType === 1) {
-                      v = +v;
+                      if (v) {
+                        v = +v;
+                      } else {
+                        v = '';
+                      }
                     } else {
                       v = this.resolveRes(v);
                     }
@@ -1371,12 +1476,21 @@ export default {
       ) {
         // console.log(btn, this.btnClickTriggerMap);
         this.getCompMap.CREATE_FLOW_STATE = btn.flowType;
-        await this.resolveLink(this.btnClickTriggerMap, btn.compId);
+        this.resolveLink(this.btnClickTriggerMap, btn.compId);
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, 200);
+        });
       }
     },
     // 获取全部值
     getAllForm() {
       return this.getCompMap;
+    },
+    // 获取所有组件
+    getAllComp() {
+      return this.getAllPane.compObj;
     },
     // 获取面板相关数据
     getPanel() {

@@ -3,6 +3,7 @@
     class="column"
     v-on="$listeners"
     v-bind="$attrs"
+    :sortable="false"
     resizable
     :show-overflow-tooltip="false"
     :prop="configData.dataSource.columnName"
@@ -10,7 +11,7 @@
   >
     <template slot="header">
       <span class="columnHeader__box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span> {{ configData.name }}</span>
       </span>
     </template>
     <div slot-scope="scope">
@@ -56,6 +57,11 @@ export default {
       // console.log(12222222222222222);
       this.$emit('deleteTableRow', scope.$index);
     }
+  },
+  watch: {
+    'configData.name': function (v) {
+      console.log(v);
+    }
   }
 };
 </script>
@@ -71,7 +77,7 @@ export default {
     }
   }
   ::v-deep {
-    .notShow + .show {
+    .notShow:first-child + .show {
       margin-left: 0;
     }
   }

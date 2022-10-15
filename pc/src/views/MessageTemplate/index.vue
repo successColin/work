@@ -270,6 +270,7 @@ export default {
         variables: [],
         receivers: [],
         contents: [],
+        templateCode: '',
         sqlScript: '',
         enabled: 1,
         supportTypes: [4],

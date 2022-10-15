@@ -6,10 +6,13 @@
   >
     <apiot-input
       ref="input"
-      :placeholder="placeholder || $t('placeholder.pleaseEnterkeySearch')"
+      :placeholder="
+        isConfig ? '' : placeholder || $t('placeholder.pleaseEnterkeySearch')
+      "
       v-bind="$attrs"
       v-on="$listeners"
       :slotType="showPre ? '' : 'prepend'"
+      :isConfig="isConfig"
       @input.native="searchInput"
       @keyup.enter.native="searchBlur"
     >
@@ -56,6 +59,10 @@ export default {
     },
     placeholder: {
       type: String
+    },
+    isConfig: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -76,12 +83,14 @@ export default {
   mounted() {},
 
   methods: {
-    searchClearAndBlur() {
+    searchClearAndBlur(flag = true) {
       const len = this.$refs.input.$el.children.length;
       this.$refs.input.$el.children[len - 1].value = '';
       this.$refs.input.$el.children[len - 1].dispatchEvent(new Event('input'));
-      this.$parent.current = 1;
-      this.$emit('getList', 1);
+      if (flag) {
+        this.$parent.current = 1;
+        this.$emit('getList', 1);
+      }
     },
     searchBlur() {
       this.$parent.current = 1;

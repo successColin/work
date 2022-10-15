@@ -17,6 +17,9 @@
       <menu-tradition
         v-if="[2].includes($store.getters.getMenuType)"
       ></menu-tradition>
+      <menu-collapse
+        v-if="[4].includes($store.getters.getMenuType)"
+      ></menu-collapse>
       <menu-list v-show="[3].includes($store.getters.getMenuType)"></menu-list>
     </template>
     <template v-slot:nav>
@@ -48,6 +51,7 @@ import { getPersonalCenterUser } from '@/api/userCenter';
 import LayoutHeader from './components/LayoutHeader';
 import LayoutNav from './components/LayoutNav';
 import MenuTradition from './components/MenuTradition';
+import MenuCollapse from './components/MenuCollapse';
 import MenuList from './components/MenuList';
 
 export default {
@@ -66,6 +70,7 @@ export default {
     LayoutHeader,
     LayoutNav,
     MenuTradition,
+    MenuCollapse,
     MenuList
   },
 
@@ -83,16 +88,25 @@ export default {
   },
 
   beforeMount() {
-    this.getUserCenterInfo();
-    this.$store.dispatch('fetchThemeConfig', 'THEME_AND_LOGO');
-    this.$store.dispatch('fetchConfigFun');
-    this.$store.dispatch('fetchConfigFun', 'MESSAGE_CONFIG');
-    this.$store.dispatch('fetchConfigFun', 'UREPORT_URL');
-    this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
+    // this.$store.dispatch('fetchThemeConfig', 'THEME_AND_LOGO');
+    // this.$store.dispatch('fetchConfigFun');
+    // this.$store.dispatch('fetchConfigFun', 'MESSAGE_CONFIG');
+    // this.$store.dispatch('fetchConfigFun', 'UREPORT_URL');
+    // this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
+    this.$store.dispatch(
+      'fetchConfigFuns',
+      'THEME_AND_LOGO,THIRD_LINKS,MESSAGE_CONFIG,UREPORT_URL,FILE_SERVER,WATER_MASK'
+    );
   },
   mounted() {
+    this.getUserCenterInfo();
     this.$bus.$on('showMenu', this.showMenu);
+    this.$bus.$on('refresh', this.refresh);
     if (this.$store.getters.getMenuType === 2) {
+      if (sessionStorage.traditionOpen === 'false') {
+        // 这个时候不打开
+        return false;
+      }
       this.showMenu();
     }
   },
@@ -148,6 +162,11 @@ export default {
         } else {
           this.navLeftWidth = 0;
         }
+        if (this.$store.getters.getMenuType === 2) {
+          sessionStorage.traditionOpen = !!this.navLeftWidth;
+        }
+        // true 代表打开 false 代表关闭
+        this.$bus.$emit('menuWidthChange', !!this.navLeftWidth);
         // console.log(this.aniName);
         setTimeout(() => {
           this.aniName = 'slide-left';
@@ -155,8 +174,45 @@ export default {
       });
     }
   },
+  beforeRouteLeave(to, from, next) {
+    console.log(to.name);
+    if (to.name !== 'menuConfig') {
+      if (this.$vnode && this.$vnode.data.keepAlive) {
+        if (
+          this.$vnode.parent &&
+          this.$vnode.parent.componentInstance &&
+          this.$vnode.parent.componentInstance.cache
+        ) {
+          if (this.$vnode.componentOptions) {
+            const key =
+              this.$vnode.key == null
+                ? this.$vnode.componentOptions.Ctor.cid +
+                  (this.$vnode.componentOptions.tag ? `::${this.$vnode.componentOptions.tag}` : '')
+                : this.$vnode.key;
+            const { cache } = this.$vnode.parent.componentInstance;
+            const { keys } = this.$vnode.parent.componentInstance;
+            if (cache[key]) {
+              if (keys.length) {
+                const index = keys.indexOf(key);
+                if (index > -1) {
+                  keys.splice(index, 1);
+                }
+              }
+              delete cache[key];
+            }
+          }
+        }
+      }
+    }
+    next();
+  },
+  deactivated() {
+    this.$bus.$off('showMenu', this.showMenu);
+    this.$bus.$off('refresh', this.refresh);
+  },
   beforeDestroy() {
     this.$bus.$off('showMenu', this.showMenu);
+    this.$bus.$off('refresh', this.refresh);
   },
   watch: {
     $route: {

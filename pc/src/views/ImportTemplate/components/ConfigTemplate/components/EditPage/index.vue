@@ -359,7 +359,11 @@
         <!-- 转换为关联表ID -->
         <div
           class="form__line conversion__con"
-          v-if="JSON.stringify(dataConversionObj) !== '{}' && dataType === 1"
+          v-if="
+            (dataType === 1 && dataConversionObj.changeTableId) ||
+            (dataType === 1 && dataConversionObj.changeBeforeId) ||
+            (dataType === 1 && dataConversionObj.changeAfterId)
+          "
         >
           <check-type
             :title="$t('importTemplate.toTheAssociatedTableID')"
@@ -409,6 +413,21 @@
             @click="handleDeleteCode"
           ></i>
         </div>
+        <!-- 取字典值 -->
+        <div
+          class="form__line conversion__code"
+          v-if="dataType === 3 && dictObj.dictName"
+        >
+          <div class="conversion__code--box">
+            <span>取字典值：</span>
+            <span>{{ dictObj.dictName }}</span>
+          </div>
+          <i
+            class="iconfont icon-shanchu"
+            style="color: #aaaaaa"
+            @click="handleDeleteDict"
+          ></i>
+        </div>
         <!-- 备注 -->
         <div class="form__line">
           <el-form-item
@@ -430,22 +449,17 @@
         </div>
       </el-form>
     </apiot-drawer>
-    <!-- <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="imageUrl" alt="" />
-    </el-dialog> -->
     <data-conversion
       :title="$t('importTemplate.dataConversion')"
       :visible.sync="dialogVisibleDataConversion"
       :visibleState="dialogVisibleDataConversion"
-      :lineData="currentLineData"
       :dataConversionObj.sync="dataConversionObj"
       :codeArr.sync="codeArr"
       :autoIncrementRecord.sync="autoIncrementRecord"
-      :parentTableName="ruleForm.tableName"
-      :primaryKey="ruleForm.databaseColoumn"
       :dataType.sync="dataType"
       :dropdownList="dropdownList"
       :timeArr="timeArr"
+      :dictObj.sync="dictObj"
     >
     </data-conversion>
   </section>
@@ -538,7 +552,8 @@ export default {
       refRightValue: '',
       // 数据转换
       dataConversionObj: {},
-      codeArr: [],
+      codeArr: [], // 编码规则值
+      dictObj: {},
       autoIncrementRecord: '',
       dataType: 1, // 数据类型
       // 多表表名
@@ -705,28 +720,26 @@ export default {
         case 1:
           type = 'Int';
           _this.refLeftValue = 'int__num';
-          _this.checkOne = '';
+          _this.checkOne = _this.checkOne || 0;
           _this.checkTwo = _this.checkTwo || this.leftMaximum;
           break;
         case 2:
           type = 'Varcher';
           _this.refLeftValue = 'varcher__num';
           _this.refRightValue = 'varcher__type';
-          _this.checkOne = '';
+          _this.checkOne = _this.checkOne || 0;
           _this.checkTwo = _this.checkTwo || this.leftMaximum;
           break;
         case 3:
           type = 'Datetime';
           _this.refLeftValue = 'datetime__num';
           _this.refRightValue = 'datetime__type';
-          _this.checkOne = '';
-          _this.checkTwo = '';
           break;
         case 4:
           type = 'Decimal';
           _this.refLeftValue = 'decimal__num';
           _this.refRightValue = 'decimal__type';
-          _this.checkOne = '';
+          _this.checkOne = _this.checkOne || 0;
           _this.checkTwo = _this.checkTwo || this.leftMaximum;
           break;
         default:
@@ -806,7 +819,9 @@ export default {
         checkMaxNumber,
         tableName,
         codeRuleId,
-        isParent
+        isParent,
+        dictId,
+        dictName
       } = v;
       this.ruleForm.coloumnName = coloumnName;
       this.ruleForm.isCheckColoumn = isCheckColoumn;
@@ -815,9 +830,11 @@ export default {
       this.ruleForm.databaseColoumn = databaseColoumn;
       this.moreTableName = tableName;
       this.ruleForm.codeRuleId = codeRuleId;
-      if (isParent) {
-        this.ruleForm.isParent = isParent;
-      }
+      this.ruleForm.isParent = isParent || 2;
+      this.dictObj = {
+        id: dictId,
+        dictName
+      };
 
       this.ruleForm.tableName = tableName;
       this.ruleForm.tableId = tableId && Number(tableId);
@@ -897,6 +914,7 @@ export default {
             _this.ruleForm.templateId = _this.giveChildValue.id;
             _this.ruleForm.checkMaxNumber = _this.leftMaximum;
             _this.ruleForm.checkMaxDecimal = _this.rightMaxDecimal;
+            _this.ruleForm.dictId = _this.dictObj.id;
             // 编码
             const codeParams = {
               codeRuleList: _this.codeArr,
@@ -960,10 +978,6 @@ export default {
       }).then(async () => {
         if (callback) {
           callback();
-          // this.$message({
-          //   type: 'success',
-          //   message: this.$t('common.deleteSuccess')
-          // });
         }
       });
     },
@@ -984,6 +998,13 @@ export default {
         this.dataType = 1;
         this.dataConversionObj = {};
         this.ruleForm.codeRuleId = '';
+      });
+    },
+    // 按钮__删除取字典值
+    handleDeleteDict() {
+      this.deleteFun(() => {
+        this.dictObj = {};
+        this.dataConversionObj = {};
       });
     },
     // 关闭
@@ -1015,6 +1036,9 @@ export default {
       this.ruleForm.dateFormatType = '';
       // 数据转换
       this.dataConversionObj = {};
+
+      this.checkOne = '';
+      this.checkTwo = '';
     },
     // 选择__表达式
     handleChangePublic(v) {

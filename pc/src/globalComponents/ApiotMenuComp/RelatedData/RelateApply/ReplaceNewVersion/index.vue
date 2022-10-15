@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="uploadNew__text">
-        <i class="iconfont iconfont-qiehuan"></i><span>替换为</span>
+        <i class="iconfont icon-qiehuan"></i><span>替换为</span>
       </div>
       <div class="uploadNew__fileBox">
         <img :src="fileUrl(selectKeys[0])" alt="" v-if="curFile" />

@@ -67,6 +67,21 @@ export function fetchElementList(params) {
 }
 
 /**
+ * 获取控件值
+ * @param data
+ * @returns {*}
+ */
+export function fetchElementData(data) {
+  return fetch.request({
+    url: query.GET_ELEMENT_DATA,
+    method: 'post',
+    data,
+    headers: {
+      'content-type': 'application/json',
+    },
+  });
+}
+/**
  * 保存配置
  * @param data
  * @returns {*}

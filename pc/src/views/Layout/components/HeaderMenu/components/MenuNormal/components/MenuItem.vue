@@ -1,5 +1,5 @@
 <template>
-  <div class="menuItem">
+  <div class="menuItem m-l-5">
     <transition-group :name="transitionName">
       <div
         v-for="(val, i) in arr"

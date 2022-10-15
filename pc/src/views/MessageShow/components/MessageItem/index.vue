@@ -17,7 +17,8 @@
           <user-avatar :userItem="item.info"></user-avatar>
         </span>
         <span>{{item.content}}</span>
-        <span v-if="message.jumpLink" @click="handleMessage(message.jumpLink)"
+        <span v-if="message.variablesStr"
+          @click="handleMessage(message)"
           class="messageLink">前往处理>></span>
       </div>
       <div class="message-content">
@@ -30,7 +31,8 @@
     <div class="messageItem__right" v-if="type === 'SYSTEM'">
       <div>
         <span>{{message.subject}}</span>
-        <span v-if="message.jumpLink" @click="handleMessage(message.jumpLink)"
+        <span v-if="message.jumpLink || message.skipMenuConfig"
+          @click="handleInnerMessage(message)"
           class="messageLink">前往处理>></span>
       </div>
       <div class="message-content">
@@ -103,8 +105,28 @@ export default {
     changeOnlyUnread() {
       this.isOnlyUnread = !this.isOnlyUnread;
     },
-    handleMessage(url) {
-      window.open(url, '_blank');
+    handleMessage(item) {
+      this.$emit('fetchNodeInfo', item.variablesStr);
+      if (!item.hasRead) {
+        this.markRead(item);
+      }
+    },
+    handleInnerMessage(item) {
+      const variablesStr = item.variablesStr ? JSON.parse(item.variablesStr) : {};
+      if (+item.interactionType === 3 && item.skipMenuConfig) {
+        const skipMenuConfig = JSON.parse(item.skipMenuConfig) || [];
+        this.$emit('doMessageClick', skipMenuConfig, variablesStr, item.interactionType);
+      } else if (+item.interactionType === 2 && item.panelConfig) {
+        const panelConfig = JSON.parse(item.panelConfig) || [];
+        this.$emit('doMessageClick', panelConfig, variablesStr, item.interactionType);
+      } else if (+item.interactionType === 1 && item.jumpLink) {
+        if (item.jumpLink) {
+          window.open(item.jumpLink, '_blank');
+        }
+      }
+      if (!item.hasRead) {
+        this.markRead(item);
+      }
     },
     markRead(item) {
       const param = {
@@ -115,6 +137,9 @@ export default {
         this.$emit('singleRead');
         this.message.hasRead = true;
       });
+    },
+    openNode(item) {
+      this.$emit('fetchNodeInfo', item);
     }
   },
 

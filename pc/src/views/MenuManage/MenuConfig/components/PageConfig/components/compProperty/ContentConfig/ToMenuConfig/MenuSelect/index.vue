@@ -50,7 +50,15 @@ export default {
   props: {
     showMenu: {
       type: Boolean
-    }
+    },
+    isApp: {
+      type: Number,
+      default: null
+    },
+    clientType: { // 终端类型 1、pc 2、app, 默认0, 用在自定义页面
+      type: Number,
+      default: 0
+    },
   },
   data() {
     return {
@@ -68,6 +76,12 @@ export default {
       const temp = [];
       this.curSetion.forEach((item) => temp.push(item.id));
       return temp.join();
+    },
+    getClientType() {
+      if (this.clientType) {
+        return this.clientType;
+      }
+      return this.$route.query.isApp === '1' || this.isApp === 1 ? 2 : 1;
     }
   },
   mounted() {
@@ -92,7 +106,7 @@ export default {
       const data = await pageWithOutHomePage({
         size: this.size,
         current: this.current,
-        clientType: this.$route.query.isApp === '1' ? 2 : 1,
+        clientType: this.getClientType,
         menuLevel: 2,
         menuType: 2,
         keywords: this.keyWord

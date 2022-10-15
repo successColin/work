@@ -7,67 +7,55 @@
 -->
 <template>
   <div class="excel">
-    <!-- sheets -->
-    <!-- <section class="excel__showsheetbar">
-      <i
-        class="iconfont icon-xinzeng excel__showsheetbar--icon"
-        @click="handleAddSheet"
-      ></i>
-      <div
-        v-for="(item, i) in sheetArr"
-        :key="i"
-        :class="`excel__showsheetbar--item ${
-          activeIndex === i ? 'activeBgn' : ''
-        }`"
-        @mouseenter="handleEnter(i)"
-        @mouseleave="handleLeave(i)"
-        @click="handleClickSheet(i)"
-      >
-        <div class="showsheetbar__name">{{ item.name }}</div>
-        <i
-          class="el-icon-error showsheetbar__deleteButton"
-          v-if="showDeleteButtonIndex === i && sheetArr.length !== 1"
-          @click.stop="handleDeleteSheet(i)"
-        ></i>
-      </div>
-    </section> -->
     <div id="luckysheet">
       <!-- 遮罩层 -->
       <div class="excel__bgk" ref="excel">
-        <div class="excel__bgk--hint" :style="`left: ${areaWidth}`">
+        <div
+          class="excel__bgk--hint"
+          :style="`left: calc(${excelBgkScopeWidth})`"
+        >
           灰色区域不可打印
         </div>
         <!-- 区域范围 background: url(${bgkImage}) no-repeat; -->
         <div
           class="excel__bgk--background"
           :style="`
-            width: ${areaWidth};
-            height: ${areaHeight};
-            background-size: 100% 100%;`"
-        ></div>
+            width: calc(${excelBgkScopeWidth});
+            height: calc(${excelBgkScopeHeight} - 1px);
+            background-size: 100% 100%;
+            background: #fff;
+          `"
+        >
+          <img
+            v-if="$parseImgUrl(imgbgUrl)"
+            :src="$parseImgUrl(imgbgUrl)"
+            style="width: 100%; height: 100%"
+          />
+        </div>
         <!-- 右边 -->
         <div
           class="excel__bgk--background1"
-          :style="`width: calc(100% - ${areaWidth}); left: ${areaWidth}`"
+          :style="`
+            width: calc(100% - ${excelBgkScopeWidth});
+            left: calc(${excelBgkScopeWidth} + 2px)
+          `"
         ></div>
         <!-- 左边 -->
         <div
           class="excel__bgk--background2"
-          :style="`width: ${areaWidth}; top: ${areaHeight};`"
+          :style="`
+            width: calc(${excelBgkScopeWidth} + 2px);
+            top: calc(${excelBgkScopeHeight} + 2px);
+          `"
         ></div>
       </div>
     </div>
-    <!-- 打印 -->
-    <div
-      id="printContent"
-      :style="`width: ${areaWidth};height: ${areaHeight};`"
-    ></div>
   </div>
 </template>
 
 <script>
-// import printJS from 'print-js';
 import { getPrintDesign } from '@/api/printTemplate';
+import { postUploadHelp } from '@/api/helpCenter';
 
 export default {
   props: {
@@ -113,10 +101,6 @@ export default {
       type: Object,
       default: () => {}
     },
-    imgArr: {
-      type: Array,
-      default: () => []
-    },
     previewObj: {
       type: Object,
       default: () => {}
@@ -128,6 +112,19 @@ export default {
     areaHeight: {
       type: String,
       default: ''
+    },
+    allNode: {
+      type: Object,
+      default: () => {}
+    },
+    // 拖进来的类型
+    currentType: {
+      type: String,
+      default: ''
+    },
+    allTableFieldArr: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -141,7 +138,7 @@ export default {
       zoom: '1.3',
       // 工作表配置
       sheetObject: {
-        row: 50, // 行数
+        row: 70, // 行数
         column: 26, // 列数
         defaultRowHeight: 30, // 自定义行高
         defaultColWidth: 96 // 自定义列宽
@@ -159,12 +156,33 @@ export default {
       isPush: false,
       isNeed: false,
       celldataList: [],
-      imgObj: {},
-      borderInfo: []
+      borderInfo: [],
+      everyWidthOjb: {},
+      everyHeightObj: {}
     };
   },
   components: {},
   computed: {
+    excelBgkScopeWidth() {
+      return `${this.areaWidth} - ${this.globalConfig.marginLeft}mm - ${this.globalConfig.marginRight}mm`;
+    },
+    excelBgkScopeHeight() {
+      return `${this.areaHeight} - ${this.globalConfig.marginBottom}mm - ${this.globalConfig.marginTop}mm`;
+    },
+    excelBgkScopeWidthNum() {
+      return (
+        parseInt(this.areaWidth, 0) -
+        parseInt(this.globalConfig.marginLeft, 0) -
+        parseInt(this.globalConfig.marginRight, 0)
+      );
+    },
+    excelBgkScopeHeightNum() {
+      return (
+        parseInt(this.areaHeight, 0) -
+        parseInt(this.globalConfig.marginBottom, 0) -
+        parseInt(this.globalConfig.marginTop, 0)
+      );
+    },
     // 水平位置
     horizontaltype() {
       return function (v) {
@@ -179,6 +197,13 @@ export default {
             return '';
         }
       };
+    },
+    imgbgUrl() {
+      return (
+        this.globalConfig.bgImgArr &&
+        this.globalConfig.bgImgArr[0] &&
+        this.globalConfig.bgImgArr[0].url
+      );
     }
   },
   watch: {
@@ -188,18 +213,38 @@ export default {
       },
       deep: true
     },
+    allNode: {
+      handler(v) {
+        this.allNode = v;
+      },
+      deep: true
+    },
     globalConfig: {
       handler(v) {
-        this.$emit('update:areaWidth', `${v.paperWidth - 34}mm`);
-        this.$emit('update:areaHeight', `${v.paperHeight - 40}mm`);
+        this.$emit('update:areaWidth', `${v.paperWidth}mm`);
+        this.$emit('update:areaHeight', `${v.paperHeight}mm`);
       },
       deep: true
     }
   },
   mounted() {
     this.initExcel();
+    this.$nextTick(() => {
+      setTimeout(() => {
+        this.luckysheet.setRowHeight(this.everyHeightObj);
+        this.luckysheet.setColumnWidth(this.everyWidthOjb);
+      }, 1000);
+    });
+
+    // window.addEventListener('keydown', this.deleteListener);
+  },
+  destroyed() {
+    // window.removeEventListener('keydown', this.deleteListener);
   },
   methods: {
+    // deleteListener(e) {
+    //   console.log(e);
+    // },
     // 获取位置和值
     getPosition() {
       // 填入表中的值
@@ -230,15 +275,13 @@ export default {
       }
       this.$emit('update:fillExcelArr', this.fillExcelArr);
       this.$emit('update:excelSelectedObj', obj);
-      // console.log(this.fillExcelArr);
     },
     // 改变父组件中的值
     changeExcelObj() {
       const arr = [];
-      // console.log(this.fillExcelArr);
       const res = this.luckysheet.getAllSheets();
-      // console.log(res);
       // 扩展 循环每个sheet页
+      console.log(res);
       res.forEach((item, index) => {
         // 循环 sheet 下的 celldata
         const { name } = item;
@@ -247,43 +290,43 @@ export default {
           name,
           order: index
         };
-        item.celldata.forEach((v) => {
-          childObj.celldata.push(v);
+        item.celldata.forEach((val) => {
+          console.log(val);
+          const { m, v } = val.v;
+          if (m && v) {
+            childObj.celldata.push(val);
+          }
         });
-        childObj.celldata.forEach((v, i) => {
-          // 循环填入的值
-          this.fillExcelArr.forEach((val) => {
-            if (index === val.order && val.c === v.c && val.r === v.r) {
-              const { columnName, tableName, elementType, order } = val;
-              // console.log(val);
-              childObj.celldata[i] = {
-                ...v,
-                columnName,
-                tableName,
-                elementType,
-                order
-              };
-            }
-          });
-        });
+        // childObj.celldata.forEach((v, i) => {
+        //   // 循环填入的值
+        //   console.log(this.fillExcelArr);
+        //   this.fillExcelArr.forEach((val) => {
+        //     console.log(val);
+        //     if (index === val.order && val.c === v.c && val.r === v.r) {
+        //       const { columnName, tableName, elementType, order } = val;
+        //       childObj.celldata[i] = {
+        //         ...v,
+        //         columnName,
+        //         tableName,
+        //         elementType,
+        //         order
+        //       };
+        //     }
+        //   });
+        // });
         arr.push(childObj);
       });
+
       this.celldataList = arr[this.activeIndex].celldata;
 
+      console.log(this.celldataList);
       this.borderInfo =
         res[this.activeIndex] &&
         res[this.activeIndex].config &&
         res[this.activeIndex].config.borderInfo;
 
       this.$emit('update:excelArr', arr);
-
-      this.imgObj = this.luckysheet.getImageOption() || {};
-      if (Array.isArray(this.imgObj)) {
-        this.imgObj = {
-          ...this.imgObj
-        };
-      }
-      this.$emit('update:excelImg', this.imgObj);
+      this.$emit('update:excelImg', this.luckysheet.getImageOption());
     },
     // 默认选中
     selectedSheet() {
@@ -315,7 +358,7 @@ export default {
       });
       this.selectedSheet();
     },
-    // 拖拽
+    // 初始
     async initExcel() {
       let excelArrData = [
         {
@@ -327,17 +370,28 @@ export default {
       this.detailId = this.$route.query.detailId;
       if (this.detailId) {
         const excelData = await getPrintDesign({ id: this.detailId });
-        // console.log(JSON.parse(excelData.desingJson));
-        const { globalConfig, excelArr, imgArr, borderInfo } = JSON.parse(excelData.desingJson);
+        const { globalConfig, excelArr, borderInfo, previewObj } = JSON.parse(excelData.desingJson);
         if (excelArr.length !== 0) {
           const fillExcelArr = [];
           excelArrData = [];
+          const imagesArr = [];
+          if (previewObj.excelImg) {
+            Object.values(previewObj.excelImg).forEach((item) => {
+              if (item.src.indexOf('?') !== -1) {
+                item.src = item.src.slice(0, item.src.indexOf('?'));
+                item.src = this.$parseImgUrl(item.src);
+              } else {
+                item.src = this.$parseImgUrl(item.src);
+              }
+              imagesArr.push(item);
+            });
+          }
           excelArr.forEach((item) => {
             excelArrData.push({
               name: item.name, // 工作表名称
               order: item.order,
               celldata: item.celldata,
-              images: imgArr,
+              images: { ...imagesArr },
               config: {
                 borderInfo
               },
@@ -345,18 +399,20 @@ export default {
             });
             fillExcelArr.push(...item.celldata);
           });
-
-          // console.log(fillExcelArr);
+          const { everyWidth, everyHeight } = previewObj;
+          everyWidth.forEach((item, i) => {
+            this.everyWidthOjb[i] = item;
+          });
+          everyHeight.forEach((item, i) => {
+            this.everyHeightObj[i] = item;
+          });
           this.$emit('update:fillExcelArr', fillExcelArr);
         }
-
         this.$emit('update:excelArr', excelArr);
         this.$emit('update:globalConfig', globalConfig);
-        this.$emit('update:imgArr', imgArr);
       }
       const _this = this;
       this.luckysheet = window.luckysheet;
-      // console.log(this.luckysheet);
       const options = {
         container: 'luckysheet', // luckysheet为容器id
         title: 'apiot', // 设定表格名称
@@ -418,13 +474,23 @@ export default {
           // 'strikethrough',
           'textColor',
           'fillColor',
-          // 'border',
+          'border',
           'mergeCell',
           'horizontalAlignMode',
           'verticalAlignMode',
           // 'textWrapMode',
-          'image'
+          'image',
+          'function'
         ],
+        uploadImage(file) {
+          // eslint-disable-next-line no-async-promise-executor
+          return new Promise(async (resolve) => {
+            const formData = new FormData();
+            formData.append('file', file, file.name || '');
+            const res = await postUploadHelp(formData);
+            resolve(_this.$parseImgUrl(res)); // 给上传的后的地址
+          });
+        },
         // showtoolbar: false,
         // showtoolbarConfig: {
         //   undoRedo: true, // 撤销重做，注意撤消重做是两个按钮，由这一个配置决定显示还是隐藏
@@ -444,12 +510,76 @@ export default {
         //   image: true // '插入图片'
         // },
         hook: {
+          cellUpdated(a, b, c, d) {
+            const reg = /\$\{(.+?)\}/g;
+            const { m } = d;
+            const result = String(m).match(reg) || [];
+            if (result.length === 0) {
+              delete d.isTableField;
+              delete d.isFormField;
+            }
+          },
+          scroll() {
+            _this.$nextTick(() => {
+              _this.luckysheet.exitEditMode();
+            });
+          },
+          cellEditBefore(e) {
+            const { column, row } = e[0];
+            const str = _this.luckysheet.getCellValue(row[0], column[0]) || '';
+            const reg = /\$\{(.+?)\}/g;
+            const result = String(str).match(reg) || [];
+            if (result.length !== 0) {
+              _this.$nextTick(() => {
+                _this.luckysheet.exitEditMode();
+              });
+            }
+          },
           sheetMouseup(cell, postion) {
             if (_this.isMove && _this.isFill) {
               const { c, r } = postion;
               if (c !== '' && r !== '') {
-                _this.luckysheet.setCellValue(r, c, `\${${_this.dropObj.name}}`);
-                _this.luckysheet.setCellFormat(r, c, 'fc', '#107fff');
+                const { compId } = _this.dropObj;
+                let { name } = _this.dropObj;
+                name = `${name}:`;
+                const val = `\${${compId}}`;
+                // 表格
+                if (_this.allTableFieldArr.length) {
+                  _this.allTableFieldArr.forEach((item, i) => {
+                    _this.luckysheet.setCellValue(r, c + i, {
+                      v: item.name,
+                      m: item.name
+                    });
+                    _this.luckysheet.setCellValue(r + 1, c + i, {
+                      v: `\${${item.compId}}`,
+                      m: `\${${item.compId}}`,
+                      // fc: '#107fff',
+                      isTableField: true
+                    });
+                  });
+                } else if (_this.currentType === 'TableMain') {
+                  _this.luckysheet.setCellValue(r, c, {
+                    v: name,
+                    m: name
+                  });
+                  _this.luckysheet.setCellValue(r + 1, c, {
+                    v: val,
+                    m: val,
+                    // fc: '#107fff',
+                    isTableField: true
+                  });
+                } else {
+                  _this.luckysheet.setCellValue(r, c, {
+                    v: name,
+                    m: name
+                  });
+                  _this.luckysheet.setCellValue(r, c + 1, {
+                    v: val,
+                    m: val,
+                    // fc: '#107fff',
+                    isFormField: true // 是否是表单字段
+                  });
+                }
                 _this.luckysheet.setRangeShow([{ row: [r, r], column: [c, c] }]);
               }
             }
@@ -457,7 +587,6 @@ export default {
           cellMousedownBefore(cell, postion) {
             const { c, r } = postion;
             _this.isNeed = false;
-            // console.log(_this.fillExcelArr);
             for (let i = 0; i < _this.fillExcelArr.length; i += 1) {
               const bb = _this.fillExcelArr[i];
               if (bb.c === c && bb.r === r) {
@@ -502,8 +631,7 @@ export default {
       // 取消编辑模式
       this.luckysheet.exitEditMode();
       // 算出多少行、多少列
-      const { visibledatacolumn, visibledatarow } = this.luckysheet.getSheet();
-      // console.log(visibledatacolumn, visibledatarow);
+      const { visibledatacolumn, visibledatarow, config } = this.luckysheet.getSheet();
       // 行
       const everyWidth = [];
       const everyHeight = [];
@@ -511,7 +639,7 @@ export default {
         const numColumn =
           i === 0 ? visibledatacolumn[i] : visibledatacolumn[i] - visibledatacolumn[i - 1];
         everyWidth.push(numColumn);
-        if (visibledatacolumn[i] > this.mmToPx(parseInt(this.areaWidth, 0))) {
+        if (visibledatacolumn[i] > this.mmToPx(parseInt(this.excelBgkScopeWidthNum, 0))) {
           this.maxWidth = i + 1;
           break;
         }
@@ -520,27 +648,22 @@ export default {
       for (let j = 0; j < visibledatarow.length; j += 1) {
         const numRow = j === 0 ? visibledatarow[j] : visibledatarow[j] - visibledatarow[j - 1];
         everyHeight.push(numRow);
-        if (visibledatarow[j] > this.mmToPx(parseInt(this.areaHeight, 0))) {
+        if (visibledatarow[j] > this.mmToPx(parseInt(this.excelBgkScopeHeightNum, 0))) {
           this.maxHeight = j + 1;
           break;
         }
       }
+      this.borderInfo = config && config.borderInfo;
+
       this.$emit('update:previewObj', {
         everyWidth,
         everyHeight,
         maxWidth: this.maxWidth,
         maxHeight: this.maxHeight,
         celldataList: this.celldataList,
-        excelImg: this.imgObj,
+        excelImg: this.luckysheet.getImageOption(),
         borderInfo: this.borderInfo
       });
-      // this.$nextTick(() => {
-      //   printJS({
-      //     printable: 'printContent',
-      //     type: 'html',
-      //     scanStyles: false
-      //   });
-      // });
     },
     // 毫米转px
     mmToPx(value) {
@@ -566,6 +689,7 @@ export default {
       return arrDPI;
     }
   }
+  //
 };
 </script>
 <style lang='scss' scoped>
@@ -578,6 +702,9 @@ export default {
   overflow: hidden;
   position: relative;
   ::v-deep {
+    // .luckysheetTableContent {
+    //   z-index: 101;
+    // }
     .luckysheet-rows-h {
       position: absolute;
     }
@@ -602,30 +729,19 @@ export default {
     ::-webkit-scrollbar-thumb {
       border-radius: 10px;
       background-color: #e4e7ed;
+      border: 0;
     }
     ::-webkit-scrollbar-track {
       background-color: #f5f7fa;
     }
 
     .luckysheet-scrollbar-ltr {
-      z-index: 101;
+      z-index: 300;
     }
 
     .luckysheet-cell-flow {
       top: 0 !important;
     }
-  }
-}
-#printContent {
-  overflow: hidden;
-  // position: absolute;
-  // top: 0;
-  // left: 0px;
-  // background: #fff;
-  // z-index: 9999;
-
-  table {
-    position: relative;
   }
 }
 $sheetTabHeight: 30px;
@@ -635,13 +751,13 @@ $sheetTabHeight: 30px;
     user-select: none;
     position: absolute;
     top: 0;
-    z-index: 100;
+    z-index: 1;
     width: 100%;
     height: 100%;
     &--hint {
       position: absolute;
-      top: 0;
-      z-index: 100;
+      top: 14px;
+      z-index: 101;
       padding: 20px 0 0 30px;
       line-height: 30px;
       width: 20px;
@@ -654,7 +770,7 @@ $sheetTabHeight: 30px;
       position: absolute;
       top: 0px;
       margin-left: 0px;
-      z-index: 100;
+      z-index: 10;
       color: #777f8d;
       font-size: 18px;
       pointer-events: none;
@@ -662,66 +778,25 @@ $sheetTabHeight: 30px;
       // border-right: 1px dashed #000000;
       // border-bottom: 1px dashed #000000;
       background-size: contain;
-      opacity: 0.7;
+      opacity: 0.9;
     }
     &--background1 {
-      background-color: rgba(15, 28, 53, 0.1);
+      background-color: rgba(232, 231, 234, 0.8);
       position: absolute;
       top: 0;
-      z-index: 100;
+      z-index: 10;
       pointer-events: none;
       height: 100%;
     }
     &--background2 {
-      background-color: rgba(15, 28, 53, 0.1);
+      // background-color: rgba(15, 28, 53, 0.1);
+      background-color: rgba(232, 231, 234, 0.8);
       position: absolute;
       top: 0;
-      z-index: 100;
+      z-index: 10;
       pointer-events: none;
       height: 100%;
       width: 100%;
-    }
-  }
-  &__showsheetbar {
-    position: absolute;
-    bottom: 0px;
-    left: 55px;
-    z-index: 99;
-    width: calc(100% - 65px);
-    height: $sheetTabHeight;
-    display: flex;
-    align-items: center;
-    &--icon {
-      height: 100%;
-      padding: 0 5px;
-      line-height: $sheetTabHeight;
-      border-right: 1px dashed #dadce5;
-    }
-    &--item {
-      height: 100%;
-      line-height: $sheetTabHeight;
-      padding: 0 10px;
-      border-right: 1px dashed #dadce5;
-      cursor: pointer;
-      background: #fafafc;
-      font-size: 12px;
-      position: relative;
-      .showsheetbar__name {
-        padding: 0 15px;
-      }
-      .showsheetbar__deleteButton {
-        position: absolute;
-        top: 3px;
-        right: 5px;
-        font-size: 15px;
-        color: red;
-      }
-    }
-    &--item:hover {
-      background: #ececec;
-    }
-    .activeBgn {
-      background: #ececec;
     }
   }
 }

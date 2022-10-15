@@ -5,197 +5,215 @@
       { flexReserve: configData.pageType === 3 },
       { notConfig: !isConfig },
       { showTitle: configData.showTitle },
+      { isHidden: isHidden },
     ]"
     :style="tableStyle"
     @click="changeCurActiveObj(1, $event)"
     :tip="configData.name"
     :title="isConfig ? configData.name : ''"
   >
-    <BtnsArea
-      :style="`${!isConfig ? 'margin-bottom: 0' : ''}`"
-      v-if="configData.children.length !== 0"
-      :configData="configData"
-      :activeObj="activeObj"
-      :hasTriggerComp="hasTriggerComp"
-      :isSidebar="isSidebar"
-      :getBtnsArr="getBtnsArr"
-      :getFeatureArr="getFeatureArr"
-      :showType="showType"
-      :fileDeleteIds="fileDeleteIds"
-      :moreOperateArr="moreOperateArr"
-      :grandFather="configData"
-      :btnTypesArr="[1, 2, 3, 4, 5, 6, 7, 8, 14]"
-      :isTable="true"
-      :canSearch="true"
-      :multiEntityArr="multiEntityArr"
-      :getIdCompId="getIdCompId"
-      @click.native="changeCurActiveObj(2, $event)"
-      @addTableRow="addTableRow"
-      @tableAreaDelete="tableAreaDelete"
-    ></BtnsArea>
-    <section
-      v-if="configData.children.length !== 0"
-      class="menuMain__feature"
-      v-loading="loading"
-      element-loading-background="hsla(0,0%,100%,.9)"
-      :class="[
-        { configClass: isConfig && getFeatureArr.children.length === 0 },
-        { borderType: isConfig },
-        {
-          highBorder:
-            isConfig &&
-            activeObj.compId === configData.compId &&
-            activeObj.areaType === 1,
-        },
-        { useStyle: !isConfig },
-        { hiddenBtnArea: configData.pageType === 1 },
-        { hasPagination: configData.hasPagination },
-      ]"
-      configData="功能区"
+    <div
+      class="menuMain__title"
+      v-if="configData.showTitle"
+      @click="hiddenContent"
     >
-      <div
-        class="menuMain__card"
+      {{ configData.name }}
+      <i
+        class="iconfont icon-xialajiantou"
+        :class="[{ isHidden: isHidden }]"
+      ></i>
+    </div>
+    <div class="menuMain__content" :class="[{ isHidden: isHidden }]">
+      <BtnsArea
+        :style="`${!isConfig ? 'margin-bottom: 0' : ''}`"
+        v-if="configData.children.length !== 0"
+        :configData="configData"
+        :activeObj="activeObj"
+        :hasTriggerComp="hasTriggerComp"
+        :isSidebar="isSidebar"
+        :getBtnsArr="getBtnsArr"
+        :getFeatureArr="getFeatureArr"
+        :showType="showType"
+        :fileDeleteIds="fileDeleteIds"
+        :moreOperateArr="moreOperateArr"
+        :grandFather="configData"
+        :btnTypesArr="[1, 2, 3, 4, 5, 7, 8, 14, 15]"
+        :isTable="true"
+        :canSearch="true"
+        :multiEntityArr="multiEntityArr"
+        :getIdCompId="getIdCompId"
+        @click.native="changeCurActiveObj(2, $event)"
+        @addTableRow="addTableRow"
+        @tableAreaDelete="tableAreaDelete"
+      ></BtnsArea>
+      <section
+        v-if="configData.children.length !== 0"
+        class="menuMain__feature"
+        v-loading="loading"
+        element-loading-background="hsla(0,0%,100%,.9)"
         :class="[
-          { hasPagination: !isConfig && configData.hasPagination },
-          { isMain: !this.isConfig && this.getIsMain() },
+          { configClass: isConfig && getFeatureArr.children.length === 0 },
+          { borderType: isConfig },
+          {
+            highBorder:
+              isConfig &&
+              activeObj.compId === configData.compId &&
+              activeObj.areaType === 1,
+          },
+          { useStyle: !isConfig },
+          { hiddenBtnArea: configData.pageType === 1 },
+          { hasPagination: configData.hasPagination },
         ]"
+        configData="功能区"
       >
-        <!-- 配置页 -->
-        <div class="menuMain__card--config" v-if="isConfig">
-          <draggable
-            v-model="getFeatureArr.children"
+        <div
+          class="menuMain__card"
+          :class="[
+            { hasPagination: !isConfig && configData.hasPagination },
+            { isMain: !this.isConfig && this.getIsMain() },
+          ]"
+        >
+          <!-- 配置页 -->
+          <div class="menuMain__card--config" v-if="isConfig">
+            <draggable
+              v-model="getFeatureArr.children"
+              style="height: 100%"
+              group="comp"
+              animation="300"
+              ghostClass="featGhost"
+              filter=".notMove"
+              :isTable="true"
+              :areaType="1"
+              :isSidebar="isSidebar"
+              @start="featDragStart"
+              @end="featDragEnd"
+              :move="featDragMove"
+              :disabled="!isConfig"
+            >
+              <transition-group
+                class="menuMain__feature--compList"
+                tag="ul"
+                ref="tableConfig"
+              >
+                <component
+                  v-for="(child, i) in getFeatureArr.children"
+                  :class="[
+                    {
+                      notMove:
+                        child.dataSource.columnName === 'id' ||
+                        child.compName === 'BtnsArea',
+                    },
+                  ]"
+                  :key="child.compId"
+                  :is="child.compName"
+                  :parent="getFeatureArr"
+                  :grandFather="configData"
+                  :i="i"
+                  :activeObj="activeObj"
+                  :hasTriggerComp="hasTriggerComp"
+                  :configData="child"
+                  :fileDeleteIds="fileDeleteIds"
+                  :showType="showType"
+                  :isTable="true"
+                  :getBtnsArr="child"
+                  :getFeatureArr="getFeatureArr"
+                  :moreOperateArr="[]"
+                  :btnTypesArr="[2, 3, 4, 5, 15]"
+                  :isTableBtn="true"
+                ></component> </transition-group
+            ></draggable>
+          </div>
+
+          <!-- 应用页 -->
+          <div
             style="height: 100%"
-            group="comp"
-            animation="300"
-            ghostClass="featGhost"
-            filter=".notMove"
-            :isTable="true"
-            :areaType="1"
-            :isSidebar="isSidebar"
-            @start="featDragStart"
-            @end="featDragEnd"
-            :move="featDragMove"
-            :disabled="!isConfig"
+            ref="curTable"
+            :class="`configTable table__main menuMain__feature--compList ${dropClass}`"
+            v-else
           >
-            <transition-group
-              class="menuMain__feature--compList"
-              tag="ul"
-              ref="tableConfig"
+            <apiot-table
+              v-if="initSuccess"
+              :tableData="tableData"
+              :row-key="configData.lineEditable ? 'unique' : getIdCompId"
+              selectName="unique"
+              :highlight-current-row="true"
+              :dropColumnData="dropColumnData"
+              :showSort="numAndSel.showSort"
+              :showRadio="numAndSel.showRadio"
+              :showSelection="numAndSel.showSelection"
+              :isAnimate="!configData.lineEditable"
+              :lineSelect="lineSelect"
+              :reserveSelection="reserveSelection"
+              @selection-change="handleSelectionChange"
+              :currentRadioObj.sync="currentRadioObj"
+              @sort-change="sortChange"
+              @cell-mouse-enter="cellMouseEnter"
+              @cell-mouse-leave="cellMouseLeave"
+              :dropClass="`.${dropClass}`"
+              ref="tableMain"
             >
               <component
-                v-for="(child, i) in getFeatureArr.children"
-                :class="[
-                  {
-                    notMove:
-                      child.dataSource.columnName === 'id' ||
-                      child.compName === 'BtnsArea',
-                  },
-                ]"
-                :key="child.compId"
-                :is="child.compName"
+                ref="column"
+                :label-class-name="`${
+                  item.enableTableSearch ? 'hasFilter' : ''
+                }`"
+                v-for="(item, index) in dropColumnData"
+                :key="`${item.name}_${index}`"
+                :label="item.name"
+                sortable="custom"
+                :sort-orders="['ascending', 'descending']"
+                :show-overflow-tooltip="item.showTip"
+                :fixed="item.fixed"
+                :min-width="item.minWidth"
+                :is="dropColumnData[index].tableCompName"
                 :parent="getFeatureArr"
                 :grandFather="configData"
-                :i="i"
                 :activeObj="activeObj"
-                :hasTriggerComp="hasTriggerComp"
-                :configData="child"
+                :configData="item"
+                :areaData="configData"
                 :fileDeleteIds="fileDeleteIds"
                 :showType="showType"
                 :isTable="true"
-                :getBtnsArr="child"
-                :getFeatureArr="getFeatureArr"
-                :moreOperateArr="[]"
-                :btnTypesArr="[2, 3, 4, 5]"
-                :isTableBtn="true"
-              ></component> </transition-group
-          ></draggable>
+                :tableData="tableData"
+                :showVisible.sync="showVisible"
+                :showCell="showCell"
+                @isChangeShowCell="isChangeShowCell"
+                :getIdCompId="getIdCompId"
+                @deleteTableRow="deleteTableRow"
+                :multiEntityArr="multiEntityArr"
+                @showPanelDialog="showPanelDialog"
+              ></component>
+            </apiot-table>
+          </div>
         </div>
-
-        <!-- 应用页 -->
-        <div
-          style="height: 100%"
-          ref="curTable"
-          :class="`configTable table__main menuMain__feature--compList ${dropClass}`"
-          v-else
+        <apiot-pagination
+          v-if="!isConfig && configData.hasPagination && showPagi"
+          :isSystem="false"
+          layout="total, prev, pager, next, sizes, jumper"
+          :total="total"
+          :current-page.sync="current"
+          :selectedNum="this.numAndSel.showRadio ? 0 : multiEntityArr.length"
+          :size.sync="configData.rowNum"
+          :pageSizes="pageSizes"
+          @sizeChange="sizeChange"
+          @handle-cancel="handleCancel"
         >
-          <apiot-table
-            v-if="initSuccess"
-            :tableData="tableData"
-            :row-key="configData.lineEditable ? 'unique' : getIdCompId"
-            selectName="unique"
-            :highlight-current-row="true"
-            :dropColumnData="dropColumnData"
-            :showSort="numAndSel.showSort"
-            :showRadio="numAndSel.showRadio"
-            :showSelection="numAndSel.showSelection"
-            :isAnimate="!configData.lineEditable"
-            :lineSelect="lineSelect"
-            :reserveSelection="reserveSelection"
-            @selection-change="handleSelectionChange"
-            :currentRadioObj.sync="currentRadioObj"
-            @sort-change="sortChange"
-            @cell-mouse-enter="cellMouseEnter"
-            @cell-mouse-leave="cellMouseLeave"
-            :dropClass="`.${dropClass}`"
-            ref="tableMain"
-          >
-            <component
-              ref="column"
-              v-for="(item, index) in dropColumnData"
-              :key="`${item.name}_${index}`"
-              :label="item.name"
-              sortable="custom"
-              :sort-orders="['ascending', 'descending']"
-              :show-overflow-tooltip="item.showTip"
-              :fixed="item.fixed"
-              :min-width="item.minWidth"
-              :is="dropColumnData[index].tableCompName"
-              :parent="getFeatureArr"
-              :grandFather="configData"
-              :activeObj="activeObj"
-              :configData="item"
-              :areaData="configData"
-              :fileDeleteIds="fileDeleteIds"
-              :showType="showType"
-              :isTable="true"
-              :tableData="tableData"
-              :showVisible.sync="showVisible"
-              :showCell="showCell"
-              @isChangeShowCell="isChangeShowCell"
-              :getIdCompId="getIdCompId"
-              @deleteTableRow="deleteTableRow"
-              :multiEntityArr="multiEntityArr"
-              @showPanelDialog="showPanelDialog"
-            ></component>
-          </apiot-table>
-        </div>
-      </div>
-      <apiot-pagination
-        v-if="!isConfig && configData.hasPagination && showPagi"
-        :isSystem="false"
-        layout="total, prev, pager, next, sizes, jumper"
-        :total="total"
-        :current-page.sync="current"
-        :selectedNum="this.numAndSel.showRadio ? 0 : multiEntityArr.length"
-        :size.sync="configData.rowNum"
-        :pageSizes="pageSizes"
-        @sizeChange="sizeChange"
-        @handle-cancel="handleCancel"
+        </apiot-pagination>
+      </section>
+      <section
+        v-if="configData.children.length === 0"
+        class="menuMain__wz"
+        :class="[
+          { borderType: isConfig },
+          {
+            highBorder: isConfig && activeObj.compId === configData.compId,
+          },
+        ]"
       >
-      </apiot-pagination>
-    </section>
-    <section
-      v-if="configData.children.length === 0"
-      class="menuMain__wz"
-      :class="[
-        { borderType: isConfig },
-        {
-          highBorder: isConfig && activeObj.compId === configData.compId,
-        },
-      ]"
-    >
-      卡片区
-    </section>
+        卡片区
+      </section>
+    </div>
+
     <!-- <transition name="slide-bottom"> -->
     <Panel-dialog
       ref="panelDialog"
@@ -270,7 +288,9 @@ export default {
       reserveSelection: false,
       initSuccess: false, // 初始化列成功
       showPagi: true, // 显示分页器
-      notTouch: false
+      notTouch: false,
+      isHidden: false,
+      timer: null
     };
   },
 
@@ -448,21 +468,73 @@ export default {
       this.$bus.$on(this.getEventName, this.reloadArea);
       this.$bus.$on(`loadSomeArea_${this.parent.compId}`, this.loadArea);
       this.$bus.$on('getSelMultiArr', this.getSelMultiArr);
+      this.$bus.$on('getAllTableData', this.getAllTableData);
+      this.$bus.$on('getTableArr', this.getTableArr);
     }
   },
 
   methods: {
+    // 是否隐藏内容
+    hiddenContent() {
+      if (this.isConfig) {
+        return false;
+      }
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        if (this.isHidden) {
+          setTimeout(() => {
+            this.$broadcast('changeHeight');
+          }, 300);
+        }
+        this.isHidden = !this.isHidden;
+      }, 100);
+      setTimeout(() => {
+        if (this.timer) {
+          clearTimeout(this.timer);
+        }
+      }, 300);
+    },
+    getTableArr(callback) {
+      const arr = JSON.parse(JSON.stringify(this.tableData));
+      this.configData.children.forEach((item) => {
+        item.children.forEach((v) => {
+          const getDictKey = v.dataSource && v.dataSource.dictObj && v.dataSource.dictObj.dictKey;
+          const tempData = this.$store.getters.getCurDict(getDictKey) || [];
+          const tempDataCopy = JSON.parse(JSON.stringify(tempData));
+          const obj = {};
+          if (tempDataCopy.length) {
+            tempDataCopy.forEach((dict) => {
+              obj[dict.value] = dict;
+            });
+          }
+          arr.forEach((a) => {
+            if (v.enableDict && !this.isConfig) {
+              a[v.compId] = (obj[a[v.compId]] && obj[a[v.compId]].name) || a[v.compId];
+            }
+          });
+        });
+      });
+      callback(arr);
+    },
     // 获取选中数组
-    getSelMultiArr(onlyFlag, compId, callback) {
-      if (onlyFlag === this.onlyFlag() && compId === this.configData.compId) {
+    getSelMultiArr(compId, callback) {
+      if (compId === this.configData.compId) {
         callback(this.multiEntityArr);
+      }
+    },
+    getAllTableData(compId, callback) {
+      console.log(compId, this.configData.compId);
+      if (compId === this.configData.compId) {
+        console.log(this.tableData);
+        callback(this.tableData);
       }
     },
     // 刚打开tab的时候如果不是初始化的，则加载一次
     loadArea(compId) {
       // 代表刚打开的tab
       if (this.parent.compId === compId) {
-        // 加载的列表里包含该id
         if (this.getNotInitArr().includes(this.configData.compId)) {
           this.getSidebarList();
         }
@@ -505,6 +577,7 @@ export default {
           this.$emit('getTableMaxHeight', this.parent, this.configData.compId, (v) => {
             tableMaxHeight = v;
           });
+          console.log(tableMaxHeight, num);
           if (tableMaxHeight > num) {
             const dis = tableMaxHeight - num;
             const line = Math.floor(dis / 37);
@@ -523,7 +596,7 @@ export default {
               this.tableStyle = 'height: 100%';
               return;
             }
-            this.tableStyle = `height: ${num}px`;
+            this.tableStyle = `height: ${tableMaxHeight}px`;
             return;
           }
           this.showPagi = false;
@@ -634,7 +707,7 @@ export default {
         } else {
           item.minWidth = width * item.tableWidth;
         }
-        if (item.name === '操作') {
+        if (item.tableCompName === 'OperateCol') {
           item.showTip = false;
           item.canShow = true;
           if (this.configData.operateWidth) {
@@ -993,6 +1066,7 @@ export default {
             }
           }
         }
+        console.log(this.configData.searchInfo);
         if (this.configData.searchInfo) {
           params.searchInfo = this.configData.searchInfo;
         }
@@ -1134,7 +1208,11 @@ export default {
           }
           if (comp.compType === 2) {
             if (comp.dropDownType === 1) {
-              v = +v;
+              if (v) {
+                v = +v;
+              } else {
+                v = '';
+              }
             }
           }
           if ([3].includes(comp.compType)) {
@@ -1417,13 +1495,16 @@ export default {
         this.$bus.$off(this.getEventName, this.reloadArea);
         this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
         this.$bus.$off('getSelMultiArr');
+        this.$bus.$off('getAllTableData');
       }
     } else {
       // this.$bus.$off(this.getEventName);
       this.$bus.$off(this.getEventName, this.reloadArea);
       this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
       this.$bus.$off('getSelMultiArr');
+      this.$bus.$off('getAllTableData');
     }
+    this.$bus.$off('getTableArr');
   },
 
   watch: {
@@ -1436,7 +1517,7 @@ export default {
     'configData.canOperate': function (v) {
       if (v) {
         this.getFeatureArr.children.push({
-          name: '操作',
+          name: this.configData.operateName,
           compName: 'BtnsArea',
           tableCompName: 'OperateCol',
           compId: createUnique(),
@@ -1453,6 +1534,16 @@ export default {
       } else {
         const index = this.getFeatureArr.children.findIndex((item) => item.compName === 'BtnsArea');
         this.getFeatureArr.children.splice(index, 1);
+      }
+    },
+    'configData.operateName': function (v) {
+      const index = this.getFeatureArr.children.findIndex(
+        (item) => item.tableCompName === 'OperateCol'
+      );
+      if (index !== -1) {
+        console.log(this.getFeatureArr.children[index]);
+        this.$set(this.getFeatureArr.children[index], 'name', v);
+        this.getFeatureArr.children[index].name = v;
       }
     },
     currentRadioObj: {
@@ -1499,7 +1590,11 @@ export default {
   flex-direction: column;
   overflow: hidden;
   max-height: 100%;
+  &.isHidden {
+    height: 40px !important;
+  }
   &.showTitle {
+    font-size: 15px;
     padding-top: 40px;
     position: relative;
     &::before {
@@ -1514,14 +1609,53 @@ export default {
     }
   }
   &.flexReserve {
-    flex-direction: column-reverse;
+    .menuMain__content {
+      display: flex;
+      flex-direction: column-reverse;
+    }
   }
-
+  &__title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+    line-height: 40px;
+    padding: 0 10px;
+    cursor: pointer;
+    &:hover {
+      background-color: #efefef;
+      color: $--color-primary;
+      .icon-xialajiantou {
+        color: $--color-primary;
+      }
+    }
+    .icon-xialajiantou {
+      position: absolute;
+      right: 10px;
+      transition: all 0.2s linear;
+      &.isHidden {
+        transform: rotate(180deg);
+      }
+    }
+  }
+  &__content {
+    height: 100%;
+    transition: all 0.2s linear;
+    &.isHidden {
+      height: 0;
+      opacity: 0;
+    }
+  }
   &__feature {
-    height: calc(100% - 42px);
+    height: calc(100% - 52px);
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px 10px;
+    box-sizing: border-box;
     &.borderType:hover {
       border-width: 1px !important;
       border-style: solid !important;
@@ -1665,7 +1799,10 @@ export default {
 .configTable {
   ::v-deep {
     .el-table th {
-      padding: 6px 26px 6px 6px !important;
+      padding: 6px 6px 6px 6px !important;
+      &.hasFilter {
+        padding-right: 22px !important;
+      }
       .cell {
         overflow: visible !important;
       }

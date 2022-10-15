@@ -46,136 +46,23 @@
         </div>
       </div>
     </div>
-    <apiot-dialog
-      title="填写人界面配置"
-      :isBigDialog="true"
-      :visible.sync="configVisible"
-      @sure-click="handleOk"
-      @cancle-click="handleCancel"
-    >
-      <div class="user-appover-content">
-        <div class="user-appover-tabs">
-          <div class="form-item-label">面板选择</div>
-          <div class="form-item-content">
-            <apiot-select
-                v-model="panelActive"
-                @change="changeConfig"
-            >
-              <el-option
-                  v-for="item in panelOptions"
-                  :value="item.value"
-                  :key="item.index"
-                  :label="item.name"
-              ></el-option>
-            </apiot-select>
-          </div>
-        </div>
-        <el-table
-          class="tableWrap"
-          :height="466"
-          :data="configData"
-          style="width: 100%; margin-bottom: 20px"
-          row-key="compId"
-          border
-          default-expand-all
-          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-        >
-          <el-table-column prop="name" label="组件名称" sortable width="250">
-            <template slot-scope="scope">
-              <span class="name-component"
-                ><img
-                  v-if="scope.row.compType"
-                  :src="require(`@/assets/img/menu_images/${scope.row.imgUrl}`)"
-                />{{ scope.row.name }}</span
-              >
-            </template>
-          </el-table-column>
-          <el-table-column prop="address" label="显示" :key="key1">
-            <template slot="header">
-              <apiot-checkbox
-                  :value="isShowCheckAll"
-                  :indeterminate="isShowTitle"
-                  @change="handleCheckAllChange($event,'canShowCheckbox', 'canShow')"
-              >
-              </apiot-checkbox>
-              显示
-            </template>
-            <template slot-scope="scope">
-              <apiot-checkbox
-                :compId="scope.row.compId"
-                class="canShowCheckbox"
-                v-if="isShowCheckbox(scope.row, 'canShow')"
-                :value="getIsHide(scope.row, 'canShow')"
-                @change="changeCommonCheck($event, scope.row, 'canShow', 'canShowCheckbox')"
-              >
-              </apiot-checkbox>
-            </template>
-          </el-table-column>
-          <el-table-column prop="address" label="编辑">
-            <template slot="header">
-              <apiot-checkbox
-                  :value="isEditCheckAll"
-                  :indeterminate="isEditTitle"
-                  @change="handleCheckAllChange($event,'canEditCheckbox', 'canEdit')"
-              >
-              </apiot-checkbox>
-              编辑
-            </template>
-            <template slot-scope="scope">
-              <apiot-checkbox
-                :compId="scope.row.compId"
-                class="canEditCheckbox"
-                v-if="isShowCheckbox(scope.row, 'canReadonly')"
-                :value="getIsEdit(scope.row, 'canEdit')"
-                @change="changeCommonCheck($event, scope.row, 'canEdit', 'canEditCheckbox')"
-              >
-              </apiot-checkbox>
-            </template>
-          </el-table-column>
-          <el-table-column prop="address" label="必填">
-            <template slot="header">
-              <apiot-checkbox
-                  :value="isRequireCheckAll"
-                  :indeterminate="isRequireTitle"
-                  @change="handleCheckAllChange($event,'canRequireCheckbox', 'shouldRequired')"
-              >
-              </apiot-checkbox>
-              必填
-            </template>
-            <template slot-scope="scope">
-              <apiot-checkbox
-                :compId="scope.row.compId"
-                class="canRequireCheckbox"
-                :value="getIsCheck(scope.row, 'shouldRequired')"
-                v-if="isShowCheckbox(scope.row, 'shouldRequired')"
-                @change="changeCommonCheck($event, scope.row,
-                'shouldRequired', 'canRequireCheckbox')"
-              >
-              </apiot-checkbox>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="abstract"
-            label="关联提交按钮"
-          >
-            <template slot-scope="scope">
-              <apiot-checkbox
-                :value="getIsCheck(scope.row, 'isRelation')"
-                v-if="scope.row.compName === 'FormButton'"
-                @change="(value) => changeCheck(value, scope.row, 'isRelation')"
-              >
-              </apiot-checkbox>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </apiot-dialog>
+    <ApprovalPanelConfig
+        :configVisible.sync="configVisible"
+        ref="approvalPanelConfig"
+        :checkType="checkType"
+        :appCheckFormConfigJSON="appCheckFormConfigJSON"
+        :checkFormConfigJSON="checkFormConfigJSON"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+        :isNeedAbstract="true"
+    />
   </div>
 </template>
 
 <script>
-import { getDesignMenu } from '@/api/menuConfig';
 import SelectUsers from '../FlowApproval/SelectUsers';
+import ApprovalPanelConfig from '../ApprovalPanelConfig/index';
+
 // import FilterableInput from '../FilterableInput';
 
 export default {
@@ -233,75 +120,11 @@ export default {
 
   components: {
     SelectUsers,
+    ApprovalPanelConfig
     // FilterableInput
   },
 
   computed: {
-    returnDomLength() { // 查找选中的dom和所有的的dom节点
-      return function (classKey) {
-        const dom = document.querySelectorAll(`.tableWrap .${classKey}`);
-        const domChecked = document.querySelectorAll(`.tableWrap .${classKey}.is-checked`);
-        const obj = {
-          all: dom.length,
-          checked: domChecked.length,
-          dom,
-          domChecked,
-        };
-        return obj;
-      };
-    },
-    isShowCheckbox() {
-      return function(obj, key) {
-        return Object.prototype.hasOwnProperty.call(obj, key);
-      };
-    },
-    getIsHide() {
-      return function(obj, key) {
-        const isTrue = this.checkType === 'app';
-        const arr = isTrue ? this.appCheckFormConfigJSON : this.checkFormConfigJSON;
-        const index = arr.findIndex((item) => item.compId === obj.compId);
-        if (index !== -1) {
-          if (this.isShowCheckbox(arr[index], key)) {
-            return arr[index][key] || false;
-          }
-          const { singleStatus } = obj;
-          return singleStatus !== 4;
-        }
-        const { singleStatus } = obj;
-        return singleStatus !== 4;
-      };
-    },
-    getIsEdit() {
-      return function(obj, key) {
-        const isTrue = this.checkType === 'app';
-        const arr = isTrue ? this.appCheckFormConfigJSON : this.checkFormConfigJSON;
-        const index = arr.findIndex((item) => item.compId === obj.compId);
-        if (index !== -1) {
-          if (this.isShowCheckbox(arr[index], key)) {
-            return arr[index][key] || false;
-          }
-          const { singleStatus } = obj;
-          return ![2, 3].includes(singleStatus);
-        }
-        const { singleStatus } = obj;
-        return ![2, 3].includes(singleStatus);
-      };
-    },
-    getIsCheck() {
-      // 根据组件id获取配置的显示隐藏
-      return function(obj, key) {
-        const isTrue = this.checkType === 'app';
-        const arr = isTrue ? this.appCheckFormConfigJSON : this.checkFormConfigJSON;
-        const index = arr.findIndex((item) => item.compId === obj.compId);
-        if (index !== -1) {
-          if (this.isShowCheckbox(arr[index], key)) {
-            return arr[index][key] || false;
-          }
-          return obj[key];
-        }
-        return obj[key];
-      };
-    },
   },
 
   mounted() {
@@ -317,33 +140,6 @@ export default {
   },
 
   methods: {
-    handleCheckAllChange(v, key, key2) {
-      console.log(v, key, key2);
-      if (key === 'canShowCheckbox') {
-        this.isShowCheckAll = v;
-        this.isShowTitle = false;
-        this.key1 += 1;
-      }
-      if (key === 'canEditCheckbox') {
-        this.key1 += 1;
-        this.isEditTitle = false;
-        this.isEditCheckAll = v;
-      }
-      if (key === 'canRequireCheckbox') {
-        this.key1 += 1;
-        this.isRequireTitle = false;
-        this.isRequireCheckAll = v;
-      }
-      this.reduceData(key, key2, v);
-    },
-    reduceData(key, key2, v) {
-      const { dom } = this.returnDomLength(key);
-      console.log(this.returnDomLength(key));
-      dom.forEach(async (domKey) => {
-        const compId = domKey.getAttribute('compid');
-        await this.changeCheck(v, { compId }, key2);
-      });
-    },
     init() {
       if (JSON.stringify(this.nodeInfo) !== '{}' && this.nodeInfo) {
         const {
@@ -388,38 +184,14 @@ export default {
     async selectPane(pane) {
       this.curPaneObj = pane || {};
     },
-    changeAbstractCheck(value, { compId, name, compType, dataSource }) {
-      const dictKey = dataSource.dictObj ? dataSource.dictObj.dictKey : null;
-      const index = this.nodeAbstractConfig.findIndex((item) => item.compId === compId);
-      const obj = {
-        compId,
-        name,
-        compType,
-        dictKey,
-        columnName: dataSource.columnName,
-        tableName: dataSource.tableName
-      };
-      if (this.nodeAbstractConfig.length >= 3) {
-        if (index !== -1) {
-          this.nodeAbstractConfig.splice(index, 1);
-          return;
-        }
-        this.nodeAbstractConfig.splice(2, 1, obj);
-      } else {
-        if (index !== -1) {
-          this.nodeAbstractConfig.splice(index, 1);
-          return;
-        }
-        this.nodeAbstractConfig.push(obj);
-      }
-    },
-    handleOk() {
+    handleOk(data) {
       // 点击保存的时候，以修改的数据为主
       if (!this.checkType) return;
       if (this.checkType === 'pc') {
-        this.checkFormConfigJSONOrigin = [...this.checkFormConfigJSON];
+        this.checkFormConfigJSONOrigin = JSON.parse(JSON.stringify(data));
+        this.checkFormConfigJSON = JSON.parse(JSON.stringify(data));
       } else {
-        this.appCheckFormConfigJSONOrigin = [...this.appCheckFormConfigJSON];
+        this.appCheckFormConfigJSON = JSON.parse(JSON.stringify(data));
       }
       // this.nodeAbstractConfigOrigin = [...this.nodeAbstractConfig];
       this.configVisible = false;
@@ -442,71 +214,6 @@ export default {
       this.configVisible = false;
       this.resetCheckType();
     },
-    async changeCommonCheck(value, obj, key, key2) {
-      await this.changeCheck(value, obj, key);
-      await this.initShow(key2);
-    },
-    initShow(key2) {
-      const { all, checked } = this.returnDomLength(key2);
-      if (key2 === 'canShowCheckbox') {
-        if (checked > 0 && checked < all) {
-          this.isShowTitle = true;
-          this.isShowCheckAll = false;
-        } else if (checked === all) {
-          this.isShowTitle = false;
-          this.isShowCheckAll = true;
-        } else {
-          this.isShowTitle = false;
-          this.isShowCheckAll = false;
-        }
-      }
-      if (key2 === 'canEditCheckbox') {
-        if (checked > 0 && checked < all) {
-          this.isEditTitle = true;
-          this.isEditCheckAll = false;
-        } else if (checked === all) {
-          this.isEditTitle = false;
-          this.isEditCheckAll = true;
-        } else {
-          this.isEditTitle = false;
-          this.isEditCheckAll = false;
-        }
-      }
-      if (key2 === 'canRequireCheckbox') {
-        if (checked > 0 && checked < all) {
-          this.isRequireTitle = true;
-          this.isRequireCheckAll = false;
-        } else if (checked === all) {
-          this.isRequireTitle = false;
-          this.isRequireCheckAll = true;
-        } else {
-          this.isRequireTitle = false;
-          this.isRequireCheckAll = false;
-        }
-      }
-      this.key1 += 1;
-    },
-    changeCheck(value, obj, key) {
-      // 修改属性
-      // 修改属性
-      const isTrue = this.checkType === 'app';
-      const arr = isTrue ? this.appCheckFormConfigJSON : this.checkFormConfigJSON;
-      const index = arr.findIndex((item) => item.compId === obj.compId);
-      if (index !== -1) {
-        const currentObj = {
-          ...arr[index],
-          [key]: value
-        };
-        this.$set(arr, index, currentObj);
-        // console.log(this.checkFormConfigJSON, 'this.checkFormConfigJSON');
-        return;
-      }
-      if (isTrue) {
-        this.appCheckFormConfigJSON.push({ [key]: value, compId: obj.compId });
-      } else {
-        this.checkFormConfigJSON.push({ [key]: value, compId: obj.compId });
-      }
-    },
     async pageSet(key) {
       if (!key) return;
       console.log(this.currentVersion);
@@ -520,47 +227,21 @@ export default {
         this.$message.error('请在全局属性中配置PC面板!');
         return;
       }
-      const res = await getDesignMenu({ panelId: key === 'pc' ? pcPanelId : appPanelId });
-      this.configData = res[0].designOverallLayout || [];
-      this.panelActive = res[0].panelId;
-      const paneObj = this.configData[0].paneObj || {};
-      const options = [{
-        name: key === 'app' ? appPanelName : pcPanelName,
-        value: this.panelActive
-      }];
-      Object.keys(paneObj).forEach((item, i) => {
-        const { panelName, id, panelClassify } = paneObj[item] || {};
-        // eslint-disable-next-line no-shadow
-        if (panelName && panelClassify !== 2 && !options.find((item) => item.value === id)) {
-          options.push({
-            value: id,
-            name: panelName,
-            key: i
-          });
-        }
+      this.$refs.approvalPanelConfig.init({
+        key,
+        appPanelName,
+        pcPanelName,
+        pcPanelId,
+        appPanelId
       });
-      this.panelOptions = options;
       this.checkType = key;
       this.configVisible = true;
-      this.$nextTick(() => {
-        this.initThead();
-      });
-    },
-    async changeConfig(v) { // 获取其他面板的配置
-      const res = await getDesignMenu({ panelId: v });
-      this.configData = res[0].designOverallLayout || [];
-      this.panelActive = res[0].panelId;
-      this.$nextTick(() => {
-        this.initThead();
-      });
+      // this.$nextTick(() => {
+      //   this.initThead();
+      // });
     },
     appendUsers({ value, key }) {
       this.sourceType[key] = value;
-    },
-    initThead() { // 初始化表头
-      this.initShow('canShowCheckbox');
-      this.initShow('canEditCheckbox');
-      this.initShow('canRequireCheckbox');
     },
   },
   name: 'index'

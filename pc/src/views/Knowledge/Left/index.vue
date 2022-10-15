@@ -1,7 +1,7 @@
 <!-- 知识库 页面 -->
 <template>
   <div class="leftWrap">
-    <div class="checkoutWrap">
+    <div class="checkoutWrap" v-if="false">
       <el-button-group>
         <apiot-button :type="active === 1 ? 'primary' : ''" @click="change(1)">
           {{ $t('knowledge.title_my') }}
@@ -9,9 +9,9 @@
         <apiot-button :type="active === 2 ? 'primary' : ''" @click="change(2)">
           {{ $t('knowledge.title_cy') }}
         </apiot-button>
-        <apiot-button :type="active === 3 ? 'primary' : ''" @click="change(3)">
-          {{ $t('knowledge.title_bu') }}
-        </apiot-button>
+        <!--        <apiot-button :type="active === 3 ? 'primary' : ''" @click="change(3)">-->
+        <!--          {{ $t('knowledge.title_bu') }}-->
+        <!--        </apiot-button>-->
       </el-button-group>
     </div>
     <div class="groupWrap">
@@ -34,7 +34,7 @@ import MenuLeft from './MenuList';
 export default {
   data() {
     return {
-      active: 1
+      active: 2
     };
   },
 

@@ -12,6 +12,7 @@
       @node-click="checkNode"
       :load="loadNode"
       highlight-current
+      :default-expanded-keys="defaultExpandedKeys"
       :expand-on-click-node="true"
       :render-content="renderContent"
       :props="defaultProps"
@@ -32,6 +33,7 @@ export default {
   },
   data() {
     return {
+      defaultExpandedKeys: [], // 默认展开的节点
       defaultProps: {
         label: 'name',
         children: 'childList',
@@ -84,6 +86,7 @@ export default {
         this.$nextTick(() => {
           this.highLightKey = res.length ? res[0].id : null;
           this.$refs.tree.setCurrentKey(this.highLightKey);
+          this.defaultExpandedKeys = this.highLightKey ? [this.highLightKey] : [];
           this.$bus.$emit(`selectTreeNode_${this.isolationSign}`, res[0] || {});
         });
         this.loading = false;

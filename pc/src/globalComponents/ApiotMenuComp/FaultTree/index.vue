@@ -27,7 +27,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[3, 5]"
+      :btnTypesArr="[3, 5, 15]"
     ></BtnsArea>
     <section
       v-if="configData.children.length !== 0"
@@ -88,7 +88,7 @@
               :getBtnsArr="child"
               :getFeatureArr="getFeatureArr"
               :moreOperateArr="[]"
-              :btnTypesArr="[2, 3, 5]"
+              :btnTypesArr="[2, 3, 5, 15]"
               :isSidebar="isSidebar"
             ></component> </transition-group
         ></draggable>
@@ -823,6 +823,7 @@ export default {
     margin: 10px;
   }
   &.showTitle {
+    font-size: 15px;
     padding-top: 40px;
     position: relative;
     &::before {

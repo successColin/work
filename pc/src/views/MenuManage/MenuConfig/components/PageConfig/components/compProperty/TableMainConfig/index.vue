@@ -242,6 +242,17 @@
         </h2>
       </div>
       <div
+        class="contentConfig__box m-b-10"
+        v-if="getCurrentTab.canOperate && !isSelect"
+      >
+        <h2>操作列名称</h2>
+        <apiot-input
+          v-model="getCurrentTab.operateName"
+          @blur="operateBlur"
+          placeholder="请输入操作里名称"
+        ></apiot-input>
+      </div>
+      <div
         class="contentConfig__box contentConfig__areaShow m-b-10"
         v-if="getCurrentTab.canOperate && !isSelect"
       >
@@ -254,16 +265,26 @@
               >5%</el-button
             >
             <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.08' }]"
+              @click="getCurrentTab.operateWidth = '0.08'"
+              >8%</el-button
+            >
+            <el-button
               :class="[{ active: getCurrentTab.operateWidth === '0.1' }]"
               @click="getCurrentTab.operateWidth = '0.1'"
               >10%</el-button
+            >
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.12' }]"
+              @click="getCurrentTab.operateWidth = '0.12'"
+              >12%</el-button
             >
             <el-button
               :class="[{ active: getCurrentTab.operateWidth === '0.15' }]"
               @click="getCurrentTab.operateWidth = '0.15'"
               >15%</el-button
             >
-            <el-button
+            <!-- <el-button
               :class="[{ active: getCurrentTab.operateWidth === '0.2' }]"
               @click="getCurrentTab.operateWidth = '0.2'"
               >20%</el-button
@@ -272,12 +293,12 @@
               :class="[{ active: getCurrentTab.operateWidth === '0.25' }]"
               @click="getCurrentTab.operateWidth = '0.25'"
               >25%</el-button
-            >
+            > -->
           </el-button-group>
         </p>
       </div>
       <div class="contentConfig__box m-b-10" v-if="!isSelect">
-        <h2>默认显示行数</h2>
+        <h2>表格高度</h2>
         <el-select
           v-model="getCurrentTab.showLine"
           style="width: calc(100% - 20px)"
@@ -320,7 +341,7 @@
       </div>
       <div
         class="contentConfig__box m-b-10"
-        v-show="getCurrentTab.hasPagination"
+        v-show="getCurrentTab.hasPagination && getCurrentTab.showLine !== 5"
         v-if="!isSelect"
       >
         <h2>每页默认条数</h2>
@@ -362,7 +383,7 @@
         </p>
       </div>
       <apiot-button
-        v-if="getCurrentTab && getCurrentTab.tableInfo.tableName && !isSelect"
+        v-if="getCurrentTab && getCurrentTab.tableInfo.tableName"
         class="contentConfig__hasTab--addArea"
         @click="dialogVisible = true"
       >
@@ -691,6 +712,12 @@ export default {
   },
 
   methods: {
+    // 操作列名称失焦
+    operateBlur() {
+      if (!this.getCurrentTab.operateName) {
+        this.getCurrentTab.operateName = '操作';
+      }
+    },
     // 重置选中的图标跟颜色来源
     resetCardIcon() {
       if (this.getDictLable.length === 0) {

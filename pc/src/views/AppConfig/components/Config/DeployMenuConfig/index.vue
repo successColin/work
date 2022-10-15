@@ -153,8 +153,31 @@
           :key="item.routeName"
         ></el-option>
       </el-select>
-      <p class="config__body--switch m-t-10" v-if="activeObj.type === 1 ||
-        (activeObj.type === 2 && activeObj.routeName === 'sysNotification')">
+      <h2
+        class="config__body--head"
+        v-if="activeObj.type === 4 && customArr.length"
+      >
+        自定义菜单
+      </h2>
+      <el-select
+        class="config__body--select"
+        v-model="activeObj.customId"
+        v-if="activeObj.type === 4 && customArr.length"
+      >
+        <el-option
+          :value="item.id"
+          :label="item.menuName"
+          v-for="item in customArr"
+          :key="item.id"
+        ></el-option>
+      </el-select>
+      <p
+        class="config__body--switch m-t-10"
+        v-if="
+          activeObj.type === 1 ||
+          (activeObj.type === 2 && activeObj.routeName === 'sysNotification')
+        "
+      >
         是否显示角标
         <el-switch
           class="switch"
@@ -166,26 +189,40 @@
         >
         </el-switch>
       </p>
-      <h2 class="config__body--head" v-if="activeObj.EnableCornerMarker === 1 &&
-        (activeObj.type === 1 ||
-        (activeObj.type === 2 && activeObj.routeName === 'sysNotification'))">展示类型</h2>
+      <h2
+        class="config__body--head"
+        v-if="
+          activeObj.EnableCornerMarker === 1 &&
+          (activeObj.type === 1 ||
+            (activeObj.type === 2 && activeObj.routeName === 'sysNotification'))
+        "
+      >
+        角标展示类型
+      </h2>
       <el-select
         class="config__body--select"
         v-model="activeObj.hornMarkType"
-        v-if="activeObj.EnableCornerMarker === 1 && (activeObj.type === 1 ||
-        (activeObj.type === 2 && activeObj.routeName === 'sysNotification'))"
+        v-if="
+          activeObj.EnableCornerMarker === 1 &&
+          (activeObj.type === 1 ||
+            (activeObj.type === 2 && activeObj.routeName === 'sysNotification'))
+        "
       >
         <el-option label="展示数字" :value="1"></el-option>
         <el-option label="展示红点" :value="2"></el-option>
       </el-select>
-      <h2 class="config__body--head" v-if="activeObj.EnableCornerMarker === 1
-        && activeObj.type === 1">展示面板</h2>
+      <h2
+        class="config__body--head"
+        v-if="activeObj.EnableCornerMarker === 1 && activeObj.type === 1"
+      >
+        角标展示面板
+      </h2>
       <apiot-button
         class="config__body--btn"
         v-if="activeObj.EnableCornerMarker === 1 && activeObj.type === 1"
         @click="showPanelConfig = true"
       >
-        <i class="iconfont icon-shezhi m-r-4"></i>展示面板配置
+        <i class="iconfont icon-shezhi m-r-4"></i>角标展示面板配置
       </apiot-button>
       <OfflineCheck
         class="m-t-10"
@@ -215,9 +252,8 @@
 <script>
 import { appRouteArr, selectColorArr } from '@/config';
 import { saveAppMenu } from '@/api/appConfig';
-import {
-  listSysDesignMenu,
-} from '@/api/menuConfig';
+import { listSysDesignMenu } from '@/api/menuConfig';
+import { getFunctionList } from '@/api/homePage';
 import propertyMixin from '../../../../MenuManage/MenuConfig/components/PageConfig/components/compProperty/propertyMixin';
 import PanelConfig from './PanelConfig';
 import IconSelect from '../../../../MenuManage/components/IconSelect';
@@ -266,7 +302,8 @@ export default {
       showPanelConfig: false,
       panelConfig: [],
       renderPanelConfig: false,
-      tabPaneConfig: {}
+      tabPaneConfig: {},
+      customArr: []
     };
   },
 
@@ -314,13 +351,43 @@ export default {
     this.initIcon();
     this.selectColorArr = selectColorArr;
     this.listSysDesignMenu();
+    if (this.activeObj.type === 4) {
+      if (this.activeObj.customId) {
+        this.activeObj.customId = +this.activeObj.customId;
+      }
+      this.sysMenuList();
+    }
   },
 
   methods: {
+    // 获取app自定义列表
+    async sysMenuList() {
+      this.contentLoading = true;
+      this.transitionName = 'fadeInUp';
+      const data = await getFunctionList({ keywords: this.keywords, clientType: 2 });
+
+      const res = [];
+      data.forEach((item) => {
+        const { colour, imageUrl, imageName } = item;
+        item.state = 1;
+        item.type = 'menu';
+        item.icon = {
+          icon: imageName,
+          imageUrl,
+          color: colour
+        };
+        res.push(item);
+      });
+
+      if (res.length) {
+        this.customArr = res;
+        console.log(this.customArr);
+      }
+    },
     async listSysDesignMenu() {
       const data = await listSysDesignMenu({ menuId: this.activeObj.id });
       this.tabPaneConfig = {
-        panelConfig: data[0].designOverallLayout,
+        panelConfig: data[0] ? data[0].designOverallLayout : {},
         isHornMark: true
       };
       this.renderPanelConfig = true;
@@ -447,8 +514,10 @@ export default {
         params.routeKey = 'configMenu';
       } else if (this.activeObj.type === 2) {
         params.routeKey = this.activeObj.routeName;
-      } else {
+      } else if (this.activeObj.type === 3) {
         params.routeKey = 'applyMenu';
+      } else {
+        params.routeKey = 'customMenu';
       }
       console.log(params);
       await saveAppMenu({ dto: JSON.stringify(params) });

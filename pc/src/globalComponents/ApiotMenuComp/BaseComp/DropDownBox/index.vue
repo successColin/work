@@ -7,17 +7,18 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
-      { onelineCalss: isLayoutStyle },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span style="white-space: nowrap"> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
           placement="top"
@@ -26,7 +27,6 @@
           <i class="iconfont icon-bangzhu" />
         </el-tooltip>
       </span>
-
       <el-select
         v-model="parent.form[configData.compId]"
         :placeholder="configData.placeholder"
@@ -34,9 +34,10 @@
         :collapse-tags="configData.dropDownType === 2"
         :filterable="configData.filterable"
         :disabled="configData.canReadonly"
+        @change="handleSelect"
       >
         <el-option
-          v-for="item in getDictArr"
+          v-for="item in optionsArr"
           :key="item.value"
           :label="item.name"
           :value="item.value"
@@ -51,7 +52,10 @@
             v-else-if="configData.dropDownStyle === 3 && item.icon"
           >
             <span class="option__self">
-              <img :src="item.icon.imgUrl" v-if="item.icon.imgUrl" />
+              <img
+                :src="$parseImgUrl(item.icon.imgUrl)"
+                v-if="item.icon.imgUrl"
+              />
               <i
                 v-else
                 :class="`iconfont ${item.icon.icon}`"
@@ -80,12 +84,14 @@
 </template>
 
 <script>
+import { allOption } from '@/config';
 import compMixin from '../../compMixin';
 
 export default {
   data() {
     return {
-      curCompType: 2
+      curCompType: 2,
+      oldSeleValue: []
     };
   },
   mixins: [compMixin],
@@ -93,6 +99,15 @@ export default {
   components: {},
 
   computed: {
+    allSeleValue() {
+      return this.optionsArr.map((v) => v.value);
+    },
+    optionsArr() {
+      if (this.configData.enableAll === 1) {
+        return [allOption, ...this.effectArr];
+      }
+      return this.effectArr;
+    },
     getDictKey() {
       if (this.configData.dataSource.dictObj) {
         return this.configData.dataSource.dictObj.dictKey;
@@ -115,6 +130,7 @@ export default {
       }
       return [];
     },
+
     getStyle() {
       return (item) => {
         let style = '';
@@ -129,9 +145,43 @@ export default {
     }
   },
 
-  mounted() {},
+  mounted() {
+    if (this.configData.dropDownType === 2) {
+      this.handleSelect(this.parent.form[this.configData.compId]);
+    }
+  },
 
-  methods: {}
+  methods: {
+    handleSelect(val) {
+      if (this.configData.dropDownType === 2) {
+        // 用来储存上一次的值，可以进行对比
+        const oldVal = this.oldSeleValue;
+        // 若是全部选择
+        if (val.includes(0)) {
+          this.parent.form[this.configData.compId] = Object.assign([], this.allSeleValue);
+        }
+        // 取消全部选中 上次有 当前没有 表示取消全选
+        if (oldVal.includes(0) && !val.includes(0)) {
+          this.parent.form[this.configData.compId] = [];
+        }
+        // 点击非全部选中 需要排除全部选中 以及 当前点击的选项
+        // 新老数据都有全部选中
+        if (oldVal.includes(0) && val.includes(0)) {
+          const index = val.indexOf(0);
+          val.splice(index, 1); // 排除全选选项
+          this.parent.form[this.configData.compId] = val;
+        }
+        // 全选未选 但是其他选项全部选上 则全选选上 上次和当前 都没有全选
+        if (!oldVal.includes(0) && !val.includes(0) && this.configData.enableAll === 1) {
+          if (val.length === this.effectArr.length) {
+            this.parent.form[this.configData.compId] = [0, ...val];
+          }
+        }
+        // 储存当前最后的结果 作为下次的老数据
+        this.oldSeleValue = this.parent.form[this.configData.compId] || [];
+      }
+    }
+  }
 };
 </script>
 

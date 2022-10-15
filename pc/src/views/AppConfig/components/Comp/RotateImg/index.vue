@@ -4,7 +4,7 @@
     @click.stop="selectActive"
     :class="[{ borderLight: config.compId === activeObj.compId }]"
   >
-    <img :src="getImgUrl" alt="" v-if="getImgUrl" />
+    <img :src="$parseImgUrl(getImgUrl)" alt="" v-if="getImgUrl" />
     <p v-else>轮播图</p>
   </div>
 </template>

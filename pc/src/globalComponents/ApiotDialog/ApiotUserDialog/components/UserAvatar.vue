@@ -11,7 +11,7 @@
   <section class="avatar" v-if="item">
     <img
       v-if="item.url"
-      :src="item.url"
+      :src="$parseImgUrl(item.url)"
       class="userImage m-r-4"
       :class="large ? 'large' : ''"
     />

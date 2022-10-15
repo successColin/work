@@ -2022,9 +2022,8 @@ export default {
   height: 30px;
   padding: 0;
   line-height: 30px;
-  background: #ffffff;
+  color: #ffffff;
   border-radius: 4px;
-  color: #333333;
   border: 1px solid #e9e9e9;
   transition: background 0.3s, color 0.3s;
 }

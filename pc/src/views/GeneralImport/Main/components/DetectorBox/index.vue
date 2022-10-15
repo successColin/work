@@ -12,13 +12,21 @@
       <img
         :src="require('@/assets/img/probe.png')"
         :style="`width: 86px;height: 86px;${
-          this.isdetect ? '' : 'animation: none'
+          progress > 0 && progress < 100 ? '' : 'animation: none'
         }`"
       />
     </div>
     <div class="detectorBox__info">
       <div class="detectorBox__process">
-        <div>{{ $t('importAndExport.Testprogress') }}:{{ progress }}%</div>
+        <div>
+          <div>{{ $t('importAndExport.Testprogress') }}:</div>
+          <el-progress
+            :text-inside="true"
+            :stroke-width="20"
+            :percentage="+progress"
+            class="progress"
+          ></el-progress>
+        </div>
         <div>
           {{ $t('importAndExport.inall') }}
           <span>{{ checkInfo.Sum || 0 }}</span>
@@ -30,8 +38,9 @@
         </div>
       </div>
       <div class="detectorBox__time">
-        <div>
-          {{ $t('importAndExport.AbnormalCo') }}
+        <div @click="handleJump" class="errorInfor">
+          <!-- {{ $t('importAndExport.AbnormalCo') }} -->
+          查看异常信息：
           <span>{{ checkInfo.errorRow || 0 }}</span>
           {{ $t('importAndExport.articles') }}
         </div>
@@ -41,16 +50,22 @@
         </div>
       </div>
     </div>
+    <apiot-dialog
+      title="异常明细"
+      :visible.sync="visible"
+      :isShowSure="false"
+      :isBigDialog="true"
+    >
+      <exc-details ref="excDetails" :checkInfo="checkInfo"></exc-details>
+    </apiot-dialog>
   </div>
 </template>
 
 <script>
+import ExcDetails from '../ExcDetails';
+
 export default {
   props: {
-    isdetect: {
-      type: Boolean,
-      default: false
-    },
     diffTime: {
       type: String,
       default: ''
@@ -60,18 +75,31 @@ export default {
       default: () => {}
     },
     progress: {
-      type: Number,
+      type: [Number, String],
       default: 0
     }
   },
   data() {
-    return {};
+    return {
+      visible: false
+    };
   },
-  components: {},
+  components: {
+    ExcDetails
+  },
   computed: {},
   watch: {},
   mounted() {},
-  methods: {}
+  methods: {
+    handleJump() {
+      if (this.checkInfo.errorRow) {
+        this.visible = true;
+        if (this.$refs.excDetails) {
+          this.$refs.excDetails.init();
+        }
+      }
+    }
+  }
 };
 </script>
 <style lang='scss' scoped>
@@ -107,7 +135,7 @@ export default {
 
   .detectorBox__info {
     flex: 1;
-    padding: 26px 20px 20px 20px;
+    padding: 21px 20px 20px 20px;
     box-sizing: border-box;
     .detectorBox__process,
     .detectorBox__time {
@@ -116,10 +144,16 @@ export default {
     }
     .detectorBox__process {
       & > div:first-child {
-        font-size: 16px;
+        width: 80%;
+        font-size: 14px;
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #333333;
+        display: flex;
+        .progress {
+          margin-left: 10px;
+          flex: 1;
+        }
       }
       & > div:nth-child(2) {
         font-size: 14px;
@@ -157,6 +191,9 @@ export default {
         & > span {
           color: #4689f5;
         }
+      }
+      .errorInfor {
+        cursor: pointer;
       }
     }
   }

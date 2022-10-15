@@ -22,7 +22,7 @@
             >
               <div class="module__img">
                 <img
-                  :src="moduleObj.icon.imageUrl"
+                  :src="$parseImgUrl(moduleObj.icon.imageUrl)"
                   class="iconImg"
                   v-if="moduleObj.icon && moduleObj.icon.imageUrl"
                 />
@@ -61,7 +61,7 @@
           >
             <div class="module__img">
               <img
-                :src="moduleObj.icon.imageUrl"
+                :src="$parseImgUrl(moduleObj.icon.imageUrl)"
                 class="iconImg"
                 v-if="moduleObj.icon && moduleObj.icon.imageUrl"
               />
@@ -195,15 +195,25 @@ export default {
     // 点击跳转菜单列表
     openMneuList(moduleObj) {
       this.visible = false;
+      const index = this.getModule.findIndex((item) => {
+        if (moduleObj.id === item.id) {
+          return true;
+        }
+        return false;
+      });
+      if (index !== -1) {
+        sessionStorage.moduleIndex = index;
+      }
       bus.$emit('initMenuList', moduleObj);
       bus.$emit('openMenuList', true);
     },
+
     // 循环直至获取到值
     getFirstModule() {
       this.timer = setInterval(() => {
         if (this.getModule.length) {
           clearInterval(this.timer);
-          bus.$emit('initMenuList', this.getModule[0]);
+          bus.$emit('initMenuList', this.getModule[sessionStorage.moduleIndex || 0]);
         }
       }, 100);
     }

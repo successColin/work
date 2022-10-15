@@ -42,13 +42,41 @@ export default {
     isShow() {
       return this.relateObj.compName !== 'QueryMain';
     },
+    effectArr() {
+      if (this.activeObj.effectDict && this.activeObj.effectDict.length) {
+        const arr = this.defaultValueArr.filter((item) => {
+          if (this.activeObj.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      return this.defaultValueArr;
+    },
   },
   inject: ['isConfig'],
 
-  created() {},
-
+  created() {
+    if (this.activeObj.tableWidth) {
+      this.curMinWidth = this.activeObj.tableWidth * 100;
+    }
+  },
+  data() {
+    return {
+      curMinWidth: 10,
+    };
+  },
   mounted() {},
   methods: {
+    // 字典有效值更改
+    efffectChange() {
+      if (Array.isArray(this.fatherObj.form[this.activeObj.compId])) {
+        this.fatherObj.form[this.activeObj.compId] = [];
+      } else {
+        this.fatherObj.form[this.activeObj.compId] = '';
+      }
+    },
     // 名字的失焦恢复
     nameFocus() {
       this.activeObj.backName = this.activeObj.name;
@@ -112,6 +140,19 @@ export default {
       };
       arrRes = rev(list[0], compId);
       return arrRes;
+    },
+  },
+
+  watch: {
+    curMinWidth(v) {
+      if (v) {
+        this.activeObj.tableWidth = `${v / 100}`;
+      }
+    },
+    'activeObj.tableWidth': function (v) {
+      if (v) {
+        this.curMinWidth = v * 100;
+      }
     },
   },
 };

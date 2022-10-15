@@ -32,7 +32,7 @@
         <!-- 等于视频 -->
         <div v-else class="searchDiv__video" @click="handleVideoPlay(item)">
           <div class="searchDiv__video--img">
-            <img :src="item.imageUrl" alt="" />
+            <img :src="$parseImgUrl(item.imageUrl)" alt="" />
             <div class="circle">
               <div class="searchDiv__triangle"></div>
             </div>

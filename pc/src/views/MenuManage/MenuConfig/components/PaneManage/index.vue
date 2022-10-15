@@ -309,6 +309,7 @@ export default {
       this.row.panelName = rowInfo.panelName;
       this.row.memo = rowInfo.memo;
       this.row.enableWorkflow = rowInfo.enableWorkflow;
+      this.row.enableShare = rowInfo.enableShare;
       this.row = null;
     },
     // 编辑设计
@@ -336,6 +337,7 @@ export default {
       };
       try {
         await copyPanel(params);
+        console.log(1111);
         this.getColumnList();
         this.$message({
           type: 'success',

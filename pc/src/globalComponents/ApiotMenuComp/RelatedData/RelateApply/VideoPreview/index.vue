@@ -1,16 +1,17 @@
 <template>
   <video-player
-      class="video"
-      ref="video"
-      :options="playerOptions"
-      :playsinline="true"
-      v-bind="$attrs"
-      v-on="$listeners"
+    class="video"
+    ref="video"
+    :options="playerOptions"
+    :playsinline="true"
+    v-bind="$attrs"
+    v-on="$listeners"
   ></video-player>
 </template>
 
 <script>
 import { videoPlayer } from 'vue-video-player';
+import { Decrypt } from '@/utils/utils';
 import 'video.js/dist/video-js.css';
 import 'vue-video-player/src/custom-theme.css';
 
@@ -36,7 +37,7 @@ export default {
           remainingTimeDisplay: false, // 是否显示剩余时间功能
           fullscreenToggle: true // 是否显示全屏按钮
         }
-      },
+      }
     };
   },
   components: {
@@ -53,16 +54,18 @@ export default {
           const suffixArr = url.split('.');
           const len = suffixArr.length;
           const suffix = len && suffixArr[len - 1];
-          this.playerOptions.sources = [{
-            type: `video/${suffix}`,
-            src: url,
-          }];
+          this.playerOptions.sources = [
+            {
+              type: `video/${suffix}`,
+              src: `${url}?token=${Decrypt(localStorage.token)}`
+            }
+          ];
           this.$nextTick(() => {
             this.makeImage(url);
           });
         }
-      },
-    },
+      }
+    }
   },
   mounted() {
     this.makeImage();
@@ -87,7 +90,7 @@ export default {
         // eslint-disable-next-line no-unused-expressions
         callback && callback();
       };
-    },
+    }
   }
 };
 </script>
@@ -96,7 +99,7 @@ export default {
   width: 100%;
   height: 100%;
   ::v-deep {
-    .video-js .vjs-play-progress:before{
+    .video-js .vjs-play-progress:before {
       top: -5px;
     }
     .video-js .vjs-big-play-button {
@@ -110,12 +113,12 @@ export default {
         top: -6px;
       }
     }
-    .vjs-slider-horizontal .vjs-volume-level:before{
+    .vjs-slider-horizontal .vjs-volume-level:before {
       top: -5px;
     }
     .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover {
       //width: 9em;
-      transition: width .1s;
+      transition: width 0.1s;
     }
     //.vjs-custom-skin>.video-js .vjs-volume-level {
     //  background-color: #2483d5;

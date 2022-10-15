@@ -7,17 +7,18 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
-      { onelineCalss: isLayoutStyle },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span style="white-space: nowrap"> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
           placement="top"
@@ -28,16 +29,32 @@
       </span>
 
       <el-date-picker
+        v-if="configData.timeInterval"
         :type="pickerType"
         :placeholder="configData.placeholder"
         range-separator="至"
         :start-placeholder="configData.startPlaceholder"
         :end-placeholder="configData.endPlaceholder"
+        format="yyyy-MM-dd HH:mm:ss"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        :editable="false"
+        v-model="dataTime"
+        :disabled="configData.canReadonly"
+        :picker-options="pickerOptions"
+        @change="handleChangePicker"
+      >
+      </el-date-picker>
+      <el-date-picker
+        v-else
+        :type="pickerType"
+        :placeholder="configData.placeholder"
+        format="yyyy-MM-dd HH:mm:ss"
         value-format="yyyy-MM-dd HH:mm:ss"
         :editable="false"
         v-model="parent.form[configData.compId]"
         :disabled="configData.canReadonly"
         :picker-options="pickerOptions"
+        @change="handleChangePicker"
       >
       </el-date-picker>
     </el-form-item>
@@ -55,14 +72,27 @@
 </template>
 
 <script>
-// import { formatDate } from '@/utils/utils';
+import { formatDate } from '@/utils/utils';
+import { timeShortcuts } from '@/config';
 import compMixin from '../../compMixin';
 
 export default {
   data() {
     return {
       curCompType: 2,
-      pickerOptions: {
+      dataTime: ''
+    };
+  },
+  mixins: [compMixin],
+
+  components: {},
+
+  computed: {
+    pickerType() {
+      return this.configData.timeInterval ? 'datetimerange' : 'datetime';
+    },
+    pickerOptions() {
+      const obj = {
         disabledDate: (time) => {
           let minTime = '';
           let maxTime = '';
@@ -95,16 +125,11 @@ export default {
           }
           return false;
         }
+      };
+      if (this.configData.timeInterval) {
+        obj.shortcuts = timeShortcuts;
       }
-    };
-  },
-  mixins: [compMixin],
-
-  components: {},
-
-  computed: {
-    pickerType() {
-      return this.configData.timeInterval ? 'datetimerange' : 'datetime';
+      return obj;
     }
   },
 
@@ -112,12 +137,59 @@ export default {
     this.initTime();
   },
 
+  watch: {
+    'parent.form': {
+      handler(v) {
+        const copy = JSON.parse(JSON.stringify(v))[this.configData.compId];
+        if (!copy) {
+          this.dataTime = '';
+          return;
+        }
+        if (copy.indexOf(',') !== -1) {
+          const val = copy && copy.split(',');
+          const startTime = formatDate(new Date(val[0]), 'yyyy-MM-dd hh:mm:ss');
+          const endTime = formatDate(new Date(val[1]), 'yyyy-MM-dd hh:mm:ss');
+          this.dataTime = [startTime, endTime];
+        } else {
+          this.dataTime = copy;
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+
   methods: {
+    handleChangePicker(v) {
+      if (v instanceof Array) {
+        this.parent.form[this.configData.compId] = v.join(',');
+      } else {
+        this.parent.form[this.configData.compId] = v;
+      }
+    },
     initTime() {
       if (this.configData.defaultType === 1) {
-        // console.log(formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss'));
-        this.parent.form[this.configData.compId] = new Date();
-        // console.log(this.parent.form[this.configData.compId]);
+        if (!this.configData.timeInterval) {
+          this.parent.form[this.configData.compId] = formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
+        } else {
+          const t = new Date(new Date().toLocaleDateString()).getTime() + 3600 * 1000 * 24;
+          const end = new Date(t - 1000);
+          const start = new Date(t - 3600 * 1000 * 24 * 1);
+          const endTime = formatDate(end, 'yyyy-MM-dd hh:mm:ss');
+          const startTime = formatDate(start, 'yyyy-MM-dd hh:mm:ss');
+          this.parent.form[this.configData.compId] = `${startTime},${endTime}`;
+        }
+      } else if (this.configData.defaultType === 2) {
+        const copy =
+          (this.parent.form[this.configData.compId] &&
+            JSON.parse(JSON.stringify(this.parent.form[this.configData.compId]))) ||
+          '';
+        if (copy) {
+          const val = copy && copy.split(',');
+          const startTime = formatDate(new Date(val[0]), 'yyyy-MM-dd hh:mm:ss');
+          const endTime = formatDate(new Date(val[1]), 'yyyy-MM-dd hh:mm:ss');
+          this.parent.form[this.configData.compId] = `${startTime},${endTime}`;
+        }
       }
     }
   }
@@ -183,6 +255,8 @@ export default {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        font-size: inherit;
+        color: #333333;
       }
     }
   }

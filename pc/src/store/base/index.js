@@ -168,6 +168,7 @@ export default {
         commit('changeLoginThemeColor', themeColor);
       }
       commit('changeLoginConfig', obj);
+      document.title = obj.systemTitle || 'V10';
     },
     //   获取服务器的路由
     async getRoute({ commit, state }) {

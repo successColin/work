@@ -10,6 +10,7 @@
         :tableInfo="getCurrentTab.tableInfo"
         :notShowSys="false"
         :showType="showType"
+        :variables="variables"
       ></ActionTerm>
     </div>
     <div class="sqlTerm" v-if="getCurrentTab.filterTermType === 2">
@@ -41,7 +42,10 @@ export default {
     showContent: {
       type: Boolean,
       default: false
-    }
+    },
+    variables: {
+      type: Array
+    },
   },
   data() {
     return {

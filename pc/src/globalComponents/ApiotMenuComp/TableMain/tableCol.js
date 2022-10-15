@@ -69,6 +69,19 @@ export default {
   },
   mounted() {},
   methods: {
+    // 生效字典数组
+    effectArr() {
+      if (this.configData.effectDict && this.configData.effectDict.length) {
+        const arr = this.getDictArr.filter((item) => {
+          if (this.configData.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      return this.getDictArr;
+    },
     visibleChange(v) {
       this.$emit('update:showVisible', v);
       if (!v) {
@@ -108,6 +121,9 @@ export default {
   watch: {
     'configData.singleStatus': {
       handler(v) {
+        if (!this.isConfig) {
+          return;
+        }
         if (v === 1 || v === 2) {
           this.configData.canShow = true;
         }

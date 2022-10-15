@@ -84,6 +84,7 @@
         :isSelPanel="isSelPanel"
         :otherParams="otherParams"
         :tableArr="tableArr"
+        :isApp="isApp"
         @sure-click="handleSubmit"
       ></table-or-field-dialog>
     </transition>
@@ -95,6 +96,7 @@ import { getListSysEntityTables, listSysEntityColumns } from '@/api/entityManage
 import { getDictList } from '@/api/dictManage';
 import { listPanel, getSysImportTemplateList } from '@/api/menuConfig';
 import { sysMenuList, ureportfiles } from '@/api/menuManage';
+import { getListSysPrintTemplate } from '@/api/printTemplate';
 
 export default {
   props: {
@@ -149,7 +151,7 @@ export default {
       default: 'false'
     },
     isSelPanel: {
-      type: Boolean,
+      type: [Boolean, Number],
       default: false
     },
     otherParams: {
@@ -166,6 +168,10 @@ export default {
     placeholder: {
       type: String,
       default: '请选择'
+    },
+    isApp: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -199,6 +205,8 @@ export default {
             return this.currentRadioObj.menuName;
           case 7:
             return this.currentRadioObj.name;
+          case 8:
+            return this.currentRadioObj.name;
           default:
             return '';
         }
@@ -220,6 +228,8 @@ export default {
         case 6:
           return 'menuName';
         case 7:
+          return 'name';
+        case 8:
           return 'name';
         default:
           return 'id';
@@ -318,9 +328,12 @@ export default {
           relationMenuDesignId: this.$route.query.id,
           unDesign: 1,
           panelClassify: this.isSelPanel ? 2 : 1,
-          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          clientType: this.$route.query.isApp === '1' || this.isApp === 1 ? 2 : 1,
           ...this.otherParams
         };
+        if (this.isSelPanel === 0) {
+          delete params.panelClassify;
+        }
         const res = await listPanel(params);
         // 面板名称重置
         const index = res.findIndex((item) => item.id === this.showInfo.id);
@@ -336,7 +349,7 @@ export default {
         this.options = res;
       } else if (this.dialogType === 6) {
         const res = await sysMenuList({
-          clientType: this.$route.query.isApp === '1' ? 2 : 1,
+          clientType: this.$route.query.isApp === '1' || this.isApp === 1 ? 2 : 1,
           menuLevel: 2,
           menuType: 2,
           keywords: this.keyWord
@@ -355,6 +368,11 @@ export default {
           });
         });
         this.options = arr;
+      } else if (this.dialogType === 8) {
+        const res = await getListSysPrintTemplate({
+          menuId: this.$route.query.id
+        });
+        this.options = res;
       }
     },
     // 按钮__添加

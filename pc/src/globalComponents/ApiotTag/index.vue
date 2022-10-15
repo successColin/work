@@ -1,6 +1,8 @@
 <template>
   <el-tag
-    :class="`fieldSelect--item item--theme__${itemTheme}`"
+    :class="`fieldSelect--item item--theme__${itemTheme} ${
+      samllSize ? 'samllSize' : ''
+    }`"
     :closable="false"
     v-on="$listeners"
     v-bind="$attrs"
@@ -9,6 +11,7 @@
     <i :class="`iconfont ${itemIconClass} m-r-4`" v-if="itemIconClass"></i>
     <i class="wz" v-if="item">{{ item }}</i>
     <i class="close-btn" @click="deleteSelf(item)" v-if="closable"></i>
+    <slot></slot>
   </el-tag>
 </template>
 
@@ -38,6 +41,10 @@ export default {
     closable: {
       type: Boolean,
       default: () => true
+    },
+    samllSize: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -82,6 +89,12 @@ export default {
     border: 0 none;
     line-height: 1;
     vertical-align: top;
+    &.samllSize {
+      height: 24px;
+      .wz {
+        line-height: 24px;
+      }
+    }
     &:hover {
       .close-btn {
         visibility: visible;

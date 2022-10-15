@@ -30,9 +30,17 @@
         ref="filterCol"
         :configData="configData"
         :grandFather="grandFather"
+        v-if="configData.enableTableSearch"
       ></FilterCol>
     </template>
     <div slot-scope="scope">
+      <SelectBox
+        :curData="scope.row"
+        :getIdCompId="getIdCompId"
+        :multiEntityArr="multiEntityArr"
+        v-on="$listeners"
+        v-bind="$attrs"
+      ></SelectBox>
       <div
         class="column__editable"
         v-if="
@@ -51,7 +59,7 @@
           :disabled="configData.canReadonly"
         >
           <el-option
-            v-for="item in getDictArr"
+            v-for="item in effectArr"
             :key="item.value"
             :label="item.name"
             :value="item.value"
@@ -71,7 +79,10 @@
                 v-else-if="configData.dropDownStyle === 3 && item.icon"
               >
                 <span class="option__self">
-                  <img :src="item.icon.imgUrl" v-if="item.icon.imgUrl" />
+                  <img
+                    :src="$parseImgUrl(item.icon.imgUrl)"
+                    v-if="item.icon.imgUrl"
+                  />
                   <i
                     v-else
                     :class="`iconfont ${item.icon.icon}`"
@@ -102,7 +113,10 @@
             v-else-if="configData.dropDownStyle === 3 && item.icon"
           >
             <span class="option__self">
-              <img :src="item.icon.imgUrl" v-if="item.icon.imgUrl" />
+              <img
+                :src="$parseImgUrl(item.icon.imgUrl)"
+                v-if="item.icon.imgUrl"
+              />
               <i
                 v-else
                 :class="`iconfont ${item.icon.icon}`"
@@ -124,6 +138,15 @@
 import tableCol from '../tableCol';
 
 export default {
+  props: {
+    getIdCompId: {
+      type: String
+    },
+    multiEntityArr: {
+      type: Array,
+      default: () => []
+    }
+  },
   name: '',
   mixins: [tableCol],
   data() {

@@ -199,6 +199,18 @@
           <i class="iconfont icon-shezhi m-r-4"></i>弹出扫一扫过滤条件
         </apiot-button>
       </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -249,6 +261,18 @@
           :triggerCompMap="triggerCompMap"
           v-model="activeObj.formulaContent"
         ></select-formula>
+      </el-form-item>
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
       </el-form-item>
       <el-form-item
         label="最小宽度"
@@ -332,7 +356,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证" v-if="isShow">
+      <el-form-item label="验证">
         <p class="switchBox">
           是否必填
           <el-switch
@@ -358,14 +382,14 @@
       </el-form-item>
     </el-form>
     <!-- 普通面板面板配置弹窗 -->
-    <PanelConfig
+    <ToPanelConfig
       :visible.sync="showPanelConfig"
       :configData="configData"
       :activeObj="activeObj"
       :isSelPanel="false"
-      :panelCompId="activeObj.textPanelId"
+      :panelCompId.sync="activeObj.textPanelId"
       :triggerCompMap="triggerCompMap"
-    ></PanelConfig>
+    ></ToPanelConfig>
     <!-- 数据选择面板配置弹窗 -->
     <PanelConfig
       :visible.sync="showBtnPanelConfig"
@@ -400,13 +424,13 @@
 </template>
 
 <script>
-import { createUnique } from '@/utils/utils';
 import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
 import propertyMixin from '../propertyMixin';
 import SelectFormula from '../GlobalConfig/components/AddAction/components/SelectFormula';
 import PanelConfig from '../ContentConfig/PanelConfig';
 import ScanConfig from '../ContentConfig/ScanConfig';
 import ToMenuConfig from '../ContentConfig/ToMenuConfig';
+import ToPanelConfig from '../ContentConfig/ToPanelConfig';
 
 export default {
   mixins: [propertyMixin],
@@ -437,7 +461,8 @@ export default {
     PanelConfig,
     ToMenuConfig,
     ScanConfig,
-    RelateTableDialog
+    RelateTableDialog,
+    ToPanelConfig
   },
 
   computed: {
@@ -484,10 +509,10 @@ export default {
 
   mounted() {
     this.setRequiredRule();
-    console.log(this.activeObj.textPanelId);
-    if (!this.activeObj.textPanelId) {
-      this.activeObj.textPanelId = createUnique();
-    }
+    // console.log(this.activeObj.textPanelId);
+    // if (!this.activeObj.textPanelId) {
+    //   this.activeObj.textPanelId = createUnique();
+    // }
   },
 
   methods: {

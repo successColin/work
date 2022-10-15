@@ -15,6 +15,14 @@ export function getListByKey(params) {
     params,
   });
 }
+// 根据参数key查询信息
+export function getListByKeys(params) {
+  return FetchData.request({
+    url: '/system/global/listByKeys',
+    method: 'get',
+    params,
+  });
+}
 
 // 根据参数key查询信息
 export function gettPlfByKey(params) {

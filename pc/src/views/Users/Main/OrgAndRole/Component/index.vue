@@ -76,7 +76,7 @@ export default {
 
   & > .name {
     margin-left: 3px;
-    font-size: 14px;
+    font-size: 13px;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #333333;

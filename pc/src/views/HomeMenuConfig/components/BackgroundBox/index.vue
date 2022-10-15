@@ -7,23 +7,19 @@
 */
 <!-- 页面 -->
 <template>
-
   <div class="backgroundBoxWrap" :style="getTextStyles()">
     <div class="backgroundBox" :style="getRotateY">
-      <div class="backgroundBoxContent" :style="getStyles()">
-      </div>
+      <div class="backgroundBoxContent" :style="getStyles()"></div>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
   props: {
     config: {
       type: Object,
-      default: () => {
-      }
+      default: () => {}
     },
     scale: {
       type: Number,
@@ -31,8 +27,7 @@ export default {
     },
     activeComponent: {
       type: Object,
-      default: () => {
-      }
+      default: () => {}
     }
   },
   data() {
@@ -51,8 +46,13 @@ export default {
   computed: {
     getTextStyles() {
       return function () {
-        const { stylesObj: { zIndex, xShadow, yShadow, blurRadius, shadowDistance, shadowColor },
-          width, height, verticalMirror, enableShadows } = this.config;
+        const {
+          stylesObj: { zIndex, xShadow, yShadow, blurRadius, shadowDistance, shadowColor },
+          width,
+          height,
+          verticalMirror,
+          enableShadows
+        } = this.config;
         let styles = `width: ${width}px;height: ${height}px;line-height:${height}px;zIndex:${zIndex};`;
         console.log(enableShadows, verticalMirror);
         if (verticalMirror) {
@@ -73,11 +73,7 @@ export default {
     getStyles() {
       return function () {
         let styles = '';
-        const {
-          gradientType,
-          bgType,
-          stylesObj
-        } = this.config;
+        const { gradientType, bgType, stylesObj } = this.config;
         const {
           borderRadius,
           borderColor,
@@ -99,12 +95,12 @@ export default {
           } else if (color1 || color2) {
             styles += `background-color: ${color1 || color2};`;
           } else {
-            styles += 'background: \'\';';
+            styles += "background: '';";
           }
           styles += `borderRadius:${borderRadius}px;
           borderColor:${borderColor};borderWidth:${borderWidth}px;borderStyle:${borderStyle};`;
         } else {
-          styles += `background-image:url(${backgroundImage});`;
+          styles += `background-image:url(${this.$parseImgUrl(backgroundImage)});`;
           styles += `transform:rotate(${rotationAngle}deg);opacity:${opacity};`;
         }
         return styles;
@@ -114,14 +110,10 @@ export default {
       return this.$store.getters.list;
     }
   },
-  beforeMount() {
-  },
-  mounted() {
-  },
-  watch: {
-  },
-  methods: {
-  },
+  beforeMount() {},
+  mounted() {},
+  watch: {},
+  methods: {},
   name: 'SingleLineText'
 };
 </script>

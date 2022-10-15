@@ -51,7 +51,7 @@
             @click.native="selectActive(item.children[0], $event)"
             :showType="showType"
             :nodeConfig="nodeConfig"
-            :btnTypesArr="[1, 2, 3, 5, 6]"
+            :btnTypesArr="[1, 2, 3, 5, 15]"
           ></BtnsArea>
           <!-- 配置 -->
           <draggable
@@ -220,6 +220,9 @@ export default {
     returnFirst(onlyFlag) {
       if (this.onlyFlag() === onlyFlag && this.tabsArr[0]) {
         this.configData.firstShowTabId = this.tabsArr[0].compId;
+        this.$nextTick(() => {
+          this.$broadcast('changeHeight');
+        });
       }
     },
     // 控制显示的tabs
@@ -280,6 +283,7 @@ export default {
           this.loadedTabs.push(v.name);
           this.$bus.$emit(`loadSomeArea_${v.name}`, v.name);
         }
+        this.$broadcast('changeHeight');
       });
       this.changeCurActiveObj();
     },

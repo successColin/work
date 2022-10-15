@@ -70,7 +70,7 @@ export default {
   computed: {
     getNameValue() {
       // 如果不是数组，取列表中的值，循环数组
-      return function(row) {
+      return function (row) {
         if (!Array.isArray(this.nameValue)) {
           return this.getObj(row)[this.nameValue];
         }
@@ -81,7 +81,7 @@ export default {
       return this.typesPropName && this.$store.getters.getCurDict(this.typesPropName);
     },
     getObj() {
-      return function(row) {
+      return function (row) {
         if (!this.typesPropName) {
           return row;
         }

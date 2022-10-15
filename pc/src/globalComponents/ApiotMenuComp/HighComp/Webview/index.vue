@@ -2,7 +2,7 @@
   <div
     class="webview"
     :id="configData.compId"
-    :style="getStyle"
+    :style="getStyle(false)"
     :class="[
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
@@ -13,12 +13,15 @@
     <iframe
       ref="Iframe"
       frameborder="0"
-      v-if="!isConfig && this.configData.showType === 2"
+      v-if="!isConfig && this.configData.showType === 2 && show"
       :src="`${getAdress}${paramsStr}`"
-      :style="getStyle"
+      :style="getStyle(true)"
       :key="configData.compId"
     ></iframe>
-    <div :style="getStyle" v-if="!isConfig && this.configData.showType === 1">
+    <div
+      :style="getStyle(true)"
+      v-if="!isConfig && this.configData.showType === 1"
+    >
       <HomeMenu :otherParams="otherParams"></HomeMenu>
     </div>
     <div class="webview__config" v-if="isConfig">{{ getAdress }}</div>
@@ -33,6 +36,7 @@
 
 <script>
 import HomeMenu from '@/views/HomeMenu';
+import { formatDate } from '@/utils/utils';
 import compMixin from '../../compMixin';
 
 export default {
@@ -43,7 +47,9 @@ export default {
       paramsStr: '',
       watchArr: [],
       curHeight: 200,
-      queryUrl: ''
+      selfHeight: 200,
+      queryUrl: '',
+      show: false
     };
   },
   mixins: [compMixin],
@@ -52,7 +58,7 @@ export default {
     HomeMenu
   },
 
-  inject: ['getAllForm', 'resolveFormula'],
+  inject: ['getAllForm', 'resolveFormula', 'getAllComp'],
 
   computed: {
     getAdress() {
@@ -66,22 +72,27 @@ export default {
     },
 
     getStyle() {
-      let style = '';
-      if (this.configData.sizeType === 1) {
-        style += `width:100%;height:${this.curHeight}px`;
-      }
-      if (this.configData.sizeType === 2) {
-        if (this.configData.width) {
-          style += `width:${this.configData.width};`;
+      return (flag) => {
+        let style = '';
+        if (this.configData.sizeType === 1) {
+          style += `width:100%;height:${this.selfHeight}px;`;
         }
-        if (this.configData.heightMul) {
-          style += `height:${this.configData.heightMul * 82}px;`;
+        if (this.configData.sizeType === 2) {
+          if (this.configData.width) {
+            style += `width:${this.configData.width};`;
+          }
+          if (this.configData.heightMul) {
+            style += `height:${this.configData.heightMul * 82}px;`;
+          }
         }
-      }
-      if (this.configData.sizeType === 3) {
-        style += `width:${this.configData.widthPix}px;height:${this.configData.heightPix}px;maxWidth: 100%;`;
-      }
-      return style;
+        if (this.configData.sizeType === 3) {
+          style += `width:${this.configData.widthPix}px;height:${this.configData.heightPix}px;maxWidth: 100%;`;
+        }
+        if (flag) {
+          style += 'width:100% !important;';
+        }
+        return style;
+      };
     }
   },
 
@@ -122,7 +133,7 @@ export default {
         } else if (type === 3) {
           url += '/ureport/pdf';
         }
-        link.href = `${this.$store.state.globalConfig.ureportConfig.ureportUrl}${url}?_u=${ureportObj.name}&_t=0&`;
+        link.href = `${this.$store.state.globalConfig.ureportConfig.ureportUrl}${url}?_u=file:${ureportObj.name}&_t=0&${this.paramsStr}`;
         link.style.display = 'none';
         body.appendChild(link);
         link.click();
@@ -151,6 +162,13 @@ export default {
           const height = document.getElementById(id).offsetHeight;
           // console.log(height);
           this.curHeight = height - 20;
+          const queryMainClass = document.getElementsByClassName('queryMain');
+
+          let selfH = 0;
+          for (let i = 0; i < queryMainClass.length; i += 1) {
+            selfH += queryMainClass[i].offsetHeight;
+          }
+          this.selfHeight = this.curHeight - selfH;
         }
       });
     },
@@ -176,6 +194,7 @@ export default {
       this.initParams();
     },
     initParams() {
+      this.show = false;
       let str = '?';
       if (this.getAdress.indexOf('?') !== -1) {
         str = '&';
@@ -186,12 +205,64 @@ export default {
           this.otherParams[params.name] = params.fixed;
           str += `${params.name}=${params.fixed}&`;
         } else {
-          this.otherParams[params.name] = this.resolveFormula(true, params.formula);
-          str += `${params.name}=${this.resolveFormula(true, params.formula)}&`;
+          const allComp = this.getAllComp();
+          const timeComp = allComp[params && params.formula.replace(/\$/g, '')] || {};
+          const { timeInterval, compType, dropDownType, dataSource } = timeComp;
+          let value = this.resolveFormula(true, params.formula);
+          if (compType === 8 || compType === 9) {
+            let type = '';
+            if (compType === 8) {
+              type = 'yyyy-MM-dd';
+            }
+            if (compType === 9) {
+              type = 'yyyy-MM-dd hh:mm:ss';
+            }
+            if (timeInterval) {
+              const timeArr = value.split(',');
+              const startTime = timeArr[0] && formatDate(new Date(timeArr[0]), type);
+              const endTime = timeArr[1] && formatDate(new Date(timeArr[1]), type);
+              str += `${params.name}_start=${startTime || ''}&${params.name}_end=${endTime || ''}&`;
+            } else {
+              if (value) {
+                value = formatDate(new Date(value), type);
+              }
+              str += `${params.name}=${value}&`;
+            }
+          } else if (compType === 2) {
+            if (dropDownType === 1) {
+              const arr = (dataSource && dataSource.dictObj && dataSource.dictObj.dictValue) || [];
+              console.log(typeof value);
+              if (value === 0) {
+                const arrVal = [];
+                arr.forEach((g) => {
+                  arrVal.push(g.value);
+                });
+                str += `${params.name}=${arrVal.join(',')}&`;
+              } else {
+                str += `${params.name}=${value}&`;
+              }
+            }
+            if (dropDownType === 2) {
+              const arr = (value && value.split(',')) || [];
+              const index = arr.indexOf('0');
+              if (index !== -1) {
+                arr.splice(index, 1);
+              }
+              str += `${params.name}=${arr.join(',')}&`;
+            }
+            console.log(value);
+          } else {
+            str += `${params.name}=${value}&`;
+          }
+          // this.otherParams[params.name] = value;
+          this.$set(this.otherParams, params.name, value);
         }
       });
       this.otherParams.id = this.configData.innerLink;
       this.paramsStr = str;
+      this.$nextTick(() => {
+        this.show = true;
+      });
     }
   }
 };

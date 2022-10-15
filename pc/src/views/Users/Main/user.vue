@@ -30,22 +30,27 @@
         ></FormItem>
       </apiot-drawer>
       <div class="wrap_saerchWrap_search">
-        <apiot-input
-          style="float: right; width: 200px; margin-top: 2px; text-align: right"
-          :placeholder="getPlaceholder()"
-          v-model="input"
-          @keyup.enter.native="doSearch"
-          @input="reset"
-          @focus="isActive = true"
-          slotType="prefix"
-        >
-          <i
-            slot="prefix"
-            class="iconfont icon-sousuo"
-            :class="isActive ? 'on' : ''"
-            @click="doSearch"
-          ></i>
-        </apiot-input>
+<!--        <apiot-input-->
+<!--          style="float: right; width: 200px; margin-top: 2px; text-align: right"-->
+<!--          :placeholder="getPlaceholder()"-->
+<!--          v-model="input"-->
+<!--          @keyup.enter.native="doSearch"-->
+<!--          @input="reset"-->
+<!--          @focus="isActive = true"-->
+<!--          slotType="prefix"-->
+<!--        >-->
+<!--          <i-->
+<!--            slot="prefix"-->
+<!--            class="iconfont icon-sousuo"-->
+<!--            :class="isActive ? 'on' : ''"-->
+<!--            @click="doSearch"-->
+<!--          ></i>-->
+<!--        </apiot-input>-->
+        <search-input
+            :placeholder="getPlaceholder()"
+            @getList="doSearch"
+            v-model="input"
+        ></search-input>
         <!--        <apiot-sys-import-->
         <!--          style="float: right"-->
         <!--          @FETCH_NEW_LIST="doSearch"-->
@@ -77,6 +82,8 @@
           :min-width="item.minWidth"
           :is="item.component"
           :type="item.type"
+          :nameValue="item.nameValue"
+          :objName="item.objName"
         ></component>
         <el-table-column
           :label="$t('knowledge.list_opea')"
@@ -95,6 +102,7 @@
         </el-table-column>
       </apiot-table>
       <Design
+        :key="key"
         :showTabs.sync="showDesign"
         :designObj="designObj"
         functionType="user"
@@ -126,7 +134,7 @@
         :selectedNum="selected.length"
         :total="total"
         :current-page="current"
-        :page-size="size"
+        :size="size"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         v-on:handle-cancel="doUnSelect"
@@ -136,17 +144,17 @@
 </template>
 
 <script>
-import cnchar from 'cnchar';
+// import cnchar from 'cnchar';
 import { errorMessageProcessing } from '@/utils/utils';
 // import animateList from '_u/animateList';
 import { getRoleLiistById } from '@/api/role';
 import { addUser, batchDel, doUpdateUserDataAuth, getUsersList, updateUser } from '@/api/user';
 import NormalColumn from './NormalColumn';
-import OrgAndRole from './OrgAndRole';
-import RoleColumn from './RoleColumn';
+// import OrgAndRole from './OrgAndRole';
+// import RoleColumn from './RoleColumn';
 import StateColumn from './StateColumn';
 import TagColumn from './TagColumn';
-import UserColumn from './UserColumn';
+// import UserColumn from './UserColumn';
 
 const Design = () => import('@/views/Role/RoleContent/AuthorityDesign/authorDesign');
 const Organization = () =>
@@ -169,31 +177,44 @@ export default {
       }
     };
     // 手机号码
-    // const phoneNumber = (rule, value, callback) => {
-    //   if (value === '') {
-    //     callback(new Error(this.$t('placeholder.pleaseEnterThePhoneNumber')));
-    //   } else {
-    // eslint-disable-next-line max-len
-    //     const regTel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
-    //     if (!regTel.test(value)) {
-    //       callback(new Error(this.$t('placeholder.pleaseEnterRightPhoneNumber')));
-    //     }
-    //     callback();
-    //   }
-    // };
+    const phoneNumber = (rule, value, callback) => {
+      if (!value) {
+        // callback(new Error(this.$t('placeholder.pleaseEnterThePhoneNumber')));
+        callback();
+      } else {
+        const regTel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
+        if (!regTel.test(value)) {
+          callback(new Error(this.$t('placeholder.pleaseEnterRightPhoneNumber')));
+        }
+        callback();
+      }
+    };
     // 邮箱
-    // const email = (rule, value, callback) => {
-    //   if (!value) {
-    //     callback(this.$t('placeholder.pleaseEnterYourUsualEmail'));
-    //   } else {
-    // eslint-disable-next-line max-len
-    //     const checkEmail = /^[a-z0-9]+([._-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-    //     if (!checkEmail.test(value)) {
-    //       callback(this.$t('placeholder.pleaseEnterRightEmail'));
-    //     }
-    //     callback();
-    //   }
-    // };
+    const email = (rule, value, callback) => {
+      if (!value) {
+        // callback(this.$t('placeholder.pleaseEnterYourUsualEmail'));
+        callback();
+      } else {
+        const checkEmail = /^[a-z0-9]+([._-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+        if (!checkEmail.test(value)) {
+          callback(this.$t('placeholder.pleaseEnterRightEmail'));
+        }
+        callback();
+      }
+    };
+    // 企业微信
+    const wechat = (rule, value, callback) => {
+      if (!value) {
+        // callback(this.$t('placeholder.pleaseEnterYourUsualEmail'));
+        callback();
+      } else {
+        const checkEmail = /^[^\u4e00-\u9fa5]{1,10}$/g;
+        if (!checkEmail.test(value)) {
+          callback(this.$t('placeholder.pleaseEnterRightwechat'));
+        }
+        callback();
+      }
+    };
     // 组织
     const orgid = (rule, value, callback) => {
       if (!this.formData.orgObj || !this.formData.orgObj.id) {
@@ -203,11 +224,13 @@ export default {
       }
     };
     return {
+      key: 0,
       columnArr: [
         {
           prop: 'username',
           label: 'user.username',
           showTooltip: false,
+          minWidth: 150,
           component: 'UserColumn',
           sortable: 'custom'
         },
@@ -215,6 +238,7 @@ export default {
           prop: 'account',
           label: 'user.account',
           showTooltip: false,
+          minWidth: 150,
           component: 'NormalColumn',
           sortable: 'custom'
         },
@@ -222,6 +246,7 @@ export default {
           prop: 'telephone',
           label: 'user.telephone',
           showTooltip: false,
+          minWidth: 150,
           component: 'NormalColumn',
           sortable: 'custom'
         },
@@ -253,14 +278,16 @@ export default {
           label: 'user.roleNames',
           minWidth: 150,
           showTooltip: true,
-          component: 'RoleColumn'
+          component: 'RoleColumn',
+          nameValue: 'roleArr',
+          objName: 'roleName'
         },
-        {
-          prop: 'userLabel',
-          label: 'user.userLabel',
-          'show-overflow-tooltip': true,
-          component: 'TagColumn'
-        }
+        // {
+        //   prop: 'userLabel',
+        //   label: 'user.userLabel',
+        //   'show-overflow-tooltip': true,
+        //   component: 'TagColumn'
+        // }
       ],
       currentRowkey: '',
       total: 0, // 总条数
@@ -268,7 +295,7 @@ export default {
       defaultLeftType: 'org', // 默认组织类型
       selectKey: {}, // 左边树选中的数据
       current: 1, // 默认第一页
-      size: 10, // 一页10条
+      size: 20, // 一页10条
       orgcustom: {}, // 组织弹框信息
       designObj: {}, // 设计的角色内容
       showDesign: false, // 是否进入设计界面
@@ -313,20 +340,27 @@ export default {
             validator: validAccount
           }
         ],
-        // telephone: [
-        //   {
-        //     required: true,
-        //     trigger: 'blur',
-        //     validator: phoneNumber
-        //   }
-        // ],
-        // email: [
-        //   {
-        //     required: true,
-        //     trigger: 'change',
-        //     validator: email
-        //   }
-        // ],
+        telephone: [
+          {
+            required: false,
+            trigger: 'blur',
+            validator: phoneNumber
+          }
+        ],
+        wechat: [
+          {
+            required: false,
+            trigger: 'blur',
+            validator: wechat
+          }
+        ],
+        email: [
+          {
+            required: false,
+            trigger: 'change',
+            validator: email
+          }
+        ],
         orgid: [
           {
             required: true,
@@ -345,10 +379,10 @@ export default {
     Organization,
     NormalColumn,
     StateColumn,
-    OrgAndRole,
-    RoleColumn,
-    TagColumn,
-    UserColumn
+    // OrgAndRole,
+    // RoleColumn,
+    TagColumn
+    // UserColumn
   },
   watch: {
     group: {
@@ -480,27 +514,29 @@ export default {
             roleIds,
             roleNames,
             userStateDict,
-            userLabel,
+            // userLabel,
             userPostId,
             userPostName,
             orgId,
             orgName,
-            id
+            id,
+            icon
           } = item;
           const colors = ['#5A80ED', '#FAB71C', '#FC8256', '#EE5E5E', '#34C7BE'];
           const { USER_STATE = [] } = this.userData || {};
           const currentState = USER_STATE.find((obj) => Number(obj.value) === userStateDict) || {};
           const languageType = window.localStorage.getItem('apiotLanguage') || 'zhCN';
           const userStateDictName = currentState[languageType] || ''; // todo
-          item.avtor = cnchar.spell(item.username, 'first', 'up');
-          const len = item.avtor.length;
-          item.avtor = item.avtor.substr(len - 2, 2);
+          // item.avtor = cnchar.spell(item.username, 'first', 'up');
+          // const len = item.avtor.length;
+          // item.avtor = item.avtor.substr(len - 2, 2);
           item.color = `background:${colors[id % 5]}`;
           item.userStateDictName = userStateDictName;
           item.roleArr = this.reduceArr(roleIds, roleNames);
-          item.userLabel = userLabel && userLabel.indexOf('[') > -1 ? JSON.parse(userLabel) : [];
-          item.tags = userLabel && userLabel.indexOf('[') > -1 ? JSON.parse(userLabel) : [];
+          // item.userLabel = userLabel && userLabel.indexOf('[') > -1 ? JSON.parse(userLabel) : [];
+          // item.tags = userLabel && userLabel.indexOf('[') > -1 ? JSON.parse(userLabel) : [];
           item.roles = item.roleArr;
+          item.icon = icon ?? { imageUrl: '', icon: '', color: '' };
           item.posObj = item.userPostId
             ? {
               id: userPostId,
@@ -602,6 +638,8 @@ export default {
     doDesign(row) {
       // 进入设计界面
       this.showDesign = true;
+      // this.key += 1;
+      this.activename = 'PCDesign';
       this.designObj = row;
     },
     handleSubmit() {
@@ -609,7 +647,7 @@ export default {
       this.$refs.dynamicValidateForm.$children[0].validate(async (valid) => {
         if (valid) {
           const api = this.formData.id ? updateUser : addUser;
-          const { tags = [], roles = [], orgObj = {}, posObj = {}, ...rest } = this.formData;
+          const { roles = [], orgObj = {}, posObj = {}, ...rest } = this.formData;
           const roleIds = roles.length ? roles.map((item) => item.id).join(',') : '';
           const logData = {
             operateType: 2,
@@ -646,7 +684,6 @@ export default {
           };
           let params = {
             ...rest,
-            userLabel: tags.length ? JSON.stringify(tags) : '',
             roleIds,
             orgId: orgObj.id || '',
             userPostId: posObj.id || '',
@@ -666,7 +703,7 @@ export default {
             this.currentRowkey = res.id;
             this.visible = false;
             this.formData = {};
-            this.fetchUserList(this.selectKey);
+            await this.fetchUserList(this.selectKey);
           } catch (e) {
             let newError = {};
             Object.keys(e).forEach((item) => {
@@ -859,7 +896,7 @@ export default {
       width: 450px;
       float: right;
       height: 30px;
-      margin-top: 0.3px;
+      margin-top: 2px;
       //text-align: right;
 
       ::v-deep {

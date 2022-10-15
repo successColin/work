@@ -12,7 +12,8 @@ $--font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
 .el-input,
 .el-form-item__content,
 .el-table,
-.el-dropdown {
+.el-dropdown,
+.el-textarea {
   font-size: 13px;
 }
 // input 框样式调整
@@ -400,7 +401,7 @@ $--font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
   line-height: 30px;
 }
 
-.el-form--label-top .el-form-item__label {
+.el-form--label-top .el-form-item__label, .el-form--label-right .el-form-item__label {
   display: inline-flex;
   line-height: 1;
   font-size: 13px;
@@ -1301,6 +1302,7 @@ $--font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
 
 .el-textarea.is-disabled .el-textarea__inner {
   cursor: default !important;
+  color: #808080;
 }
 
 .el-table .el-table__header-wrapper th.is-leaf:nth-last-child(2) {
@@ -1341,4 +1343,16 @@ $--font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
       text-align: center;
     }
   }
+}
+
+.el-slider__button-wrapper{
+  z-index: 90;
+}
+
+.el-range-editor .el-range-input {
+  width: 50%;
+}
+
+.el-input__inner, .el-range-input {
+  cursor: pointer;
 }

@@ -7,17 +7,18 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
-      { onelineCalss: isLayoutStyle },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span style="white-space: nowrap"> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
           placement="top"
@@ -141,6 +142,9 @@ export default {
         color: #333333;
         display: flex;
       }
+    }
+    .el-form-item__error {
+      z-index: 1;
     }
   }
   .table {

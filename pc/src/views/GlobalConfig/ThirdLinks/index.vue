@@ -5,7 +5,11 @@
       >{{ $t('common.add', { name: '' }) }}</apiot-button
     >
     <ul class="thirdLinks__ul" v-loading="loading">
-      <li class="thirdLinks__li" v-for="item in linksData" :key="item.unique">
+      <li
+        class="thirdLinks__li"
+        v-for="(item, index) in linksData"
+        :key="item.unique"
+      >
         <el-form
           :model="item"
           :rules="rules"
@@ -130,19 +134,22 @@ export default {
       }
     },
     async deleteThirdLink(item, index) {
-      console.log(item, index);
-      const params = {
-        id: item.id
-      };
-      this.loading = true;
-      await batchDelete(params);
-      await this.$store.dispatch('fetchConfigFun');
-      this.linksData = JSON.parse(JSON.stringify(this.$store.state.globalConfig.thirdLinks));
-      this.$message({
-        type: 'success',
-        message: this.$t('common.deleteSuccess')
-      });
-      this.loading = false;
+      if (item.id) {
+        const params = {
+          id: item.id
+        };
+        this.loading = true;
+        await batchDelete(params);
+        await this.$store.dispatch('fetchConfigFun');
+        this.linksData = JSON.parse(JSON.stringify(this.$store.state.globalConfig.thirdLinks));
+        this.$message({
+          type: 'success',
+          message: this.$t('common.deleteSuccess')
+        });
+        this.loading = false;
+      } else {
+        this.linksData.splice(index, 1);
+      }
     }
   }
 };

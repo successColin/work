@@ -26,6 +26,7 @@
               :otherParams="otherParams"
               :dialogType="4"
               :isSelPanel="isSelPanel"
+              :isApp="isApp"
               @selectRes="selectPane"
             ></filterable-input>
             <el-select
@@ -53,7 +54,7 @@
       <apiot-button
         class="dataTransferBtn"
         @click="addDataTransfer"
-        v-if="Object.keys(allArea).length"
+        v-if="Object.keys(allArea).length && !isVariables"
       >
         <i class="iconfont icon-xinzeng m-r-4"></i>添加数据传递
       </apiot-button>
@@ -84,9 +85,10 @@
             >
               <el-option :value="1" label="组件">组件</el-option>
               <el-option :value="2" label="固定值">固定值</el-option>
+              <el-option :value="3" label="公式">公式</el-option>
             </el-select>
             <select-comp
-              v-if="!isCustomPage && item.mainComp.type !== 2"
+              v-if="!isCustomPage && item.mainComp.type === 1"
               class="dataTransfer__item--comp2"
               placeholder="请选择当前面板的控件"
               :configData="configData"
@@ -99,6 +101,15 @@
               v-model="item.mainComp.fixedValue"
               placeholder="请输入固定值"
             ></apiot-input>
+            <select-formula
+              v-if="!isCustomPage && item.mainComp.type === 3"
+              :configData="configData"
+              class="dataTransfer__item--comp2"
+              :triggerCompMap="triggerCompMap"
+              v-model="item.mainComp.fixedValue"
+              v-bind="$attrs"
+              :variables="variables"
+            ></select-formula>
             <apiot-input
               class="dataTransfer__item--comp4"
               v-if="isCustomPage"
@@ -197,6 +208,7 @@
             :getCurrentTab="item"
             :configData="configData"
             :triggerCompMap="triggerCompMap"
+            :variables="variables"
             v-bind="$attrs"
           ></TermComp>
         </li>
@@ -209,6 +221,7 @@
 import { getSysDesignMenu } from '@/api/menuConfig';
 import TermComp from '../FilterPane/TermComp';
 import SelectComp from '../../GlobalConfig/components/AddAction/components/SelectComp';
+import SelectFormula from '../../GlobalConfig/components/AddAction/components/SelectFormula';
 
 export default {
   props: {
@@ -238,7 +251,7 @@ export default {
     },
     // 是不是选择面板
     isSelPanel: {
-      type: Boolean,
+      type: [Boolean, Number],
       default: false
     },
     // 所有组件平坦化
@@ -247,7 +260,15 @@ export default {
     },
     panelCompId: {
       type: String
-    }
+    },
+    // 是否app
+    isApp: {
+      type: Number,
+      default: null
+    },
+    variables: {
+      type: Array
+    },
   },
   computed: {
     canAddArea() {
@@ -388,6 +409,9 @@ export default {
     },
     getPanelCompId() {
       return this.panelCompId || this.activeObj.compId;
+    },
+    isVariables() {
+      return this.$route.path === '/messageTemplate';
     }
   },
   data() {
@@ -429,7 +453,8 @@ export default {
 
   components: {
     TermComp,
-    SelectComp
+    SelectComp,
+    SelectFormula
   },
 
   methods: {

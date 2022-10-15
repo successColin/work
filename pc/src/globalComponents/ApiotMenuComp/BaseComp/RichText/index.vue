@@ -148,25 +148,30 @@ export default {
               formData.append('files', file);
               formData.append('menuId', this.$route.params.id);
               const res = await batchUpload(formData);
-              res.forEach((item) => {
-                insertFn(item.url, item.name, item.url);
+              res.forEach(async (item) => {
+                const url = `/api/v1//system/waterMark/addWaterMark?url=${item.url}`;
+                insertFn(this.$parseImgUrl(url), item.name, this.$parseImgUrl(url));
               });
             }
           },
           uploadVideo: {
-            // 自定义上传图片
+            // 自定义上传视屏
             customUpload: async (file, insertFn) => {
               const formData = new FormData();
               formData.append('files', file);
               formData.append('menuId', this.$route.params.id);
               const res = await batchUpload(formData);
               res.forEach((item) => {
-                insertFn(item.url, item.name, item.url);
+                insertFn(this.$parseImgUrl(item.url), item.name, this.$parseImgUrl(item.url));
               });
             }
           }
         }
       };
+    },
+    setRichValue() {
+      this.$refs.submit.editor.clear();
+      this.$refs.submit.setValue(this.parent.form[this.configData.compId]);
     }
   }
 };

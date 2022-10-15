@@ -14,11 +14,34 @@
     <section class="header__bg" :style="getbg"></section>
     <section class="header__bgOpi"></section>
     <section class="header__animate">
-      <i class="iconfont icon-dingbudonghuatuansan animate"></i>
-      <i class="iconfont icon-dingbudonghuatuaner animate"></i>
-      <i class="iconfont icon-dingbudonghuatuansan animate"></i>
-      <i class="iconfont icon-dingbudonghuatuanyi animate"></i>
-      <i class="iconfont icon-dingbudonghuatuaner animate"></i>
+      <i
+        class="iconfont icon-dingbudonghuatuansan animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuaner animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuansan animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuanyi animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuaner animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <img
+        :src="
+          $parseImgUrl(
+            $store.state.globalConfig.themeConfig.topStyleIcon.slice(0, -1)
+          )
+        "
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '3'"
+      />
     </section>
     <section class="header__content">
       <header-menu
@@ -245,12 +268,16 @@
     />
     <apiot-drawer
       :visible.sync="showMessage"
+      :class="{showTaskMessage: showTaskMessage}"
+      class="drawerMessage"
       destroy-on-close
       ref="apiotDrawer"
       :title="$t('messageShow.MessageNotification')"
       :hasFooter="false"
     >
-      <message-show @readCountChanged="allCount" />
+      <message-show
+        :showMessage.sync="showMessage"
+        :showTaskMessage.sync="showTaskMessage" @readCountChanged="allCount" />
     </apiot-drawer>
   </div>
 </template>
@@ -418,7 +445,8 @@ export default {
       isHover: false,
       showMessage: false,
       timer2: null,
-      timer1: null
+      timer1: null,
+      showTaskMessage: false
     };
   },
 
@@ -446,7 +474,9 @@ export default {
     getUrl() {
       const url = this.$store.state.globalConfig.themeConfig.homePageLogo;
       const newUrl = url === '0' ? '' : url;
-      return newUrl ? newUrl.substr(0, newUrl.length - 1) : this.$store.state.globalConfig.logoUrl;
+      return newUrl
+        ? this.$parseImgUrl(newUrl.substr(0, newUrl.length - 1))
+        : require('./images/logo.png');
     },
     getAbridegName() {
       return fontChange(this.name);
@@ -466,12 +496,18 @@ export default {
       return [];
     },
     getImg() {
-      return (key) =>
-        this.$store.state.globalConfig.themeConfig[key] &&
-        this.$store.state.globalConfig.themeConfig[key].substr(
-          0,
-          this.$store.state.globalConfig.themeConfig[key].length - 1
-        );
+      return (key) => {
+        //
+        if (this.$store.state.globalConfig.themeConfig[key]) {
+          return this.$parseImgUrl(
+            this.$store.state.globalConfig.themeConfig[key].substr(
+              0,
+              this.$store.state.globalConfig.themeConfig[key].length - 1
+            )
+          );
+        }
+        return '';
+      };
     }
   },
   watch: {
@@ -482,10 +518,17 @@ export default {
         }
       }
     },
-    '$store.state.globalConfig.themeConfig.enableMessage': {
+    '$store.state.globalConfig.messageConfig.enableMessage': {
       handler(v) {
         if (v === '1') {
           this.initMessage();
+        }
+      }
+    },
+    showTask: {
+      handler(v) {
+        if (!v) {
+          this.activeName = 'LeaveItToMe';
         }
       }
     }
@@ -507,7 +550,8 @@ export default {
     // this.timer2 = setInterval(() => {
     //   this.initTask();
     // }, 60 * 1000);
-    const { enableMessage, enableApprovalProcess } = this.$store.state.globalConfig.themeConfig;
+    const { enableApprovalProcess } = this.$store.state.globalConfig.themeConfig;
+    const { enableMessage } = this.$store.state.globalConfig.messageConfig;
     if (enableMessage === '1' || enableApprovalProcess === '1') {
       this.initWebSocket();
     }
@@ -515,7 +559,8 @@ export default {
 
   methods: {
     allCount() {
-      const { enableMessage, enableApprovalProcess } = this.$store.state.globalConfig.themeConfig;
+      const { enableApprovalProcess } = this.$store.state.globalConfig.themeConfig;
+      const { enableMessage } = this.$store.state.globalConfig.messageConfig;
       if (enableMessage === '1') {
         this.initMessage();
       }
@@ -525,19 +570,20 @@ export default {
     },
     initWebSocket() {
       this.connection();
-      const that = this;
-      // 断开重连机制,尝试发送消息,捕获异常发生时重连
-      this.timer2 = setInterval(() => {
-        try {
-          that.stompClient.send('test');
-        } catch (err) {
-          that.connection();
-        }
-      }, 5000);
+      // const that = this;
+      // // 断开重连机制,尝试发送消息,捕获异常发生时重连
+      // this.timer2 = setInterval(() => {
+      //   try {
+      //     that.stompClient.send('test');
+      //   } catch (err) {
+      //     that.connection();
+      //   }
+      // }, 5000);
     },
     connection() {
       // 建立连接对象
       const { socketUrl } = this.$store.state.globalConfig.messageConfig;
+      if (!socketUrl) return;
       const socket = new SockJS(`${socketUrl}/welcome`);
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
@@ -557,7 +603,7 @@ export default {
             `/user/${account}/msg`,
             () => {
               // 订阅服务端提供的某个topic
-              // console.log('广播成功');
+              console.log('广播成功');
               that.allCount();
               // console.log(msg); // msg.body存放的是服务端发送给我们的信息
             },
@@ -578,6 +624,7 @@ export default {
     disconnect() {
       if (this.stompClient) {
         this.stompClient.disconnect();
+        this.stompClient.unsubscribe();
       }
     }, // 断开连接
     setSocket(path) {
@@ -784,6 +831,8 @@ $iconNavWidth: 44px;
     top: 0;
     bottom: 0;
     overflow: hidden;
+    display: flex;
+    align-items: center;
 
     & > .iconfont {
       position: absolute;
@@ -1017,6 +1066,11 @@ $iconNavWidth: 44px;
     .el-drawer__close-btn {
       position: relative;
       z-index: 1;
+    }
+    .showTaskMessage{
+      .el-drawer__close-btn {
+        display: none;
+      }
     }
   }
 }

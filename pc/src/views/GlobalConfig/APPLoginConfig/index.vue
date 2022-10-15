@@ -29,7 +29,7 @@
 
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
             <div
-              v-if="[0, 1, 2, 3].includes(i)"
+              v-if="[0, 1, 2, 3, 11].includes(i)"
               style="flex: none"
               class="common"
             >
@@ -94,8 +94,46 @@
                 {{ changeBtnName(statement.isLoginStyle) }}
               </apiot-button>
             </div>
-            <!-- 登录页主题色 -->
+            <!-- 系统标题 -->
             <div v-if="i === 6" class="common">
+              <div v-if="!statement.isWelcomeTitle">
+                {{ welcomeTitle }}
+              </div>
+              <apiot-input
+                :style="selectWidth"
+                v-else
+                v-model="welcomeTitle"
+                @change="handleChangeSelectVal('welcomeTitle', $event)"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isWelcomeTitle', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isWelcomeTitle) }}
+              </apiot-button>
+            </div>
+            <!-- 系统标题 -->
+            <div v-if="i === 7" class="common">
+              <div v-if="!statement.isBottomText">
+                {{ bottomText }}
+              </div>
+              <apiot-input
+                :style="selectWidth"
+                v-else
+                v-model="bottomText"
+                @change="handleChangeSelectVal('bottomText', $event)"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isBottomText', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isBottomText) }}
+              </apiot-button>
+            </div>
+            <!-- 登录页主题色 -->
+            <div v-if="i === 8" class="common">
               <div class="colorWrap">
                 <div
                   class="colorBox"
@@ -114,7 +152,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="[7].includes(i)" class="common">
+            <div v-if="[9].includes(i)" class="common">
               <div v-if="!statement.isUpload">
                 <span v-if="params.agreementUrl">{{
                   $t('globalConfig.UploadProtocol')
@@ -168,7 +206,7 @@
             </div>
             <!-- 登录页轮播图 -->
             <div
-              v-if="i === 8"
+              v-if="i === 10"
               class="passwordConfig__logo common"
               style="line-height: 48px"
             >
@@ -180,7 +218,7 @@
                   v-for="(item, i) in loopMaps"
                   class="userImage m-r-4"
                   style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="item.url"
+                  :src="$parseImgUrl(item.url)"
                   :key="item.url + '__' + i"
                   fit="cover"
                 ></el-image>
@@ -204,7 +242,7 @@
                 <div slot="file" slot-scope="{ file }">
                   <img
                     class="el-upload-list__item-thumbnail"
-                    :src="file.url"
+                    :src="$parseImgUrl(file.url)"
                     alt=""
                   />
                   <span class="el-upload-list__item-actions">
@@ -227,7 +265,7 @@
             </div>
             <!-- 登录页LOGO -->
             <div
-              v-if="i === 9"
+              v-if="i === 12"
               class="passwordConfig__logo common"
               style="line-height: 48px"
             >
@@ -239,43 +277,19 @@
                   fit="cover"
                   v-if="loginImg"
                   style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="loginImg"
+                  :src="$parseImgUrl(loginImg)"
                   class="userImage m-r-4"
                 >
                 </el-image>
               </div>
-              <el-upload
-                v-else
-                class="uploadWrap"
-                :class="{ uploadHide: loginMaps.length === 1 }"
-                :file-list="loginMaps"
-                list-type="picture-card"
-                action="/"
-                :on-success="
-                  (response, file) => handleChange(response, file, 'loginMaps')
-                "
-                :multiple="false"
-                :before-upload="beforeUpload"
-                :accept="accept"
-                :http-request="doUpload"
-              >
-                <i slot="default" class="el-icon-plus"></i>
-                <div slot="file" slot-scope="{ file }">
-                  <img
-                    class="el-upload-list__item-thumbnail"
-                    :src="file.url"
-                    alt=""
-                  />
-                  <span class="el-upload-list__item-actions">
-                    <span
-                      class="el-upload-list__item-delete"
-                      @click="handleRemove(file, 'loginMaps')"
-                    >
-                      <i class="el-icon-delete"></i>
-                    </span>
-                  </span>
-                </div>
-              </el-upload>
+              <image-and-change
+                v-if="statement.isRegistration"
+                ref="loginLogo"
+                :imgObj="loginObj"
+                :imgWidth="loginWidth"
+                @change-image-width="changeWidth"
+                :max="40"
+              />
               <apiot-button
                 type="text"
                 class="passwordConfig__operation"
@@ -296,8 +310,15 @@
 <script>
 import { commonUpdate, getListByKey, updateImages } from '@/api/globalConfig';
 import { selectColorArr } from '@/config';
+import ImageAndChange from '../components/ImageAndChange';
 
 export default {
+  props: {
+    selectWidth: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       loading: false,
@@ -313,7 +334,9 @@ export default {
         isLoopPics: false, // l轮播图
         isClickErrorCount: false, // 错误次数点击
         isLoginStyle: false, // 登陆风格
-        isSsoType: false // 是否单点登录
+        isSsoType: false, // 是否单点登录
+        isWelcomeTitle: '', // 欢迎登录名称
+        isBottomText: false // 底部自定义文字
       },
       loginObj: {}, // login url
       loopMaps: [],
@@ -333,10 +356,13 @@ export default {
       ssoType: 1,
       themeColor: 1,
       themeStyleArr: [],
-      ssoTypeArr: [] // 类型数组
+      ssoTypeArr: [], // 类型数组
+      welcomeTitle: '', // 欢迎登录名称
+      bottomText: false, // 底部自定义文字
+      loginWidth: 20,
     };
   },
-  components: {},
+  components: { ImageAndChange },
   created() {},
   mounted() {
     this.initColor();
@@ -412,6 +438,18 @@ export default {
           attributeKey: 'style'
         },
         {
+          name: '欢迎登录名称',
+          col: 12,
+          key: 'welcomeTitle',
+          attributeKey: 'welcomeTitle'
+        },
+        {
+          name: '底部自定义文字',
+          col: 12,
+          key: 'bottomText',
+          attributeKey: 'bottomText'
+        },
+        {
           name: this.$t('globalConfig.themeColor'),
           col: 24,
           key: 'themeColor',
@@ -425,9 +463,15 @@ export default {
         },
         {
           name: this.$t('globalConfig.LoginAppBg'),
-          col: 24,
+          col: 12,
           key: 'backgroundUrl',
           attributeKey: 'backgroundUrl'
+        },
+        {
+          name: this.$t('globalConfig.enableLoginFirst'),
+          col: 12,
+          key: 'enableLoginFirstApp',
+          attributeKey: 'enableLoginFirstApp'
         },
         {
           name: this.$t('globalConfig.LoginAppLogo'),
@@ -547,6 +591,7 @@ export default {
     },
     changeWidth(value) {
       // 改变logo宽度
+      console.log(value);
       this.loginWidth = value;
     },
     async init() {
@@ -570,6 +615,14 @@ export default {
       this.ssoType = Number(ssoType.attributeValue);
       const themeColorObj = this.response.find((item) => item.attributeKey === 'themeColor') || {};
       this.themeColor = Number(themeColorObj.attributeValue);
+      const welObj = this.response.find((item) => item.attributeKey === 'welcomeTitle') || {};
+      this.welcomeTitle = welObj.attributeValue;
+      const cusObj = this.response.find((item) => item.attributeKey === 'bottomText') || {};
+      this.bottomText = cusObj.attributeValue;
+      const logoObjWidth =
+        this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
+      this.loginWidth = Number(logoObjWidth.attributeValue);
+      this.loopMaps = [];
       const makeUrlArr = (value, key) => {
         if (value) {
           const arr = value.split(',');
@@ -651,11 +704,38 @@ export default {
         await update(formData);
       }
     },
+    async logoSave(key = 'loginLogo') {
+      // 登录logo保存
+      const formData = new FormData();
+      console.log(this.$refs[key]);
+      const { fileList } = this.$refs[key][0];
+      const imageObj = this.response.find((item) => item.attributeKey === key);
+      const newImageObj = JSON.parse(JSON.stringify(imageObj));
+      delete newImageObj.attributeValue;
+      Object.keys(newImageObj).forEach((item) => {
+        formData.append(item, newImageObj[item]);
+      });
+      const update = async (paramsForm) => {
+        try {
+          await updateImages(paramsForm);
+          this.loopMaps = [];
+        } catch (e) {
+          // console.log(e);
+        }
+      };
+      if (fileList.length && Object.keys(fileList[0]).length > 3) {
+        formData.append('files', fileList[0].raw);
+        await update(formData);
+      } else if (!fileList.length) {
+        formData.append('files', '');
+        await update(formData);
+      }
+    },
     async handleChangeCount(key, attr, arrKey) {
       // 滑块显示设置
       if (this.statement[key]) {
         this.loading = true;
-        if (key === 'isLoopPics' || key === 'isRegistration') {
+        if (key === 'isLoopPics') {
           await this.saveLoopMap(attr, arrKey);
           this.statement[key] = !this.statement[key];
           return;
@@ -670,7 +750,13 @@ export default {
           this.statement[key] = !this.statement[key];
           return;
         }
-        if (key === 'isLoginStyle' || key === 'isSsoType') {
+        if (
+          key === 'isLoginStyle' ||
+          key === 'isSsoType' ||
+          key === 'isBottomText' ||
+          key === 'isWelcomeTitle' ||
+          key === 'isRegistration'
+        ) {
           const currentObj = this.response.find((item) => item.attributeKey === attr);
           // 登录logo保存
           let params = {};
@@ -684,6 +770,24 @@ export default {
               ...currentObj,
               attributeValue: this.ssoType
             };
+          } else if (key === 'isWelcomeTitle') {
+            params = {
+              ...currentObj,
+              attributeValue: this.welcomeTitle
+            };
+          } else if (key === 'isBottomText') {
+            params = {
+              ...currentObj,
+              attributeValue: this.bottomText
+            };
+          } else if (key === 'isRegistration') {
+            await this.logoSave();
+            const widthObj = this.response.find((item) => item.attributeKey === 'loginLogoWidth');
+            const { imgWidth } = this.$refs.loginLogo[0];
+            params = {
+              ...widthObj,
+              attributeValue: imgWidth
+            };
           }
 
           try {
@@ -692,6 +796,7 @@ export default {
               type: 'success',
               message: this.$t('common.successfullyModified')
             });
+            await this.init();
             this.loading = false;
           } catch (e) {
             this.loading = false;
@@ -711,6 +816,10 @@ export default {
         this.onlineTimeVal = val;
       } else if (name === 'periodValidity') {
         this.periodValidityValue = val;
+      } else if (name === 'welcomeTitle') {
+        this.welcomeTitle = val;
+      } else if (name === 'bottomText') {
+        this.bottomText = val;
       }
     }
   },

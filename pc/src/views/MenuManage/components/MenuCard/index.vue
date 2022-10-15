@@ -26,7 +26,6 @@
           >
             {{ item.menuName }}
           </p>
-          <!-- <p v-showEllipsis>{{ groupName }}</p> -->
         </div>
       </div>
       <div class="menuCard__bottom">
@@ -43,6 +42,18 @@
             </el-tooltip>
             <el-tooltip
               effect="dark"
+              content="移动"
+              :enterable="false"
+              placement="bottom"
+            >
+              <i
+                class="iconfont icon-qiehuan"
+                @click="moveMenu"
+                v-if="item.menuType !== 1 && groupId !== 16"
+              ></i>
+            </el-tooltip>
+            <el-tooltip
+              effect="dark"
               :content="$t('role.copy', { name: '' })"
               :enterable="false"
               placement="bottom"
@@ -50,7 +61,7 @@
               <i
                 class="iconfont icon-fuzhi"
                 @click.stop="copyMenu"
-                v-if="item.menuType !== 1 && groupMenuCode !== 'sysHome'"
+                v-if="item.menuType !== 1 && groupId !== 16"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -62,7 +73,7 @@
               <i
                 class="iconfont icon-shanchu"
                 @click="deleteMenu"
-                v-if="item.menuType !== 1 && groupMenuCode !== 'sysHome'"
+                v-if="item.menuType !== 1 && groupId !== 16"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -74,7 +85,7 @@
               <i
                 class="iconfont icon-jiechuguanlian"
                 @click="deleteMenu"
-                v-if="groupMenuCode === 'sysHome'"
+                v-if="groupId === 16"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -97,7 +108,7 @@
         </transition>
         <i
           class="iconfont icon-caidansheji"
-          v-if="item.menuType !== 1 && groupMenuCode !== 'sysHome'"
+          v-if="item.menuType !== 1 && groupId !== 16"
           @click="enterMenuRole"
         ></i>
       </div>
@@ -168,10 +179,6 @@ export default {
     },
     // 模块表示
     groupMenuCode: {
-      type: String,
-      default: ''
-    },
-    groupName: {
       type: String,
       default: ''
     }
@@ -276,6 +283,9 @@ export default {
     editMenu() {
       this.menuName = this.item.menuName;
       this.item.state = 3;
+    },
+    moveMenu() {
+      this.$emit('moveMenu', this.item, this.index);
     },
     // 复制菜单
     async copyMenu() {

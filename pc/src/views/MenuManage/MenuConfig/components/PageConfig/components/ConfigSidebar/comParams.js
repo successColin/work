@@ -25,6 +25,7 @@ export const TextCom = {
     alias: '', // 表别名
     dictObj: null, // 字典表数据
   }, // 数据源
+  enableTableSearch: false, // 是否启用表头搜索
   singleStatus: 1, // 1 普通 2只读 3禁用 4隐藏 2，3合并了
   canShow: true,
   canReadonly: false,
@@ -64,7 +65,9 @@ export const SelectCom = {
     dictObj: null, // 字典表数据
   },
   sort: 1, // 1 升序 2 降序
+  effectDict: [], // 字典生效值
   dropDownStyle: 1, // 1 普通风格 2 背景展示风格 3 个性图标风格
+  enableTableSearch: false, // 是否启用表头搜索
   singleStatus: 1, // 控件状态 只读 禁用 隐藏 等
   canShow: true,
   canReadonly: false,
@@ -72,6 +75,7 @@ export const SelectCom = {
   tableWidth: '0.1',
   shouldRequired: false,
   submitType: 1, // 1 始终提交 2 仅显示时提交 3 始终不提交
+  enableAll: 2, // 是否启动全部
 };
 
 // 数据单选框
@@ -125,6 +129,7 @@ export const DataOneBoxCom = {
   relateType: 1, // 弹窗类型 1是面板 2是菜单
   dialogName: 'PanelDialog', // 弹窗风格
   dialogTitle: '',
+  enableTableSearch: false, // 是否启用表头搜索
   singleStatus: 1,
   canShow: true,
   canReadonly: false,
@@ -197,6 +202,7 @@ export const DataMultiBoxCom = {
   relateType: 1, // 弹窗类型 1是面板 2是菜单
   dialogName: 'PanelDialog', // 弹窗风格
   dialogTitle: '',
+  enableTableSearch: false, // 是否启用表头搜索
   singleStatus: 1,
   canShow: true,
   canReadonly: false,
@@ -219,8 +225,8 @@ export const DateTimeCom = {
   propertyCompName: 'DateTimePickerBoxConfig',
   labelName: '日期时间框',
   placeholder: '请选择日期时间',
-  startPlaceholder: '请选择开始日期时间',
-  endPlaceholder: '请选择结束日期时间',
+  startPlaceholder: '请选择开始时间',
+  endPlaceholder: '请选择结束时间',
   helpInfo: '',
   // fieldName: '', // 字段名
   dataSource: {
@@ -232,6 +238,7 @@ export const DateTimeCom = {
     alias: '',
     dictObj: null, // 字典表数据
   },
+  enableTableSearch: false, // 是否启用表头搜索
   singleStatus: 1,
   canShow: true,
   canReadonly: false,
@@ -268,8 +275,8 @@ export const ButtonCom = {
   exportType: 1, // 导出类型
   buttonStyle: 'primary', // 样式
   buttonForm: 1, // 风格
-  iconColor: '#5A80ED', // 图标颜色
-  iconFont: 'iconfont-xinzeng', // 图标
+  iconColor: '#4689f5', // 图标颜色
+  iconFont: 'icon-xinzeng', // 图标
   ruleArr: [
     // {
     //   ruleContent: '123',  // 规则内容
@@ -289,6 +296,7 @@ export const ButtonCom = {
       // }
     ],
   },
+  singleStatus: 1,
   enableLog: false, // 是否启用日志
   logComp: [], // 操作日志组件数组
   execFunc: false, // 允许执行函数
@@ -303,7 +311,9 @@ export const ButtonCom = {
     html: '',
   }, // 提交后提示
   saveAreaArr: '', // 需要保存的区域
-  relateType: 1, // 弹窗类型 1是面板 2是菜单
+  relateType: 1, // 弹窗类型 1是面板 2是菜单 3是外部地址
+  outerLink: '', // 外部地址
+  paramsArr: [], // 参数
   dialogName: 'PanelDialog', // 弹窗风格
   dialogTitle: '', // 弹窗标题
   refreshType: 0,
@@ -312,10 +322,58 @@ export const ButtonCom = {
   canReadonly: false,
   templateInfo: {}, // 导入模板
   extraColumn: [], // 额外导入信息
-  needField: false, // 是否导出数据库表字段
+  needField: true, // 是否导出数据库表字段
   exportSetting: 1, // 导出设置 1 - 4
-  downLoadType: '', // 下载类型
+  downLoadType: 1, // 下载类型
   fileColumns: [], // 导出业务字段
   layeredStrategy: '[]', // 层级设置
   downloadName: '下载文件', // 文件名
+  printTemp: {}, // 按钮关联打印模板
+};
+
+// 日期框
+export const dateBox = {
+  name: '日期框',
+  areaType: 1, // 表示内容区
+  dragTable: true, // 能否拖入表格区
+  imgUrl: 'baseComp/DatePickerBox.svg',
+  compType: 8,
+  compId: createUnique(),
+  compName: 'DatePickerBox',
+  tableCompName: 'TableDatePickerCol',
+  propertyCompName: 'DatePickerBoxConfig',
+  labelName: '日期框',
+  placeholder: '请选择日期框',
+  helpInfo: '',
+  timeInterval: false, // 是否选择区间
+  startPlaceholder: '请选择开始日期',
+  endPlaceholder: '请选择结束日期',
+  dataSource: {
+    relateName: '主表',
+    tableName: '',
+    columnName: '',
+    columnTypeDict: 0,
+    id: 0,
+    alias: '',
+    dictObj: null, // 字典表数据
+  },
+  enableTableSearch: false, // 是否启用表头搜索
+  singleStatus: 1,
+  canShow: true,
+  canReadonly: false,
+  defaultType: '', // 默认值类型 空 无 1 当前时间 2 自定义
+  width: '50%',
+  tableWidth: '0.1',
+  shouldRequired: false,
+  minTimeObj: {
+    type: 1,
+    minTime: '',
+    formula: '',
+  }, // 最小时间
+  maxTimeObj: {
+    type: 1,
+    maxTime: '',
+    formula: '',
+  }, // 最大时间
+  submitType: 1, // 1 始终提交 2 仅显示时提交 3 始终不提交
 };

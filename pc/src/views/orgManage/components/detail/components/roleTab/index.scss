@@ -21,9 +21,10 @@
       border-left: 1px solid #E9E9E9;
       border-right: 1px solid #E9E9E9;
       height: calc(100% - 36px);
-      overflow-y: auto;
+      position: relative;
       &__tree{
         height: 100%;
+        overflow-y: auto;
         ::v-deep{
           .el-tree-node__expand-icon{
             color: #333333;
@@ -79,8 +80,18 @@
   }
 }
 ::v-deep {
+  .wrap{
+    position: inherit;
+    height: 100%;
+  }
+  .hasPage{
+    height: calc(100% - 42px);
+  }
   .org__select__content__list{
     width: 100%;
+    height: 100%;
+    position: relative;
+    overflow-y: auto;
     li{
       width: 100%;
       height: 36px;
@@ -119,6 +130,13 @@
         }
       }
     }
+  }
+  .checkAll{
+    position: absolute;
+    top: -36px;
+    right: 10px;
+    height: 36px;
+    line-height: 36px;
   }
   .el-table td{
     border-right: none;

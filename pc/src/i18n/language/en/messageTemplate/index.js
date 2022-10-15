@@ -49,6 +49,8 @@ export default {
       provider: 'Service Provider',
       endpoint: 'Domain',
       accessKeyId: 'AccessKeyID',
+      applyPublicKey: 'Apply Public Key',
+      applyPrivateKey: 'Apply Private Key',
       accessKeySecret: 'SecretKey',
       corpId: 'CorpID',
       host: 'Host',

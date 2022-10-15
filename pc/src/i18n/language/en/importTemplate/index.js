@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2022-05-16 10:14:10
+ * @Last Modified time: 2022-08-15 10:56:22
  */
 export default {
   importTemplate: {
@@ -41,6 +41,7 @@ export default {
     databaseStorageField: 'database storage field',
     toTheAssociatedTableID: 'to the associated table id',
     codeGeneration: 'automatic code generation',
+    getDictionaryValue: 'get dictionary value',
     dataConversionSaveDatabase:
       'Data conversion: Convert the displayed value in Excel through a certain method and then save it to the database;',
     commonUsageScenariosAre:

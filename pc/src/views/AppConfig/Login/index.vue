@@ -7,14 +7,19 @@
           <div
             class="app__header"
             :style="`background-image: url(${
-              loginConfig.backgroundUrl || require('./images/bg.jpg')
+              $parseImgUrl(loginConfig.backgroundUrl) ||
+              require('./images/bg.jpg')
             })`"
           >
             <span class="app__header--lang" v-show="loginConfig.enableLanguage"
               >中文</span
             >
             <img
-              :src="loginConfig.logoUrl || require('./images/logo.png')"
+              :src="
+                loginConfig.logoUrl
+                  ? $parseImgUrl(loginConfig.logoUrl)
+                  : require('./images/logo.png')
+              "
               alt=""
               class="app__header--logo"
             />

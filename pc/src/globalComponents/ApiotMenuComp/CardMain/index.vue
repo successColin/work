@@ -27,7 +27,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[3, 5]"
+      :btnTypesArr="[3, 5, 15]"
     ></BtnsArea>
     <section
       v-if="configData.children.length !== 0"
@@ -67,7 +67,15 @@
             :style="`color:${getCurDict(item, 2)}`"
           ></i>
         </div>
-        <div class="menuMain__cardRight">
+        <div
+          class="menuMain__cardRight"
+          :class="[
+            {
+              notConfig: !isConfig,
+              hasIcon: !isConfig && configData.hasCardIcon,
+            },
+          ]"
+        >
           <!-- 配置页 -->
           <draggable
             v-if="isConfig"
@@ -100,14 +108,17 @@
                 :fileDeleteIds="fileDeleteIds"
                 :showType="showType"
                 :isCard="true"
+                :isCardOpeBtn="true"
                 :labelValue="item ? item[child.compId] : ''"
                 :getBtnsArr="getCardBtnsArr"
+                :btnTypesArr="[2, 3, 4, 5]"
               ></component> </transition-group
           ></draggable>
           <!-- 应用页 -->
           <div style="height: 100%" class="menuMain__feature--compList" v-else>
             <component
               v-for="(child, i) in getFeatureArr.children"
+              class="lastNotMargin"
               :key="child.compId"
               :is="child.compName"
               :parent="getFeatureArr"
@@ -250,7 +261,7 @@ export default {
           const comp = this.getFeatureArr.children[index];
           const dict = comp.dataSource.dictObj;
           const dictArr = this.$store.getters.getCurDict(dict.dictKey);
-          const res = dictArr.find((child) => child.value === item[compId]);
+          const res = dictArr.find((child) => +child.value === +item[compId]);
           if (res && res.icon) {
             if (flag === 1) {
               return res.icon.icon;
@@ -478,6 +489,9 @@ export default {
       this.loading = false;
       this.$emit('showRight', this.sidebarData ? this.sidebarData.length !== 0 : false);
       if (data && data.length) {
+        if (!data[this.currentIndex]) {
+          this.currentIndex = 0;
+        }
         this.selectItem(data[this.currentIndex], this.currentIndex);
       } else {
         this.$bus.$emit('changeShowSkeleton');
@@ -630,6 +644,7 @@ export default {
     margin: 10px;
   }
   &.showTitle {
+    font-size: 15px;
     padding-top: 40px;
     position: relative;
     &::before {
@@ -707,7 +722,10 @@ export default {
   &__cardRight {
     height: 100%;
     flex: 1;
-    max-width: 100%;
+    max-width: calc(100% - 10px);
+    &.notConfig.hasIcon {
+      max-width: calc(100% - 50px);
+    }
   }
   &.notConfig {
     margin: 0;
@@ -766,7 +784,7 @@ export default {
         background-color: #f6f6f8;
       }
       &.active {
-        background-color: #f1f7ff;
+        background-color: $--hover-color;
         border-left-color: $--color-primary;
       }
     }
@@ -799,6 +817,13 @@ export default {
     font-size: 13px;
     font-weight: 400;
     color: #808080;
+  }
+}
+.lastNotMargin:last-child {
+  ::v-deep {
+    .span-box {
+      margin-bottom: 0 !important;
+    }
   }
 }
 </style>

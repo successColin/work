@@ -165,6 +165,7 @@
             class="action__term--formula"
             :triggerCompMap="triggerCompMap"
             :showType="showType"
+            :variables="variables"
             v-model="child.content"
           ></select-formula>
           <i class="iconfont icon-shanchu" @click="deleteTerm(i, j)"></i>
@@ -254,7 +255,10 @@ export default {
       // 是否需要引用关系
       type: Boolean,
       default: true
-    }
+    },
+    variables: {
+      type: Array
+    },
   },
   data() {
     return {

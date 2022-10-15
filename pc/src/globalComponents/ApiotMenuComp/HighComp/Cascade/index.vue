@@ -7,14 +7,15 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
-      { onelineCalss: isLayoutStyle },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
@@ -27,15 +28,11 @@
         </el-tooltip>
       </span>
 
-      <!-- <apiot-input
-        v-model="parent.form[configData.compId]"
-        @change="change"
-        :placeholder="configData.placeholder"
-        :disabled="configData.canReadonly"
-        :readonly="configData.singleStatus === 3"
-      ></apiot-input> -->
+      <!-- <apiot-input v-model="parent.form[configData.compId]"></apiot-input> -->
       <el-cascader
-        v-model="parent.form[configData.compId]"
+        ref="cascaderAddr"
+        v-model="casValue"
+        @change="valueChange"
         :options="options"
         :props="cascaderProps"
         :show-all-levels="configData.storeType === 1"
@@ -67,10 +64,12 @@ export default {
       curCompType: 2,
       cascaderProps: {
         expandTrigger: 'hover',
-        value: 'showColumn',
+        value: 'id',
         label: 'showColumn'
       },
-      options: []
+      options: [],
+      casValue: [],
+      unwatch: null
     };
   },
   mixins: [compMixin],
@@ -86,6 +85,17 @@ export default {
   mounted() {
     if (!this.isConfig) {
       this.getCascadeInfo();
+      this.unwatch = this.$watch(`parent.form.${this.configData.compId}`, (v) => {
+        if (v) {
+          const arr = [];
+          v.forEach((item) => {
+            const tempArr = item.split('(');
+            const id = tempArr[1].slice(0, -1);
+            arr.push(+id);
+          });
+          this.casValue = arr;
+        }
+      });
     }
   },
 
@@ -100,6 +110,21 @@ export default {
         configInfo: JSON.stringify(this.configData.cascadeDataSource)
       });
       this.options = data;
+    },
+    valueChange(v) {
+      const checkedNodes = this.$refs.cascaderAddr.getCheckedNodes();
+      const arr = checkedNodes[0].pathLabels;
+      const resArr = [];
+      arr.forEach((label, i) => {
+        resArr.push(`${label}(${v[i]})`);
+      });
+      this.parent.form[this.configData.compId] = resArr;
+    }
+  },
+
+  beforeDestroy() {
+    if (this.unwatch) {
+      this.unwatch();
     }
   }
 };

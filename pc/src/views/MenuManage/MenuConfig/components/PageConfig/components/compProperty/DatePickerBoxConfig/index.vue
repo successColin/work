@@ -10,9 +10,21 @@
           @blur="nameBlur"
         ></apiot-input>
       </el-form-item>
-      <el-form-item label="占位提示">
+      <el-form-item label="占位提示" v-if="!intervalTimeShow">
         <el-input
           v-model="activeObj.placeholder"
+          placeholder="请输入占位提示"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="开始占位符提示" v-if="intervalTimeShow">
+        <el-input
+          v-model="activeObj.startPlaceholder"
+          placeholder="请输入占位提示"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="结束占位符提示" v-if="intervalTimeShow">
+        <el-input
+          v-model="activeObj.endPlaceholder"
           placeholder="请输入占位提示"
         ></el-input>
       </el-form-item>
@@ -46,7 +58,7 @@
           @selectRes="selectColumnRes"
         ></filterable-input>
       </el-form-item>
-      <el-form-item label="默认值">
+      <el-form-item label="默认值" v-if="!intervalTimeShow">
         <el-select
           v-model="activeObj.defaultType"
           placeholder="请选择默认值"
@@ -61,10 +73,38 @@
           class="m-t-10"
           type="date"
           placeholder="请选择日期"
+          format="yyyy-MM-dd"
           value-format="yyyy-MM-dd"
           v-model="fatherObj.form[activeObj.compId]"
         >
         </el-date-picker>
+      </el-form-item>
+      <el-form-item label="默认值" v-else>
+        <!-- 日期区间框 -->
+        <el-date-picker
+          type="daterange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          format="yyyy-MM-dd"
+          value-format="yyyy-MM-dd"
+          :editable="false"
+          v-model="dataTime"
+          range-separator="至"
+          @change="handleChangeDateTime"
+        >
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
       </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
@@ -90,6 +130,18 @@
             >隐藏</el-button
           >
         </el-button-group>
+      </el-form-item>
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
       </el-form-item>
       <el-form-item
         label="最小宽度"
@@ -149,16 +201,28 @@
             >1/4</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '66.67%' }]"
             @click="activeObj.width = '66.67%'"
             >2/3</el-button
           >
           <el-button
-            v-if="$route.query.isApp !== '1'"
+            v-else
+            :class="[{ active: activeObj.width === '20%' }]"
+            @click="activeObj.width = '20%'"
+            >1/5</el-button
+          >
+          <el-button
+            v-if="$route.query.isApp !== '1' && isShow"
             :class="[{ active: activeObj.width === '75%' }]"
             @click="activeObj.width = '75%'"
             >3/4</el-button
+          >
+          <el-button
+            v-else
+            :class="[{ active: activeObj.width === '16.66%' }]"
+            @click="activeObj.width = '16.66%'"
+            >1/6</el-button
           >
           <el-button
             :class="[{ active: activeObj.width === '100%' }]"
@@ -176,6 +240,25 @@
             active-text="是"
             inactive-text="否"
             @change="setRequiredRule"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
+      <el-form-item v-if="!isShow">
+        <p class="switchBox">
+          是否选择区间
+          <el-tooltip
+            content="webview传入参数，开始时间加_start，结束时间加_end"
+            placement="top"
+          >
+            <i class="iconfont icon-bangzhu" />
+          </el-tooltip>
+          <el-switch
+            v-model="activeObj.timeInterval"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+            @change="handleChangeTimeInterval"
           >
           </el-switch>
         </p>
@@ -232,7 +315,7 @@
           v-model="activeObj.maxTimeObj.formula"
         ></select-formula>
       </el-form-item>
-      <el-form-item label="提交类型">
+      <el-form-item label="提交类型" v-if="isShow">
         <el-select v-model="activeObj.submitType" placeholder="请选择类型">
           <el-option label="始终提交" :value="1"></el-option>
           <el-option label="仅显示时提交" :value="2"></el-option>
@@ -251,6 +334,7 @@ export default {
   mixins: [propertyMixin],
   data() {
     return {
+      dataTime: '',
       value: '',
       tableArr: [],
       pickerOptions1: {
@@ -277,7 +361,42 @@ export default {
     SelectFormula
   },
 
-  computed: {},
+  watch: {
+    'fatherObj.form': {
+      handler(v) {
+        const copy =
+          (JSON.parse(JSON.stringify(v)) && JSON.parse(JSON.stringify(v))[this.activeObj.compId]) ||
+          '';
+        if (!copy) {
+          this.dataTime = '';
+          return;
+        }
+        if (copy.indexOf(',') !== -1) {
+          const val = copy && copy.split(',');
+          this.dataTime = [val[0], val[1]];
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    'activeObj.minTimeObj.minTime': function (v) {
+      console.log(v);
+      if (v == null) {
+        this.activeObj.minTimeObj.minTime = '';
+      }
+    },
+    'activeObj.maxTimeObj.maxTime': function (v) {
+      if (v == null) {
+        this.activeObj.maxTimeObj.maxTime = '';
+      }
+    }
+  },
+
+  computed: {
+    intervalTimeShow() {
+      return this.activeObj.timeInterval;
+    }
+  },
 
   created() {
     // 需要在内部组件渲染之前初始化数据
@@ -289,6 +408,18 @@ export default {
   },
 
   methods: {
+    handleChangeDateTime(v) {
+      if (v) {
+        this.fatherObj.form[this.activeObj.compId] = v.join(',');
+      } else {
+        this.fatherObj.form[this.activeObj.compId] = '';
+      }
+    },
+    handleChangeTimeInterval() {
+      this.activeObj.defaultType = '';
+      this.fatherObj.form[this.activeObj.compId] = '';
+      this.dataTime = '';
+    },
     // 字段选择结果
     selectColumnRes(table) {
       this.activeObj.dataSource.id = table.id;

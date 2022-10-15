@@ -15,3 +15,8 @@ files.keys().forEach((key) => {
 });
 
 Vue.component('draggable', draggable);
+// Vue.component('ApiotButton', () => import('./ApiotButton'));
+// Vue.component('ApiotInput', () => import('./ApiotInput'));
+// Vue.component('ApiotCheckbox', () => import('./ApiotCheckbox'));
+// Vue.component('ApiotColorPicker', () => import('./ApiotColorPicker'));
+// Vue.component('ApiotColorSelect', () => import('./ApiotColorSelect'));

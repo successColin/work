@@ -6,7 +6,7 @@
         {{ $t('role.selectAll') }}
       </apiot-checkbox>
     </div>
-    <div class="filesContent">
+    <div class="filesContent"  v-loadMore="loadMore">
       <div
         v-if="!list.length && !loading"
         class="apiotNoData"
@@ -62,7 +62,7 @@
                 :title="item.sysKlTree.name"
               >
                                 {{ item.sysKlTree.name }}
-<!--                {{ renderFileName(item.sysKlTree.name, item.sysKlTree) }}-->
+<!--       {{ renderFileName(item.sysKlTree.name, item.sysKlTree) }}-->
               </span>
               <apiot-input
                 v-model="editFileName"
@@ -121,6 +121,9 @@ export default {
   },
   data() {
     return {
+      users: [],
+      loading1: false,
+      count: 0,
       moveI: -1,
       moveKey: '',
       dom: {},
@@ -132,7 +135,7 @@ export default {
   },
 
   components: {
-    draggable
+    draggable,
   },
 
   computed: {
@@ -210,6 +213,12 @@ export default {
   },
 
   methods: {
+    loadMore() {
+      this.$emit('loadMore');
+    },
+    async fetchData() {
+      this.$emit('scroll');
+    },
     preView(item) {
       this.$emit('preview', item);
     },
@@ -303,7 +312,7 @@ export default {
     width: 100%;
     height: calc(100% - 40px);
     box-sizing: border-box;
-
+    overflow: auto;
     .contentBox__item {
       float: left;
       position: relative;

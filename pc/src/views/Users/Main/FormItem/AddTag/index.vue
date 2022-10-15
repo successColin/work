@@ -1,70 +1,46 @@
 <!-- * @描述: 通用单选框 -->
 <template>
   <div class="TagWrap">
-    <el-popover
-      placement="bottom-start"
-      width="294"
-      :popper-class="addTagWrap"
-      :visible-arrow="false"
-      v-model="visible"
-    >
-      <div class="box">
-        <div class="colorWrap">
-          <div
-            v-for="color in colorArr"
-            class="colorBox"
-            :key="color"
-            :style="'background:' + color"
-            @click="changeColor(color)"
+    <el-button size="mini" @click="visible=true">
+      <i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}
+    </el-button>
+        <apiot-tag
+          size="medium"
+          closable
+          :style="getTagBgColor(tag)"
+          @deleteSelf="delTag(tag)"
+          v-for="tag in tagArr"
+          :key="tag.name"
           >
-            <i
-              class="el-icon-check"
-              :class="{ selected: selectColor === color }"
-              v-if="selectColor === color"
-            ></i>
-          </div>
-        </div>
-        <div class="enterTag">
-          <apiot-input
-            maxlength="10"
-            show-word-limit
-            v-model="input"
-            :placeholder="$t('user.addLabelTag')"
-            @keyup.enter.native="addTag"
-          ></apiot-input>
-        </div>
-        <div class="footer">
-          <apiot-button @click="hide" size="small"
-            >{{ $t('common.cancle') }}
-          </apiot-button>
-          <apiot-button type="primary" @click="sureClick" size="small"
-            >{{ $t('common.sure') }}
-          </apiot-button>
-        </div>
-      </div>
-      <el-button size="mini" slot="reference">
-        <i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}
-      </el-button>
-    </el-popover>
-    <el-tag
-      size="medium"
-      closable
-      :style="'background:' + tag.color"
-      @close="delTag(tag)"
-      v-for="tag in tags"
-      :key="tag.name"
-      >{{ tag.name }}
-    </el-tag>
+          <i
+              :class="{
+                iconfont: true,
+                [`${tag.icon?tag.icon.icon : 'icon-benren'}`]: true
+        }" :style="getIconColor(tag)"></i>
+          <span class="m-l-5" :style="`color: ${tag.fontColor}`">{{ tag.zhCN }}</span>
+        </apiot-tag>
+    <apiot-dialog
+        :visible.sync="visible"
+        :title="$t('user.roleTags')"
+        :modal-append-to-body="false"
+        v-on:sure-click="handleChooseRoles"
+        v-on:cancle-click="visible = false"
+    >
+      <Tags :roles="tagArr" ref="roles" v-if="visible"></Tags>
+    </apiot-dialog>
   </div>
 </template>
 
 <script>
+import { getUsersState } from '@/api/user';
+import Tags from './Tags/tags';
+
 export default {
   inheritAttrs: false,
   props: {
     tags: {
-      type: Array,
-      default: () => []
+      type: String,
+      default: ''
     },
     updateData: {
       type: Function,
@@ -89,58 +65,61 @@ export default {
         '#708DB7'
       ],
       tagArr: [], // 标签
-      visible: false
+      visible: false,
+      list: []
     };
   },
-  components: {},
-  computed: {},
+  components: {
+    Tags
+  },
+  computed: {
+    getTagBgColor() {
+      return function (tag) {
+        if (tag.color) {
+          return {
+            background: `${tag.color} !important`
+          };
+        }
+        return {};
+      };
+    },
+    getIconColor() {
+      return function (tag) {
+        if (tag.icon && tag.icon.icon) {
+          return {
+            color: tag.icon.color
+          };
+        }
+        return {};
+      };
+    }
+  },
   watch: {},
-  mounted() {},
+  mounted() {
+    this.init();
+  },
   methods: {
-    hide() {
-      this.selectColor = '#5A80ED';
-      this.input = '';
-      this.visible = false;
-    },
-    changeColor(color) {
-      this.selectColor = color;
-    },
-    sureClick() {
-      this.addTag(this.input);
-    },
-    addTag() {
-      if (!this.input) {
-        this.$message({
-          type: 'warning',
-          message: this.$t('user.placeEnterTag')
-        });
-        return;
-      }
-      const tags = [...this.tags];
-      const index = tags.findIndex((item) => item.name === this.input);
-      if (index !== -1) {
-        this.$message({
-          type: 'warning',
-          message: this.$t('user.errorTag')
-        });
-        return;
-      }
-      tags.push({
-        name: this.input,
-        color: this.selectColor
-      });
-      this.visible = false;
-      this.selectColor = '#5A80ED';
-      this.input = '';
-      // this.addTagWrap = 'addTagWrap active';
-      this.updateData({ tags });
+    async init() {
+      const res = await getUsersState({ dictKeys: 'DICT-00373' });
+      this.list = res['DICT-00373'] || [];
+      const arr = this.tags.split(',');
+      this.tagArr = arr.reduce((init, pre) => {
+        const current = this.list.find((item) => item.value === +pre);
+        return current ? init.concat([current]) : init;
+      }, []);
     },
     delTag(tag) {
-      const tags = [...this.tags];
-      const index = tags.findIndex((item) => item.name === tag.name && item.color === tag.color);
-      tags.splice(index, 1);
-      this.updateData({ tags });
-      // this.$emit('editTag', this.tagArr);
+      const index = this.tagArr.findIndex((item) => item.value === tag.value);
+      this.tagArr.splice(index, 1);
+      const values = this.tagArr.map((item) => item.value).join(',');
+      this.$emit('editTag', values);
+    },
+    handleChooseRoles() {
+      const list = this.$refs.roles.selectKeys;
+      this.tagArr = list;
+      this.visible = false;
+      const values = this.tagArr.map((item) => item.value).join(',');
+      this.$emit('editTag', values);
     }
   }
 };

@@ -17,6 +17,11 @@
         <i class="iconfont icon-fanhui"></i>{{ $t('common.return') }}
       </apiot-button>
       <span class="m-l-14">{{ panelObj ? panelObj.panelName : '' }}</span>
+      <i
+        class="iconfont icon-fenxiang"
+        v-if="getCanShare"
+        @click="getShare"
+      ></i>
     </header>
     <ApiotMenu
       class="panel__full--content"
@@ -28,6 +33,10 @@
       ref="menu"
       v-bind="$attrs"
     ></ApiotMenu>
+    <ApiotShareDialog
+      :visible.sync="showShare"
+      :panelObj="panelObj"
+    ></ApiotShareDialog>
   </apiot-drawer>
 </template>
 
@@ -47,13 +56,26 @@ export default {
   },
   data() {
     return {
-      dataSelObj: null
+      dataSelObj: null,
+      showShare: false
     };
   },
-
+  computed: {
+    // 能否显示分享
+    getCanShare() {
+      if (this.panelObj) {
+        return +this.panelObj.enableshare === 1;
+      }
+      return false;
+    }
+  },
   mounted() {},
 
   methods: {
+    // 打开分享
+    getShare() {
+      this.showShare = true;
+    },
     closePanle() {
       this.$emit('update:visible', false);
     },
@@ -89,6 +111,16 @@ export default {
     height: 46px;
     background-color: #fff;
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+    .icon-fenxiang {
+      position: absolute;
+      color: #909399;
+      margin-top: 16px;
+      margin-left: 6px;
+      cursor: pointer;
+      &:hover {
+        color: $--color-primary;
+      }
+    }
   }
   &--content {
     top: 46px !important;

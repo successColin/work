@@ -43,7 +43,9 @@
             >
               <div class="videoTutorial__video--player">
                 <div
-                  :style="`background: url(${item.imageUrl});background-size: cover;`"
+                  :style="`background: url(${$parseImgUrl(
+                    item.imageUrl
+                  )});background-size: cover;`"
                   class="imgContent"
                 ></div>
                 <!-- <div class="imgContent">

@@ -147,7 +147,8 @@ export default {
     uploadNew: 'Upload New Version',
     disassociate: 'Disassociate',
     image_show: 'Share', // share
-    image_Spin: 'Spin', // spin
+    image_Spin: 'Left rotation', // spin
+    image_SpinR: 'Right rotation', // spin
     image_expand: 'Zoom In', // zoom in
     image_Narrow: 'Zoom Out', // zoom out
     list_opea: 'Operations', // operations
@@ -176,8 +177,10 @@ export default {
     orgName: 'Organization Structure', // organization structure
     userPostName: 'Position', // position
     roleNames: 'Related Role', // related role
+    roleTags: 'Related Tag', // related role
     userLabel: 'Label', // label
     userEmail: 'Email', // Email
+    userwechat: 'WeChat',
     enterUserName: 'Please enter username', // Please enter username
     enterUserAccount: 'Please enter account', // Please enter account
     pleaseChooseAndSave: 'Please select an organization before saving!', // Please select an organization before saving!
@@ -196,6 +199,7 @@ export default {
     placeEnterAccount: 'Please enter account', // please enter account
     placeEnterPhone: 'Please enter 11-digit phone number', // please enter 11-digit phone number
     placeEnterEmail: 'Please enter Email', // please enter Email
+    placeEnterWechat: 'Please enter the enterprise WeChat',
     Enable: 'Enable', // Enable
     Disable: 'Disable', // Disable
     doAdd: 'Add', //
@@ -208,6 +212,7 @@ export default {
     hasBeenSelected: 'Selected Role', // selected role
     hasUserSelected: 'Selected User',
     RoleList: 'Role List', // role list
+    TagList: 'Tag List',
     addLabelTag: 'Please enter lable name', // please enter lable name
     placeEnterTag: 'Please enter a lable', // please enter a lable
     errorTag: 'Same lable exists, please enter another one!', // Same lable exists, please enter another one.

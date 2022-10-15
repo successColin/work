@@ -17,6 +17,8 @@
           :approvalInfo="approvalInfo"
           :nodeConfig="nodeConfig"
           :com="com"
+          v-on="$listeners"
+          v-bind="$attrs"
       ></ApproveView>
     </template>
   </apiot-tabs>

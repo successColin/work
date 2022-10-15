@@ -37,26 +37,39 @@
         </div>
       </div>
     </div>
-    <div class="error__title">{{ $t('importAndExport.Exceptiondetails') }}</div>
-    <apiot-table
-      class="tableWrap"
-      :tableData="tableData"
-      :showSelection="false"
-      :isNeedColumnDrop="false"
-    >
+    <div class="error__title">
+      {{ $t('importAndExport.Exceptiondetails') }}
+      <apiot-button
+        class="error__title--button"
+        @click="handleExport"
+        :disabled="isDisabeld"
+      >
+        <i class="iconfont icon-daochu"></i>
+        错误信息导出
+      </apiot-button>
+    </div>
+    <el-table :data="currentDate" height="320" style="width: 100%">
       <el-table-column
-        :show-overflow-tooltip="true"
-        property="name"
+        prop="name"
         :label="$t('importAndExport.location')"
+        :show-overflow-tooltip="true"
       >
       </el-table-column>
       <el-table-column
-        property="msg"
-        :show-overflow-tooltip="true"
+        prop="msg"
         :label="$t('importAndExport.errormessage')"
+        :show-overflow-tooltip="true"
       >
       </el-table-column>
-    </apiot-table>
+    </el-table>
+    <ApiotPagination
+      :isSystem="false"
+      :total="total"
+      :size.sync="size"
+      :current-page.sync="current"
+      @size-change="sizeChange"
+      @current-change="currentChange"
+    ></ApiotPagination>
   </div>
 </template>
 
@@ -74,7 +87,12 @@ export default {
   },
   data() {
     return {
-      list: []
+      tableData: [],
+      total: 0,
+      current: 1,
+      size: 10,
+      currentDate: [],
+      isDisabeld: true
     };
   },
 
@@ -82,32 +100,96 @@ export default {
 
   computed: {
     progress() {
-      const { Sum, Row } = this.checkInfo;
-      if (Row && Sum) {
-        const num = Row / Sum;
+      const { Sum, Row, isCheckFinish } = this.checkInfo;
+      console.log(this.checkInfo);
+      if ((Row && Sum) || isCheckFinish) {
+        const num = Sum === 0 ? 1 : Row / Sum;
         const proportion = num * 100;
         return proportion.toFixed(2);
       }
       return (Sum && Row) || 0;
-    },
-    tableData() {
-      const arr = [];
-      const { List = [] } = this.checkInfo;
-      List.forEach((item) => {
-        const msgArr = item.split(',');
-        arr.push({
-          name: msgArr[0],
-          msg: msgArr[1]
+    }
+  },
+
+  watch: {
+    checkInfo: {
+      handler() {
+        this.tableData = [];
+        this.currentDate = [];
+        const { List = [], errorRow, isCheckFinish } = this.checkInfo;
+        List.forEach((item) => {
+          const index = item.indexOf(',');
+          this.tableData.push({
+            name: item.slice(0, index),
+            msg: item.slice(index + 1)
+          });
         });
-      });
-      return arr;
+        this.currentDate = JSON.parse(JSON.stringify(this.tableData)).splice(
+          (this.current - 1) * this.size,
+          this.size
+        );
+        if (errorRow && isCheckFinish) {
+          this.isDisabeld = false;
+        }
+        this.total = this.tableData.length;
+      },
+      deep: true
     }
   },
 
   mounted() {},
 
-  methods: {},
-  name: 'index'
+  methods: {
+    // 每页大小改变
+    sizeChange(size) {
+      console.log(size);
+      this.current = 1;
+      this.size = size;
+      this.currentDate = JSON.parse(JSON.stringify(this.tableData)).splice(
+        (this.current - 1) * this.size,
+        this.size
+      );
+      console.log(this.tableData, this.currentDate);
+    },
+    // 改变页码
+    currentChange(current) {
+      this.current = current;
+      this.currentDate = JSON.parse(JSON.stringify(this.tableData)).splice(
+        (this.current - 1) * this.size,
+        this.size
+      );
+      console.log(this.current, this.size);
+      console.log(this.tableData, this.currentDate);
+    },
+    // 导出错误信息
+    handleExport() {
+      // 列标题
+      let str = '<tr><td>定位</td><td>错误信息</td></tr>';
+      this.tableData.forEach((item) => {
+        str += `<tr><td>${`${item.name}\t`}</td><td>${`${item.msg}\t`}</td></tr>`;
+      });
+      // Worksheet名
+      const worksheet = 'Sheet1';
+      const uri = 'data:application/vnd.ms-excel;base64,';
+
+      // 下载的表格模板数据
+      const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+          <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+          <x:Name>${worksheet}</x:Name>
+          <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+          </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+          </head><body><table>${str}</table></body></html>`;
+      // 下载模板
+      const url = uri + window.btoa(unescape(encodeURIComponent(template)));
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = '错误信息明细.xls';
+      link.click();
+    }
+  }
 };
 </script>
 
@@ -115,7 +197,6 @@ export default {
 .previewWrap {
   width: 100%;
   height: 100%;
-
   .loadWrap {
     width: 100%;
     height: 110px;
@@ -217,11 +298,33 @@ export default {
     font-family: PingFangSC-Medium, PingFang SC;
     font-weight: 600;
     color: #333333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .error__title--button {
+      font-size: 14px;
+      i {
+        font-size: 16px;
+        color: #4689f5;
+        margin-right: 4px;
+      }
+    }
+    .error__title--button.is-disabled {
+      i {
+        opacity: 0.4;
+      }
+    }
   }
 
-  .tableWrap {
-    width: 100%;
-    height: calc(100% - 40px - 110px) !important;
+  // .tableWrap {
+  //   width: 100%;
+  //   height: calc(100% - 40px - 110px) !important;
+  // }
+
+  ::v-deep {
+    .pagination {
+      border-top: 0;
+    }
   }
 }
 </style>

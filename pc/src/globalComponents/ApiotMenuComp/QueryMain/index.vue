@@ -6,7 +6,7 @@
       { notConfig: !isConfig },
       { showTitle: configData.showTitle },
       { isApp: $route.query.isApp == 1 },
-      { 'p-t-10': !isConfig && pos === 0 },
+      { 'p-t-10': true },
       { 'p-t-20': !isConfig && getBtnsArr.children.length === 0 },
     ]"
     @click="changeCurActiveObj(1, $event)"
@@ -30,6 +30,7 @@
             activeObj.areaType === 1,
         },
         { useStyle: !isConfig },
+        { queryMain__featureNoConfig: !isConfig },
       ]"
       configData="功能区"
     >
@@ -38,8 +39,8 @@
         :model="getFeatureArr.form"
         :rules="isConfig ? {} : getFeatureArr.rules"
         :validate-on-rule-change="false"
-        label-width="80px"
-        label-position="top"
+        label-width="auto"
+        :label-position="labelPosition"
       >
         <draggable
           v-if="isConfig"
@@ -104,7 +105,7 @@
       :moreOperateArr="moreOperateArr"
       :showType="showType"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[11, 12, 13]"
+      :btnTypesArr="[11, 12, 13, 5]"
       :isQuery="true"
     ></BtnsArea>
     <section
@@ -120,12 +121,16 @@
       查询区
     </section>
     <!-- 空白 -->
-    <div class="queryMain__interval" v-if="configData.displayStyle === 2"></div>
+    <div
+      class="queryMain__interval"
+      :style="`${isConfig ? 'bottom: 0' : ''}`"
+      v-if="configData.displayStyle === 2"
+    ></div>
   </div>
 </template>
 
 <script>
-import { getSidebarSingle } from '@/api/menuConfig';
+// import { getSidebarSingle } from '@/api/menuConfig';
 import initAreaMixin from '../initAreaMixin';
 
 export default {
@@ -175,6 +180,9 @@ export default {
   ],
   mixins: [initAreaMixin],
   computed: {
+    labelPosition() {
+      return this.configData.layoutStyle === 2 ? 'right' : 'top';
+    },
     isShowBtn() {
       if (this.showType && this.showType.type === 'flow') {
         return true;
@@ -226,7 +234,7 @@ export default {
   mounted() {
     if (!this.isConfig) {
       // this.$nextTick(() => {
-      this.resetForm();
+      // this.resetForm();
       // });
 
       // 转换正则
@@ -390,7 +398,11 @@ export default {
         }
         if (comp.compType === 2) {
           if (comp.dropDownType === 1) {
-            v = +v;
+            if (v) {
+              v = +v;
+            } else {
+              v = '';
+            }
           }
         }
         if ([3].includes(comp.compType)) {
@@ -422,83 +434,8 @@ export default {
       return '';
     },
     // 获取表单数据
-    async getSidebarSingle() {
-      this.loading = true;
-      const params = {
-        compId: this.configData.compId,
-        compMap: JSON.stringify(this.getFilterParams()),
-        sysMenuDesignId: this.sysMenuDesignId(),
-        panelCompId: this.getValueFromFather('panelCompId'),
-        relationMenuDesignId: this.getValueFromFather('relationMenuDesignId')
-      };
-      if (
-        this.showType &&
-        this.showType.type === 'flow' &&
-        !this.getNotInitArr().includes(this.configData.compId)
-      ) {
-        const { tableInfo } = this.configData;
-        params.workflowFilter = `${tableInfo.tableName}.id=${this.showType.dataId}`;
-      }
-      const panelFilter = this.getCurAreaTerm(this.getValueFromFather('panelFilter'));
-      if (panelFilter) {
-        params.panelFilter = [panelFilter];
-      }
-      // 最外层的才会有菜单跳转条件
-      if (this.getFatherPanel && !this.getFatherPanel()) {
-        if (+this.$route.query.isJump === 1) {
-          const menuFilter = this.getCurAreaTerm(this.getCurMenu('menuFilter'));
-          if (menuFilter) {
-            params.panelFilter = [menuFilter];
-          }
-        }
-      }
-
-      const data = await getSidebarSingle(params);
-      // this.getFeatureArr.form = data;
-      const tempObj = {};
-      // this.getFeatureArr.form = {};
-      this.resetForm();
-      this.getFeatureArr.children.forEach((comp) => {
-        let v = `${data[comp.compId] == null ? '' : data[comp.compId]}`;
-        v = this.resolveValue(v, comp);
-        if (v !== '') {
-          tempObj[comp.compId] = v;
-          if (comp.compType === 6 || comp.compType === 7 || comp.compType === 15) {
-            tempObj[`${comp.compId}_`] = data[`${comp.compId}_`];
-          }
-        } else if (this.getFeatureArr.form[comp.compId]) {
-          const tempV = this.getFeatureArr.form[comp.compId];
-          this.getFeatureArr.form[comp.compId] = '';
-          this.$nextTick(() => {
-            this.getFeatureArr.form[comp.compId] = tempV;
-          });
-        } else {
-          tempObj[comp.compId] = '';
-          if (comp.compType === 6 || comp.compType === 7 || comp.compType === 15) {
-            tempObj[`${comp.compId}_`] = '';
-          }
-        }
-      });
-      // this.changeNotValueChange(true);
-      this.$nextTick(() => {
-        this.getFeatureArr.form = {
-          ...this.getFeatureArr.form,
-          ...tempObj
-        };
-        this.loading = false;
-        this.initStart();
-        // this.changeNotValueChange(false);
-        this.$nextTick(() => {
-          if (this.$refs.form) {
-            this.$refs.form.clearValidate();
-          }
-          if (this.configData.reloadArea.length) {
-            this.$bus.$emit(this.getEventName, this.configData.reloadArea, this.onlyFlag());
-          } else {
-            this.$bus.$emit('changeShowSkeleton');
-          }
-        });
-      });
+    getSidebarSingle() {
+      return false;
     },
     changeCurActiveObj(areaType = 1, e) {
       if (!this.isConfig) {
@@ -584,19 +521,19 @@ export default {
   display: flex;
   // flex-direction: column;
   position: relative;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   &__interval {
     width: 100%;
     height: 10px;
     position: absolute;
     background: #f6f6f8;
     bottom: 3px;
-    // box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.16);
   }
   &.isApp {
     // height: auto;
   }
   &.showTitle {
+    font-size: 15px;
     padding-top: 40px;
     position: relative;
     &::before {
@@ -612,6 +549,9 @@ export default {
   }
   &.flexReserve {
     flex-direction: column-reverse;
+  }
+  &__featureNoConfig {
+    overflow: initial !important;
   }
   &__feature {
     flex: 1;
@@ -631,6 +571,19 @@ export default {
           height: 100%;
         }
       }
+      .singleLineText,
+      .dropDownBox,
+      .dataSingleSel,
+      .singleBox,
+      .dataMultiSel {
+        overflow: inherit;
+      }
+      .el-form-item__error {
+        z-index: 9;
+      }
+      .el-form-item__content {
+        margin: 0 !important;
+      }
     }
     &--compList {
       display: flex;
@@ -644,10 +597,16 @@ export default {
     }
   }
   &__btn {
-    height: 100% !important;
+    height: auto !important;
     margin-bottom: 0px;
     margin-left: 10px;
     min-width: 88px;
+    padding-bottom: 10px;
+    ::v-deep {
+      .menuMain__btnArea--compList {
+        align-items: flex-end;
+      }
+    }
   }
   &__wz {
     text-align: center;

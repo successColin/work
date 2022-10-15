@@ -2,35 +2,22 @@
 <template>
   <div class="orgWrap" v-loading="loading">
     <div class="selectArrWrap" v-if="selectKeys.length && !isSingle">
-      <el-tag
+      <apiot-tag
+        :itemTheme="3"
         size="small"
         v-for="tag in selectKeys"
         :key="tag.id"
         closable
-        @close="handleClose(tag)"
+        :item="tag.name"
+        @deleteSelf="handleClose(tag)"
+        itemIconClass="icon-zuzhi"
       >
-        <i class="iconfont icon-zuzhi"></i>{{ tag.name }}
-      </el-tag>
+<!--        <i class="iconfont icon-zuzhi"></i>{{ tag.name }}-->
+      </apiot-tag>
     </div>
     <div class="orgWrapTitleAndSearch">
       <div class="orgWrapTitleAndSearch__title">{{ title }}</div>
       <div class="orgWrapTitleAndSearch__search">
-        <!-- <apiot-input
-          :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="input"
-          ref="btn"
-          @blur="isActive = false"
-          @focus="isActive = true"
-          @input="reset"
-          @keyup.enter.native="doSearch"
-        >
-          <i
-            slot="prefix"
-            class="iconfont icon-sousuo"
-            :class="isActive ? 'on' : ''"
-            @click="doSearch"
-          ></i>
-        </apiot-input> -->
         <search-input
           @getList="doSearch"
           ref="btn"
@@ -50,10 +37,24 @@
         :default-checked-keys="selectKeys.map((item) => item.id)"
         :load="loadNode"
         :expand-on-click-node="true"
-        :render-content="renderContent"
         :props="defaultProps"
         @check="checkNode"
       >
+        <span class="custom-tree-node" slot-scope="{ node, data }">
+          <span
+              class="iconfont"
+              :class="{[type === 'position' ? 'icon-zhiwei' : 'icon-zuzhi']: true}"
+          ></span>
+          <span>{{ node.label }}</span>
+          <span class="select-children-all" v-if="checkNodeIsShow(data)">
+            <el-button
+                type="text"
+                size="mini"
+                @click.stop="() => remove(node, data)">
+              选中子节点
+            </el-button>
+        </span>
+        </span>
       </el-tree>
     </div>
   </div>
@@ -130,6 +131,12 @@ export default {
   components: {},
   watch: {},
   computed: {
+    checkNodeIsShow() {
+      return function (data) {
+        if (this.isSingle) return false;
+        return !!data.childrenTotal;
+      };
+    },
     title() {
       let title = this.$t('role.organizationFiles');
       if (this.type === 'position') {
@@ -144,12 +151,12 @@ export default {
     if (this.useInRoleAndUser) {
       this.getOrg();
     }
-    this.$refs.btn.$el.onkeydown = () => {
-      const _key = window.event.keyCode;
-      if (_key === 13) {
-        return false;
-      }
-    };
+    // this.$refs.btn.$el.onkeydown = () => {
+    //   const _key = window.event.keyCode;
+    //   if (_key === 13) {
+    //     return false;
+    //   }
+    // };
   },
   methods: {
     reset() {
@@ -168,6 +175,18 @@ export default {
       this.selectKeys.splice(index, 1);
       const keys = this.selectKeys.map((item) => item.id);
       this.$refs.tree.setCheckedKeys(keys);
+    },
+    remove(node) {
+      this.$nextTick(() => {
+        const { childNodes } = node;
+        childNodes.forEach(({ data }) => {
+          const { id } = data;
+          const index = this.selectKeys.findIndex((item) => item.id === id);
+          if (index === -1) {
+            this.selectKeys.push(data);
+          }
+        });
+      });
     },
     checkNode(node) {
       // 复选框操作
@@ -227,27 +246,28 @@ export default {
       const params = this.input ? { keywords: this.input } : { parentId: 0 };
       this.getOrgTree(params);
     },
-    renderContent(h, { node }) {
-      const arr = node.label.replace(RegExp(this.input, 'g'), `<span style="color:red;">${this.input}</span>`);
-      const dom = `<span>${arr}</span>`;
-      const icon = this.type === 'position' ? 'icon-zhiwei' : 'icon-zuzhi';
-      return h(
-        'span',
-        {
-          class: 'custom-tree-node'
-        },
-        [
-          h('span', {
-            class: `${icon} iconfont`
-          }),
-          h('span', {
-            domProps: {
-              innerHTML: dom
-            }
-          })
-        ]
-      );
-    },
+    // renderContent(h, { node }) {
+    // eslint-disable-next-line max-len
+    //   const arr = node.label.replace(RegExp(this.input, 'g'), `<span style="color:red;">${this.input}</span>`);
+    //   const dom = `<span>${arr}</span>`;
+    //   const icon = this.type === 'position' ? 'icon-zhiwei' : 'icon-zuzhi';
+    //   return h(
+    //     'span',
+    //     {
+    //       class: 'custom-tree-node'
+    //     },
+    //     [
+    //       h('span', {
+    //         class: `${icon} iconfont`
+    //       }),
+    //       h('span', {
+    //         domProps: {
+    //           innerHTML: dom
+    //         }
+    //       })
+    //     ]
+    //   );
+    // },
     async getOrg() {
       // 获取设计过的组织
       const api = this.functionType === 'role' ? doFetchDesignOrg : getUserOrgAuth;
@@ -300,7 +320,6 @@ export default {
             }
             return item;
           });
-          console.log(childs);
         }
         console.log(childs);
         this.treeData = childs;
@@ -420,8 +439,14 @@ export default {
     border-right: 1px solid #e9e9e9;
     overflow-y: auto;
     box-sizing: border-box;
-
+    .select-children-all{
+      margin-left: 10px;
+      visibility: hidden;
+    }
     ::v-deep {
+      .el-tree__empty-block{
+        min-height: 300px;
+      }
       .custom-tree-node .iconfont {
         margin-right: 6px;
         font-size: 20px;
@@ -455,6 +480,9 @@ export default {
         &:hover {
           background: #f1f7ff;
         }
+      }
+      .el-tree-node__content:hover .select-children-all{
+        visibility: visible;
       }
     }
   }

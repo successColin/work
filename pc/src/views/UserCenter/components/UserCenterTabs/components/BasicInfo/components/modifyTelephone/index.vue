@@ -398,6 +398,7 @@ export default {
     },
     changeCheckType() {
       this.isCheckByPassword = !this.isCheckByPassword;
+      this.$refs.telephone.clearValidate();
     }
   }
 };

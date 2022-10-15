@@ -14,7 +14,7 @@
         >
           <img
             class="dropdownMenu__item--img"
-            :src="item.iconObj.imageUrl"
+            :src="$parseImgUrl(item.iconObj.imageUrl)"
             v-if="item.iconObj.imageUrl"
             alt=""
           />

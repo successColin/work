@@ -226,7 +226,7 @@ export default {
       try {
         this.contentLoading = true;
         this.transitionName = 'fadeInUp';
-        const data = await getFunctionList({ keywords: this.keywords });
+        const data = await getFunctionList({ keywords: this.keywords, clientType: this.$route.query.isApp === '1' ? 2 : 1 });
         this.contentLoading = false;
         data.forEach((item) => {
           const { colour, imageUrl, imageName } = item;

@@ -8,9 +8,10 @@
       { active: isConfig && activeObj.compId === configData.compId },
     ]"
     v-if="showInput"
+    v-loading="loading"
   >
     <el-form-item :prop="`${configData.compId}`">
-      <span class="span-box" slot="label">
+      <span class="span-box" slot="label" v-if="configData.showLabelTitle">
         <span> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
@@ -40,7 +41,7 @@
         :show-file-list="false"
         :disabled="configData.canReadonly"
       >
-        <img v-if="item.url" :src="item.url" class="avatar" />
+        <img v-if="item.url" :src="$parseImgUrl(item.url)" class="avatar" />
         <div v-else class="tips">
           <i class="el-icon-upload"></i>
           <p>{{ configData.tipsArr[num].info }}</p>
@@ -55,8 +56,8 @@
           ></el-tooltip>
           <el-tooltip effect="dark" content="下载" placement="top">
             <a
-              :href="`${item.url}?response-content-type=application/octet-stream`"
               class="operate--xiazai"
+              @click.stop="download(`${item.url}`, item.name)"
             >
               <i class="iconfont icon-xiazai"></i> </a
           ></el-tooltip>
@@ -70,8 +71,16 @@
       </el-upload>
     </el-form-item>
     <apiot-dialog :visible.sync="dialogVisible" class="previewDialog">
-      <img width="100%" :src="imgUrl" alt="" />
+      <img width="100%" :src="$parseImgUrl(imgUrl)" alt="" />
     </apiot-dialog>
+    <image-zoom
+      v-if="previewVisible"
+      :previewObj="previewObj"
+      :picList="picList"
+      v-on:hideImgPreview="hideImgPreview"
+      :isShowDelBtn="false"
+      :isShowShareBtn="false"
+    ></image-zoom>
     <config-manage
       v-if="isConfig"
       :showDel="isConfig && activeObj.compId === configData.compId"
@@ -82,8 +91,11 @@
 </template>
 
 <script>
+import { downloadSingle } from '@/api/knowledge';
+import { saveAs } from '@/utils/utils';
 import { batchUpload, getFileList } from '@/api/menuConfig';
 import compMixin from '../../compMixin';
+import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
 
 export default {
   props: {
@@ -113,12 +125,16 @@ export default {
       idsArr: [],
       flag: true,
       unwatch: null,
-      notChangeIndex: false
+      notChangeIndex: false,
+      previewVisible: false,
+      previewObj: {},
+      picList: [],
+      loading: false
     };
   },
   mixins: [compMixin],
 
-  components: {},
+  components: { imageZoom },
 
   computed: {},
 
@@ -142,12 +158,18 @@ export default {
         const data = await getFileList({
           ids: this.parent.form[this.configData.compId]
         });
-        data.forEach((item) => {
+        data.forEach((item, index) => {
           item.showOperate = false;
           item.percentage = 100;
+          this.fileList[index] = item;
         });
+        for (let i = 0; i < this.configData.maxFileCount; i += 1) {
+          if (data.length - 1 < i) {
+            data.push({});
+          }
+        }
         if (data && data.length) {
-          [this.fileList[this.curIndex]] = data;
+          this.fileList = data;
         } else {
           this.fileList[this.curIndex] = {};
         }
@@ -191,7 +213,6 @@ export default {
           reject(file);
           return;
         }
-
         resolve(file);
       });
     },
@@ -206,6 +227,7 @@ export default {
       formData.append('menuId', menuId);
       this.notChangeIndex = true;
       const res = await batchUpload(formData);
+      this.notChangeIndex = false;
       if (this.fileList[this.curIndex].id) {
         this.fileDeleteIds.push(this.fileList[this.curIndex].id);
       }
@@ -216,15 +238,42 @@ export default {
       const fileArr = this.fileList.splice(this.curIndex, 1, {});
       this.fileDeleteIds.push(fileArr[0].id);
     },
-    preview(file) {
-      // console.log(file);
-      this.imgUrl = file.url;
-      this.dialogVisible = true;
-    },
+    // preview(file) {
+    //   // console.log(file);
+    //   this.imgUrl = file.url;
+    //   this.dialogVisible = true;
+    // },
     operateClick(e) {
       if (!e.target.classList.contains('icon-qiehuan')) {
         e.stopPropagation();
       }
+    },
+    async download(url, filename) {
+      const data = await downloadSingle({ url });
+      saveAs(data, filename);
+    },
+    async preview(file) {
+      this.previewObj.sysKlTree = file;
+      this.picList = [];
+      this.fileList.forEach((liObj) => {
+        this.picList.push({
+          sysKlTree: liObj
+        });
+      });
+      if (this.$store.state.globalConfig.waterConfig.enableWaterMask === '1') {
+        const index = this.picList.findIndex((item) => item.sysKlTree.id === file.id);
+        if (index !== -1) {
+          this.loading = true;
+          const data = await downloadSingle({ url: this.picList[index].sysKlTree.url });
+          this.loading = false;
+          this.picList[index].sysKlTree.blob = data;
+        }
+      }
+      this.previewVisible = true;
+    },
+    hideImgPreview() {
+      // 关闭预览
+      this.previewVisible = false;
     }
   },
 
@@ -251,7 +300,9 @@ export default {
       handler(v) {
         this.flag = false;
         this.parent.form[this.configData.compId] = v.join();
-        this.flag = true;
+        this.$nextTick(() => {
+          this.flag = true;
+        });
       },
       deep: true
     },

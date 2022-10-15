@@ -241,6 +241,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else {
             panelObj.panelFixData[item.paneComp.compId] =
               this.getAllForm()[item.mainComp.compId] == null

@@ -61,6 +61,7 @@
               <multi-dialog
                 ref="multiDialog"
                 :visible.sync="multiVisible"
+                :multiVisible="multiVisible"
                 :itemTheme="1"
                 :multiStr.sync="multiStr"
                 :multiArr.sync="multiArr"

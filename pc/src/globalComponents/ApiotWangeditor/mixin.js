@@ -85,20 +85,21 @@ export default {
         MENU_CONF: {
           uploadImage: {
             // 自定义上传图片
-            async customUpload(file, insertFn) {
+            customUpload: async (file, insertFn) => {
               const formData = new FormData();
               formData.append('file', file);
               const res = await postUploadHelp(formData);
-              insertFn(res, '', res);
+              const url = `/api/v1//system/waterMark/addWaterMark?url=${res}`;
+              insertFn(this.$parseImgUrl(url), '', this.$parseImgUrl(url));
             },
           },
           uploadVideo: {
             // 自定义上传图片
-            async customUpload(file, insertFn) {
+            customUpload: async (file, insertFn) => {
               const formData = new FormData();
               formData.append('file', file);
               const res = await postUploadHelp(formData);
-              insertFn(res, '', res);
+              insertFn(this.$parseImgUrl(res), '', this.$parseImgUrl(res));
             },
           },
         },

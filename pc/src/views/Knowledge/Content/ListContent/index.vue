@@ -6,16 +6,23 @@
       :tableData="list"
       row-key="id"
       ref="Tables"
+      :isAnimate="false"
       :select-on-indeterminate="true"
       :showSelection="false"
       :isNeedColumnDrop="false"
       @selection-change="handleSelectionChange"
       @cell-mouse-enter="cellMouseEnter"
       @cell-mouse-leave="cellMouseLeave"
+      v-loadMore="loadMore"
     >
-      <el-table-column width="40">
+      <el-table-column
+        width="40"
+        type="selection"
+        :selectable="selectable"
+      >
         <template #header slot-scope>
           <el-checkbox
+            :indeterminate="isIndeterminate"
             :value="isCheckAll()"
             :checked="isCheckAll()"
             @change="handleCheckAllChange"
@@ -153,7 +160,7 @@ export default {
     isDialog: {
       type: Boolean,
       default: false
-    }
+    },
   },
   data() {
     return {
@@ -233,6 +240,11 @@ export default {
         return this.selectKeys.length === this.list.length;
       };
     },
+    isIndeterminate() {
+      const sn = this.selectKeys.length;
+      const ln = this.list.length;
+      return (sn > 0) && (ln > sn);
+    },
     getFileUrl() {
       return function (obj) {
         return this.fileUrl(obj);
@@ -245,6 +257,20 @@ export default {
   },
 
   methods: {
+    // sortChange(sortInfo) { // 排序
+    //   const { prop, order } = sortInfo;
+    //   const orderObj = { column: prop };
+    //   if (order === 'ascending') orderObj.asc = true;
+    //   else if (order === 'descending') orderObj.asc = false;
+    //   console.log(orderObj);
+    //   this.$emit('sortChange', orderObj);
+    // },
+    selectable(row) {
+      return !(this.getFilterIds.includes(row.id || row.sysKlTree.id));
+    },
+    loadMore() {
+      this.$emit('loadMore');
+    },
     async updateShare(row) {
       // 修改分享人
       try {
@@ -288,6 +314,21 @@ export default {
       // this.$emit('editFileName', this.editFileName, this.selectKeys[0].sysKlTree.id);
     },
     handleCheckAllChange(e) {
+      // const isFlag = this.list.every((item) => (
+      //   this.getFilterIds.includes(item.id || item.sysKlTree.id)
+      // ));
+      // if (isFlag && this.getFilterIds.length) { // 全部都有就不允许选中
+      //   return;
+      // }
+      // const isOneFlag = this.list.some((item) => (
+      //     this.getFilterIds.includes(item.id || item.sysKlTree.id)
+      // ));
+      // if (isOneFlag && this.getFilterIds.length) {
+      //   const list = e ? this.list : [];
+      //   this.checkAll = e;
+      //   this.selectList(list);
+      //   this.updateData('edit', false);
+      // }
       const list = e ? this.list : [];
       this.checkAll = e;
       this.selectList(list);
@@ -402,7 +443,7 @@ export default {
   }
   ::v-deep{
     .el-table--border .el-table__cell:first-child .cell{
-      padding: 0;
+      padding: 0 !important;
       justify-content: center;
     }
     .el-table th.el-table__cell > .cell{

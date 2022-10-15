@@ -8,19 +8,22 @@
         </apiot-checkbox>
       </div>
       <div class="searchWrap__box">
-        <apiot-input
-          :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="input"
-          @blur="isActive = false"
-          @focus="isActive = true"
-          slotType="prefix"
-        >
-          <i
-            slot="prefix"
-            class="iconfont icon-sousuo"
-            :class="isActive ? 'on' : ''"
-          ></i>
-        </apiot-input>
+<!--        <apiot-input-->
+<!--          :placeholder="$t('placeholder.pleaseEnterkeySearch')"-->
+<!--          v-model="input"-->
+<!--          @blur="isActive = false"-->
+<!--          @focus="isActive = true"-->
+<!--          slotType="prefix"-->
+<!--        >-->
+<!--          <i-->
+<!--            slot="prefix"-->
+<!--            class="iconfont icon-sousuo"-->
+<!--            :class="isActive ? 'on' : ''"-->
+<!--          ></i>-->
+<!--        </apiot-input>-->
+        <search-input
+            v-model="input"
+        ></search-input>
       </div>
       <div class="searchWrap_btn" v-if="isShow()">
         <apiot-button type="primary" style="margin-right: 0px" @click="toggle">
@@ -39,7 +42,8 @@
         :key="item.id"
         class="iconWrap__box"
         :class="{
-          checked: hoverKey === item.id || selectedArr.includes(item.id),
+          checked:
+            isShow() && (hoverKey === item.id || selectedArr.includes(item.id)),
         }"
         @mouseenter="hoverKey = item.id"
         @mouseleave="hoverKey = ''"
@@ -50,12 +54,18 @@
           :class="item.value"
           v-show="!isShow()"
         ></div>
-        <img class="imgWrap" :src="item.iconUrl" alt="" v-show="isShow()" />
+        <img
+          class="imgWrap"
+          :src="$parseImgUrl(item.iconUrl)"
+          alt=""
+          v-show="isShow()"
+        />
         <p class="iconWrap__name">{{ item.iconName }}</p>
         <apiot-checkbox
           :value="selectedArr.includes(item.id)"
           class="checkStyle"
           @change="changeIcon(item.id)"
+          v-if="isShow()"
         >
         </apiot-checkbox>
       </div>
@@ -191,11 +201,7 @@ export default {
       return function () {
         const groupArr = this.groupArr || [];
         const arr =
-          groupArr.filter(
-            (item) =>
-              item.iconName.toLowerCase().indexOf(this.input) !== -1 &&
-              item.iconType === this.baseType
-          ) || [];
+          groupArr.filter((item) => item.iconName.toLowerCase().indexOf(this.input) !== -1) || [];
         return arr;
       };
     },
@@ -484,23 +490,23 @@ export default {
       float: right;
       height: 30px;
       line-height: 30px;
-      text-align: right;
+      //text-align: right;
 
-      ::v-deep {
-        .el-input__inner {
-          width: 98%;
-          height: 30px;
-          padding-left: 12px;
-          font-size: 13px;
-          cursor: pointer;
-        }
-
-        .el-input__prefix {
-          left: auto;
-          right: 15px;
-          cursor: pointer;
-        }
-      }
+      //::v-deep {
+      //  .el-input__inner {
+      //    width: 98%;
+      //    height: 30px;
+      //    padding-left: 12px;
+      //    font-size: 13px;
+      //    cursor: pointer;
+      //  }
+      //
+      //  .el-input__prefix {
+      //    left: auto;
+      //    right: 15px;
+      //    cursor: pointer;
+      //  }
+      //}
     }
   }
 

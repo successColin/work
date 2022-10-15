@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import { isEqual } from 'lodash';
 // 引入基本模板
 import * as echarts from 'echarts/core';
 // 引入柱状图图表，图表后缀都为 Chart
@@ -278,40 +277,64 @@ export default {
       deep: true,
       immediate: true,
       handler(v, o) {
-        const params = this.getParameters();
-        const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-          this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
-          this.fetchData();
+        if (v && o) {
+          const { dataType, SqlDataConfig: {
+            enableDataManage, variableConfig = []
+          } } = this.config;
+          if (dataType === 3 && enableDataManage && variableConfig.length) {
+            this.checkParams(variableConfig);
+          }
         }
       }
     }
   },
   methods: {
+    checkParams(variableConfig) {
+      const obj = {};
+      Object.keys(this.otherParams).forEach((item) => {
+        const currentVar = variableConfig.find((varObj) => varObj.name === item);
+        if (currentVar) {
+          obj[item] = this.otherParams[item];
+        }
+      });
+      if (JSON.stringify(obj) !== '{}') {
+        this.fetchData();
+      }
+    },
     getParameters() {
-      const { id, componentId } = this.config;
+      const { id, SqlDataConfig: {
+        variableConfig
+      } } = this.config;
       const reduce = (obj) => // 将Object 处理成 Array
         Object.keys(obj).map((item) => ({
           name: item,
           value: obj[item]
         }));
 
-      const { query } = this.$route;
+      const { query, name } = this.$route;
       const satisfyParams = {};
       if (JSON.stringify(this.otherParams) !== '{}') {
         Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
+          const currentVar = variableConfig.find((varObj) => varObj.name === item);
+          if (currentVar) {
+            satisfyParams[item] = this.otherParams[item];
           }
         });
       }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
+      let lastParams = {};
+      if (name !== 'appCustomPage') {
+        lastParams = {
+          ...satisfyParams,
+          ...this.params
+        };
+      } else {
+        lastParams = {
+          ...satisfyParams,
+          ...query,
+          ...this.params
+        };
+      }
+      const arr = reduce(lastParams);
       return {
         id,
         varJson: JSON.stringify(arr)

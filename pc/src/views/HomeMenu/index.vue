@@ -8,46 +8,52 @@
 <!-- 页面 -->
 <template>
   <div class="content" v-loading="loading">
-    <div class="contentWrap"
-         :class="{ equalWidthRatio: bgConfig.showType === 2, design:  bgConfig.showType === 4}"
-         :style="getBGStyle"
+    <div
+      class="contentWrap"
+      :class="{
+        [`files${otherParams.id}`]: true,
+        equalWidthRatio: bgConfig.showType === 2,
+        design: bgConfig.showType === 4,
+      }"
+      :style="getBGStyle"
     >
       <div class="previewWrap" :style="getStylesBgUrl()">
         <div class="contentBox">
-          <el-skeleton v-if="loading" :rows="14" animated/>
+          <el-skeleton v-if="loading" :rows="14" animated />
           <component
-              :transitionScaleX="transitionScaleX"
-              :transitionScaleY="transitionScaleY"
-              :config="configItem"
-              :is="configItem.componentName"
-              v-for="(configItem, i) in filterList"
-              :key="`${configItem.componentId}_${i}`"
-              :metaDataList=metaDataList
-              :updateState="updateState"
-              :otherParams="filterParameter"
+            :transitionScaleX="transitionScaleX"
+            :transitionScaleY="transitionScaleY"
+            :config="configItem"
+            :is="configItem.componentName"
+            v-for="(configItem, i) in filterList"
+            :key="`${configItem.componentId}_${i}`"
+            :metaDataList="metaDataList"
+            :updateState="updateState"
+            :otherParams="otherParams"
+            :elementData="elementData"
           ></component>
         </div>
         <CScreenBullet
-            :visible="visible"
-            v-if="visible"
-            :iframeUrl="singleConfig.url || ''"
-            :width="singleConfig.bulletWidth"
-            :height="singleConfig.bulletHeight"
+          :visible="visible"
+          v-if="visible"
+          :iframeUrl="singleConfig.url || ''"
+          :width="singleConfig.bulletWidth"
+          :height="singleConfig.bulletHeight"
         ></CScreenBullet>
       </div>
-<!--      <div class="contentBg" :style="getStylesBg()"></div>-->
+      <!--      <div class="contentBg" :style="getStylesBg()"></div>-->
       <div class="contentBg"></div>
     </div>
-<!--    <video-->
-<!--        class="contentVideo"-->
-<!--        style="width:100%; height:100%; object-fit: fill"-->
-<!--        muted loop autoplay-->
-<!--        :src="bgConfig.bgImage"></video>-->
-<!--    <Loading v-if="isShow"/>-->
+    <!--    <video-->
+    <!--        class="contentVideo"-->
+    <!--        style="width:100%; height:100%; object-fit: fill"-->
+    <!--        muted loop autoplay-->
+    <!--        :src="bgConfig.bgImage"></video>-->
+    <!--    <Loading v-if="isShow"/>-->
     <ImageZoom
-        v-if="imageFileVisible"
-        :imageFileName="imageFileName"
-        :imageFileUrl="imageFileUrl"
+      v-if="imageFileVisible"
+      :imageFileName="imageFileName"
+      :imageFileUrl="imageFileUrl"
     ></ImageZoom>
   </div>
 </template>
@@ -55,7 +61,7 @@
 <script>
 import { cloneDeep } from 'lodash';
 import Bus from '@/utils/bus';
-import { fetchElementList } from '@/api/design';
+import { fetchElementList, fetchElementData } from '@/api/design';
 
 // const PopCloseButton = () => import('./Components/PopCloseButton/index');
 const BackgroundBox = () => import('./Components/BackgroundBox/index');
@@ -73,6 +79,8 @@ const AuxiliaryLine = () => import('./Components/AuxiliaryLine/index');
 const RealTime = () => import('./Components/RealTime/index');
 const HorizontalProgressBar = () => import('./Components/HorizontalProgressBar/index');
 const RadarChart = () => import('./Components/RadarChart/index');
+const Notice = () => import('./Components/Notice/index');
+
 // const TabComponent = () => import('./Components/TabComponent/index');
 // const TimeFiltering = () => import('./Components/TimeFiltering/index');
 // const DropdownBox = () => import('./Components/DropdownBox/index');
@@ -83,13 +91,15 @@ const RadarChart = () => import('./Components/RadarChart/index');
 
 export default {
   props: {
-    frameParameters: { // 弹框参数
+    frameParameters: {
+      // 弹框参数
       type: Object,
       default() {
         return {};
       }
     },
-    otherParams: { // 其他外部参数
+    otherParams: {
+      // 其他外部参数
       type: Object,
       default() {
         return {};
@@ -98,6 +108,7 @@ export default {
   },
   data() {
     return {
+      elementData: {}, // 所有控件列表数据集合
       timer: null,
       imageFileName: '',
       imageFileUrl: '',
@@ -112,7 +123,8 @@ export default {
       transitionScaleY: 1,
       metaDataList: [],
       loading: true,
-      filterParameter: {} // 用于tab控件，时间控件组装过滤参数
+      filterParameter: {}, // 用于tab控件，时间控件组装过滤参数
+      timer1: null
     };
   },
 
@@ -133,6 +145,7 @@ export default {
     Dashboard,
     AuxiliaryLine,
     RealTime,
+    Notice,
     RadarChart
     // TabComponent,
     // TimeFiltering,
@@ -148,7 +161,7 @@ export default {
     },
     getBGStyle() {
       const {
-        bgImage,
+        // bgImage,
         bgColor,
         width,
         height,
@@ -167,17 +180,18 @@ export default {
       if (enableShadows) {
         styles += `boxShadow: ${xShadow}px ${yShadow}px ${blurRadius}px ${shadowDistance}px ${shadowColor};`;
       }
-      if (bgImage) {
-        styles += `background-image: url('${bgImage || ''}');`;
-        return styles;
-      }
+      // if (bgImage) {
+      //   styles += `background-image: url('${this.$parseImgUrl(bgImage) || ''}');`;
+      //   return styles;
+      // }
       if (bgColor) {
         styles += `background:${bgColor || ''};`;
         return styles;
       }
       return styles;
     },
-    getStylesBgUrl() { // 获取背景图
+    getStylesBgUrl() {
+      // 获取背景图
       return function () {
         const { bgImage, width, height, showType } = this.bgConfig;
         let styles = '';
@@ -185,59 +199,92 @@ export default {
         styles += `width: ${width}px;height:${height}px;`;
         // }
         if (showType === 2 || showType === 4) {
-          styles += `background-image: url('${bgImage || ''}');transform: scale(${this.transitionScaleX}, ${this.transitionScaleY}) ;`;
+          styles += `background-image: url('${
+            this.$parseImgUrl(bgImage) || ''
+          }');transform: scale(${this.transitionScaleX}, ${this.transitionScaleY}) ;`;
           return styles;
         }
-        styles += `background-image: url('${bgImage || ''}');transform: scale(${this.transitionScaleX}, ${this.transitionScaleY}) translate3d(-50%, -50%, 0px);`;
+        styles += `background-image: url('${this.$parseImgUrl(bgImage) || ''}');transform: scale(${
+          this.transitionScaleX
+        }, ${this.transitionScaleY}) translate3d(-50%, -50%, 0px);`;
         return styles;
       };
     },
-    getStylesBg() { // 获取大屏背景色
+    getStylesBg() {
+      // 获取大屏背景色
       return function () {
         return `background:${this.bgConfig.bgColor || ''}`;
       };
     }
   },
 
-  mounted() {
-    Bus.$off('modalOpera').$on('modalOpera', ({ visible, singleConfig }) => {
-      this.visible = visible;
-      this.singleConfig = singleConfig;
-    });
-    Bus.$off('previewOpera').$on('previewOpera', ({ visible, imageFileName, imageFileUrl }) => {
-      this.imageFileVisible = visible;
-      this.imageFileName = imageFileName;
-      this.imageFileUrl = imageFileUrl;
-    });
+  activated() {
+    this.commonBus();
     this.timer = setTimeout(() => {
       this.init();
     }, 500);
     window.addEventListener('resize', this.setDrawContent);
-    // window.addEventListener('message', (e) => {
-    //   if (e.data.message === 'modalClose') {
-    //     this.visible = Boolean(e.data.visible);
-    //   }
-    // }, false);
+  },
+  mounted() {
+    this.commonBus();
+    this.$nextTick(() => {
+      const { name } = this.$route;
+      if (this.otherParams.id || name === 'appCustomPage') {
+        setTimeout(() => {
+          this.init();
+        }, 500);
+        window.addEventListener('resize', this.setDrawContent);
+      }
+    });
   },
   watch: {
-    $route(to, from) {
-      console.log('路由变化了');
-      console.log('当前页面路由：', to);
-      console.log('上一个路由：', from);
-    },
+    otherParams: {
+      deep: true,
+      immediate: false,
+      handler(v, o) {
+        if (v && v.id && o) {
+          this.init();
+          this.setDrawContent();
+        }
+      }
+    }
   },
 
   methods: {
-    updateState(key, itemObj) { // 修改data中的值
+    commonBus() {
+      Bus.$off('modalOpera').$on('modalOpera', ({ visible, singleConfig }) => {
+        this.visible = visible;
+        this.singleConfig = singleConfig;
+      });
+      Bus.$off('previewOpera').$on('previewOpera', ({ visible, imageFileName, imageFileUrl }) => {
+        this.imageFileVisible = visible;
+        this.imageFileName = imageFileName;
+        this.imageFileUrl = imageFileUrl;
+      });
+      Bus.$off('menuWidthChange').$on('menuWidthChange', () => {
+        this.timer1 = setTimeout(() => {
+          this.setDrawContent();
+        }, 500);
+      });
+    },
+    updateState(key, itemObj) {
+      // 修改data中的值
       this[key] = itemObj;
     },
     async init() {
       const query = this.$route.params;
-      console.log('mounted, 为什么重新调用接口', query);
+      let cToken = '';
+      const urlParams = this.$route.query;
+      const { hasOwnProperty } = Object.prototype;
+      if (hasOwnProperty.call(urlParams, 'CSMToken') && urlParams.CSMToken) {
+        cToken = urlParams.CSMToken;
+      }
       const params = {
         ...query,
+        cToken,
         ...this.otherParams
       };
+      if (!cToken) delete params.cToken;
       try {
         const data = await fetchElementList(params);
         const { designJson, list = [] } = data;
@@ -253,81 +300,77 @@ export default {
         });
         this.getInitFilterParams(this.metaDataList);
         // this.list = this.metaDataList.filter(item => item.isShow);
-        this.$nextTick(() => {
-          this.isShow = false;
-          this.setDrawContent();
-        });
       } catch (e) {
         this.loading = true;
       }
     },
     getInitFilterParams(arr) {
-      const params = {};
       const newArr = cloneDeep(arr);
-      // arr.forEach((item) => {
-      //   const { componentName } = item;
-      //   if (componentName === 'TabComponent') { // tab
-      //     const { stylesObj = {}, tabConfig = [] } = item;
-      //     const { defaultShowTab, paramName } = stylesObj;
-      //     if (!paramName) return;
-      //     const i = defaultShowTab.split('_')[1]; // 默认选中的tab
-      //     const { geChartArray = [], value } = tabConfig[+i];
-      //     if (!geChartArray.length) return;
-      //     if (!value) return;
-      //     geChartArray.forEach((arr) => {
-      //       params[`${arr}_${paramName}`] = value;
-      //     });
-      //   } else if (componentName === 'DropdownBox') { // 下拉
-      //     const {
-      //       stylesObj: {
-      //         updateChart = [],
-      //         selectOptions = [],
-      //         defaultCheckedTimeType = '',
-      //         paramsFiled = ''
-      //       }
-      //     } = item;
-      // eslint-disable-next-line max-len
-      //     if (!selectOptions.length || !paramsFiled || !updateChart.length || !defaultCheckedTimeType) return;
-      //     const arr = defaultCheckedTimeType.split('_');
-      //     const i = +arr[arr.length - 1];
-      //     const obj = selectOptions[i];
-      //     const { value } = obj;
-      //     updateChart.forEach((chart) => {
-      //       params[`${chart}_${paramsFiled}`] = value;
-      //     });
-      //   } else if (componentName === 'DataSwitching') {
-      //     const { beforeParamsConfig = [] } = item;
-      //     beforeParamsConfig.forEach((beforeItems) => {
-      // eslint-disable-next-line max-len
-      //       const index = newArr.findIndex((items) => items.componentId === beforeItems.componentId);
-      //       if (index !== -1) {
-      //         console.log(index, 'index', beforeItems.isShow);
-      //         newArr[index].isShow = beforeItems.isShow;
-      //         const { variableConfig = [] } = item;
-      //         if (variableConfig.length) {
-      //           variableConfig.forEach((varObj) => {
-      //             const { name, value } = varObj;
-      //             if (name) {
-      //               params[`${beforeItems.componentId}_${name}`] = value;
-      //             }
-      //           });
-      //         }
-      //       }
-      //     });
-      //   }
-      // });
-
-      this.filterParameter = params;
       this.list = newArr.filter((item) => item.isShow); // 只展示显示的控件
+      this.fetchElementData(this.list);
+      this.$nextTick(() => {
+        this.setDrawContent();
+        this.isShow = false;
+      });
     },
-    setDrawContent() { //  计算画布大小
+    async fetchElementData(list = []) {
+      // 批量获取控件数据
+      const targetList = list.filter((item) => {
+        const { dataType, componentName } = item;
+        return ['SingleLineTextHome', 'Dashboard'].includes(componentName) && dataType === 3;
+      });
+      const paramArr = [];
+      targetList.forEach((item) => {
+        const obj = this.getParameters(item);
+        paramArr.push(obj);
+      });
+      if (!paramArr.length) return;
+      const res = await fetchElementData({ elementDtos: paramArr });
+      this.elementData = res;
+      // fetchElementData
+    },
+    getParameters(config) {
+      const { id, dataType, SqlDataConfig: {
+        enableDataManage, variableConfig
+      } } = config;
+      const reduce = (
+        obj // 将Object 处理成 Array
+      ) =>
+        Object.keys(obj).map((item) => ({
+          name: item,
+          value: obj[item]
+        }));
+      const satisfyParams = {};
+      const { name } = this.$route;
+      const query = name === 'appCustomPage' ? this.$route.query : this.otherParams;
+      if (JSON.stringify(query) !== '{}') {
+        Object.keys(this.otherParams).forEach((item) => {
+          if (dataType === 3 && enableDataManage && variableConfig.length) {
+            const currentVar = variableConfig.find((varObj) => varObj.name === item);
+            if (currentVar) {
+              satisfyParams[item] = this.otherParams[item];
+            }
+          }
+        });
+      }
+      const arr = reduce(satisfyParams);
+      return {
+        id,
+        varJson: JSON.stringify(arr)
+      };
+    },
+
+    setDrawContent() {
+      //  计算画布大小
+      console.log(111111);
       const dom = document.querySelector('.contentWrap');
+      console.log(dom, 'dom');
       if (!dom) return;
       const { width: availWidth, height: availHeight } = dom.getBoundingClientRect();
       const { showType, width: dWidth, height: dHeight } = this.bgConfig;
       const widthScalc = availWidth / (dWidth + 10 || 1920);
       const heightScalc = availHeight / (dHeight || 1080);
-      // this.transitionScale = widthScalc > heightScalc ? heightScalc : widthScalc;
+      console.log(availWidth, availHeight, this.bgConfig, widthScalc, heightScalc);
       if (showType === 1) {
         this.transitionScaleX = widthScalc;
         this.transitionScaleY = heightScalc;
@@ -345,16 +388,27 @@ export default {
         this.transitionScaleX = 1;
         this.transitionScaleY = 1;
       }
+    },
+    commonDestroy() {
+      if (window) {
+        window.removeEventListener('resize', this.setDrawContent);
+      }
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      if (this.timer1) {
+        clearTimeout(this.timer1);
+      }
+      Bus.$off('modalOpera');
+      Bus.$off('previewOpera');
+      Bus.$off('menuWidthChange');
     }
   },
+  deactivated() {
+    this.commonDestroy();
+  },
   beforeDestroy() {
-    if (window) {
-      window.removeEventListener('resize', this.setDrawContent);
-    }
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-    console.log('beforeDestroy', this.$route.params);
+    this.commonDestroy();
   },
   name: 'homePage'
 };
@@ -367,7 +421,8 @@ export default {
   //overflow: hidden;
   //background-color: #202020;
 
-  .equalWidthRatio, .design {
+  .equalWidthRatio,
+  .design {
     overflow-y: auto;
     overflow-x: hidden;
 
@@ -381,7 +436,7 @@ export default {
     width: 100%;
     height: 100%;
     position: relative;
-    background: #FFFFFF;
+    background: #ffffff;
 
     .previewWrap {
       width: 100%;
@@ -420,6 +475,5 @@ export default {
     height: 100%;
     z-index: 0;
   }
-
 }
 </style>

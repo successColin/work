@@ -265,6 +265,7 @@
         :treeType="5"
         :showType="showType"
         :showContent="true"
+        :clientType="getClientType"
     ></ToMenuConfig>
   </div>
 </template>
@@ -405,6 +406,10 @@ export default {
   },
 
   computed: {
+    getClientType() {
+      const { clientType } = sessionStorage;
+      return +clientType;
+    },
     tabPaneConfig() {
       const { panelConfig } = this.getComponentInfo;
       const { curPaneObj } = panelConfig || {};

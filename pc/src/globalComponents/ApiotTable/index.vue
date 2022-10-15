@@ -267,7 +267,7 @@ export default {
         }
       }, 100);
 
-      this.$emit('cellMouseEnter', row);
+      this.$emit('cellMouseEnter', row, this.timeObj[row.rowkey]);
     },
     // 鼠标移出
     cellMouseLeave(row) {
@@ -468,7 +468,6 @@ export default {
   watch: {
     tableData: {
       handler(v) {
-        // console.log(this.dropClass);
         let addArr = [];
         let delArr = [];
         if (!this.shouldResetAll) {

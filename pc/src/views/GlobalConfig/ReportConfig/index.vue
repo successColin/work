@@ -38,6 +38,42 @@
                 {{ changeBtnName(statement.isUreportUrl) }}
               </apiot-button>
             </div>
+            <div v-if="i === 1" class="common">
+              <div v-if="!statement.isAppUrl" style="line-height: 48px">
+                {{ config.appHomepageUrl }}
+              </div>
+              <apiot-input
+                style="width: 90%"
+                v-else
+                :isForbid="false"
+                v-model="config.appHomepageUrl"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="homeConfig__operation"
+                @click="handleChangeCount('isAppUrl')"
+              >
+                {{ changeBtnName(statement.isAppUrl) }}
+              </apiot-button>
+            </div>
+            <div v-if="i === 2" class="common">
+              <div v-if="!statement.isShareUrl" style="line-height: 48px">
+                {{ config.shareUrl }}
+              </div>
+              <apiot-input
+                style="width: 90%"
+                v-else
+                :isForbid="false"
+                v-model="config.shareUrl"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="homeConfig__operation"
+                @click="handleChangeCount('isShareUrl')"
+              >
+                {{ changeBtnName(statement.isShareUrl) }}
+              </apiot-button>
+            </div>
           </li>
         </el-col>
       </el-row>
@@ -55,7 +91,9 @@ export default {
       params: {},
       statement: {
         isUreportUrl: false,
-        isMinioUrl: false
+        isMinioUrl: false,
+        isAppUrl: false,
+        isShareUrl: false
       }
     };
   },
@@ -71,6 +109,16 @@ export default {
       return [
         {
           name: this.$t('globalConfig.ureportUrl'),
+          col: 24,
+          attr: 'ureportUrl'
+        },
+        {
+          name: this.$t('globalConfig.APPCustomPage'),
+          col: 24,
+          attr: 'ureportUrl'
+        },
+        {
+          name: this.$t('globalConfig.shareUrl'),
           col: 24,
           attr: 'ureportUrl'
         }
@@ -106,6 +154,7 @@ export default {
         ...currentObj,
         attributeValue: value
       };
+      console.log(params);
       await this.update(params);
     },
     async handleChangeCount(key) {
@@ -120,7 +169,12 @@ export default {
       if (key === 'isMinioUrl' && this.statement[key]) {
         this.changeRadio(this.config.minioUrl, 'minioUrl');
       }
-
+      if (key === 'isAppUrl' && this.statement[key]) {
+        this.changeRadio(this.config.appHomepageUrl, 'appHomepageUrl');
+      }
+      if (key === 'isShareUrl' && this.statement[key]) {
+        this.changeRadio(this.config.shareUrl, 'shareUrl');
+      }
       this.statement[key] = !this.statement[key];
     }
   }

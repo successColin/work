@@ -10,6 +10,18 @@
           @blur="nameBlur"
         ></apiot-input>
       </el-form-item>
+      <el-form-item style="margin-bottom: 0">
+        <p class="switchBox">
+          显示标题
+          <el-switch
+            v-model="activeObj.showLabelTitle"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item v-if="false">
         <span slot="label">
           <span class="span-box">

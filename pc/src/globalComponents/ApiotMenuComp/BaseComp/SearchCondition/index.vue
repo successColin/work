@@ -108,7 +108,9 @@
                         {{ row.keyName }}：
                       </span>
                       <span
-                        class="searchCondition__his--value"
+                        class="
+                          searchCondition__his--value searchCondition__his--tags
+                        "
                         v-if="row.showValue"
                       >
                         <apiot-tag
@@ -120,6 +122,7 @@
                           v-for="(item, index) in row.showValue.split(',')"
                           :key="index"
                           :item="item"
+                          :samllSize="true"
                         ></apiot-tag>
                       </span>
                       <span
@@ -158,11 +161,16 @@
         v-model="keywords"
         :showPre="isSidebar ? true : isTree"
         @getList="getList"
-        :placeholder="configData.placeholder"
+        :placeholder="isConfig ? '' : configData.placeholder"
+        :isConfig="isConfig"
       ></condition-input>
     </section>
     <section class="searchCondition__box" v-else>
-      <SearchInput style="width: 80px" placeholder="搜索"></SearchInput>
+      <SearchInput
+        style="width: 80px"
+        placeholder=""
+        :isConfig="isConfig"
+      ></SearchInput>
     </section>
     <config-manage
       v-if="isConfig"
@@ -331,7 +339,8 @@ export default {
           if (
             comp.compType &&
             comp.dataSource.columnName !== 'id' &&
-            !idsArr.includes(comp.compId)
+            !idsArr.includes(comp.compId) &&
+            comp.canShow
           ) {
             // 树的进行显示的过滤
             if (this.isTree) {
@@ -371,11 +380,7 @@ export default {
       // 转化label
       comp = JSON.parse(JSON.stringify(comp));
       if (comp.compType === 15) {
-        // 启用字典
-        if (comp.enableDict) {
-          // 字典选择
-          comp.compType = 4;
-        } else if (comp.dataSource.relateName === '主表') {
+        if (comp.dataSource.relateName === '主表') {
           if (comp.enableMultiColumn) {
             // 数据多选框
             comp.compType = 7;
@@ -385,6 +390,9 @@ export default {
           } else if (comp.dataSource.columnTypeDict === '1') {
             // 数字类型
             comp.compType = 10;
+          } else if (comp.enableDict) {
+            // 字典选择
+            comp.compType = 4;
           } else {
             comp.compType = 1;
           }
@@ -443,12 +451,16 @@ export default {
       if (flag === 2) {
         // console.log(comp);
         if (comp.compType === 6) {
-          console.log(comp);
           column.name = `${comp.dataSource.mainTableInfo.tableName}.${comp.dataSource.mainColumnInfo.columnName}`;
         }
       }
       // 高级筛选时间的拆分处理
-      if (flag === 2 && this.form[comp.compId][0] && this.form[comp.compId][0]) {
+      if (
+        flag === 2 &&
+        this.form[comp.compId] &&
+        this.form[comp.compId][0] &&
+        this.form[comp.compId][0]
+      ) {
         if (comp.compType === 8 || comp.compType === 9) {
           let timeArr = [
             {
@@ -572,6 +584,7 @@ export default {
         if (flag) {
           this.$bus.$emit('reloadArea', 'searchCurrent', this.onlyFlag(), this.tableInfo.compId);
         }
+        this.$broadcast('searchClearAndBlur', false);
       });
     },
     // 高级搜索确认
@@ -855,9 +868,9 @@ export default {
       &:hover {
         background-color: #f6f6f8;
         border-radius: 4px;
-        .iconfont {
-          color: $--color-primary;
-        }
+        // .iconfont {
+        //   color: $--color-primary;
+        // }
         .searchCondition__his--headIcon {
           visibility: visible;
         }
@@ -895,7 +908,7 @@ export default {
       align-items: center;
       font-size: 13px;
       .iconfont {
-        color: #bbc3cd;
+        // color: #bbc3cd;
         font-size: 16px;
       }
     }
@@ -928,14 +941,17 @@ export default {
     &--headTime {
       font-weight: 400;
       color: #666;
-      width: 140px;
+      width: 110px;
       margin-right: 6px;
     }
     &--headIcon {
-      visibility: hidden;
+      // visibility: hidden;
       transition: all 0.2s;
       &.iconDec {
         transform: rotate(180deg);
+      }
+      &:hover {
+        color: $--color-primary;
       }
     }
     &--liBody {
@@ -962,6 +978,16 @@ export default {
     }
     &--value {
       color: #333;
+    }
+    &--tags {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      ::v-deep {
+        & > span {
+          margin-bottom: 4px !important;
+        }
+      }
     }
     &--right {
       width: 70px;

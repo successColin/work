@@ -13,6 +13,7 @@ export default {
     unfavorite: '取消收藏',
     menuModule: '菜单模块',
     icon: '图标',
+    parant: '父节点',
     fonticon: '字体图标',
     selficon: '自定义图标',
     system: '系统',

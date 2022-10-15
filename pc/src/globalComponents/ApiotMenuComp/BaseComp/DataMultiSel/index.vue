@@ -7,17 +7,18 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
-      { onelineCalss: isLayoutStyle },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isLayoutStyle }]"
+      :class="[{ onelineCalss__form: isQueryEle }]"
     >
       <span class="span-box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span style="white-space: nowrap"> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
           placement="top"
@@ -34,6 +35,7 @@
         class="selectBtn m-r-4"
         :disabled="configData.canReadonly"
         @click="showPanelDialog"
+        v-show="isConfig ? true : !configData.canReadonly"
       >
         <i class="iconfont icon-jiahao"></i>选择
       </apiot-button>
@@ -78,6 +80,11 @@ import { selectList } from '@/api/menuConfig';
 import compMixin from '../../compMixin';
 
 export default {
+  props: {
+    backForm: {
+      type: Object
+    }
+  },
   data() {
     return {
       curCompType: 2,
@@ -216,7 +223,7 @@ export default {
     }
   },
 
-  inject: ['getAllForm', 'getPanel', 'onlyFlag', 'sysMenuDesignId'],
+  inject: ['getAllForm', 'getPanel', 'onlyFlag', 'sysMenuDesignId', 'resolveFormula'],
 
   methods: {
     // 处理过滤条件变量为真实值
@@ -236,6 +243,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           }
@@ -286,6 +298,9 @@ export default {
   beforeDestroy() {
     if (this.unwatch) {
       this.unwatch();
+      if (this.backForm) {
+        this.parent.form[this.configData.compId] = this.backForm[this.configData.compId];
+      }
     }
   }
 };

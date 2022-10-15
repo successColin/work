@@ -273,6 +273,7 @@
         <div>
           <div>
             <list-field-config
+                :key="getComponentInfo.componentId"
                 @change="(value) => changeTitle(value, 'columnConfig')"
                 v-model="getComponentInfo.columnConfig"></list-field-config>
           </div>

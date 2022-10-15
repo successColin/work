@@ -278,7 +278,8 @@ export default {
           pcPanelName = '', // pc面板名称
           appPanelId = null, // app面板id
           appPanelName = '', // app面板名称
-          getCurrentTab
+          getCurrentTab,
+          messageConfig = []
         } = this.$refs.globalConfig;
         const config = {
           lastAllowRevokeNodeId,
@@ -292,8 +293,23 @@ export default {
           isAlreadyCheckUserAutoPass: checkList.includes('isAlreadyCheckUserAutoPass'),
           isSameCheckUserWithLastNodeAutoPass: checkList.includes('isSameCheckUserWithLastNodeAutoPass'),
           descConfigList,
-          tableRelation: JSON.stringify(getCurrentTab)
+          tableRelation: JSON.stringify(getCurrentTab),
+          messageConfig
         };
+        if (messageConfig.length) {
+          const obj = messageConfig.find((item) => !item.serverId);
+          if (obj) {
+            const typeObj = {
+              1: '短信',
+              2: '邮件',
+              3: '企业微信',
+              5: '钉钉'
+            };
+            const { messageType } = obj;
+            this.$message.error(`${typeObj[messageType]}的服务信息请配置完整!`);
+            return;
+          }
+        }
         if (descConfigList.length) {
           let isTrue = false;
           descConfigList.forEach((item) => {
@@ -349,6 +365,8 @@ export default {
             type: obj.radio,
             fieldNames: obj.value1
           },
+          checkFormConfig: obj.checkFormConfigJSON,
+          appCheckFormConfig: obj.appCheckFormConfigJSON,
           triggerPreCond: obj.termObj,
         };
         let others = '';
@@ -382,7 +400,8 @@ export default {
           buttonAttributes,
           nodeAbstractConfig,
           effectiveApprovalDays,
-          curPaneObj
+          curPaneObj,
+          ccList
         } = obj;
         if (JSON.stringify(sourceType) === '{}') {
           this.$message.error('请选择添加审批人！');
@@ -416,7 +435,8 @@ export default {
           appCheckFormConfig: appCheckFormConfigJSONOrigin,
           buttonAttributes,
           effectiveApprovalDays,
-          abstractPanelId: JSON.stringify(curPaneObj)
+          abstractPanelId: JSON.stringify(curPaneObj),
+          ccList
         };
         const newObj = {
           config,

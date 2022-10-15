@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2022-05-16 10:13:50
+ * @Last Modified time: 2022-08-15 10:56:09
  */
 export default {
   importTemplate: {
@@ -40,6 +40,7 @@ export default {
     databaseStorageField: '数据库存储字段',
     toTheAssociatedTableID: '转换为关联表ID',
     codeGeneration: '自动编码生成',
+    getDictionaryValue: '取字典值',
     dataConversionSaveDatabase:
       '数据转换：将Excel中的显示值，通过一定的方式转换后再存入到数据库；',
     commonUsageScenariosAre:

@@ -108,6 +108,71 @@
           ></filterable-input>
         </div>
       </div>
+      <div class="form-item">
+        <div class="form-item-label">通知消息设置</div>
+        <div class="form-item-content">
+          <el-checkbox-group :value="messageType">
+            <el-checkbox :key="1" :label="1" @change="changeMessage($event, 1)">短信</el-checkbox>
+            <br/>
+            <div class="select-field" v-if="+getMessageInfo(1).messageType === 1">
+              <div class="form-item-label">
+                短信服务信息
+              </div>
+              <div>
+                <select-serve
+                    :messageType="1"
+                    :value="getMessageInfo(1)"
+                    @input="changeMessageServeId($event, 1)"
+                ></select-serve>
+              </div>
+            </div>
+
+            <el-checkbox :key="2" :label="2" @change="changeMessage($event, 2)">邮件</el-checkbox>
+            <br/>
+            <div class="select-field" v-if="+getMessageInfo(2).messageType === 2">
+              <div class="form-item-label">
+                邮件服务信息
+              </div>
+              <div>
+                <select-serve
+                    :messageType="2"
+                    :value="getMessageInfo(2)"
+                    @input="changeMessageServeId($event, 2)"
+                ></select-serve>
+              </div>
+            </div>
+            <el-checkbox :key="3" :label="3" @change="changeMessage($event, 3)">企业微信</el-checkbox>
+            <br/>
+            <div class="select-field" v-if="+getMessageInfo(3).messageType === 3">
+              <div class="form-item-label">
+                企业微信服务信息
+              </div>
+              <div>
+                <select-serve
+                    :messageType="3"
+                    :value="getMessageInfo(3)"
+                    @input="changeMessageServeId($event, 3)"
+                ></select-serve>
+              </div>
+            </div>
+            <el-checkbox :key="5" :label="5" @change="changeMessage($event, 5)">钉钉</el-checkbox>
+            <br/>
+            <div class="select-field" v-if="+getMessageInfo(5).messageType === 5">
+              <div class="form-item-label">
+                钉钉服务信息
+              </div>
+              <div>
+                <select-serve
+                    :messageType="5"
+                    :value="getMessageInfo(5)"
+                    @input="changeMessageServeId($event, 5)"
+                ></select-serve>
+              </div>
+            </div>
+          </el-checkbox-group>
+        </div>
+      </div>
+
       <div style="margin-top: 10px;">
         <apiot-button class="list-btn" @click="doClick">
           <i class="icon-xinzeng iconfont m-r-4"></i>
@@ -208,7 +273,9 @@
 
 <script>
 import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
+import SelectServe from '@/views/MessageTemplate/components/Configuration/components/SelectServe';
 import { getFields } from '@/api/flow';
+import { getServeList } from '@/api/messageTemplate';
 
 export default {
   props: {
@@ -225,6 +292,10 @@ export default {
   },
   data() {
     return {
+      serverList1: [], // 消息服务1
+      serverList2: [], // 消息服务2
+      serverList3: [], // 消息服务3
+      serverList5: [], // 消息服务5
       getCurrentTab: {
         tableInfo: { tableName: '' },
         relateTableArr: [],
@@ -250,18 +321,49 @@ export default {
       descConfigList: [], // 摘要信息配置
       descConfigListOrigin: [], // 初始数据
       tableName: '',
-      fieldOptions: []
+      fieldOptions: [],
+      messageConfig: [], // 通知消息设置
     };
   },
 
   components: {
-    RelateTableDialog
+    RelateTableDialog,
+    SelectServe
   },
 
-  computed: {},
+  computed: {
+    getMessageInfo() { // 获取消息属性
+      return function (type) {
+        const obj = this.messageConfig.find((item) => +item.messageType === +type);
+        if (obj) {
+          return {
+            ...obj,
+            id: obj.serverId
+          };
+        }
+        return {};
+      };
+    },
+    messageType() { // 消息配置
+      return this.messageConfig.map((item) => +item.messageType);
+    },
+  },
 
   mounted() {
-    this.getApproveNodeList();
+    this.$nextTick(() => {
+      this.getApproveNodeList();
+    });
+    // this.initService(1);
+    // this.initService(2);
+    this.initService(3);
+    this.initService(5);
+    const msgType = this.$store.state.dictManage.MESSAGE_TYPE;
+    if (!msgType.length) {
+      this.$store.dispatch(
+        'getCurrentDict',
+        'INNER_MAIL_TYPE,MESSAGE_TYPE,RECEIVER_TYPE,VARIABLE_TYPE,REQUISITE_TYPE,SMS_PROVIDER'
+      );
+    }
   },
   watch: {
     radio: {
@@ -310,6 +412,25 @@ export default {
   },
 
   methods: {
+    changeMessageServeId({ id: v }, key) {
+      console.log(v, key);
+      const obj = this.messageConfig.find((item) => +item.messageType === +key);
+      obj.serverId = v;
+    },
+    changeMessage(v, key) {
+      const i = this.messageConfig.findIndex((item) => +item.messageType === +key);
+      if (i === -1) {
+        this.messageConfig.push({
+          messageType: key,
+          serverId: null
+        });
+      } else {
+        this.messageConfig.splice(i, 1);
+      }
+    },
+    async initService(key) { // 服务列表
+      this[`serverList${key}`] = await getServeList({ messageType: key });
+    },
     async getFieldList() {
       // 获取字段列表
       this.fieldOptions = await getFields({
@@ -339,12 +460,19 @@ export default {
     },
     changeColumn1(value, row, i) {
       const obj = this.descConfigList[i];
-      const newObj = { ...obj, dictKey: value.dictKey, dictName: value.dictName };
+      const newObj = {
+        ...obj,
+        dictKey: value.dictKey,
+        dictName: value.dictName
+      };
       this.descConfigList.splice(i, 1, newObj);
     },
     changeColumn(value, row, i, key) {
       const obj = this.descConfigList[i];
-      const newObj = { ...obj, [key]: value };
+      const newObj = {
+        ...obj,
+        [key]: value
+      };
       this.descConfigList.splice(i, 1, newObj);
     },
     doClick() {
@@ -370,8 +498,14 @@ export default {
       });
     },
     init() {
-      const { globalAttributes, workflowTree = {} } = this.currentVersion;
-      const { type, properties } = workflowTree;
+      const {
+        globalAttributes,
+        workflowTree = {}
+      } = this.currentVersion;
+      const {
+        type,
+        properties
+      } = workflowTree;
       if (type === 'start' && properties) {
         this.tableName = properties.tableName;
       }
@@ -388,7 +522,8 @@ export default {
           pcPanelName = '', // pc面板名称
           appPanelId = null, // app面板id
           appPanelName = '', // app面板名称
-          tableRelation
+          tableRelation,
+          messageConfig = [],
         } = globalAttributes;
         this.lastAllowRevokeNodeId = lastAllowRevokeNodeId;
         this.descConfigList = descConfigList;
@@ -406,10 +541,12 @@ export default {
         if (isTriggerUserAutoPass) {
           this.checkList.push('isTriggerUserAutoPass');
         }
+        console.log(messageConfig, 'messageConfig');
         this.pcPanelId = pcPanelId; // pc面板id
         this.pcPanelName = pcPanelName; // pc面板名称
         this.appPanelId = appPanelId; // app面板id
         this.appPanelName = appPanelName; // app面板名称
+        this.messageConfig = messageConfig;
         this.getCurrentTab = tableRelation ? JSON.parse(tableRelation) : {
           tableInfo: { tableName: this.tableName },
           relateTableArr: [],
@@ -449,19 +586,16 @@ export default {
         if (hasOwnProperty.call(obj, 'childNode')) {
           approveLoop(obj.childNode, approveNodeArr);
         }
-        if (
-          hasOwnProperty.call(obj, 'conditionNodes') &&
-            obj.conditionNodes &&
-            Array.isArray(obj.conditionNodes)
-        ) {
+        if (hasOwnProperty.call(obj, 'conditionNodes') && obj.conditionNodes && Array.isArray(obj.conditionNodes)) {
           obj.conditionNodes.forEach((item) => {
             approveLoop(item, approveNodeArr);
           });
         }
       };
+      console.log(this.flowData, 'this.flowData');
       approveLoop(this.flowData, approveNodeArr);
       this.approveNodeArr = approveNodeArr;
-      // console.log(this.approveNodeArr, 'approveNodeArr');
+      console.log(this.approveNodeArr, 'approveNodeArr');
     }
   },
   name: 'inndex'
@@ -663,6 +797,7 @@ export default {
             color: #BBC3CD;
             cursor: pointer;
           }
+
           .icon-shanchu:hover {
             color: #4689f5;
           }
@@ -670,27 +805,32 @@ export default {
       }
     }
   }
-  .summarySettingsWrap{
+
+  .summarySettingsWrap {
     .icon-shanchu {
       color: #BBC3CD;
       cursor: pointer;
     }
+
     .icon-shanchu:hover {
       color: #4689f5;
     }
-    ::v-deep{
-      .filterableInput__result--table{
+
+    ::v-deep {
+      .filterableInput__result--table {
         top: 2px;
         right: 3px;
         bottom: 5px;
         left: 3px;
       }
-      .filterableInput__con .icon-jiahao{
+
+      .filterableInput__con .icon-jiahao {
         bottom: 3px;
       }
     }
   }
-  .summarySettings{
+
+  .summarySettings {
     margin-bottom: 10px;
     text-align: left;
   }

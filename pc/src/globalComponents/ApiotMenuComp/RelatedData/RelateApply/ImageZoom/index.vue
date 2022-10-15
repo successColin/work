@@ -1,17 +1,17 @@
 <!-- 页面 -->
 <template>
   <transition name="slide-bottom">
-    <div class="zoomWrap">
+    <div class="zoomWrap" v-loading="loading">
       <div class="headerWrap">
         <div class="headerWrap__title">
           <img :src="imageFile" alt="" />
-          <span>{{ previewObj.sysKlTree.name }}</span>
+          <span>{{ getCurrentImage.name }}</span>
         </div>
-        <div class="headerWrap__ope" v-if="false">
+        <div class="headerWrap__ope">
           <div
             class="action-item"
             @click="doShare"
-            v-if="isShowShareBtn"
+            v-if="isShowShareBtn && false"
             style="border-right: 1px solid #333333"
           >
             <el-tooltip
@@ -27,9 +27,7 @@
           </div>
           <div
             class="action-item"
-            @click="
-              download(previewObj.sysKlTree.url, previewObj.sysKlTree.name)
-            "
+            @click="download(getCurrentImage.url, getCurrentImage.name)"
             :style="
               isShowDelBtn ? 'border-right: 1px solid #333333;' : 'border:none;'
             "
@@ -48,7 +46,7 @@
           <div
             class="action-item"
             @click="doPreviewDel"
-            v-if="isShowDelBtn"
+            v-if="isShowDelBtn && false"
             style="border: none"
           >
             <el-tooltip
@@ -69,17 +67,24 @@
         <div class="hoverLine"></div>
       </div>
       <div class="previewContent">
+        <div class="previewContent-leftArrow" @click="changeLeftPic">
+          <i class="el-icon-arrow-left"></i>
+        </div>
         <div
           class="pic"
           :style="
             'transform: scale(' + scaleValue + ') translate3d(-50%, -50%, 0px)'
           "
         >
-          <img
-            :style="'transform: rotate(' + rotationAngle + 'deg)'"
-            :src="previewObj.sysKlTree.url"
-            alt=""
-          />
+          <div
+            class="imgWrap"
+            :style="'transform: rotate(' + rotationAngle + 'deg);width:100%;'"
+          >
+            <img class="scale-up-center" :src="getUrl" />
+          </div>
+        </div>
+        <div class="previewContent-rightArrow" @click="changeRightPic">
+          <i class="el-icon-arrow-right"></i>
         </div>
         <div class="bottomWrap__ope">
           <div class="action-item" :class="{ active: xuanzhuan }">
@@ -89,8 +94,20 @@
               :content="$t('knowledge.image_Spin')"
               placement="top-start"
             >
-              <div class="action-item-con" @click="doRotate">
+              <div class="action-item-con" @click="doLeftRotate">
                 <i class="iconfont icon-xuanzhuan"></i>
+              </div>
+            </el-tooltip>
+          </div>
+          <div class="action-item" :class="{ active: rightXuanZhuan }">
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="$t('knowledge.image_SpinR')"
+              placement="top-start"
+            >
+              <div class="action-item-con" @click="doRightRotate">
+                <i class="iconfont icon-a-xuanzhuanshun"></i>
               </div>
             </el-tooltip>
           </div>
@@ -126,8 +143,8 @@
 
 <script>
 import imageFile from '@/assets/img/imageFile.svg';
-
-import { saveAs, getBlob, debounce } from '@/utils/utils';
+import { downloadSingle } from '@/api/knowledge';
+import { saveAs, debounce } from '@/utils/utils';
 
 export default {
   props: {
@@ -142,6 +159,13 @@ export default {
     isShowDelBtn: {
       type: Boolean,
       default: true
+    },
+    picList: {
+      // 预览图片数组
+      type: Array,
+      default() {
+        return [];
+      }
     }
   },
   data() {
@@ -151,21 +175,100 @@ export default {
       xuanzhuan: false,
       fangda: false,
       shuoxiao: false,
-      scaleValue: 1 // 放大缩小值
+      scaleValue: 1, // 放大缩小值
+      rightXuanZhuan: false,
+      defaultPage: 0, // 文件下标
+      loading: false
     };
   },
 
   components: {},
 
-  computed: {},
+  computed: {
+    getCurrentImage() {
+      if (!this.picList.length) {
+        return this.previewObj.sysKlTree || {};
+      }
+      const current = this.picList[this.defaultPage] || {};
+      return current.sysKlTree || current;
+    },
+    getUrl() {
+      if (
+        this.$store.state.globalConfig.waterConfig.enableWaterMask === '1' &&
+        this.getCurrentImage.blob
+      ) {
+        return this.blobToImg(this.getCurrentImage.blob);
+      }
+      return this.$parseImgUrl(this.getCurrentImage.url);
+    }
+  },
 
   mounted() {
     window.addEventListener('mousewheel', this.handleScroll);
+    this.defaultPage = this.picList.findIndex((item) => {
+      // 渲染找到当前数据是哪个
+      const { id } = item.sysKlTree || item;
+      return id === this.previewObj.sysKlTree.id;
+    });
   },
   destroyed() {
     window.removeEventListener('mousewheel', this.handleScroll, false);
   },
   methods: {
+    // blob -> img
+    blobToImg(blob) {
+      const url = URL.createObjectURL(blob);
+      return url;
+    },
+    async changeLeftPic() {
+      // 点击左边切换
+      const n = this.picList.length;
+      if (!n) return;
+      this.reset();
+      let tempPage = this.defaultPage;
+      if (tempPage === 0 || tempPage < 0) {
+        tempPage = n - 1;
+      } else {
+        tempPage -= 1;
+      }
+      if (
+        this.$store.state.globalConfig.waterConfig.enableWaterMask === '1' &&
+        !this.picList[tempPage].sysKlTree.blob
+      ) {
+        this.loading = true;
+        const data = await downloadSingle({ url: this.picList[tempPage].sysKlTree.url });
+        this.loading = false;
+        this.picList[tempPage].sysKlTree.blob = data;
+      }
+      this.defaultPage = tempPage;
+    },
+    async changeRightPic() {
+      // 点击右边切换
+      const n = this.picList.length;
+      if (!n) return;
+      const lastN = n - 1;
+      this.reset();
+      let tempPage = this.defaultPage;
+      if (tempPage === lastN || tempPage > lastN) {
+        tempPage = 0;
+      } else {
+        tempPage += 1;
+      }
+      if (
+        this.$store.state.globalConfig.waterConfig.enableWaterMask === '1' &&
+        !this.picList[tempPage].sysKlTree.blob
+      ) {
+        this.loading = true;
+        const data = await downloadSingle({ url: this.picList[tempPage].sysKlTree.url });
+        this.loading = false;
+        this.picList[tempPage].sysKlTree.blob = data;
+      }
+      this.defaultPage = tempPage;
+    },
+    reset() {
+      this.scaleValue = 1; // 放大缩小值
+      this.rotationAngle = 0; // 旋转角度
+    },
     debounceHook() {
       // console.log(33545453);
       debounce(this.handleScroll, 10);
@@ -187,16 +290,28 @@ export default {
     doShare() {
       this.$emit('doPreviewShare', this.previewObj);
     },
-    download(url, filename) {
+    async download(url, filename) {
       // 下载
-      getBlob(url, (blob) => {
-        saveAs(blob, filename);
-      });
+      this.loading = true;
+      const data = await downloadSingle({ url });
+      this.loading = false;
+      saveAs(data, filename);
     },
     doRotate() {
       // 旋转
       this.xuanzhuan = true;
       this.rotationAngle -= 90;
+    },
+    doLeftRotate() {
+      // 旋转
+      this.xuanzhuan = true;
+      this.rightXuanZhuan = false;
+      this.rotationAngle -= 90;
+    },
+    doRightRotate() {
+      this.rightXuanZhuan = true;
+      this.xuanzhuan = false;
+      this.rotationAngle += 90;
     },
     doEnlarge() {
       // 放大
@@ -235,7 +350,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 101;
   cursor: move;
   .headerWrap {
@@ -339,6 +454,9 @@ export default {
         transform: rotate(0deg);
         transition: all 0.1s ease 0s;
       }
+      .imgWrap {
+        transition: all 0.1s ease 0s;
+      }
     }
     .bottomWrap__ope {
       position: absolute;
@@ -370,6 +488,73 @@ export default {
         }
       }
     }
+    .previewContent-leftArrow {
+      position: absolute;
+      display: flex;
+      top: 50%;
+      width: 45px;
+      height: 45px;
+      align-items: center;
+      justify-content: center;
+      background: #67686c;
+      border-radius: 50%;
+      transform: scale(1) translate3d(40px, -50%, 0px);
+      z-index: 11;
+    }
+    .el-icon-arrow-left,
+    .el-icon-arrow-right {
+      font-size: 35px;
+      cursor: pointer;
+      color: #f0f0f0;
+      &:hover {
+        color: #ffffff;
+      }
+    }
+    .previewContent-rightArrow {
+      position: absolute;
+      display: flex;
+      top: 50%;
+      width: 45px;
+      height: 45px;
+      right: 40px;
+      align-items: center;
+      justify-content: center;
+      background: #67686c;
+      border-radius: 50%;
+      transform: scale(1) translate3d(0, -50%, 0px);
+      z-index: 11;
+    }
   }
+}
+/**
+ * ----------------------------------------
+ * animation scale-up-center
+ * ----------------------------------------
+ */
+@-webkit-keyframes scale-up-center {
+  0% {
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+@keyframes scale-up-center {
+  0% {
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+.scale-up-center {
+  -webkit-animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1)
+    both;
+  animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) both;
 }
 </style>

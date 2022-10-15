@@ -11,7 +11,7 @@
     <img
       class="myCarousel__login"
       :style="`height: calc(${configs.loginLogoWidth}px)`"
-      :src="getLogoUrl"
+      :src="$parseImgUrl(getLogoUrl)"
       alt=""
     />
     <!-- 轮播内容 -->
@@ -22,7 +22,7 @@
     >
       <el-carousel-item v-for="(item, i) in getLoops" :key="i">
         <div
-          :style="{ backgroundImage: `url(${item.src})` }"
+          :style="{ backgroundImage: `url(${$parseImgUrl(item.src)})` }"
           class="myCarousel__img"
         ></div>
       </el-carousel-item>

@@ -72,6 +72,7 @@
       :panelObj="panelObj"
       :showType="showType"
       :nodeConfig="nodeConfig"
+      :append-to-body="true"
     ></component>
     <!-- </transition> -->
 
@@ -86,6 +87,13 @@
       :sortId="configData.templateInfo.sortId"
       @importRefresh="importRefresh"
     ></import-dialog>
+
+    <dialog-export
+      :visible.sync="exportVisible"
+      :tableData="tableData"
+      :paramsObj="paramsObj"
+      :exportVisible="exportVisible"
+    ></dialog-export>
   </div>
 </template>
 
@@ -93,12 +101,14 @@
 import axios from 'axios';
 import qs from 'qs';
 import { batchDelete, batchSave, selectList, singleSave } from '@/api/menuConfig';
+import { getPrintDesign } from '@/api/printTemplate';
 import { Decrypt, Encrypt, formatDate, getBlob, saveAs } from '@/utils/utils';
 import { lighten } from '@/utils/varyColor';
 
 import query from '@/api/query';
 
 import compMixin from '../../compMixin';
+import DialogExport from './components/DialogExport';
 
 export default {
   props: {
@@ -174,12 +184,16 @@ export default {
       importVisible: false, // 点击导入可见
       isAdd: false, // 保存操作是否是新增
       allFormStr: '',
-      curSaveRes: null
+      curSaveRes: null,
+      initForm: {}, // 初始值
+      exportVisible: false, // 导出选择列
+      tableData: [],
+      paramsObj: {}
     };
   },
   mixins: [compMixin],
 
-  components: {},
+  components: { DialogExport },
 
   computed: {
     templateId() {
@@ -190,9 +204,15 @@ export default {
       const { tableArr } = this.configData.templateInfo;
       return tableArr;
     },
+    getCurColor() {
+      if (this.configData.iconColor === '#4689f5') {
+        return localStorage.theme_color || '#4689f5';
+      }
+      return this.configData.iconColor;
+    },
     getBtnBg() {
       if (this.configData.buttonStyle) {
-        return this.isHover ? lighten(this.configData.iconColor, 0.2) : this.configData.iconColor;
+        return this.isHover ? lighten(this.getCurColor, 0.2) : this.getCurColor;
       }
       return '#fff';
     },
@@ -202,7 +222,7 @@ export default {
       }
       if (this.configData.buttonStyle) {
         if (this.canReadonly || this.configData.canReadonly) {
-          return `background:${this.configData.iconColor};border-color:${this.configData.iconColor};opacity: 0.5;`;
+          return `background:${this.getCurColor};border-color:${this.getCurColor};opacity: 0.5;`;
         }
         return `background:${this.getBtnBg};border-color:${this.getBtnBg}`;
       }
@@ -250,11 +270,19 @@ export default {
     }
   },
 
-  mounted() {},
+  mounted() {
+    if (this.featureArr) {
+      const { form } = this.featureArr;
+      if (form) {
+        this.initForm = JSON.parse(JSON.stringify(form));
+      }
+    }
+  },
 
   inject: [
     'resolveFormula',
     'getAllForm',
+    'getAllComp',
     'getPanel',
     'getMenu',
     'getFatherPanel',
@@ -418,10 +446,6 @@ export default {
         if (this.configData.buttonType === 7) {
           this.handlerImportFun();
         }
-        // 导出
-        if (this.configData.buttonType === 8) {
-          this.handleExport();
-        }
         // 查询
         if (this.configData.buttonType === 11) {
           this.handleQuery();
@@ -437,6 +461,10 @@ export default {
         // 下载资料按钮
         if (this.configData.buttonType === 14) {
           await this.doExportData();
+        }
+        // 打印
+        if (this.configData.buttonType === 15) {
+          this.handlePrintBtn();
         }
         // this.$bus.$emit('btnTrigger', this.configData, this.onlyFlag());
         await this.clickTrigger(this.configData, this.onlyFlag());
@@ -455,6 +483,11 @@ export default {
           return;
         }
         this.isLoading = false;
+        // 导出
+        if (this.configData.buttonType === 8) {
+          this.isLoading = true;
+          this.handleExport();
+        }
         if (this.configData.refreshType === 1) {
           // 刷新当前页
           this.$bus.$emit('reloadArea', 'all', this.onlyFlag());
@@ -469,6 +502,7 @@ export default {
                 }
                 return false;
               });
+              console.log(obj);
               if (obj) {
                 this.$bus.$emit(
                   'reloadArea',
@@ -523,7 +557,8 @@ export default {
           this.$bus.$emit('reloadArea', 'all', this.getValueFromFather('onlyFlag'));
         } else if (this.configData.refreshType === 4) {
           // 刷新菜单
-          window.location.reload();
+          // window.location.reload();
+          this.$bus.$emit('refresh');
         } else if (this.configData.refreshType === 5) {
           this.$bus.$emit('reloadArea', 'current', this.onlyFlag(), this.tableInfo.compId);
         } else if (this.configData.refreshType === 6) {
@@ -549,6 +584,33 @@ export default {
             this.tableInfo.compId,
             this.configData.buttonType,
             isAdd
+          );
+        } else if (this.configData.refreshType === 10) {
+          const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
+
+          // 更新当前树表
+          this.$bus.$emit(
+            'reloadArea',
+            'treeTableUpdate',
+            this.onlyFlag(),
+            this.tableInfo.compId,
+            this.configData.buttonType,
+            isAdd,
+            this.isTableBtn
+          );
+        } else if (this.configData.refreshType === 11) {
+          // 关闭当前页
+          this.$bus.$emit('closePanel', this.onlyFlag());
+          const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
+          // 更新上一页树表
+          this.$bus.$emit(
+            'reloadArea',
+            'treeTableUpdate',
+            this.getValueFromFather('onlyFlag'),
+            this.tableInfo.compId,
+            this.configData.buttonType,
+            isAdd,
+            this.isTableBtn
           );
         }
         if (this.showType && this.showType.type === 'flow') {
@@ -604,6 +666,19 @@ export default {
       const formInfo = [];
       formInfo.str = '';
       featureArr.children.forEach((comp) => {
+        // 处理步骤条
+        if (comp.compType === 27) {
+          const columnValue1 = form[comp.compId] == null ? '' : form[comp.compId];
+          const columnValue2 = form[comp.relateDateId] == null ? '' : form[comp.relateDateId];
+          if (+columnValue1 !== +columnValue2) {
+            formInfo.stepObject = {
+              recordValue: columnValue2,
+              compId: comp.compId,
+              sysMenuDesignId: this.sysMenuDesignId()
+            };
+          }
+          return;
+        }
         if (
           comp.submitType === 1 ||
           (comp.submitType === 2 && comp.singleStatus !== 4 && comp.canShow)
@@ -616,6 +691,7 @@ export default {
               return;
             }
           }
+
           // 去除修改系统字段的 并且 字段名不能重复
           if (!arr.includes(comp.dataSource.columnName)) {
             let columnValue = form[comp.compId] == null ? '' : form[comp.compId];
@@ -623,9 +699,15 @@ export default {
               columnValue = columnValue.join();
             }
             if (comp.compType === 8 && columnValue) {
+              if (columnValue.replace && !new Date(columnValue).getTime()) {
+                columnValue = columnValue.replace(/-/g, '/');
+              }
               columnValue = formatDate(new Date(columnValue), 'yyyy-MM-dd');
             }
             if (comp.compType === 9 && columnValue) {
+              if (columnValue.replace && !new Date(columnValue).getTime()) {
+                columnValue = columnValue.replace(/-/g, '/');
+              }
               columnValue = formatDate(new Date(columnValue), 'yyyy-MM-dd hh:mm:ss');
             }
 
@@ -682,7 +764,6 @@ export default {
                   formInfo.str += `${str},`;
                 }
               }
-
               if (!columnArr.includes(column.columnName)) {
                 columnArr.push(column.columnName);
                 formInfo.push({
@@ -728,6 +809,7 @@ export default {
         }
       };
       params.formInfo = this.resolveSaveData(this.featureArr, this.tableInfo);
+      // 处理操作日志
       if (params.formInfo.str) {
         const operate = this.isAdd ? '新增' : '编辑';
         logContent += `[${operate}表(${params.tableName})数据:${params.formInfo.str.slice(0, -1)}]`;
@@ -736,6 +818,11 @@ export default {
       params.logData.content = Encrypt(logContent);
       if (!this.configData.enableLog || !this.configData.logComp.length) {
         delete params.logData;
+      }
+      // 处理步骤条
+      if (params.formInfo.stepObject) {
+        params.stepInfo = params.formInfo.stepObject;
+        delete params.formInfo.stepObject;
       }
       return params;
     },
@@ -749,6 +836,7 @@ export default {
       };
       const feature = area.pageType === 2 ? area.children[1] : area.children[0];
       params.listInfo[0] = this.resolveSaveData(feature, area);
+      // 处理操作日志
       if (params.listInfo[0].str) {
         params.logStr.push(params.listInfo[0].str.slice(0, -1));
       }
@@ -756,6 +844,11 @@ export default {
       params.isAdd = this.isAdd;
       if (area.isTree || (this.getFatherPanel() && this.getFatherPanel().isTree)) {
         params.isTree = 1;
+      }
+      // 处理步骤条
+      if (params.listInfo[0].stepObject) {
+        params.stepObject = params.listInfo[0].stepObject;
+        delete params.listInfo[0].stepObject;
       }
       return params;
     },
@@ -824,12 +917,17 @@ export default {
             logContent += `[${operate}表(${area.tableInfo.tableName})数据:${saveInfo.logStr[0]}],`;
           }
           delete saveInfo.logStr;
-          params.batchInfo.push({
+          const tempObj = {
             compId: area.compId,
             areaType: area.propertyCompName === 'MenuMainConfig' ? 1 : 2,
             relation: area.relation || [],
             saveInfo
-          });
+          };
+          if (area.propertyCompName === 'MenuMainConfig' && saveInfo.stepObject) {
+            tempObj.stepInfo = saveInfo.stepObject;
+            delete saveInfo.stepObject;
+          }
+          params.batchInfo.push(tempObj);
         }
         if (area.propertyCompName === 'TableMainConfig') {
           const saveInfo = this.resolveFormParams(area);
@@ -962,7 +1060,7 @@ export default {
     async singleSave() {
       if (this.tableInfo.propertyCompName === 'MenuMainConfig') {
         const params = this.resolveParams();
-        if (this.tableInfo.isTree) {
+        if (this.tableInfo.isTree || this.tableInfo.compName === 'TreeTable') {
           params.isTree = 1;
         }
         if (
@@ -1112,7 +1210,8 @@ export default {
         const { form } = featureArr;
         featureArr.children.findIndex((comp) => {
           const columnValue = form[comp.compId] == null ? '' : form[comp.compId];
-          if (comp.dataSource.columnName === 'id') {
+          console.log(comp);
+          if (comp.dataSource && comp.dataSource.columnName === 'id') {
             params.ids = columnValue;
             return true;
           }
@@ -1184,10 +1283,15 @@ export default {
 
         //  有id先走删除接口
         if (params.ids) {
-          if (area.isTree || (this.getFatherPanel() && this.getFatherPanel().isTree)) {
+          if (
+            area.isTree ||
+            (this.getFatherPanel() && this.getFatherPanel().isTree) ||
+            area.compName === 'TreeTable'
+          ) {
             if (area.compName !== 'MultiTree') {
               params.isTree = 1;
-              if (+params.ids === 1) {
+              const idArr = params.ids.split(',');
+              if (idArr.includes(1) || idArr.includes('1')) {
                 this.$message({
                   type: 'warning',
                   message: '不能删除根节点'
@@ -1220,7 +1324,7 @@ export default {
         // console.log(params);
         this.deleteShouldReload = true;
 
-        if (this.tableInfo.propertyCompName === 'TableMainConfig') {
+        if (['TableMainConfig', 'TreeTableConfig'].includes(this.tableInfo.propertyCompName)) {
           if (this.multiEntityArr.length === 0 && !this.isTableBtn) {
             this.$message({
               type: 'warning',
@@ -1242,10 +1346,15 @@ export default {
 
         //  有id先走删除接口
         if (params.ids) {
-          if (this.tableInfo.isTree || (this.getFatherPanel() && this.getFatherPanel().isTree)) {
+          if (
+            this.tableInfo.isTree ||
+            (this.getFatherPanel() && this.getFatherPanel().isTree) ||
+            this.tableInfo.compName === 'TreeTable'
+          ) {
             if (this.tableInfo.compName !== 'MultiTree') {
               params.isTree = 1;
-              if (+params.ids === 1) {
+              const idArr = params.ids.split(',');
+              if (idArr.includes(1) || idArr.includes('1')) {
                 this.$message({
                   type: 'warning',
                   message: '不能删除根节点'
@@ -1321,13 +1430,13 @@ export default {
           'content-type': 'application/x-www-form-urlencoded'
         }
       }).then((res) => {
-        console.log(res);
         saveAs(res.data, `${downloadName}.zip`);
         this.isLoading = false;
       });
     },
     // 处理过滤条件变量为真实值
     resolveFilterVar(panelObj) {
+      console.log(panelObj);
       if (panelObj && panelObj.panelName) {
         panelObj.panelVarObj = {};
 
@@ -1387,6 +1496,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else if (this.isTableBtn) {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           } else if (this.multiEntityArr[0] && this.multiEntityArr[0][item.mainComp.compId]) {
@@ -1399,8 +1513,12 @@ export default {
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
         panelObj.onlyFlag = this.onlyFlag();
-        // console.log(this.tableInfo);
+        console.log(this.tableInfo);
         if (this.tableInfo.isTree && this.tableInfo.compName !== 'MultiTree') {
+          panelObj.isTree = true;
+        }
+        // 树表
+        if (this.tableInfo.compName === 'TreeTable') {
           panelObj.isTree = true;
         }
         if (this.configData.dialogTitle) {
@@ -1467,10 +1585,59 @@ export default {
         }
       } else if (relateType === 2) {
         this.jumpMenu();
+      } else if (relateType === 3 && this.configData.outerLink) {
+        window.open(`${this.configData.outerLink}${this.initParams()}`);
       }
+    },
+    initParams() {
+      this.show = false;
+      let str = '?';
+      if (this.configData.outerLink.indexOf('?') !== -1) {
+        str = '&';
+      }
+
+      this.configData.paramsArr.forEach((params) => {
+        if (params.type === 1) {
+          str += `${params.name}=${params.fixed}&`;
+        } else {
+          const allComp = this.getAllComp();
+          const timeComp = allComp[params && params.formula.replace(/\$/g, '')] || {};
+          const { timeInterval, compType } = timeComp;
+          let value = this.resolveFormula(true, params.formula);
+          if (compType === 8 || compType === 9) {
+            let type = '';
+            if (compType === 8) {
+              type = 'yyyy-MM-dd';
+            }
+            if (compType === 9) {
+              type = 'yyyy-MM-dd hh:mm:ss';
+            }
+            if (timeInterval) {
+              const timeArr = value.split(',');
+              const startTime = timeArr[0] && formatDate(new Date(timeArr[0]), type);
+              const endTime = timeArr[1] && formatDate(new Date(timeArr[1]), type);
+              str += `${params.name}_start=${startTime || ''}&${params.name}_end=${endTime || ''}&`;
+            } else {
+              if (value) {
+                value = formatDate(new Date(value), type);
+              }
+              str += `${params.name}=${value}&`;
+            }
+          } else {
+            str += `${params.name}=${value}&`;
+          }
+        }
+      });
+      return str.slice(0, -1);
     },
     // 跳转菜单
     jumpMenu() {
+      if (this.$route.name === 'sharePage') {
+        return this.$message({
+          type: 'warning',
+          message: '分享页面无跳转菜单的权限'
+        });
+      }
       const curMenuArr = this.getMenu()[this.configData.compId];
       const obj = curMenuArr.find((menu) => {
         if (!menu.jumpTerm) {
@@ -1573,17 +1740,39 @@ export default {
             const table2 = v.secondIsValue ? v.secondLineValue : v.secondLineTable.tableName;
             const key2 = v.secondIsValue ? v.secondLineValue : v.secondLineColumn.columnName;
 
-            let alias11 = mainTable === table1 ? 't0' : '';
-            let alias12 = mainTable === table2 ? 't0' : '';
-            if (alias11 !== 't0') {
+            const tableObjA = collectionArr.find((g) => g.table1 === table1) || {};
+            const tableObjB = collectionArr.find((g) => g.table2 === table1) || {};
+            const tableObjC = collectionArr.find((g) => g.table1 === table2) || {};
+            const tableObjD = collectionArr.find((g) => g.table2 === table2) || {};
+
+            let alias11 =
+              mainTable === table1
+                ? 't0'
+                : tableObjA.alias11
+                  ? tableObjA.alias11
+                  : tableObjB.alias12
+                    ? tableObjB.alias12
+                    : '';
+            let alias12 =
+              mainTable === table2
+                ? 't0'
+                : tableObjC.alias11
+                  ? tableObjC.alias11
+                  : tableObjD.alias12
+                    ? tableObjD.alias12
+                    : '';
+
+            console.log(alias11, alias12);
+
+            if (!alias11) {
               num += 1;
               alias11 = `t${num}`;
             }
-            if (alias12 !== 't0') {
+            if (!alias12) {
               num += 1;
               alias12 = `t${num}`;
             }
-
+            console.log(v, table2, key2);
             collectionArr.push({
               table1,
               key1,
@@ -1606,6 +1795,7 @@ export default {
       });
 
       console.log(tableComp);
+      const dictMap = {};
       tableComp.forEach((comp, i) => {
         if (i !== 0) {
           const currentObj = collectionArr.find(
@@ -1625,9 +1815,24 @@ export default {
             }
           }
           if (tableName && comp.dataSource.columnName) {
-            columns.push(`${tableName}.${comp.dataSource.columnName} ${comp.compId}`);
+            let field = `${tableName}.${comp.dataSource.columnName}`;
+            if (comp.compType === 8) {
+              field = `DATE_FORMAT(${tableName}.${comp.dataSource.columnName}, '%Y-%m-%d')`;
+            }
+            if (comp.compType === 9) {
+              field = `DATE_FORMAT(${tableName}.${comp.dataSource.columnName}, '%Y-%m-%d %H:%i:%s')`;
+            }
+            if (comp.singleStatus !== 4) {
+              columns.push(`${field} ${comp.compId}`);
+            }
           }
-          memo.push(comp.name);
+          if (comp.singleStatus !== 4) {
+            memo.push(comp.name);
+          }
+        }
+        if (comp.compType === 2) {
+          dictMap[comp.compId] =
+            comp.dataSource && comp.dataSource.dictObj && comp.dataSource.dictObj.id;
         }
       });
       if (exportSetting === 2 || exportSetting === 4) {
@@ -1637,13 +1842,6 @@ export default {
       }
       // 按模板导出
       if (exportSetting === 1 || exportSetting === 2) {
-        // console.log(
-        //   `${query.DO_Export_Template}?chooseIds=${chooseArr.join(',')}&id=${
-        //     this.templateId
-        //   }&isHeader=${isHeader}`,
-        //   chooseArr
-        // );
-
         let url = `${query.DO_Export_Template}?chooseIds=${chooseArr.join(',')}&id=${
           this.templateId
         }&isHeader=${isHeader}&menuId=${this.$route.params.id}&userId=${
@@ -1660,6 +1858,13 @@ export default {
             this.$route.params.id
           }`;
         }
+        if (chooseArr.length === 0 && exportSetting === 2) {
+          this.isLoading = false;
+          return this.$message({
+            type: 'warning',
+            message: '请选择数据'
+          });
+        }
         getBlob(
           {
             url,
@@ -1669,6 +1874,7 @@ export default {
           (res) => {
             const names = templateName || '导出模板';
             saveAs(res, `${names}.xls`);
+            this.isLoading = false;
           }
         );
       }
@@ -1677,120 +1883,88 @@ export default {
       // console.log(11111111, this.$store.state.userCenter.userInfo.id, this.$route.params.id);
       // 按界面导出
       if (exportSetting === 3 || exportSetting === 4) {
-        let whereOptions = '';
-        let filterTermType = '';
-        let filterTermStr = '';
-        let filterTermSql = '';
-        console.log('金莱尔');
         const getPanelObj = this.getPanel();
-        if (JSON.stringify(getPanelObj) !== '{}') {
-          filterTermType = this.tableInfo.filterTermType;
-          filterTermStr = this.tableInfo.filterTermStr;
-          filterTermSql = this.tableInfo.filterTermSql;
-        } else {
-          const panelFilter = this.getFatherPanel() && this.getFatherPanel().panelFilter[0];
-          if (panelFilter) {
-            filterTermType = panelFilter.filterTermType;
-            filterTermStr = panelFilter.filterTermStr;
-            filterTermSql = panelFilter.filterTermSql;
-          }
+        if (this.menuMain.configData.canOperate) {
+          memo.pop();
         }
-        if (filterTermType === 1) {
-          if (filterTermStr) {
-            const arr = JSON.parse(filterTermStr);
-            console.log(arr);
-            arr.termArr.forEach((item, z) => {
-              whereOptions += '(';
-              item.forEach((val, i) => {
-                const { tableName, columnName } = val.columnObj;
-                const { lambda, content } = val;
-                whereOptions += `${tableName}.${columnName}${lambda}${content}`;
-                if (i !== item.length - 1) {
-                  whereOptions += ' or ';
-                }
+        const tableData = [];
+        memo.forEach((b, i) => {
+          columns.forEach((c, index) => {
+            if (i === index) {
+              tableData.push({
+                title: b,
+                columns: c
               });
-              if (z === arr.termArr.length - 1) {
-                whereOptions += ') ';
-              } else {
-                whereOptions += ') and ';
-              }
-              console.log(whereOptions);
-            });
-          }
-          // whereOptions = whereOptions.slice(0, -5);
-        } else {
-          const idArr = filterTermSql.match(/\$(\S*)\$/g);
-          if (idArr) {
-            idArr.forEach((item) => {
-              whereOptions = filterTermSql.replace(
-                /\$(\S*)\$/g,
-                getAllFormObj[item.slice(1, item.length - 1)]
-              );
-            });
-          } else {
-            whereOptions = filterTermSql;
-          }
+            }
+          });
+        });
+        console.log(tableData);
+        this.tableData = tableData;
+        this.paramsObj = {
+          getAllFormObj,
+          dictMap,
+          needField,
+          mainTable,
+          chooseArr,
+          // columns,
+          collectionArr,
+          // memo,
+          getPanelObj,
+          tableInfo: this.tableInfo,
+          getAllForm: this.getAllForm(),
+          configData: this.configData
+        };
+        if (chooseArr.length === 0 && exportSetting === 4) {
+          this.isLoading = false;
+          return this.$message({
+            type: 'warning',
+            message: '请选择数据'
+          });
         }
-        console.log(whereOptions);
-        console.log(
-          `${query.DO_Export_Interface}?isHeader=${
-            needField ? 1 : 0
-          }&mainTable=${mainTable}&chooseIds=${chooseArr.join(',')}&columns=${columns.join(
-            ','
-          )}&foreignJson=${encodeURI(JSON.stringify(collectionArr))}&memo=${memo.join(
-            ','
-          )}&menuId=${this.$route.params.id}&userId=${
-            this.$store.state.userCenter.userInfo.id
-          }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(this.getAllForm()))}`
-        );
-
-        console.log(qs.stringify(collectionArr));
-        console.log(encodeURI(JSON.stringify(collectionArr)));
-
-        let url = `${query.DO_Export_Interface}?isHeader=${
-          needField ? 1 : 0
-        }&mainTable=${mainTable}&chooseIds=${chooseArr.join(',')}&columns=${columns.join(
-          ','
-        )}&foreignJson=${encodeURI(JSON.stringify(collectionArr))}&memo=${memo.join(',')}&menuId=${
-          this.$route.params.id
-        }&userId=${
-          this.$store.state.userCenter.userInfo.id
-        }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(this.getAllForm()))}`;
-        if (this.configData.enableLog) {
-          const { userInfo } = this.$store.state.userCenter;
-          const logContent = `${userInfo.username}(${userInfo.account})导出界面(${this.$route.query.title})数据,表名:${mainTable}`;
-          url += `&logData.content=${Encrypt(logContent)}&logData.clientType=PC&logData.curMenuId=${
-            this.$route.params.id
-          }`;
-        }
-        getBlob(
-          {
-            url,
-            token: Decrypt(localStorage.getItem('token') || ''),
-            method: 'POST'
-          },
-          (res) => {
-            saveAs(res, `${this.$route.query.title}.xls`);
-          }
-        );
+        this.exportVisible = true;
       }
     },
     // 查询
-    handleQuery() {
+    async handleQuery() {
+      await this.menuMain.$refs.form.validate();
       this.$bus.$emit('changeUrl');
     },
     // 重置
     async handleReset() {
-      const { form } = this.featureArr;
-      Object.keys(form).forEach((item) => {
-        form[item] = '';
-      });
+      this.featureArr.form = JSON.parse(JSON.stringify(this.initForm));
+      await this.menuMain.$refs.form.resetFields();
       this.$bus.$emit('changeUrl');
     },
     // 查询区导出
     async handleQueryExport() {
       const { exportType } = this.configData;
       this.$bus.$emit('queryExport', exportType);
+    },
+    // 打印按钮
+    async handlePrintBtn() {
+      const { printTemp = {} } = this.configData;
+      console.log(this.configData, this.multiEntityArr, this.menuMain, this.tableInfo);
+      const { id = '' } = printTemp;
+      if (!id) {
+        return this.$message({
+          type: 'warning',
+          message: '请配置关联打印模板'
+        });
+      }
+
+      const excelData = await getPrintDesign({ id });
+      const { globalConfig, previewObj } = JSON.parse(excelData.desingJson);
+      const { paperHeight, paperWidth } = globalConfig;
+
+      const areaHeight = `${paperHeight}mm`;
+      const areaWidth = `${paperWidth}mm`;
+
+      this.$bus.$emit('pringBtn', {
+        previewObj,
+        areaHeight,
+        areaWidth,
+        globalConfig
+      });
     },
     // 确认 数据选择框
     async dataSelect() {
@@ -1934,6 +2108,14 @@ export default {
     },
     'configData.canShow': function (v) {
       this.canShow = v;
+    },
+    'configData.canReadonly': function (v) {
+      console.log(v);
+    },
+    exportVisible(v) {
+      if (!v) {
+        this.isLoading = false;
+      }
     }
   }
 };
@@ -1990,10 +2172,10 @@ export default {
     }
   }
   .isTableBtn {
-    height: 28px;
-    line-height: 26px;
+    height: 24px;
+    line-height: 22px;
     font-size: 13px;
-    padding: 0 10px;
+    // padding: 0 10px;
   }
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <div class="sidebar">
     <div class="sidebar__add">
-      <apiot-button class="sidebar__add--target" @click="addModule">
+      <!-- <apiot-button class="sidebar__add--target" @click="addModule">
         <i :class="`iconfont icon-mokuai m-r-6`"></i
         >{{ $t('common.add', { name: $t('menu.module') }) }}
-      </apiot-button>
+      </apiot-button> -->
     </div>
-    <div class="sidebar__scroll">
+    <div class="sidebar__scroll" v-if="false">
       <h3 class="sidebar__Htitle">系统模块</h3>
       <div
         class="sidebar__list"
@@ -108,6 +108,17 @@
         </draggable>
       </div>
     </div>
+    <div class="sidebar__scroll">
+      <SingleTree
+        :treeData="treeData"
+        @node-click="selectList"
+        @addModule="addModule"
+        @editModule="editModule"
+        @deleteModule="deleteModule"
+        @moveModule="moveModule"
+        ref="tree"
+      ></SingleTree>
+    </div>
     <apiot-dialog
       :title="getCurTitle"
       :loading.sync="showLoading"
@@ -145,19 +156,21 @@
         </el-form-item>
       </el-form>
     </apiot-dialog>
+    <MoveDialog
+      :visible.sync="showMoveDialog"
+      :showMoveDialog="showMoveDialog"
+      :filterItem="filterItem"
+      @moveSucess="moveSucess"
+    ></MoveDialog>
   </div>
 </template>
 
 <script>
-import {
-  switchLocation,
-  sysMenuAdd,
-  sysMenuDelete,
-  sysMenuEdit,
-  sysMenuList
-} from '@/api/menuManage';
+import { switchLocation, sysMenuAdd, sysMenuDelete, sysMenuEdit, menuList } from '@/api/menuManage';
 import bus from '@/utils/bus';
 import IconSelect from '../IconSelect';
+import SingleTree from './SingleTree.vue';
+import MoveDialog from '../MoveDialog';
 
 export default {
   inheritAttrs: false,
@@ -193,12 +206,40 @@ export default {
       relatedKey: -1,
       menuCode: '', // 菜单code
       transitionName: 'fadeInUp',
-      timer: null
+      timer: null,
+      selectKey: 1, // 树选中key
+      treeData: [
+        {
+          id: -1,
+          menuName: '系统模块',
+          menuType: 1,
+          icon: {
+            icon: 'icon-mokuai1',
+            color: '#fab71c'
+          },
+          children: []
+        },
+        {
+          id: -2,
+          menuName: '自定义模块',
+          menuType: 2,
+          icon: {
+            icon: 'icon-mokuai1',
+            color: '#fab71c'
+          },
+          children: []
+        }
+      ],
+      parentId: 0,
+      showMoveDialog: false, // 展示移动的dialog
+      filterItem: null
     };
   },
 
   components: {
-    IconSelect
+    IconSelect,
+    SingleTree,
+    MoveDialog
   },
 
   computed: {
@@ -232,9 +273,21 @@ export default {
     // this.sysMenuList();
   },
   methods: {
+    // 更改form的值
+    changeForm(data) {
+      this.changeTabChange(true);
+      this.getFeatureArr.form = {
+        ...data
+      };
+      this.$nextTick(() => {
+        this.changeTabChange(false);
+      });
+    },
     // 新增模块
-    addModule() {
+    addModule(data) {
       this.curType = 1;
+      this.parentId = data.id > 0 ? data.id : 0;
+      this.selectKey = data.id;
       this.dialogVisible = true;
 
       this.iconObj = {
@@ -242,6 +295,55 @@ export default {
         color: '',
         imageUrl: ''
       };
+    },
+    // 编辑模块
+    editModule(data) {
+      this.curType = 2;
+      this.form.moduleName = data.menuName;
+      this.parentId = data.parentId > 0 ? data.parentId : 0;
+      this.selectKey = data.id;
+      if (data.icon) {
+        this.iconObj = data.icon;
+      }
+      this.dialogVisible = true;
+    },
+    // 删除模块
+    deleteModule(data) {
+      this.selectKey = data.id;
+      this.sysMenuDelete();
+    },
+    // 移动模块
+    moveModule(data) {
+      console.log(data);
+      this.filterItem = data;
+      this.showMoveDialog = true;
+    },
+    moveSucess() {
+      this.treeData = [
+        {
+          id: -1,
+          menuName: '系统模块',
+          menuType: 1,
+          icon: {
+            icon: 'icon-mokuai1',
+            color: '#fab71c'
+          },
+          children: []
+        },
+        {
+          id: -2,
+          menuName: '自定义模块',
+          menuType: 2,
+          icon: {
+            icon: 'icon-mokuai1',
+            color: '#fab71c'
+          },
+          children: []
+        }
+      ];
+      this.$nextTick(() => {
+        this.sysMenuList();
+      });
     },
     // dialog确认按钮点击
     sureClick() {
@@ -267,12 +369,7 @@ export default {
       });
     },
     // 切换分组
-    selectList(item, index) {
-      sessionStorage.__curMenuGroupIndex__ = index;
-      sessionStorage.__curMenuGroupType__ = item.menuType;
-      this.selectedKey = item.id;
-      this.curIndex = index;
-      this.menuCode = item.menuCode;
+    selectList(item) {
       this.$emit('selectList', item);
     },
     // 拖拽开始
@@ -284,7 +381,6 @@ export default {
         });
       }
       this.selectedBackKey = this.customizeList[evt.oldIndex].id;
-      this.selectedKey = this.selectedBackKey;
 
       this.backGroupList = JSON.parse(JSON.stringify(this.customizeList));
     },
@@ -370,11 +466,16 @@ export default {
       try {
         this.$emit('update:asideLoading', true);
         this.transitionName = 'fadeInUp';
-        const data = await sysMenuList({ menuLevel: 1, clientType: 1, parentId: 0 });
+        const data = await menuList({ menuLevel: 1, clientType: 1, parentId: 0 });
         this.$emit('update:asideLoading', false);
         this.sysList = [];
         this.customizeList = [];
         data.forEach((item) => {
+          if (!item.childCount) {
+            item.isLeaf = true;
+          } else {
+            item.isLeaf = false;
+          }
           item.type = 'module';
           if (item.menuType === 1) {
             this.sysList.push(item);
@@ -382,27 +483,26 @@ export default {
             this.customizeList.push(item);
           }
         });
-        if (data.length) {
-          if (sessionStorage.__curMenuGroupType__ === '1') {
-            this.selectList(this.sysList[this.curIndex], this.curIndex);
-          } else {
-            this.selectList(this.customizeList[this.curIndex], this.curIndex);
-          }
-        }
+        this.treeData[0].children = this.sysList;
+        this.treeData[1].children = this.customizeList;
+        this.selectList(this.sysList[0], 0);
+        this.selectKey = this.sysList[0].id;
+        this.$nextTick(() => {
+          this.$refs.tree.getTree().setCurrentKey(this.selectKey);
+        });
       } catch (error) {
         this.$emit('update:asideLoading', false);
       }
     },
     // 重置分组
     resetGroup() {
-      this.curIndex = +sessionStorage.__curMenuGroupIndex__ || 0;
       this.sysMenuList();
     },
     // 新增分组
     async sysMenuAdd() {
       try {
         const params = {
-          parentId: 0,
+          parentId: this.parentId,
           menuName: this.form.moduleName,
           icon: this.iconObj,
           menuLevel: 1,
@@ -431,8 +531,32 @@ export default {
         data.type = 'module';
         this.showLoading = false;
         this.dialogVisible = false;
-        this.customizeList.push(data);
-        this.selectList(data, this.customizeList.length - 1);
+        // this.customizeList.push(data);
+        // this.selectList(data, this.customizeList.length - 1);
+        console.log(this.selectKey, this.parentId);
+        this.$refs.tree.getTree().setCurrentKey(this.selectKey);
+        const form = this.$refs.tree.getTree().getCurrentNode();
+        const node = this.$refs.tree.getTree().getNode(form);
+        if (node.expanded) {
+          const params1 = { menuLevel: 1, clientType: 1, parentId: this.parentId };
+          const data1 = await menuList(params1);
+          const arr = [];
+          data1.forEach((item) => {
+            if (!item.childCount) {
+              item.isLeaf = true;
+            } else {
+              item.isLeaf = false;
+            }
+            item.type = 'module';
+            arr.push(item);
+          });
+          console.log(arr);
+          this.$refs.tree.getTree().updateKeyChildren(this.selectKey, arr);
+        } else {
+          node.loaded = false;
+          node.isLeaf = false;
+        }
+        this.$store.dispatch('getRoute');
         this.$message({
           type: 'success',
           message: this.$t('common.success', {
@@ -440,7 +564,6 @@ export default {
           })
         });
       } catch (error) {
-        console.log(error);
         this.showLoading = false;
         if (error.menuName) {
           return this.$message({
@@ -454,11 +577,10 @@ export default {
     async sysMenuEdit() {
       try {
         const params = {
-          parentId: 0,
+          parentId: this.parentId,
           menuName: this.form.moduleName,
           icon: this.iconObj,
-          menuCode: this.menuCode,
-          id: this.selectedKey,
+          id: this.selectKey,
           logData: {
             operateType: 2,
             menuName: {
@@ -472,12 +594,18 @@ export default {
             }
           }
         };
-        const data = await sysMenuEdit(params);
+
+        await sysMenuEdit(params);
         // console.log(data);
         this.showLoading = false;
         this.dialogVisible = false;
-        this.customizeList[this.curIndex].menuName = data.menuName;
-        this.customizeList[this.curIndex].icon = this.iconObj;
+        // this.customizeList[this.curIndex].menuName = data.menuName;
+        // this.customizeList[this.curIndex].icon = this.iconObj;
+        this.$refs.tree.getTree().setCurrentKey(this.selectKey);
+        const form = this.$refs.tree.getTree().getCurrentNode();
+        const node = this.$refs.tree.getTree().getNode(form);
+        node.data.icon = params.icon;
+        node.data.menuName = params.menuName;
         this.$store.dispatch('getRoute');
         this.$message({
           type: 'success',
@@ -504,7 +632,7 @@ export default {
       });
       this.transitionName = 'move-right';
       await sysMenuDelete({
-        id: this.selectedKey,
+        id: this.selectKey,
         logData: {
           operateType: 3,
           name: this.$t('menu.menuModule'),
@@ -512,10 +640,15 @@ export default {
           deleteArr: [this.customizeList[this.curIndex]]
         }
       });
-      this.customizeList.splice(this.curIndex, 1);
-      // this.resetGroup();
-      this.curIndex = 0;
-      this.selectList(this.sysList[this.curIndex], this.curIndex);
+      const form = this.$refs.tree.getTree().getCurrentNode();
+      const node = this.$refs.tree.getTree().getNode(this.selectKey);
+      if (form.id === this.selectKey) {
+        this.selectKey = node.parent.data.id < 0 ? 1 : node.parent.data.id;
+        this.$refs.tree.getTree().setCurrentKey(this.selectKey);
+        const curForm = this.$refs.tree.getTree().getCurrentNode();
+        this.selectList(curForm);
+      }
+      this.$refs.tree.getTree().remove(node);
     },
     // 修改排序
     async switchLocation(params) {
@@ -539,11 +672,12 @@ export default {
 <style lang='scss' scoped>
 .sidebar {
   display: flex;
+  width: 250px;
   height: 100%;
   flex-direction: column;
   box-sizing: border-box;
   &__add {
-    flex: 0 0 42px;
+    flex: 0 0 10px;
     box-sizing: border-box;
     padding: 6px 8px;
     &--target {
@@ -554,6 +688,7 @@ export default {
     }
   }
   &__scroll {
+    width: 100%;
     overflow-y: auto;
   }
   &__Htitle {

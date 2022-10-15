@@ -105,12 +105,26 @@
     </div>
     <!-- 注册 -->
     <!-- <sign-up v-if="configs.enableRegistration === '1'"></sign-up> -->
+    <apiot-dialog
+      :visible.sync="showUpdateDialog"
+      title="修改密码"
+      :append-to-body="true"
+      @sure-click="sureClick"
+      @cancle-click="cancle"
+    >
+      <AccountSecurity
+        ref="AccountSecurity"
+        :isFromLogin="true"
+        v-if="showUpdateDialog"
+      ></AccountSecurity>
+    </apiot-dialog>
   </el-form>
 </template>
 <script>
 import { postLoginForm } from '@/api/login.js';
 import { Encrypt, Decrypt } from '@/utils/utils';
 import SliderValidation from '../SliderValidation';
+import AccountSecurity from '../../../UserCenter/components/UserCenterTabs/components/AccountSecurity';
 // import SignUp from '../SignUp';
 
 export default {
@@ -163,7 +177,8 @@ export default {
             trigger: 'change'
           }
         ]
-      }
+      },
+      showUpdateDialog: false // 修改密码弹窗
     };
   },
   computed: {
@@ -188,7 +203,8 @@ export default {
     // }
   },
   components: {
-    SliderValidation // 拖动验证
+    SliderValidation, // 拖动验证
+    AccountSecurity
     // SignUp // 注册组件
   },
   beforeDestroy() {
@@ -278,15 +294,17 @@ export default {
         // 登录接口
         const params = {
           ...this.ruleForm,
-          password: Encrypt(this.ruleForm.password)
+          password: Encrypt(this.ruleForm.password),
+          enableLoginFirstPc: this.$store.state.base.loginConfig.enableLoginFirstPc
         };
         if (this.isAssociated) {
           const code = localStorage.getItem('zhezhengdingCode');
           params.zwddBindCode = code;
         }
-        await postLoginForm(params);
+        const res = await postLoginForm(params);
         await this.$store.dispatch('getRoute');
         await this.$store.dispatch('getHomeRoute');
+        localStorage.setItem('deploymentMode', res.deploymentMode);
         if (this.ruleForm.rememberMe) {
           localStorage.setItem('checked', 1);
           localStorage.setItem('username', Encrypt(this.ruleForm.username));
@@ -296,43 +314,135 @@ export default {
           localStorage.removeItem('username');
           localStorage.removeItem('password');
         }
+        await this.$store.dispatch(
+          'fetchConfigFuns',
+          'THEME_AND_LOGO,THIRD_LINKS,MESSAGE_CONFIG,UREPORT_URL,FILE_SERVER,WATER_MASK'
+        );
         // 登录成功
-        this.$nextTick(() => {
+        this.$nextTick(async () => {
+          this.loadingButton = false;
+
           sessionStorage.removeItem('navTabArr');
           sessionStorage.removeItem('delTabArr');
           const { homeArr } = this.$store.state.base;
-          if (homeArr.length) {
+          if (sessionStorage.shareUrl) {
+            this.$router.push(sessionStorage.shareUrl);
+            sessionStorage.shareUrl = '';
+          } else if (homeArr.length) {
             const current = homeArr[0];
             this.$router.push(`/homePage/${current.homePageId}`);
           } else {
             this.$router.push('/home');
           }
         });
-      } catch (error) {
-        this.$message.error(error.message);
-        this.isBtnDisabled = true;
+      } catch (err) {
         this.loadingButton = false;
-        const { sliderErrorsCount } = this.configs;
-        // 移除组件
-        this.isShowValidation = false;
-        if (sliderErrorsCount === '3') {
-          this.errorCount += 1;
-          this.isBtnDisabled = false;
-          if (this.errorCount >= 3) {
+        const { data } = err;
+
+        console.log(data);
+        if (!data) {
+          this.$message.error(err.message);
+          this.isBtnDisabled = true;
+          this.loadingButton = false;
+          const { sliderErrorsCount } = this.configs;
+          // 移除组件
+          this.isShowValidation = false;
+          if (sliderErrorsCount === '3') {
+            this.errorCount += 1;
+            this.isBtnDisabled = false;
+            if (this.errorCount >= 3) {
+              this.$nextTick(() => {
+                this.isShowValidation = true;
+              });
+              this.isBtnDisabled = true;
+            }
+          } else if (sliderErrorsCount === '2') {
+            this.isBtnDisabled = false;
+          } else {
             this.$nextTick(() => {
               this.isShowValidation = true;
+              this.isBtnDisabled = true;
             });
-            this.isBtnDisabled = true;
           }
-        } else if (sliderErrorsCount === '2') {
-          this.isBtnDisabled = false;
         } else {
-          this.$nextTick(() => {
-            this.isShowValidation = true;
-            this.isBtnDisabled = true;
-          });
+          // 0:跳过校验;1:密码失效重置;2:密码失效不允许登录;3:首次登录
+          switch (data.state) {
+            case '1':
+              try {
+                await this.$confirm(
+                  `您的账号${this.ruleForm.username}密码已到有效期，请修改密码！`,
+                  '账户安全提示',
+                  {
+                    dangerouslyUseHTMLString: true,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                  }
+                );
+                this.showUpdateDialog = true;
+              } catch (error) {
+                localStorage.token = '';
+              }
+
+              break;
+            case '2':
+              await this.$alert(
+                `您的账号${this.ruleForm.username}密码已到有效期，请联系管理员！`,
+                '账户安全提示',
+                {
+                  confirmButtonText: '确定'
+                }
+              );
+              localStorage.token = '';
+              break;
+            case '3':
+              try {
+                await this.$confirm(
+                  `您的账号${this.ruleForm.username}首次，请修改密码！`,
+                  '账户安全提示',
+                  {
+                    dangerouslyUseHTMLString: true,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                  }
+                );
+                this.showUpdateDialog = true;
+              } catch (error) {
+                localStorage.token = '';
+              }
+
+              break;
+            case '0':
+            default: {
+              sessionStorage.removeItem('navTabArr');
+              sessionStorage.removeItem('delTabArr');
+              const { homeArr } = this.$store.state.base;
+              if (sessionStorage.shareUrl) {
+                this.$router.push(sessionStorage.shareUrl);
+                sessionStorage.shareUrl = '';
+              } else if (homeArr.length) {
+                const current = homeArr[0];
+                this.$router.push(`/homePage/${current.homePageId}`);
+              } else {
+                this.$router.push('/home');
+              }
+            }
+          }
         }
       }
+    },
+    // 修改密码弹窗确认
+    async sureClick() {
+      await this.$refs.AccountSecurity.sureClick();
+      this.showUpdateDialog = false;
+      this.$message({
+        type: 'success',
+        message: '修改成功'
+      });
+    },
+    cancle() {
+      localStorage.token = '';
     },
     // 校验方法
     validateFun(type, state, error) {

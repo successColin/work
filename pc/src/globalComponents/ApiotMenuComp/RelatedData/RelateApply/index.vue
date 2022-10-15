@@ -1,13 +1,13 @@
 <!-- 知识库 页面 -->
 <template>
-  <div class="contentWrap">
+  <div class="contentWrap" v-loading="loading">
     <div class="btnWrap">
       <apiot-button
         :style="getStyle"
         @mouseenter.native="isHover = true"
         @mouseleave.native="isHover = false"
         type="primary"
-        @click="knowledgeShow = true"
+        @click="doRelateKnowledge"
         v-if="showRelateBtn && !this.keyWord && relateDataComp.value"
       >
         <i class="iconfont icon-guanxiguanlian"></i>
@@ -67,22 +67,19 @@
       <el-dropdown
         trigger="click"
         @command="selectBtn"
-        v-if="(showDel || selectKeys.length === 1) && !this.keyWord"
+        v-if="(showDel || showRename) && !this.keyWord"
       >
         <apiot-button>
           <span class="iconfont icon-qita btnWrap__btnCommon"></span>
           {{ $t('knowledge.More_actions') }}
         </apiot-button>
         <el-dropdown-menu slot="dropdown" style="border: none">
-          <el-dropdown-item
-            :command="{ type: 'rename' }"
-            v-show="selectKeys.length === 1"
-          >
-            <span class="iconfont icon-bianji" style="color: #4689f5"></span>
+          <el-dropdown-item :command="{ type: 'rename' }" v-show="showRename">
+            <span class="iconfont icon-bianji rename"></span>
             {{ $t('knowledge.Rename') }}
           </el-dropdown-item>
           <el-dropdown-item :command="{ type: 'del' }" v-show="showDel">
-            <span class="iconfont icon-shanchu" style="color: #4689f5"></span>
+            <span class="iconfont icon-shanchu delete"></span>
             {{ $t('knowledge.delete') }}
           </el-dropdown-item>
         </el-dropdown-menu>
@@ -125,7 +122,7 @@
         }}{{ countTotal() }}{{ $t('knowledge.files_total') }}
       </div>
     </div>
-    <div class="contentTypeWrap" v-loading="loading">
+    <div class="contentTypeWrap">
       <block-content
         :list="list"
         :edit="edit"
@@ -138,6 +135,7 @@
         @showHisList="showHisList"
         v-on:preview="handlePreview"
         v-on:editFileName="editFileName"
+        v-on:loadMore="loadMore"
         v-on:moveFileToNewFile="moveFilesToNewFile"
       >
       </block-content>
@@ -155,6 +153,7 @@
         v-on:preview="handlePreview"
         v-on:editFileName="editFileName"
         v-on:showShareUserList="showShareUserList"
+        v-on:loadMore="loadMore"
         v-if="isShowListContent()"
       >
       </list-content>
@@ -177,6 +176,7 @@
     <image-zoom
       v-if="previewVisible"
       :previewObj="previewObj"
+      :picList="picList"
       v-on:doPreviewShare="doPreviewShare"
       v-on:hideImgPreview="hideImgPreview"
       v-on:doPreviewDel="doPreviewDel"
@@ -221,15 +221,25 @@
       :hisObj="hisObj"
       :fileUrl="getFileUrl"
     ></KnowHisDialog>
+    <PdfPreview
+      :title="previewObj.sysKlTree ? previewObj.sysKlTree.name : ''"
+      :visible.sync="pdfVisible"
+      v-if="pdfVisible"
+      :isShowSure="false"
+      :previewObj="previewObj"
+      :isBigDialog="true"
+    ></PdfPreview>
   </div>
 </template>
 
 <script>
-import { Decrypt, getBlob, saveAs, createUnique } from '_u/utils';
+import { Decrypt, saveAs, createUnique } from '_u/utils';
 import axios from 'axios';
 import { lighten } from '@/utils/varyColor';
 import {
-  getKonwledgeList,
+  downloadSingle,
+  // getKonwledgeList,
+  getAllFileList,
   saveFolder,
   updateFolder,
   deleteFile,
@@ -257,6 +267,7 @@ import vedio from '@/assets/img/vedio.svg';
 import audioFiile from '@/assets/img/audioFile.svg';
 import elseFile from '@/assets/img/else.svg';
 import filesSvg from '@/assets/img/files.svg';
+import { allowFileType } from '@/config/index';
 import FilePath from './FilePath';
 
 const BlockContent = () => import('./BlockContent/index');
@@ -294,7 +305,7 @@ export default {
       videoVisible: false, // 视频弹框
       videoTitle: '', // 视频名称
       doUploadFile: false, // 表示是否是其他页面的上传
-      accept: '.png, .jpg,.jpeg, .gif, .txt, .doc, .xls, .xlsx, .ppt, .pdf, .mp3, .mp4, .avi',
+      accept: allowFileType,
       pathArr: [initPath],
       loading: false,
       fileList: [], // 能够正常上传的文件
@@ -320,7 +331,7 @@ export default {
       previewVisible: false,
       shareObj: {}, // 要分享的对象
       businessTreeNode: {}, // 业务树节点
-      size: 10,
+      size: 100,
       current: 1,
       requestType: 1, // 1 代表关联资料 2 代表 知识库
       isHover: false, // 按钮是否悬浮
@@ -337,7 +348,10 @@ export default {
         tableName: ''
       },
       showHis: false, // 历史版本是否显示
-      hisObj: null
+      hisObj: null,
+      picList: [], // 图片集合
+      listTotal: 0, // 所有文件数量总数
+      pdfVisible: false // Pdf 预览
     };
   },
 
@@ -391,6 +405,16 @@ export default {
           return false;
         });
         if (index === -1) {
+          return true;
+        }
+      }
+      return false;
+    },
+    // 是否显示重命名
+    showRename() {
+      console.log(this.selectKeys);
+      if (this.selectKeys.length === 1) {
+        if (this.selectKeys[0].sysKlTree.materialType === 1) {
           return true;
         }
       }
@@ -630,7 +654,6 @@ export default {
   },
 
   mounted() {
-    console.log(111);
     this.pathArr = [initPath];
     if (!this.getNotInitArr().includes(this.configData.compId)) {
       this.init();
@@ -664,6 +687,24 @@ export default {
     'isSelect'
   ],
   methods: {
+    loadMore() {
+      // 下拉加载
+      if (this.list.length >= this.listTotal) {
+        // 不允许加载
+        return;
+      }
+      this.current += 1;
+      this.loading = true;
+      if (this.keyWord) {
+        this.fetchFilesByKeywords();
+      } else {
+        this.init();
+      }
+    },
+    doRelateKnowledge() {
+      // 关联资料
+      this.knowledgeShow = true;
+    },
     // 刚打开tab的时候如果不是初始化的，则加载一次
     loadArea(compId) {
       // 代表刚打开的tab
@@ -671,7 +712,10 @@ export default {
         // 加载的列表里包含该id
         if (this.getNotInitArr().includes(this.configData.compId)) {
           this.pathArr = [initPath];
-          this.init();
+          this.current = 1;
+          this.list = [];
+          this.listTotal = 0;
+          this.init('change');
         }
       }
     },
@@ -749,7 +793,9 @@ export default {
       this.$refs.replaceNewFile.value = '';
       this.curFile = null;
       this.selectKeys = [];
-      this.init();
+      // todo 数据方式重置
+      // this.init();
+      this.specialInit();
     },
     // 关联知识库
     async knowledgeSelected(list) {
@@ -760,7 +806,9 @@ export default {
         tableName: this.relateDataComp.tableName
       };
       await bindKl(params);
-      this.init();
+      // todo 数据方式重置
+      // this.init();
+      this.specialInit();
       this.knowledgeShow = false;
     },
     // 解绑知识库
@@ -773,7 +821,9 @@ export default {
       };
       await unbindKl(params);
       this.selectKeys = [];
-      this.init();
+      // todo 数据获取方式重置
+      // this.init();
+      this.specialInit();
     },
     // 更新该区域
     reloadArea(areaArr, onlyFlag, compId) {
@@ -781,7 +831,10 @@ export default {
       if (areaArr === 'all' && onlyFlag === this.onlyFlag()) {
         if (!this.getNotInitArr().includes(this.configData.compId)) {
           this.pathArr = [initPath];
-          this.init();
+          this.current = 1;
+          this.listTotal = 0;
+          this.list = [];
+          this.init('change');
         }
         return;
       }
@@ -792,12 +845,18 @@ export default {
         compId === this.configData.compId
       ) {
         this.pathArr = [initPath];
-        this.init();
+        this.current = 1;
+        this.listTotal = 0;
+        this.list = [];
+        this.init('change');
         return;
       }
       if (areaArr.includes(this.configData.compId) && onlyFlag === this.onlyFlag()) {
         this.pathArr = [initPath];
-        this.init();
+        this.current = 1;
+        this.listTotal = 0;
+        this.list = [];
+        this.init('change');
       }
     },
     handleCloseAudio() {
@@ -852,10 +911,13 @@ export default {
           (this.selectKeys[0].treeType && this.selectKeys[0].treeType !== 1))
       ) {
         const fileObj = this.selectKeys[0].sysKlTree || this.selectKeys[0]; // 单个文件的下载
-        getBlob({ url: fileObj.url }, (blob) => {
-          saveAs(blob, fileObj.name);
-          this.loading = false;
-        });
+        // getBlob({ url: fileObj.url }, (blob) => {
+        //   saveAs(blob, fileObj.name);
+        //   this.loading = false;
+        // });
+        const data = await downloadSingle({ url: fileObj.url });
+        saveAs(data, fileObj.name);
+        this.loading = false;
         return;
       }
       const arr = this.selectKeys.map((item) => {
@@ -898,12 +960,10 @@ export default {
         // this.isSelectdEdit = false;
       }
     },
-    init() {
+    init(changeType) {
       this.initTable();
       // 初始化
-      this.list = [];
-      this.selectKeys = [];
-      const current = this.pathArr[this.pathArr.length - 1];
+      const current = this.pathArr.at(-1);
 
       if (this.requestType === 2) {
         const parentId = current.id === 'all' ? 0 : current.klTreeId;
@@ -912,15 +972,46 @@ export default {
           classId: this.showType,
           keywords: this.keyWord,
           parentId,
-          isFolder: 0
+          isFolder: 0,
+          current: this.current,
+          size: this.size
         };
-        this.initKonwledge(params);
+        this.initKonwledge(params, changeType);
       } else {
         const parentId = current.id === 'all' ? 0 : current.id;
         const params = {
-          parentId
+          parentId,
+          current: this.current,
+          size: this.size
         };
-        this.listFiles(params);
+        this.listFiles(params, changeType);
+      }
+    },
+    specialInit() {
+      this.initTable();
+      // 初始化
+      const current = this.pathArr.at(-1);
+
+      if (this.requestType === 2) {
+        const parentId = current.id === 'all' ? 0 : current.klTreeId;
+        // 全部
+        const params = {
+          classId: this.showType,
+          keywords: this.keyWord,
+          parentId,
+          isFolder: 0,
+          current: 1,
+          size: this.current * this.size
+        };
+        this.initKonwledge(params, 'change');
+      } else {
+        const parentId = current.id === 'all' ? 0 : current.id;
+        const params = {
+          parentId,
+          current: 1,
+          size: this.current * this.size
+        };
+        this.listFiles(params, 'change');
       }
     },
     async doUpload(param) {
@@ -968,16 +1059,21 @@ export default {
       }
     },
     getFileType(suffix) {
-      if ('.png, .jpg,.gif, .jpeg'.indexOf(suffix) > -1) {
+      const type = suffix.toLowerCase();
+      if ('.png, .jpg,.gif, .jpeg'.indexOf(type) > -1) {
         return 3;
       }
-      if ('.txt, .doc, .xls, .xlsx, .ppt, .pdf'.indexOf(suffix) > -1) {
+      if (
+        '.txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .vsdx, .zip, .rar, .xmind, .emmx, .log, .chm'.indexOf(
+          type
+        ) > -1
+      ) {
         return 2;
       }
-      if ('.mp3'.indexOf(suffix) > -1) {
+      if ('.mp3'.indexOf(type) > -1) {
         return 5;
       }
-      if ('.mp4, .avi'.indexOf(suffix) > -1) {
+      if ('.mp4, .avi, .m4a'.indexOf(type) > -1) {
         return 4;
       }
       return 6;
@@ -1056,7 +1152,9 @@ export default {
         .post(`${ajax.baseURL}system/materials/saveFile`, formData, config)
         .then(() => {
           this.delFileFromUploadingFiles(item);
-          this.init();
+          // todo 数据获取方式调整
+          // this.init();
+          this.specialInit();
         })
         .catch(() => {
           this.delFileFromUploadingFiles(item);
@@ -1111,7 +1209,9 @@ export default {
       try {
         await updateFolder({ id, name });
         // 如果是全部，需要看路径进行刷新
-        await this.init();
+        // todo 这里数据重新获取
+        // await this.init();
+        this.specialInit();
         this.selectKeys = [];
         this.edit = false;
       } catch (e) {
@@ -1129,6 +1229,9 @@ export default {
       }
       this.selectKeys = [];
       this.getRequestType(item);
+      this.current = 1;
+      this.listTotal = 0;
+      this.list = [];
       this.init();
     },
     getRequestType(item) {
@@ -1155,7 +1258,7 @@ export default {
       this.showHis = true;
       this.hisObj = item;
     },
-    handlePreview(item) {
+    async handlePreview(item) {
       // 如果是文件夹类型，就进入下个文件夹，如果是文件，则预览
       if (!item.sysKlTree) {
         item = {
@@ -1178,15 +1281,38 @@ export default {
           childMaterialType
         });
         this.getRequestType(item.sysKlTree || item);
-        this.init();
+        this.current = 1;
+        this.listTotal = 0;
+        this.list = [];
+        this.init('change');
         return false;
       }
       if (!this.configData.showPreview) {
         return;
       }
+      if (treeType === 2) {
+        const arr = name.split('.');
+        if (arr[1] && arr[1] === 'pdf') {
+          this.previewObj = item;
+          this.pdfVisible = true;
+        }
+      }
       if (treeType === 3) {
         // 图片预览
         this.previewObj = item;
+        this.picList = this.list.filter((liObj) => {
+          const { treeType: imageType } = liObj.sysKlTree || liObj;
+          return imageType === 3;
+        });
+        if (this.$store.state.globalConfig.waterConfig.enableWaterMask === '1') {
+          const index = this.picList.findIndex((file) => file.sysKlTree.id === item.sysKlTree.id);
+          if (index !== -1) {
+            this.loading = true;
+            const data = await downloadSingle({ url: this.picList[index].sysKlTree.url });
+            this.loading = false;
+            this.picList[index].sysKlTree.blob = data;
+          }
+        }
         this.previewVisible = true;
       }
       if (treeType === 4) {
@@ -1202,7 +1328,7 @@ export default {
       }
       visitFiles({ classId: this.showType, userId: this.userInfo.id, id });
     },
-    async listFiles(params) {
+    async listFiles(params, changeType) {
       console.log(this.relateDataComp.value);
       if (!this.relateDataComp.value) {
         return;
@@ -1218,31 +1344,35 @@ export default {
       this.loading = true;
       try {
         const data = await listFiles(param);
-        const newListData = data.map((item) => ({
+        const { records = [], total = 0 } = data;
+        this.listTotal = total;
+        const newListData = records.map((item) => ({
           sysKlTree: {
             ...item
           },
           showIndex: true
         }));
-        // console.log(newListData, 'newListData');
-        this.list = newListData.sort((a, b) => {
+        const lastListData = newListData.sort((a, b) => {
           if (a.sysKlTree && b.sysKlTree) {
             return a.sysKlTree.treeType - b.sysKlTree.treeType;
           }
           return a.treeType - b.treeType;
         });
+        this.list = changeType ? lastListData : this.list.concat(lastListData);
         this.$bus.$emit('changeShowSkeleton');
         this.loading = false;
       } catch (error) {
+        console.log(error);
         this.$bus.$emit('changeShowSkeleton');
         this.loading = false;
       }
     },
-    async initKonwledge(params) {
+    async initKonwledge(params, changeType) {
       // 获取数据
       this.loading = true;
       try {
-        const api = getKonwledgeList;
+        // const api = getKonwledgeList;
+        const api = getAllFileList;
         let data = {};
         const pid = this.pathArr[this.pathArr.length - 1].id;
         const param = {
@@ -1253,16 +1383,18 @@ export default {
         };
         data = { ...data, ...param, ...params };
         const treeData = await api(data);
-        const newTreeData = treeData;
+        const { records = [], total = 0 } = treeData;
+        this.listTotal = total;
+        const newTreeData = records;
         this.loading = false;
         const newListData = newTreeData.map((item) => ({ ...item, showIndex: true }));
-        // console.log(newListData, 'newListData');
-        this.list = newListData.sort((a, b) => {
+        const lastListData = newListData.sort((a, b) => {
           if (a.sysKlTree && b.sysKlTree) {
             return a.sysKlTree.treeType - b.sysKlTree.treeType;
           }
           return a.treeType - b.treeType;
         });
+        this.list = changeType ? lastListData : this.list.concat(lastListData);
       } catch (e) {
         this.loading = false;
       }
@@ -1270,13 +1402,10 @@ export default {
     updateData(key, value) {
       this[key] = value;
     },
-    async getFileList() {
-      this.pathArr = [initPath];
-      if (!this.keyWord) {
-        this.init();
-        return;
-      }
+    async fetchFilesByKeywords() {
       const params = {
+        current: this.current,
+        size: this.size,
         keywords: this.keyWord,
         relationTableId: this.relateBusiComp.value,
         relationTableName: this.relateBusiComp.tableName,
@@ -1286,23 +1415,61 @@ export default {
       try {
         this.loading = true;
         const data = await searchFiles(params);
-        const newListData = data.map((item) => {
-          if (!item.id) {
-            item.id = createUnique();
-          }
-          return {
-            sysKlTree: {
-              ...item
-            },
-            showIndex: true
-          };
-        });
-        this.list = newListData.sort((a, b) => {
-          if (a.sysKlTree && b.sysKlTree) {
-            return a.sysKlTree.treeType - b.sysKlTree.treeType;
-          }
-          return a.treeType - b.treeType;
-        });
+        const { records = [], total } = data;
+        this.listTotal = total;
+        const lastData = this.reduceFiles(records);
+        this.list = this.list.concat(lastData);
+        this.loading = false;
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    reduceFiles(list = []) {
+      // 处理数据
+      const newListData = list.map((item) => {
+        if (!item.id) {
+          item.id = createUnique();
+        }
+        return {
+          sysKlTree: {
+            ...item
+          },
+          showIndex: true
+        };
+      });
+      const lastData = newListData.sort((a, b) => {
+        if (a.sysKlTree && b.sysKlTree) {
+          return a.sysKlTree.treeType - b.sysKlTree.treeType;
+        }
+        return a.treeType - b.treeType;
+      });
+      return lastData;
+    },
+    async getFileList() {
+      this.pathArr = [initPath];
+      this.current = 1;
+      this.listTotal = 0;
+      this.list = [];
+      if (!this.keyWord) {
+        this.init('change');
+        return;
+      }
+      const params = {
+        current: this.current,
+        size: this.size,
+        keywords: this.keyWord,
+        relationTableId: this.relateBusiComp.value,
+        relationTableName: this.relateBusiComp.tableName,
+        tableId: this.relateDataComp.value,
+        tableName: this.relateDataComp.tableName
+      };
+      try {
+        this.loading = true;
+        const data = await searchFiles(params);
+        const { records = [], total } = data;
+        this.listTotal = total;
+        const lastData = this.reduceFiles(records);
+        this.list = lastData;
         this.loading = false;
       } catch (error) {
         this.loading = false;
@@ -1432,7 +1599,9 @@ export default {
         await deleteFile(params);
         this.loading = false;
         this.selectKeys = [];
-        this.init();
+        // todo 获取方式重写
+        // this.init();
+        this.specialInit();
       } catch (e) {
         this.loading = false;
       }
@@ -1491,13 +1660,14 @@ export default {
         if (!url) return xls;
         const suffixArr = url.split('.');
         if (!suffixArr.length) return txt;
-        const suffix = suffixArr[suffixArr.length - 1];
+        const suffix = suffixArr[suffixArr.length - 1].toLowerCase();
         if (suffix === 'txt') return txt;
-        if (suffix === 'xls') return xls;
-        if (suffix === 'ppt') return ppt;
+        if (['xls', 'xlsx'].includes(suffix)) return xls;
+        if (['ppt', 'pptx'].includes(suffix)) return ppt;
         if (suffix === 'pdf') return pdf;
-        if (suffix === 'doc') return doc;
-        if (suffix === 'zip' || suffix === 'rar') return zipFile;
+        if (['docx', 'doc'].includes(suffix)) return doc;
+        if (['zip', 'rar'].includes(suffix)) return zipFile;
+        if (['vsdx', 'xmind', 'emmx', 'log', 'chm'].includes(suffix)) return elseFile;
         return xls;
       }
       if ((obj.sysKlTree && obj.sysKlTree.treeType === 3) || obj.treeType === 3) {
@@ -1529,6 +1699,10 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.rename,
+.delete {
+  color: $--color-primary;
+}
 .contentWrap {
   width: 100%;
   height: 100%;
@@ -1631,7 +1805,7 @@ export default {
   .contentTypeWrap {
     width: 100%;
     height: calc(100% - 36px - 42px);
-    overflow: auto;
+    //overflow: auto;
   }
 
   .moveWrap {

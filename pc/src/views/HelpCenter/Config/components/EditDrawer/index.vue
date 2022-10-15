@@ -70,6 +70,7 @@
               :before-upload="beforeUploadImg"
               :http-request="httpRequestImg"
               :file-list="imgArr"
+              accept=".png, .jpg,.jpeg, .gif"
             >
               <div class="drawer__avatar--default">
                 <i class="el-icon-plus"></i>
@@ -78,7 +79,7 @@
               <div slot="file" slot-scope="{ file }">
                 <img
                   class="el-upload-list__item-thumbnail"
-                  :src="file.url"
+                  :src="$parseImgUrl(file.url)"
                   alt=""
                 />
                 <span class="el-upload-list__item-actions">
@@ -121,6 +122,7 @@
               :before-upload="beforeUploadVideo"
               :http-request="httpRequestVideo"
               :show-file-list="false"
+              accept=".mp4, .avi, .mov"
             >
               <div v-show="!isShowVideo">
                 <i
@@ -168,7 +170,7 @@
       </el-form>
     </apiot-drawer>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="imageUrl" alt="" />
+      <img width="100%" :src="$parseImgUrl(imageUrl)" alt="" />
     </el-dialog>
   </div>
 </template>
@@ -353,7 +355,7 @@ export default {
           this.playerOptions.sources = [
             {
               type: v.videoType,
-              src: v.url
+              src: this.$parseImgUrl(v.url)
             }
           ];
         }
@@ -459,7 +461,11 @@ export default {
     // 下载视频
     async handleDownloadVideo() {
       const { src } = this.playerOptions.sources[0];
-      const obj = this.getFilenameFun(src);
+      let url = '';
+      if (src.indexOf('?' !== -1)) {
+        url = src.slice(0, src.indexOf('?'));
+      }
+      const obj = this.getFilenameFun(url);
       const { filename, type } = obj;
       // 创建a标签
       const link = document.createElement('a');
@@ -558,7 +564,7 @@ export default {
       this.playerOptions.sources = [
         {
           type: file.type,
-          src: res
+          src: this.$parseImgUrl(res)
         }
       ];
       const videoSize = `${(file.size / 1024 / 1024).toFixed(2)}MB`;

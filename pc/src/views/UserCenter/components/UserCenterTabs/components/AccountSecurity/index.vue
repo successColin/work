@@ -6,7 +6,7 @@
  * @Des: 个人中心-账户安全
 -->
 <template>
-  <div class="account">
+  <div class="account" :class="[{ isFromLogin: isFromLogin }]">
     <div class="account__header">
       <div class="account__header__icon m-r-12">
         <i class="iconfont icon-zhanghuanquan"></i>
@@ -69,7 +69,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="account__footer">
+    <div class="account__footer" v-if="!isFromLogin">
       <apiot-button
         type="primary"
         :loading="loading"
@@ -93,6 +93,11 @@ export default {
       default() {
         return {};
       }
+    },
+    // 是否来源自登录
+    isFromLogin: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -150,8 +155,8 @@ export default {
             trigger: ['blur', 'change']
           }
         ],
-        password: [{ validator: password, trigger: ['blur', 'change'] }],
-        confirmPassword: [{ validator: confirmPassword, trigger: ['blur', 'change'] }]
+        password: [{ validator: password, trigger: ['blur', 'change'], required: true, }],
+        confirmPassword: [{ validator: confirmPassword, trigger: ['blur', 'change'], required: true, }]
       }
     };
   },
@@ -163,15 +168,21 @@ export default {
   mounted() {},
 
   methods: {
-    sureClick() {
-      this.$refs.account.validate((valid) => {
-        if (valid) {
-          this.changePassword();
-        } else {
-          // console.log('error submit!!');
-          return false;
-        }
-      });
+    async sureClick() {
+      // this.$refs.account.validate((valid) => {
+      //   if (valid) {
+      //     this.changePassword();
+      //   } else {
+      //     // console.log('error submit!!');
+      //     return false;
+      //   }
+      // });
+      const valid = await this.$refs.account.validate();
+      if (valid) {
+        await this.changePassword();
+      } else {
+        return false;
+      }
     },
     async changePassword() {
       try {
@@ -250,6 +261,24 @@ export default {
   ::v-deep {
     .el-form-item {
       margin-bottom: 16px;
+    }
+  }
+  &.isFromLogin {
+    .account {
+      &__header {
+        border-bottom: 0 none;
+        background: #f1f3f6;
+        border-radius: 4px;
+      }
+      &__content {
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
+    ::v-deep {
+      .el-form-item {
+        margin-bottom: 26px;
+      }
     }
   }
 }

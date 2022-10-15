@@ -98,6 +98,32 @@
           <el-option label="降序" :value="2"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="字典生效值" v-if="activeObj.dataSource.dictObj">
+        <el-select
+          v-model="activeObj.effectDict"
+          :multiple="true"
+          :collapse-tags="true"
+          placeholder="请选择字典生效值"
+          :clearable="true"
+          @change="efffectChange"
+        >
+          <el-option
+            :label="item.name"
+            :value="item.value"
+            v-for="item in defaultValueArr"
+            :key="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <p class="redioBox m-b-10 p-t-6" v-if="!isShow">
+        <span class="redioBox__label">是否启用全部</span>
+        <span class="redioBox__radio">
+          <el-radio-group v-model="enableAllVal" @change="handleChange">
+            <el-radio :label="1">是</el-radio>
+            <el-radio :label="2">否</el-radio>
+          </el-radio-group>
+        </span>
+      </p>
       <el-form-item
         label="默认值"
         v-if="activeObj.dataSource.dictObj && showDefault"
@@ -108,11 +134,12 @@
           :collapse-tags="activeObj.dropDownType === 2"
           placeholder="请选择默认值"
           :clearable="activeObj.dropDownType !== 2"
+          @change="handleSelect"
         >
           <el-option
             :label="item.name"
             :value="item.value"
-            v-for="item in defaultValueArr"
+            v-for="item in optionsArr"
             :key="item.value"
           ></el-option>
         </el-select>
@@ -145,6 +172,18 @@
           >
         </el-select>
       </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -169,6 +208,18 @@
             >隐藏</el-button
           >
         </el-button-group>
+      </el-form-item>
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
       </el-form-item>
       <el-form-item
         label="最小宽度"
@@ -258,7 +309,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证" v-if="isShow">
+      <el-form-item label="验证">
         <p class="switchBox">
           是否必填
           <el-switch
@@ -283,6 +334,7 @@
 </template>
 
 <script>
+import { allOption } from '@/config';
 import propertyMixin from '../propertyMixin';
 
 export default {
@@ -291,13 +343,25 @@ export default {
     return {
       value: '',
       tableArr: [],
-      showDefault: true
+      showDefault: true,
+      oldSeleValue: [],
+      enableAllVal: 2
     };
   },
 
   components: {},
 
   computed: {
+    allSeleValue() {
+      return this.optionsArr.map((v) => v.value);
+    },
+    optionsArr() {
+      if (this.activeObj.enableAll === 1) {
+        return [allOption, ...this.effectArr];
+      }
+      return this.effectArr;
+    },
+    // 默认字典项
     defaultValueArr() {
       const tempData = JSON.parse(JSON.stringify(this.activeObj.dataSource.dictObj.dictValue));
       if (this.activeObj.sort === 2) {
@@ -321,6 +385,41 @@ export default {
   },
 
   methods: {
+    handleChange(v) {
+      this.fatherObj.form[this.activeObj.compId] = '';
+      this.activeObj.enableAll = v;
+    },
+    handleSelect(val) {
+      if (this.activeObj.dropDownType === 2) {
+        // 用来储存上一次的值，可以进行对比
+        const oldVal = this.oldSeleValue;
+        // 若是全部选择
+        if (val.includes(0)) {
+          this.fatherObj.form[this.activeObj.compId] = Object.assign([], this.allSeleValue);
+        }
+        // 取消全部选中 上次有 当前没有 表示取消全选
+        if (oldVal.includes(0) && !val.includes(0)) {
+          this.fatherObj.form[this.activeObj.compId] = [];
+        }
+        // 点击非全部选中 需要排除全部选中 以及 当前点击的选项
+        // 新老数据都有全部选中
+        if (oldVal.includes(0) && val.includes(0)) {
+          const index = val.indexOf(0);
+          val.splice(index, 1); // 排除全选选项
+          this.fatherObj.form[this.activeObj.compId] = val;
+        }
+        // 全选未选 但是其他选项全部选上 则全选选上 上次和当前 都没有全选
+        if (!oldVal.includes(0) && !val.includes(0) && this.activeObj.enableAll === 1) {
+          if (val.length === this.effectArr.length) {
+            this.fatherObj.form[this.activeObj.compId] = [0, ...val];
+          }
+        }
+        // 储存当前最后的结果 作为下次的老数据
+        this.oldSeleValue = this.fatherObj.form[this.activeObj.compId] || [];
+      } else {
+        this.fatherObj.form[this.activeObj.compId] = val;
+      }
+    },
     // 初始化字典值
     initDefault() {
       if (this.activeObj.dataSource.dictObj && this.activeObj.dataSource.dictObj.dictKey) {
@@ -329,6 +428,7 @@ export default {
           this.activeObj.dataSource.dictObj.dictValue = a;
         }
       }
+      this.enableAllVal = this.activeObj.enableAll || 2;
     },
     // 字段选择结果
     selectColumnRes(table) {
@@ -382,6 +482,11 @@ export default {
       let index = -1;
       this.showDefault = false;
       this.activeObj.dropDownType = radio;
+      if (radio === 1) {
+        this.fatherObj.form[this.activeObj.compId] = '';
+      } else {
+        this.fatherObj.form[this.activeObj.compId] = [];
+      }
       if (ruleArr) {
         if (ruleArr.length !== 0) {
           index = ruleArr.findIndex((item) => item.flag === 'requiredRule');

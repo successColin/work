@@ -29,9 +29,17 @@
         ref="filterCol"
         :configData="configData"
         :grandFather="grandFather"
+        v-if="configData.enableTableSearch"
       ></FilterCol>
     </template>
     <div slot-scope="scope">
+      <SelectBox
+        :curData="scope.row"
+        :getIdCompId="getIdCompId"
+        :multiEntityArr="multiEntityArr"
+        v-on="$listeners"
+        v-bind="$attrs"
+      ></SelectBox>
       <div
         class="column__editable"
         v-if="
@@ -87,6 +95,15 @@
 import tableCol from '../tableCol';
 
 export default {
+  props: {
+    getIdCompId: {
+      type: String
+    },
+    multiEntityArr: {
+      type: Array,
+      default: () => []
+    }
+  },
   name: '',
   mixins: [tableCol],
   data() {
@@ -179,7 +196,7 @@ export default {
 
   created() {},
 
-  inject: ['getAllForm', 'getPanel', 'getMenu', 'onlyFlag', 'sysMenuDesignId'],
+  inject: ['getAllForm', 'getPanel', 'getMenu', 'onlyFlag', 'sysMenuDesignId', 'resolveFormula'],
 
   methods: {
     // 处理过滤条件变量为真实值
@@ -198,6 +215,11 @@ export default {
       panelObj.panelData.forEach((item) => {
         if (item.mainComp.type === 2) {
           panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+        } else if (item.mainComp.type === 3) {
+          panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+            true,
+            item.mainComp.fixedValue
+          );
         } else {
           panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
         }
@@ -234,6 +256,12 @@ export default {
       }
     },
     jumpMenu() {
+      if (this.$route.name === 'sharePage') {
+        return this.$message({
+          type: 'warning',
+          message: '分享页面无跳转菜单的权限'
+        });
+      }
       if (!this.getMenu()) {
         return;
       }

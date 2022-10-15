@@ -14,6 +14,7 @@
   >
     <div class="pathWrap" v-if="config.interactionType===4">
       <CBreadcrumb
+          v-show="pathArr.length>1"
           @change="changePath"
           :color="color"
           :pathArr="pathArr"/>
@@ -33,7 +34,6 @@
 <script>
 // 引入基本模板
 // import { isEqual, cloneDeep } from 'lodash';
-import { isEqual } from 'lodash';
 import * as echarts from 'echarts/core';
 // 引入柱状图图表，图表后缀都为 Chart
 import { PieChart, GraphChart } from 'echarts/charts';
@@ -293,17 +293,30 @@ export default {
       deep: true,
       immediate: true,
       handler(v, o) {
-        const params = this.getParameters();
-        const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-          this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
-          this.fetchData();
+        if (v && o) {
+          const { dataType, SqlDataConfig: {
+            enableDataManage, variableConfig = []
+          } } = this.config;
+          if (dataType === 3 && enableDataManage && variableConfig.length) {
+            this.checkParams(variableConfig);
+          }
         }
       }
     }
   },
   methods: {
+    checkParams(variableConfig) {
+      const obj = {};
+      Object.keys(this.otherParams).forEach((item) => {
+        const currentVar = variableConfig.find((varObj) => varObj.name === item);
+        if (currentVar) {
+          obj[item] = this.otherParams[item];
+        }
+      });
+      if (JSON.stringify(obj) !== '{}') {
+        this.fetchData();
+      }
+    },
     changePath(item, i) { // 修改路径
       this.params = JSON.parse(JSON.stringify(item));
       this.pathArr = this.pathArr.slice(0, i + 1);
@@ -597,7 +610,6 @@ export default {
           return new Error('获取控件字段值公式无参数');
         }
         const field = params[0];
-        console.log(FIXED_OBJ1[field], FIXED_OBJ1, field);
         return FIXED_OBJ1[field];
       });
     },
@@ -614,9 +626,9 @@ export default {
           option
         );
       }
-      if (dataType === 2) {
-        await this.getApi();
-      }
+      // if (dataType === 2) {
+      //   await this.getApi();
+      // }
       if (dataType === 3) {
         await this.getSQL();
       }
@@ -666,29 +678,39 @@ export default {
       }
     },
     getParameters() {
-      const { id, componentId } = this.config;
+      const { id, SqlDataConfig: {
+        variableConfig
+      } } = this.config;
       const reduce = (obj) => // 将Object 处理成 Array
         Object.keys(obj).map((item) => ({
           name: item,
           value: obj[item]
         }));
 
-      const { query } = this.$route;
+      const { query, name } = this.$route;
       const satisfyParams = {};
       if (JSON.stringify(this.otherParams) !== '{}') {
         Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
+          const currentVar = variableConfig.find((varObj) => varObj.name === item);
+          if (currentVar) {
+            satisfyParams[item] = this.otherParams[item];
           }
         });
       }
-      const currentParams = {
-        ...satisfyParams,
-        ...query,
-        ...this.params
-      };
-      const arr = reduce(currentParams);
+      let lastParams = {};
+      if (name !== 'appCustomPage') {
+        lastParams = {
+          ...satisfyParams,
+          ...this.params
+        };
+      } else {
+        lastParams = {
+          ...satisfyParams,
+          ...query,
+          ...this.params
+        };
+      }
+      const arr = reduce(lastParams);
       return {
         id,
         varJson: JSON.stringify(arr)

@@ -12,3 +12,5 @@ import './forbidSpecial';
 import './showEllipsis';
 import './onlyNumber';
 import './fixedPlace';
+import './remainNumber';
+import './loadMore';

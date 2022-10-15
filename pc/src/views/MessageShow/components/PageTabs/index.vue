@@ -19,9 +19,7 @@
           <i v-if="hasUnRead[item.key]" class="circleDot"></i>
         </span>
         <slot :name="item.slotName">
-          {{$t(item.label)}}
         </slot>
-        <slot :name="item.slotName"></slot>
       </el-tab-pane>
     </el-tabs>
     <article class="btns">

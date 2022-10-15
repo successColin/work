@@ -8,7 +8,7 @@
     cancelBtnName="确认"
   >
     <apiot-button class="ToMenuConfig__addMenuBtn" @click="showMenu = true">
-      <i class="iconfont icon-xinzeng m-r-4"></i>添加数据传递
+      <i class="iconfont icon-xinzeng m-r-4"></i>添加跳转菜单
     </apiot-button>
     <el-collapse
       class="ToMenuConfig__collapse"
@@ -24,7 +24,7 @@
       >
         <template slot="title">
           <img
-            :src="item.icon.imageUrl"
+            :src="$parseImgUrl(item.icon.imageUrl)"
             v-if="item.icon.imageUrl"
             class="full"
           />
@@ -47,6 +47,7 @@
               :triggerCompMap="triggerCompMap"
               v-model="item.jumpTerm"
               v-bind="$attrs"
+              :variables="variables"
             ></select-formula>
           </div>
           <div class="ToMenuConfig__btnArea m-t-10">
@@ -66,9 +67,10 @@
                   :command="{ area: value, item }"
                   v-for="(value, key) in canAddArea(item)"
                   :key="key"
-                  >{{ value.name }}({{
-                    value.tableInfo.tableName
-                  }})</el-dropdown-item
+                  >{{ value.name
+                  }}{{
+                    value.tableInfo ? `(${value.tableInfo.tableName})` : ''
+                  }}</el-dropdown-item
                 >
               </el-dropdown-menu>
             </el-dropdown>
@@ -106,6 +108,7 @@
                 :configData="configData"
                 :triggerCompMap="triggerCompMap"
                 :showContent="activeName === index"
+                :variables="variables"
                 v-bind="$attrs"
               ></TermComp>
             </li>
@@ -116,7 +119,9 @@
     <MenuSelect
       :visible.sync="showMenu"
       :showMenu="showMenu"
+      :isApp="isApp"
       @addMenu="addMenu"
+      :clientType="clientType"
     ></MenuSelect>
   </apiot-dialog>
 </template>
@@ -131,10 +136,17 @@ import TermComp from '../FilterPane/TermComp';
 export default {
   name: '',
   props: {
+    clientType: { // 终端类型 1、pc 2、app, 默认0
+      type: Number,
+      default: 0
+    },
     activeObj: {
       type: [Object, Array]
     },
     configData: {
+      type: Array
+    },
+    variables: {
       type: Array
     },
     triggerCompMap: {
@@ -143,7 +155,11 @@ export default {
     sourceType: {
       type: Number,
       default: null
-    }
+    },
+    isApp: {
+      type: Number,
+      default: null
+    },
   },
   data() {
     return {
@@ -294,6 +310,7 @@ export default {
     }
     if (this.sourceType === 1) {
       this.menuList = this.activeObj;
+      console.log(this.menuList, 'created');
     }
     this.menuList.forEach((menu) => this.getPaneConfig(menu));
   },

@@ -39,6 +39,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isCardOpeBtn: {
+      type: Boolean,
+      default: false,
+    },
     // 是否在表格区
     isTable: {
       type: Boolean,
@@ -68,7 +72,7 @@ export default {
       default: '',
     },
   },
-  inject: ['isConfig', 'resolveFormula'],
+  inject: ['isConfig', 'resolveFormula', 'getFatherPanel'],
   data() {
     return {
       menuMain: null, // menumain 的vuedom
@@ -154,10 +158,19 @@ export default {
             obj.btnTypesArr.push(9);
             obj.btnTypesArr.push(10);
           }
-          if (this.grandFather && this.grandFather.compName === 'CardMain') {
+          if (
+            this.grandFather &&
+            this.grandFather.compName === 'CardMain' &&
+            !this.isCardOpeBtn
+          ) {
             obj.btnTypesArr.push(9);
             obj.btnTypesArr.push(10);
           }
+        }
+        if (this.configData.compType === 15) {
+          this.$nextTick(() => {
+            this.configData.font.size = 0;
+          });
         }
       }
       // 18 分割线无需类型
@@ -219,6 +232,19 @@ export default {
   },
 
   computed: {
+    // 生效字典数组
+    effectArr() {
+      if (this.configData.effectDict && this.configData.effectDict.length) {
+        const arr = this.getDictArr.filter((item) => {
+          if (this.configData.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      return this.getDictArr;
+    },
     getBtnResource() {
       if (this.configData.compName === 'FormButton') {
         // 保存
@@ -256,22 +282,25 @@ export default {
         this.configData.compName === 'FormButton' &&
         JSON.stringify(this.showType) === '{}'
       ) {
+        let menuId = this.$route.params.id;
+        // 分享页面 分享面板
+        if (+this.$route.params.flag === 2 && this.getFatherPanel()) {
+          menuId = this.getFatherPanel().menuId;
+        }
         if (
           !this.$store.getters
-            .getMenuResource(this.$route.params.id)
+            .getMenuResource(menuId)
             .includes(this.getBtnResource)
         ) {
           return false;
         }
       }
-
       if (this.configData.canShow) {
         return true;
       }
       return false;
     },
-    isLayoutStyle() {
-      // console.log(this.isQuery, this.grandFather);
+    isQueryEle() {
       return this.isQuery && this.grandFather.layoutStyle === 2;
     },
   },
@@ -279,6 +308,9 @@ export default {
   watch: {
     'configData.singleStatus': {
       handler(v) {
+        if (!this.isConfig) {
+          return;
+        }
         if (v === 1 || v === 2) {
           this.configData.canShow = true;
         }

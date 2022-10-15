@@ -83,6 +83,7 @@ export default {
 
   computed: {
     tagInfo() {
+      console.log(this.currentVersion);
       const isTrue = JSON.stringify(this.currentVersion) !== '{}';
       if (isTrue && this.currentVersion.versionStatus === 'CURRENT') {
         return {

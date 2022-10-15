@@ -367,7 +367,7 @@ $--footerHeight: 42px;
 @include setListLayout($--name, $--headerHeight, $--footerHeight);
 
 .task {
-  padding: 10px 10px 0 10px;
+  padding: 0px 10px 0 10px;
   background: #fff;
 }
 </style>

@@ -23,6 +23,7 @@
         :triggerCompMap="triggerCompMap"
         :formulaStr.sync="formulaStr"
         :showType="showType"
+        :variables="variables"
       ></formula-dialog>
     </transition>
   </div>
@@ -51,7 +52,10 @@ export default {
     showType: {
       type: Array,
       default: () => [1]
-    }
+    },
+    variables: {
+      type: Array
+    },
   },
   data() {
     return {
@@ -70,6 +74,11 @@ export default {
         return '';
       }
       let str = this.formulaStr.replace(/\[|\]/g, '');
+      if (str.indexOf('$variable_') !== -1) {
+        const res = str.replace(/\$variable_+([a-zA-Z0-9]+)\$/g, (...arr) =>
+          this.createMartDom(`${arr[1]}`));
+        return res;
+      }
       str = this.repalceCompMark(str);
       console.log(str);
       return str;
@@ -95,7 +104,6 @@ export default {
         return '';
       });
       res = res.replace(/\$\d+-\d+-([a-zA-Z0-9_\-\u4e00-\u9fa5]+)\$/g, (...arr) =>
-        // console.log(arr);
         this.createMartDom(`${arr[1]}`));
       return res;
     },

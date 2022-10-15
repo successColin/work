@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Store from '../store';
+import { Decrypt } from '@/utils/utils';
 import bus from './bus';
 
 Vue.prototype.$dispatch = function (eventName, data) {
@@ -25,19 +25,17 @@ Vue.prototype.$broadcast = function (eventName, data) {
   broadcast.call(this);
 };
 // 替换图片地址
-Vue.prototype.$parseImgUrl = function (url) {
-  if (typeof url !== 'string' || url === '') {
-    return null;
+Vue.prototype.$parseImgUrl = function (url, otherToken) {
+  if (url) {
+    if (url.startsWith('blob:')) {
+      return url;
+    }
+    if (url.indexOf('?') !== -1) {
+      return `${url}&token=${otherToken || Decrypt(localStorage.token)}`;
+    }
+    return `${url}?token=${otherToken || Decrypt(localStorage.token)}`;
   }
-  const urlExp = /^(http:|https:|file:)(?:\/\/)([^/]*)([^?#]*)([^#]*)(.*)$/gi;
-  let pathname = '';
-  url.replace(urlExp, (...rest) => {
-    [, , , pathname] = rest;
-  });
-  const arr = pathname.split('/');
-  return `${Store.state.globalConfig.fileConfig.minioUrl}${arr
-    .slice(2)
-    .join('/')}`;
+  return '';
 };
 
 Vue.prototype.$bus = bus;

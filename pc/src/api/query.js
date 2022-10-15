@@ -90,6 +90,7 @@ export default {
   ADD_KNOWLEDGE_FOLDER: '/system/knowledge/saveFolder', // 新增文件夹
   EDIT_KNOWLEDGE_FOLDER: '/system/knowledge/updateFolder', // 编辑文件文件夹名称
   GET_KNOWLEDGE_LIST_BY_PAGE: '/system/knowledge/pageFiles', // 分页查询列表
+  GET_KNOWLEDGE_ALL_LIST_BY_PAGE: '/system/knowledge/pageAllFiles', // 获取全部的分页
   DEL_KNOWLEDGE_FILES: '/system/knowledge/deleteFile', // 删除文件
   MOVE_KNOWLEDGE_FILES: '/system/knowledge/moveFolder', // 移动文件
   GET_COLLECT_FILES_LIST: '/system/knowledge/listCollection', // 获取收藏列表
@@ -129,8 +130,10 @@ export default {
   EXPORT_ERROR_MESSAGE: `${PREFIX}/${VERSION}/system/sysImportExport/exportErrorMessage`, // 常规导出
   EXPORT_ERROR_TREE_MESSAGE: `${PREFIX}/${VERSION}/system/treeImport/exportErrorMessage`, // 树导出
   EXPORT_ERROR_SPCIAL_MESSAGE: `${PREFIX}/${VERSION}/system/special/exportErrorMessage`, // 特殊表导出
+  EXPORT_ERROR_MESSAGE_IMPORT: `${PREFIX}/${VERSION}/system/sysImport/exportErrorMessage`, // 特殊表导出
 
   // 流程
+  GET_FLOW_TREE: '/workflowTask/instance/overview', // 获取流程树
   GET_TABLE_FIELDS: '/system/column/listSysEntityColumns', // 获取表字段
   GET_FLOW_LIST: '/workflow/list', // 获取流程列表
   ADD_FLOW: '/workflow/add', // 新增流程
@@ -149,6 +152,7 @@ export default {
   GET_I_INITIATED: '/workflowTask/launchByme', // 获取我发起的任务列表
   GET_MY_TODO_LIST: '/workflowTask/mytodo', // 获取带我处理的任务列表
   GET_MY_COMPLETED_TASKS_LIST: '/workflowTask/complated', // 获取已完成的任务列表
+  GET_MY_CC_TASKS_LIST: '/workflowTask/ccTome', // 获取抄送给我任务列表
   FLOW_AGREE: '/workflowTask/agree', // 流程审批同意
   FLOW_SUBMIT: '/workflowTask/submit ', // 流程审批同意
   FLOW_REJECT: '/workflowTask/reject', // 流程审批驳回
@@ -166,6 +170,8 @@ export default {
   UPDATE_FLOW_GROUP: '/workflowGroup/edit', // 修改流程分组属性
   SWITCH_FLOW_GROUP: '/system/sysMenu/switchLocation', // 修改流程分组排序
   GET_API_LIST: '/workflowNode/getWebHookList', // 获取代理接口列表
+  BATCH_AGREE: '/workflowTask/batchAgree', // 批量同意
+  BATCH_REJECT: '/workflowTask/batchReject', // 批量同意
 
   // 主页配置
   GET_HOME_PAGE_LIST: '/system/homepage/listSysHomepageConfig', // 主页列表
@@ -185,10 +191,17 @@ export default {
   GET_ELEMENT_ELEMENT_LIST: '/system/homepage/listSysHomepageElement', // 获取该菜单的所有控件
   GET_ELEMENTT_DATA_BY_REALLY: '/system/homepage/getSysHomepageData', // 获取真实数据
   GET_HOME_ROUTE: '/system/sysMenu/listHomePageMenu', // 获取主页的路由配置
+  GET_ELEMENT_DATA: '/system/homepage/getSysHomepageDataBatch', // 批量获取控件值
+  GET_ANNOUNCEMENT_LIST: '/system/announce/listAnnounceGroup', // 获取公告分组列表
+  GET_NOTICE_LIST_BY_ID: '/system/announce/listAnnounce', // 获取公告分组id获取公告
+  LOOK_DETIAL_NOTICE: '/system/announce/searchAnnounceDetail', //
 
   GET_PAGE_INNER_MAIL: 'innerMail/pageInnerMail', // 查询我的站内信分页
   MARK_MAIL_READ: 'innerMail/read', // 设置我的站内信已读
   MARK_MAIL_ALL_READ: 'innerMail/readMyAll', // 设置我的所有站内信已读
   GET_MAIL_COUNT: 'innerMail/queryCount', // 查询当前时间登录用户的站内信数量
   DOWNlOAD_RELATIONS_Files: `${PREFIX}/${VERSION}/system/materials/downloadRelationFiles`, // 导出关联资料
+  // 授权管理
+  DO_UPLOAD_LICENSE: '/license/upload', // 上传授权文件
+  GET_INFO_LICENSE: '/license/content', // 授权详情
 };

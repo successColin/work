@@ -1,2 +1,2 @@
-// import './messageVar';
+import './menu';
 import './messageone';

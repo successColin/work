@@ -29,7 +29,7 @@
       </div>
       <div class="user__content">
         <ul>
-          <li>
+          <li v-if="deploymentMode !== 'single'">
             <span
               class="team-name"
               :title="userInfo.tenantVO && userInfo.tenantVO.tenantName"
@@ -87,7 +87,8 @@ export default {
   data() {
     return {
       tableData: [],
-      tenantVisible: false
+      tenantVisible: false,
+      deploymentMode: ''
     };
   },
   props: {
@@ -111,6 +112,7 @@ export default {
   },
   mounted() {
     // this.getUserList();
+    this.deploymentMode = localStorage.getItem('deploymentMode');
   },
   methods: {
     openCenter(type) {
@@ -127,6 +129,8 @@ export default {
     doLogout() {
       logout().then(async () => {
         this.$router.push('/login');
+        this.$bus.$off();
+        this.$store.commit('setUserInfo', {});
         await this.$store.dispatch('getLoginConfigFun');
       });
     }

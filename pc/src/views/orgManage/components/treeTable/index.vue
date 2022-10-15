@@ -98,11 +98,15 @@ export default {
     // 更新组织列表对应节点
     updateTable(id, rootPath) {
       // 如果父节点有展开，则刷新父节点
-      if (this.loadNodeMap.has(id)) {
-        const { resolve } = this.loadNodeMap.get(id);
-        this.$emit('getTreeChild', { parentId: id }, resolve);
+      if (id !== 0) {
+        if (this.loadNodeMap.has(id)) {
+          const { resolve } = this.loadNodeMap.get(id);
+          this.$emit('getTreeChild', { parentId: id }, resolve);
+        } else {
+          this.checkHasChild(id, rootPath);
+        }
       } else {
-        this.checkHasChild(id, rootPath);
+        this.$emit('getTreeChild', { parentId: id });
       }
     },
     // 根据id修改该节点是否有子节点状态
@@ -152,7 +156,7 @@ export default {
 <style lang='scss' scoped>
 .treeTable {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 42px);
   font-size: 24px;
   line-height: 50px;
   text-align: center;

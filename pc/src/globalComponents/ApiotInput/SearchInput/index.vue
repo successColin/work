@@ -23,6 +23,10 @@ export default {
   props: {
     placeholder: {
       type: String
+    },
+    isConfig: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -34,7 +38,7 @@ export default {
   computed: {
     getPlaceholder() {
       return function () {
-        return this.placeholder || this.$t('placeholder.pleaseEnterkeySearch');
+        return this.isConfig ? '' : this.placeholder || this.$t('placeholder.pleaseEnterkeySearch');
       };
     }
   },
@@ -42,11 +46,13 @@ export default {
   mounted() {},
 
   methods: {
-    searchClearAndBlur() {
+    searchClearAndBlur(flag = true) {
       this.$refs.input.$el.children[0].value = '';
       this.$refs.input.$el.children[0].dispatchEvent(new Event('input'));
-      this.$parent.current = 1;
-      this.$emit('getList', 1);
+      if (flag) {
+        this.$parent.current = 1;
+        this.$emit('getList', 1);
+      }
     },
     searchBlur() {
       this.$parent.current = 1;

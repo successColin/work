@@ -195,11 +195,11 @@ export function batchSave(data) {
 }
 
 // 按钮删除
-export function batchDelete(params) {
+export function batchDelete(data) {
   return FetchData.request({
     url: 'application/save/batchDelete',
-    method: 'delete',
-    params,
+    method: 'post',
+    data,
   });
 }
 
@@ -302,6 +302,15 @@ export function deleteFile(params) {
   return FetchData.request({
     url: 'application/file/deleteFile',
     method: 'delete',
+    params,
+  });
+}
+
+// 文件删除
+export function deleteFileFun(params) {
+  return FetchData.request({
+    url: 'application/file/deleteFile',
+    method: 'post',
     params,
   });
 }

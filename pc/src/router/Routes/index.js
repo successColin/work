@@ -101,6 +101,20 @@ export default [
       title: '帮助中心',
     },
   },
+  // app自定义页面
+  {
+    path: '/appCustomPage/:id',
+    name: 'appCustomPage',
+    component: () => import('_v/HomeMenu'),
+    meta: {},
+  },
+  // 分享页面
+  {
+    path: '/sharePage/:flag/:id',
+    name: 'sharePage',
+    component: () => import('_v/ApiotMenu'),
+    meta: {},
+  },
   // 主页面
   {
     path: '/',
@@ -166,7 +180,7 @@ export default [
         component: () => import('_v/HomeMenu'),
         meta: {
           isModulePage: true,
-          childrenPage: false,
+          childrenPage: true,
         },
         parentName: 'layout',
       },
@@ -332,6 +346,36 @@ export default [
         component: () => import('_v/UReport'),
         meta: {
           title: 'UReport',
+          childrenPage: true,
+        },
+      },
+      // 密码有效期
+      {
+        path: 'passwordValid',
+        name: 'passwordValid',
+        component: () => import('_v/PasswordValid'),
+        meta: {
+          title: '密码有效期',
+          childrenPage: true,
+        },
+      },
+      // 公告管理
+      {
+        path: 'announceManage',
+        name: 'announceManage',
+        component: () => import('_v/AnnounceManage'),
+        meta: {
+          title: '公告管理',
+          childrenPage: true,
+        },
+      },
+      // 授权管理
+      {
+        path: 'licenseManage',
+        name: 'licenseManage',
+        component: () => import('_v/LicenseManage'),
+        meta: {
+          title: '授权管理',
           childrenPage: true,
         },
       },

@@ -15,6 +15,7 @@
   >
     <div class="pathWrap" v-if="config.interactionType===4">
       <CBreadcrumb
+          v-show="pathArr.length>1"
           @change="changePath"
           :color="color"
           :pathArr="pathArr"/>
@@ -45,7 +46,6 @@ import {
 } from 'echarts/components';
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from 'echarts/renderers';
-import { isEqual } from 'lodash';
 import { getInfoById } from '@/api/design';
 import { supplementaryColor, returnChartPosition, getXAxisByKey } from '@/views/HomeMenuConfig/constants/common';
 // import parser1 from '_u/formula';
@@ -239,7 +239,7 @@ export default {
           XAxis.forEach((x) => {
             const current = list.find((li) => li[dimension] === x && li[dimension === 'x' ? 's' : 'x'] === item);
             try {
-              data.push(current.y);
+              data.push({ ...current, value: current.y });
             } catch (e) {
               this.$message.error('请保持数据准确性!');
             }
@@ -429,17 +429,30 @@ export default {
       deep: true,
       immediate: true,
       handler(v, o) {
-        const params = this.getParameters();
-        const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-          this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
-          this.fetchData();
+        if (v && o) {
+          const { dataType, SqlDataConfig: {
+            enableDataManage, variableConfig = []
+          } } = this.config;
+          if (dataType === 3 && enableDataManage && variableConfig.length) {
+            this.checkParams(variableConfig);
+          }
         }
       }
     }
   },
   methods: {
+    checkParams(variableConfig) {
+      const obj = {};
+      Object.keys(this.otherParams).forEach((item) => {
+        const currentVar = variableConfig.find((varObj) => varObj.name === item);
+        if (currentVar) {
+          obj[item] = this.otherParams[item];
+        }
+      });
+      if (JSON.stringify(obj) !== '{}') {
+        this.fetchData();
+      }
+    },
     changePath(item, i) { // 修改路径
       this.params = JSON.parse(JSON.stringify(item));
       this.pathArr = this.pathArr.slice(0, i + 1);
@@ -450,7 +463,9 @@ export default {
     getParameters() {
       const {
         id,
-        componentId
+        SqlDataConfig: {
+          variableConfig
+        }
       } = this.config;
       const reduce = (obj) => // 将Object 处理成 Array
         Object.keys(obj)
@@ -459,23 +474,30 @@ export default {
             value: obj[item]
           }));
 
-      const { query } = this.$route;
+      const { query, name } = this.$route;
       const satisfyParams = {};
       if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams)
-          .forEach((item) => {
-            if (item.indexOf(componentId) > -1) {
-              const key = item.replace(`${componentId}_`, '');
-              satisfyParams[key] = this.otherParams[item];
-            }
-          });
+        Object.keys(this.otherParams).forEach((item) => {
+          const currentVar = variableConfig.find((varObj) => varObj.name === item);
+          if (currentVar) {
+            satisfyParams[item] = this.otherParams[item];
+          }
+        });
       }
-      const currentParams = {
-        ...satisfyParams,
-        ...query,
-        ...this.params
-      };
-      const arr = reduce(currentParams);
+      let lastParams = {};
+      if (name !== 'appCustomPage') {
+        lastParams = {
+          ...satisfyParams,
+          ...this.params
+        };
+      } else {
+        lastParams = {
+          ...satisfyParams,
+          ...query,
+          ...this.params
+        };
+      }
+      const arr = reduce(lastParams);
       return {
         id,
         varJson: JSON.stringify(arr)
@@ -513,29 +535,25 @@ export default {
         } = this.config;
         if (interactionType === 1) return;
         const {
-          name,
-          value,
-          seriesName
+          data
         } = params;
         // eslint-disable-next-line max-len
-        const currentObj = this.list.find((item) => {
-          const { x, y, s } = item;
-          if (seriesName.indexOf('series') > -1) {
-            return item[dimension] === name && `${y}` === `${value}`;
-          }
-          const keyValue = dimension === 'x' ? s : x;
-          return item[dimension] === name && `${y}` === `${value}` && keyValue === seriesName;
-        });
-        if (!currentObj) {
-          this.$message.error('没有找到对应的数据!');
-          this.isFinished = true;
-          return;
-        }
-        FIXED_OBJ = currentObj;
-        console.log(FIXED_OBJ, 'zz');
+        // const currentObj = this.list.find((item) => {
+        //   const { x, y, s } = item;
+        //   if (seriesName.indexOf('series') > -1) {
+        //     return item[dimension] === name && `${y}` === `${value}`;
+        //   }
+        //   const keyValue = dimension === 'x' ? s : x;
+        //   return item[dimension] === name && `${y}` === `${value}` && keyValue === seriesName;
+        // });
+        // if (!currentObj) {
+        //   this.$message.error('没有找到对应的数据!');
+        //   this.isFinished = true;
+        //   return;
+        // }
+        FIXED_OBJ = data;
         if (interactionType === 2) {
           // 弹面板
-          console.log(panelConfig);
           this.doSpringPanel(panelConfig);
         }
         if (interactionType === 3 && skipMenuConfig.length) {
@@ -547,7 +565,7 @@ export default {
         // eslint-disable-next-line max-len
         if (interactionType === 4 && Array.isArray(drillDownField) && drillDownField.length && this.isFinished) {
           // eslint-disable-next-line max-len
-          this.doDrill(params, drillDownField, dimension, tripStopField, tripStopFieldValue, currentObj);
+          this.doDrill(params, drillDownField, dimension, tripStopField, tripStopFieldValue, data);
         }
       });
       this.fetchData();
@@ -595,14 +613,14 @@ export default {
         //   seriesIndex: 0
         // });
       }
-      if (dataType === 2) {
-        await this.getApi();
-        const option = this.getOption();
-        // 绘制图表
-        this.instance.myChart.setOption(
-          option
-        );
-      }
+      // if (dataType === 2) {
+      //   await this.getApi();
+      //   const option = this.getOption();
+      //   // 绘制图表
+      //   this.instance.myChart.setOption(
+      //     option
+      //   );
+      // }
       if (dataType === 3) {
         await this.getSQL();
         const option = this.getOption();

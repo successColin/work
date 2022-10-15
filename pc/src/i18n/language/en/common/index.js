@@ -93,6 +93,8 @@ export default {
     pleaseEnterYourCompanyTeamName: 'please enter your company/team name',
     pleaseEnterYourName: 'please enter your name',
     pleaseEnterYourUsualEmail: 'please enter your usual email',
+    pleaseEnterRightEmail: 'Please enter the correct email address',
+    pleaseEnterRightwechat: 'Please enter the correct enterprise WeChat',
     brieflyDescribeYourBusinessNeeds: 'briefly describe your business needs~',
     pleaseSetANewPassword: 'set a new password',
     PleaseConfirmTheNewPasswordAgain: 'set a new password again',

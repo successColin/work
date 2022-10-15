@@ -7,7 +7,18 @@
     class="panel__dialog"
     :append-to-body="true"
     :hasFooter="false"
+    :showCustomTitle="true"
   >
+    <span slot="title" style="display: flex; align-items: center">
+      <span class="panel__dialog--title">{{
+        panelObj ? panelObj.panelName : ''
+      }}</span>
+      <i
+        class="iconfont icon-fenxiang"
+        v-if="getCanShare"
+        @click="getShare"
+      ></i>
+    </span>
     <ApiotMenu
       :panelObj="panelObj"
       :dataSelObj="dataSelObj"
@@ -17,6 +28,10 @@
       ref="menu"
       v-bind="$attrs"
     ></ApiotMenu>
+    <ApiotShareDialog
+      :visible.sync="showShare"
+      :panelObj="panelObj"
+    ></ApiotShareDialog>
   </apiot-drawer>
 </template>
 
@@ -36,13 +51,26 @@ export default {
   },
   data() {
     return {
-      dataSelObj: null
+      dataSelObj: null,
+      showShare: false
     };
   },
-
+  computed: {
+    // 能否显示分享
+    getCanShare() {
+      if (this.panelObj) {
+        return +this.panelObj.enableshare === 1;
+      }
+      return false;
+    }
+  },
   mounted() {},
 
   methods: {
+    // 打开分享
+    getShare() {
+      this.showShare = true;
+    },
     closePanle() {
       this.$emit('update:visible', false);
     },
@@ -66,6 +94,16 @@ export default {
 
 <style lang='scss' scoped>
 .panel__dialog {
+  .icon-fenxiang {
+    position: absolute;
+    right: 0;
+    color: #909399;
+    margin-right: 54px;
+    cursor: pointer;
+    &:hover {
+      color: $--color-primary;
+    }
+  }
   ::v-deep {
     .el-drawer__header {
       padding-left: 20px !important;

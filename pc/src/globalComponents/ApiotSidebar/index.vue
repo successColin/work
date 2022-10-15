@@ -110,7 +110,7 @@
               >
                 <i class="iconfont icon-gengduocaozuo"></i>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item :command="{ type: 'edit', item: item }">{{
+                  <el-dropdown-item v-if="isNeedEdit" :command="{ type: 'edit', item: item }">{{
                     $t('entity.changeGroupName')
                   }}</el-dropdown-item>
                   <el-dropdown-item :command="{ type: 'del', item: item }">{{
@@ -208,7 +208,12 @@ export default {
     isEllipsis: {
       type: Boolean,
       default: false
-    }
+    },
+    // 是否需要操作
+    isNeedEdit: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {

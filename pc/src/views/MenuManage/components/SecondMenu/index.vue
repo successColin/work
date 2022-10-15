@@ -181,6 +181,9 @@ export default {
       });
       this.groupList = data;
       if (data.length) {
+        if (!this.groupList[this.curIndex]) {
+          this.curIndex = 0;
+        }
         this.selectList(this.groupList[this.curIndex], this.curIndex);
       } else {
         this.$emit('selectList', this.curItem);

@@ -29,14 +29,19 @@
       </div>
     </div>
     <div class="left__search">
-      <apiot-input
-        :placeholder="getInputPlaceholder()"
-        v-model="keyWord"
-        ref="search"
-        @keyup.enter.native="doSearch"
-        @input="reset"
-      ></apiot-input>
-      <i class="iconfont icon-sousuo" @click="doSearch"></i>
+<!--      <apiot-input-->
+<!--        :placeholder="getInputPlaceholder()"-->
+<!--        v-model="keyWord"-->
+<!--        ref="search"-->
+<!--        @keyup.enter.native="doSearch"-->
+<!--        @input="reset"-->
+<!--      ></apiot-input>-->
+<!--      <i class="iconfont icon-sousuo" @click="doSearch"></i>-->
+      <search-input
+          :placeholder="getInputPlaceholder()"
+          @getList="doSearch"
+          v-model="keyWord"
+      ></search-input>
     </div>
     <div class="leftWrap_ul_listWrap">
       <OrgTree v-if="defaultLeftType === 'org'" ref="org" isolationSign="user"></OrgTree>
@@ -240,12 +245,16 @@ export default {
     margin: 6px auto;
     width: 224px;
     text-align: center;
+    overflow: hidden;
 
     ::v-deep {
       .el-input__inner {
         height: 30px;
         padding-left: 12px;
         padding-right: 30px;
+      }
+      .input__search {
+        width: 100%;
       }
 
       .el-input:focus-within + i.icon-sousuo {

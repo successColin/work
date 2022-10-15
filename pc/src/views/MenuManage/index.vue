@@ -14,16 +14,17 @@
   >
     <template v-slot:sidebar>
       <sidebar-list
-        @selectList="changeGroup"
+        @selectList="changeTab"
         :asideLoading.sync="asideLoading"
+        ref="sidebarList"
       ></sidebar-list>
     </template>
     <template>
-      <second-menu
+      <!-- <second-menu
         class="menu__top"
         @selectList="changeTab"
         ref="tabs"
-      ></second-menu>
+      ></second-menu> -->
       <section
         class="menu__wrapper"
         :class="[{ apiotNoData: !menuArr.length }]"
@@ -41,11 +42,18 @@
             >{{ $t('common.add', { name: $t('menu.menu') }) }}
           </apiot-button>
 
-          <search-input
+          <!-- <search-input
             @getList="getList"
             v-model="keywords"
             class="m-l-10"
-          ></search-input>
+          ></search-input> -->
+          <conditionInput
+            @getList="getList"
+            v-model="keywords"
+            :selectArr="selectArr"
+            :selectValue.sync="selectValue"
+            class="m-l-10 m-t-6"
+          ></conditionInput>
           <apiot-button
             @click="exportMenu"
             v-if="showBtn"
@@ -89,14 +97,14 @@
                 :index="index"
                 :item="item"
                 class="m-r-14"
-                :groupName="groupName"
-                :groupId="groupId"
+                :groupId="item.parentId"
                 :groupMenuCode="curItem ? curItem.menuCode : ''"
                 @getList="getList"
                 @addCancle="addCancle"
                 @addSure="addSure"
                 @editSure="editSure"
                 @deleteMenu="deleteMenu"
+                @moveMenu="moveMenu"
               ></menu-card>
             </transition-group>
           </draggable>
@@ -115,6 +123,13 @@
         ></MenuHome>
       </section>
     </template>
+    <MoveDialog
+      :visible.sync="showMoveDialog"
+      :showMoveDialog="showMoveDialog"
+      :filterItem="filterItem"
+      @moveSucess="moveSucess"
+      :isMenu="true"
+    ></MoveDialog>
   </apiot-content>
 </template>
 
@@ -131,8 +146,9 @@ import bus from '@/utils/bus';
 import MenuCard from './components/MenuCard';
 import MenuHome from './components/MenuHome';
 import MenuSelect from './components/MenuSelect';
-import SecondMenu from './components/SecondMenu';
+// import SecondMenu from './components/SecondMenu';
 import SidebarList from './components/Sidebar';
+import MoveDialog from './components/MoveDialog';
 
 export default {
   name: 'menuManage',
@@ -152,7 +168,11 @@ export default {
       transitionName: 'fadeInUp', // 切换动画
       showMenu: false, // 展示多选菜单
       showHome: false, // 展示主页菜单
-      curItem: null
+      curItem: null,
+      selectArr: [{ name: '本模块', value: 1 }],
+      selectValue: 1,
+      showMoveDialog: false,
+      filterItem: null
     };
   },
 
@@ -160,8 +180,9 @@ export default {
     SidebarList,
     MenuCard,
     MenuSelect,
-    SecondMenu,
-    MenuHome
+    // SecondMenu,
+    MenuHome,
+    MoveDialog
   },
 
   computed: {
@@ -178,6 +199,20 @@ export default {
   mounted() {},
 
   methods: {
+    // 移动菜单
+    moveMenu(item, index) {
+      this.filterItem = {
+        menuName: item.menuName,
+        id: item.id,
+        parentId: item.parentId
+      };
+      this.curMoveIndex = index;
+      this.showMoveDialog = true;
+    },
+    // 移动成功
+    moveSucess() {
+      this.menuArr.splice(this.curMoveIndex, 1);
+    },
     // 添加菜单
     addMenu() {
       this.menuArr.unshift({
@@ -261,6 +296,8 @@ export default {
     },
     // 更改tab切换
     changeTab(item) {
+      this.selectValue = 1;
+      this.keywords = '';
       this.curItem = item;
       this.groupId = item.id;
       this.menuArr = [];
@@ -275,7 +312,6 @@ export default {
     },
     dragMove(evt) {
       this.isMoving = true;
-      console.log(evt.relatedContext);
       bus.$emit('menuMove', evt.relatedContext);
       if (this.groupId === evt.relatedContext.element.id) {
         this.isCurGroup = true;
@@ -346,6 +382,9 @@ export default {
       try {
         this.contentLoading = true;
         const params = { menuLevel: 2, parentId: this.groupId, keywords: this.keywords };
+        if (!this.selectValue) {
+          delete params.parentId;
+        }
         this.transitionName = 'fadeInUp';
         const data = await sysMenuList(params);
         this.contentLoading = false;
@@ -353,9 +392,9 @@ export default {
           item.state = 1;
           item.type = 'menu';
         });
-        if (data.length) {
-          this.menuArr = data;
-        }
+        // if (data.length) {
+        this.menuArr = data;
+        // }
       } catch (error) {
         this.contentLoading = false;
       }
@@ -365,21 +404,23 @@ export default {
       try {
         this.contentLoading = true;
         this.transitionName = 'move-right';
-        const data = await sysMenuAdd(params);
+        await sysMenuAdd(params);
         this.contentLoading = false;
 
-        if (this.menuArr.length > 1) {
-          this.menuArr = [];
-          await this.switchLocation({
-            id: data.id,
-            sno: data.sno,
-            switchSno: 1
-          });
-          this.sysMenuList();
-        } else {
-          this.menuArr = [];
-          this.sysMenuList();
-        }
+        // if (this.menuArr.length > 1) {
+        //   this.menuArr = [];
+        //   // await this.switchLocation({
+        //   //   id: data.id,
+        //   //   sno: data.sno,
+        //   //   switchSno: 1
+        //   // });
+        //   this.sysMenuList();
+        // } else {
+        //   this.menuArr = [];
+        //   this.sysMenuList();
+        // }
+        this.menuArr = [];
+        this.sysMenuList();
         this.$store.dispatch('getRoute');
         this.$message({
           type: 'success',
@@ -505,6 +546,7 @@ export default {
   }
   &__header {
     padding-right: 10px;
+    height: 42px;
   }
   &__top {
     height: 42px;

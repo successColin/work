@@ -23,7 +23,7 @@
         <el-submenu :index="`${child.id}`" class="bbb" v-else>
           <span slot="title">
             <img
-              :src="child.icon.imageUrl"
+              :src="$parseImgUrl(child.icon.imageUrl)"
               class="iconImg"
               v-if="child.icon && child.icon.imageUrl"
             />
@@ -107,7 +107,7 @@ export default {
   }
   .isCollect {
     position: absolute;
-    left: 226px;
+    left: 190px;
     color: #fab71c;
     font-size: 13px;
     will-change: transform;

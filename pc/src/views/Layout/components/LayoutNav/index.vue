@@ -13,12 +13,12 @@
       transition="topEnterBottomLeave"
       placement="bottom"
       :enterable="false"
-      v-if="[2, 3].includes($store.getters.getMenuType)"
+      v-if="[2, 3, 4].includes($store.getters.getMenuType)"
     >
       <div
         class="nav__menubar"
         @click="showMenu()"
-        v-if="[2, 3].includes($store.getters.getMenuType)"
+        v-if="[2, 3, 4].includes($store.getters.getMenuType)"
       >
         <i
           :class="`iconfont ${
@@ -140,8 +140,7 @@ export default {
       };
     }
   },
-
-  mounted() {
+  activated() {
     this.tabArr = sessionStorage.navTabArr ? JSON.parse(sessionStorage.navTabArr) : this.tabArr;
     this.delTabArr = sessionStorage.delTabArr
       ? JSON.parse(sessionStorage.delTabArr)
@@ -154,7 +153,38 @@ export default {
     });
     this.initScroll('init');
     window.addEventListener('resize', debounce(this.initScroll));
+    if (this.$store.getters.getMenuType === 2) {
+      if (sessionStorage.traditionOpen === 'false') {
+        this.showMenuFlag = false;
+        // 这个时候不打开
+        return false;
+      }
+      this.showMenuFlag = true;
+    }
   },
+  // mounted() {
+  //   this.tabArr = sessionStorage.navTabArr ? JSON.parse(sessionStorage.navTabArr) : this.tabArr;
+  //   this.delTabArr = sessionStorage.delTabArr
+  //     ? JSON.parse(sessionStorage.delTabArr)
+  //     : this.delTabArr;
+  //   this.hasMounted = true;
+  //   bus.$on('changeMenuTab', this.changeMenuTab);
+  //   bus.$on('openMenuList', this.showMenu);
+  //   bus.$on('routerReset', () => {
+  //     this.tabArr = sessionStorage.navTabArr ?
+  // JSON.parse(sessionStorage.navTabArr) : this.tabArr;
+  //   });
+  //   this.initScroll('init');
+  //   window.addEventListener('resize', debounce(this.initScroll));
+  //   if (this.$store.getters.getMenuType === 2) {
+  //     if (sessionStorage.traditionOpen === 'false') {
+  //       this.showMenuFlag = false;
+  //       // 这个时候不打开
+  //       return false;
+  //     }
+  //     this.showMenuFlag = true;
+  //   }
+  // },
   methods: {
     goHome() {
       if (this.homeArr.length) {
@@ -208,6 +238,7 @@ export default {
         }
       });
     },
+
     // 展示侧边菜单
     showMenu(flag = false) {
       clearTimeout(this.timer);
@@ -228,14 +259,15 @@ export default {
     },
 
     changeMenuTab(item) {
-      // console.log(item, '切换菜单');
       if (this.$route.path === item.path) {
         return;
       }
       // 更换菜单中心选中菜单
       this.$bus.$emit('changeSelect', item);
       this.$router.push(item.path);
-      const res = this.getTabArr.findIndex((tab) => tab.path.split('?')[0] === item.path.split('?')[0]);
+      const res = this.getTabArr.findIndex(
+        (tab) => tab.path.split('?')[0] === item.path.split('?')[0]
+      );
       if (res === -1) {
         this.tabArr.push(item);
         this.$nextTick(() => {
@@ -251,11 +283,16 @@ export default {
         // this.tabArr[res].path = item.path;
         // this.tabArr.push(item);
       }
+      // console.log(2, this.tabArr);
       sessionStorage.navTabArr = JSON.stringify(this.tabArr);
     },
 
     closeTab(item) {
+      console.log(item);
       const res = this.tabArr.findIndex((tab) => tab.path === item.path);
+      if (res === -1) {
+        return;
+      }
       this.$emit('clearCacheBefore');
       const delItem = this.tabArr.splice(res, 1);
       this.delTabArr.push(...delItem);
@@ -385,6 +422,15 @@ export default {
       this.validateBtn();
     }
   },
+  deactivated() {
+    if (this.scroll) {
+      this.scroll.destroy();
+    }
+    window.removeEventListener('resize', debounce(this.initScroll));
+    bus.$off('changeMenuTab', this.changeMenuTab);
+    bus.$off('openMenuList', this.showMenu);
+    bus.$off('routerReset');
+  },
   beforeDestroy() {
     if (this.scroll) {
       this.scroll.destroy();
@@ -404,6 +450,7 @@ export default {
               to.path.indexOf(tab.path) !== -1 ||
               tab.path.indexOf(to.path) !== -1
           );
+          // console.log(res);
           if (res === -1) {
             if (this.delTabArr.length) {
               const index = this.delTabArr.findIndex((tab) => {
@@ -425,9 +472,10 @@ export default {
                 });
               }
             }
-            if (this.hasMounted) {
-              sessionStorage.navTabArr = JSON.stringify(this.tabArr);
-            }
+            // if (this.hasMounted) {
+            //   console.log(1, this.tabArr);
+            // sessionStorage.navTabArr = JSON.stringify(this.tabArr);
+            // }
           } else {
             this.changePos(res);
           }

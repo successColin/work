@@ -21,7 +21,7 @@
       ></apiot-input>
     </div>
     <div class="el-upload__img" v-if="uploadType === 2">
-      <img :src="curUrl" alt="" v-if="curUrl" />
+      <img :src="$parseImgUrl(curUrl)" alt="" v-if="curUrl" />
       <i class="iconfont icon-jiahao" v-else></i>
     </div>
   </el-upload>
@@ -65,7 +65,9 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+
+  },
 
   mounted() {
     this.curUrl = this.fileUrl;

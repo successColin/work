@@ -48,15 +48,37 @@
         {{ item.content }}
       </div>
     </div>
-    <!-- 检测进度 -->
-    <detector-box
-      :isdetect.sync="isdetect"
-      :diffTime="diffTime"
-      :checkInfo="checkInfo"
-      :progress="progress"
-    ></detector-box>
-    <!-- 异常明细 -->
-    <exc-details @export="handleExport" :checkInfo="checkInfo"></exc-details>
+    <el-steps
+      :active="activeSteps"
+      finish-status="success"
+      :process-status="currentState"
+      direction="vertical"
+      class="mainWrap__timeline"
+    >
+      <el-step title="检测">
+        <div slot="description" class="m-b-20">
+          <!-- 检测进度 -->
+          <detector-box
+            :diffTime="diffTime"
+            :checkInfo="checkInfo"
+            :progress="progress"
+          ></detector-box>
+          <!-- 异常明细 -->
+          <!-- <exc-details :checkInfo="checkInfo"></exc-details> -->
+        </div>
+      </el-step>
+      <el-step title="导入">
+        <div slot="description">
+          <!-- 导入进度 -->
+          <import-schedule
+            :uploadTime="uploadTime"
+            :importProgress="importProgress"
+            :uploadInfo="uploadInfo"
+          >
+          </import-schedule>
+        </div>
+      </el-step>
+    </el-steps>
   </div>
 </template>
 
@@ -64,32 +86,16 @@
 import { exportTips } from '@/config';
 import { Decrypt, getBlob, saveAs, createUnique } from '@/utils/utils';
 import query from '@/api/query';
+
 import {
-  importTemplateOrgStart,
-  importTemplateUserStart,
-  checkTreeTemplate,
-  getCheckTreeProgress,
-  getUploadTreeProgress,
-  importTemplateTreeOrgStart,
-  importTreeTemplate,
-  importTemplatePDStart,
-  checkOrgSpecialTemplate,
-  checkUserSpecialTemplate,
-  checkPDSpecialTemplate,
-  importSpecialTemplate,
-  getCheckSpecialProgress,
-  getCheckSpecialSpecialProgress
+  importData,
+  getCheckSysImportProgress,
+  getUploadsysImportProgress
 } from '@/api/importTemplate';
-import {
-  doUploadFiles,
-  doProcessChek,
-  doImportProcess,
-  doImportStart,
-  doCheckTemplateIsRight
-} from '@/api/user';
 import FileManage from './components/FileManage';
 import DetectorBox from './components/DetectorBox';
-import ExcDetails from './components/ExcDetails';
+// import ExcDetails from './components/ExcDetails';
+import ImportSchedule from './components/ImportSchedule';
 
 export default {
   data() {
@@ -99,19 +105,25 @@ export default {
       buttonLoading: false, // 按钮loading
       file: '', // 文件
       fileList: [],
-      isdetect: false, // 是否开始校验
       uniqueId: '',
       timer: '', // 定时器
       counter: '', // ⏲
+      uploadCounter: '', // 上传计数器
       diffTime: '', // 用时
+      uploadTime: '',
       checkInfo: {}, // 检测信息
-      progress: 0 // 进度
+      uploadInfo: {}, // 导入信息
+      progress: 0, // 进度
+      importProgress: 0, // 导入进度
+      activeSteps: -1,
+      currentState: 'wait'
     };
   },
   components: {
     FileManage,
     DetectorBox,
-    ExcDetails
+    // ExcDetails,
+    ImportSchedule
   },
   computed: {
     isTree() {
@@ -140,56 +152,36 @@ export default {
         }`;
       }, 1000);
     },
+    // 上传计数器
+    uploadCounterFun() {
+      let Minute = 0;
+      let second = 0;
+      this.uploadCounter = setInterval(() => {
+        second += 1;
+        if (second >= 60) {
+          second = 0;
+          Minute += 1;
+        }
+        this.uploadTime = `${String(Minute).length === 1 ? `0${Minute}` : Minute}:${
+          String(second).length === 1 ? `0${second}` : second
+        }`;
+      }, 1000);
+    },
     // 点击立即导入
     async handleImport() {
+      this.activeSteps = 0;
+      this.currentState = 'process';
       this.buttonLoading = true;
+
+      this.resetValue();
+
       this.counterFun();
-      this.isdetect = true;
-      const formData = new FormData();
       this.uniqueId = createUnique();
-      formData.append('id', this.currentObj.id);
-      formData.append('uuid', this.uniqueId);
-      formData.append('file', this.file.raw);
-      const { sortId, templateTpye, relationsList } = this.currentObj;
       try {
-        console.log(templateTpye);
-        if (sortId === -10 && templateTpye === 1) {
-          // 校验模板
-          if (relationsList.find((v) => v.tableName === 'sys_org')) {
-            // 特殊组织表
-            await checkOrgSpecialTemplate(formData);
-          } else if (relationsList.find((v) => v.tableName === 'sys_user')) {
-            // 用户表
-            await checkUserSpecialTemplate(formData);
-          } else if (
-            relationsList.find((v) => v.tableName === 'sys_position') ||
-            relationsList.find((v) => v.tableName === 'sys_device')
-          ) {
-            // 设备位置表
-            await checkPDSpecialTemplate(formData);
-          }
-        } else if (this.isTree === 1) {
-          // 常规树
-          await checkTreeTemplate(formData);
-        } else {
-          await doCheckTemplateIsRight(formData);
-        }
-        // 导入校验
-        if (sortId === -10 && templateTpye === 1) {
-          if (
-            relationsList.find((v) => v.tableName === 'sys_org') ||
-            relationsList.find((v) => v.tableName === 'sys_user') ||
-            relationsList.find((v) => v.tableName === 'sys_position') ||
-            relationsList.find((v) => v.tableName === 'sys_device')
-          ) {
-            await importSpecialTemplate(formData);
-          }
-        } else if (this.isTree === 1) {
-          await importTreeTemplate(formData);
-        } else {
-          await doUploadFiles(formData);
-        }
-        this.doPreChek();
+        this.startImport();
+        setTimeout(() => {
+          this.doPreChek();
+        }, 1000);
       } catch (e) {
         this.resetFun();
       }
@@ -201,60 +193,57 @@ export default {
       if (this.counter) {
         clearTimeout(this.counter);
       }
+      if (this.uploadCounter) {
+        clearTimeout(this.uploadCounter);
+      }
       this.buttonLoading = false;
-      this.isdetect = false;
       this.progress = 100;
+      this.currentState = 'error';
     },
     // 校验进度监控
     doPreChek() {
-      const { sortId, templateTpye, relationsList } = this.currentObj;
       if (this.timer) {
         clearTimeout(this.timer);
       }
       this.timer = setTimeout(async () => {
         try {
-          let res;
-          // 特殊表
-          if (sortId === -10 && templateTpye === 1) {
-            if (
-              relationsList.find((v) => v.tableName === 'sys_org') ||
-              relationsList.find((v) => v.tableName === 'sys_user') ||
-              relationsList.find((v) => v.tableName === 'sys_position') ||
-              relationsList.find((v) => v.tableName === 'sys_device')
-            ) {
-              res = await getCheckSpecialProgress({ uuid: this.uniqueId });
-            }
-          } else if (this.isTree) {
-            res = await getCheckTreeProgress({ uuid: this.uniqueId });
-          } else {
-            res = await doProcessChek({ uuid: this.uniqueId });
-          }
+          const res = await getCheckSysImportProgress({ uuid: this.uniqueId });
           const { Row, Sum, isCheckFinish, errorRow = 0 } = res;
           this.checkInfo = res;
-          if (this.progress < 60) {
-            this.progress += 1;
+          if (Row && Sum && Sum !== 0) {
+            const num = Row / Sum;
+            const proportion = num * 100;
+            this.progress = proportion.toFixed(2);
           }
           if (isCheckFinish || Row >= Sum) {
             // 预校验结束
             if (!errorRow && isCheckFinish) {
               // 如果预校验结束并且错误数据为0，则开启导入
-              await this.startImport();
+              // await this.startImport();
+              this.progress = 100;
+              this.activeSteps = 1;
+              if (this.counter) {
+                clearTimeout(this.counter);
+              }
+              // 开始计时
+              this.uploadCounterFun();
+              setTimeout(() => {
+                this.doProcessImport();
+              }, 1000);
             } else {
               this.resetFun();
-              this.$message.error('导入失败！');
+              this.$message.warning('请先检查数据');
             }
           } else {
             await this.doPreChek();
           }
         } catch (e) {
-          console.log(e);
           this.resetFun();
         }
-      }, 2000);
+      }, 1000);
     },
     // 导入数据
     async startImport() {
-      const { sortId, templateTpye, relationsList } = this.currentObj;
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -262,108 +251,52 @@ export default {
       formData.append('id', this.currentObj.id);
       formData.append('uuid', this.uniqueId);
       formData.append('file', this.file.raw);
-      if (sortId === -10 && templateTpye === 1) {
-        // 特殊表导入
-        if (relationsList.find((v) => v.tableName === 'sys_org')) {
-          // 组织表
-          await importTemplateOrgStart(formData);
-        } else if (relationsList.find((v) => v.tableName === 'sys_user')) {
-          // 用户表
-          await importTemplateUserStart(formData);
-        } else if (
-          relationsList.find((v) => v.tableName === 'sys_position') ||
-          relationsList.find((v) => v.tableName === 'sys_device')
-        ) {
-          // 设备 和 位置表
-          await importTemplatePDStart(formData);
-        }
-      } else if (this.isTree) {
-        // 树导入
-        await importTemplateTreeOrgStart(formData);
-      } else {
-        // 常规的导入
-        await doImportStart(formData);
-      }
-
-      this.doProcessImport();
+      await importData(formData);
     },
     async doProcessImport() {
-      const { sortId, templateTpye, relationsList } = this.currentObj;
       // 导入数据
       if (this.timer) {
         clearTimeout(this.timer);
       }
       this.timer = setTimeout(async () => {
         try {
-          let res;
-          if (sortId === -10 && templateTpye === 1) {
-            if (
-              relationsList.find((v) => v.tableName === 'sys_org') ||
-              relationsList.find((v) => v.tableName === 'sys_user') ||
-              relationsList.find((v) => v.tableName === 'sys_position') ||
-              relationsList.find((v) => v.tableName === 'sys_device')
-            ) {
-              res = await getCheckSpecialSpecialProgress({ uuid: this.uniqueId });
-            }
-          } else if (this.isTree) {
-            res = await getUploadTreeProgress({ uuid: this.uniqueId });
-          } else {
-            res = await doImportProcess({ uuid: this.uniqueId });
-          }
+          const res = await getUploadsysImportProgress({ uuid: this.uniqueId });
           const { Row, Sum, isImportFinish, status } = res;
           console.log(res);
-          if (this.progress < 99) {
-            this.progress += 1;
+          this.uploadInfo = res;
+          if (Row && Sum && Sum !== 0) {
+            const num = Row / Sum;
+            const proportion = num * 100;
+            this.importProgress = +proportion.toFixed(2);
           }
           if (isImportFinish || Row >= Sum || status === 201) {
+            this.importProgress = 100;
             // 导入结束
-            this.resetFun();
             this.$message.success('导入成功！');
+            this.activeSteps = 2;
+            if (this.timer) {
+              clearTimeout(this.timer);
+            }
+            if (this.uploadCounter) {
+              clearTimeout(this.uploadCounter);
+            }
+            this.buttonLoading = false;
+            this.progress = 100;
+            // this.currentState = 'success';
           } else {
             await this.doProcessImport();
           }
         } catch (e) {
           this.resetFun();
+          this.importProgress = 100;
         }
-      }, 2000);
+      }, 1000);
     },
     // 下载模板
     downloadTemplate() {
       const url = `${query.GET_IMPORT_TEMPLATE}?id=${this.currentObj.id}`;
       const fileName = this.currentObj.name;
       this.downloadFile(url, fileName);
-    },
-    // 常规错误导出
-    exportErrorMessage(type) {
-      // 1 常规导出， 2 树导出， 3 特殊表导出
-      let url;
-      if (type === 1) {
-        url = `${query.EXPORT_ERROR_MESSAGE}?uuid=${this.uniqueId}`;
-      } else if (type === 2) {
-        url = `${query.EXPORT_ERROR_TREE_MESSAGE}?uuid=${this.uniqueId}`;
-      } else if (type === 3) {
-        url = `${query.EXPORT_ERROR_SPCIAL_MESSAGE}?uuid=${this.uniqueId}`;
-      }
-      const fileName = `${this.currentObj.name}错误信息`;
-      console.log(url);
-      this.downloadFile(url, fileName);
-    },
-    async handleExport() {
-      const { sortId, templateTpye, relationsList } = this.currentObj;
-      if (sortId === -10 && templateTpye === 1) {
-        if (
-          relationsList.find((v) => v.tableName === 'sys_org') ||
-          relationsList.find((v) => v.tableName === 'sys_user') ||
-          relationsList.find((v) => v.tableName === 'sys_position') ||
-          relationsList.find((v) => v.tableName === 'sys_device')
-        ) {
-          this.exportErrorMessage(3);
-        }
-      } else if (this.isTree) {
-        this.exportErrorMessage(2);
-      } else {
-        this.exportErrorMessage(1);
-      }
     },
     downloadFile(url, fileName) {
       getBlob(
@@ -379,21 +312,29 @@ export default {
     },
     // 树那边拿过来值
     getListDate(v) {
-      console.log(v);
       this.currentObj = v;
       this.fileList = [];
       this.file = '';
       this.disabled = true;
-      this.checkInfo = {};
-      this.diffTime = '';
+      this.resetValue();
+      this.activeSteps = -1;
+      this.currentState = 'wait';
     },
     // 上传成功
     getFiles(file) {
-      console.log(file);
       this.file = file;
       this.disabled = false;
+      this.resetValue();
+      this.activeSteps = -1;
+      this.currentState = 'wait';
+    },
+    resetValue() {
+      this.progress = 0;
+      this.importProgress = 0;
+      this.uploadInfo = {};
       this.checkInfo = {};
       this.diffTime = '';
+      this.uploadTime = '';
     }
   },
   beforeDestroy() {
@@ -404,6 +345,8 @@ export default {
 <style lang='scss' scoped>
 .mainWrap {
   margin: 20px;
+  display: flex;
+  flex-direction: column;
   &__file {
     display: flex;
     &--download {
@@ -428,13 +371,33 @@ export default {
     font-size: 14px;
     color: #808080;
     line-height: 20px;
-    max-height: 50vh;
+    max-height: 150px;
+    min-height: 100px;
     overflow: auto;
   }
   &__defaultDoc {
     div {
       line-height: 2;
     }
+  }
+  &__timeline {
+    margin-top: 20px;
+    line-height: 20px;
+  }
+  ::v-deep {
+    .pagination {
+      border-top: 0;
+    }
+    .el-step__description {
+      padding-right: 0;
+    }
+    .el-progress-bar__inner {
+      background-color: transparent !important;
+      background-image: linear-gradient(to right, #8c99fa, #68c5f7);
+    }
+    // .el-progress-bar__innerText {
+    //   // color: rgb(63, 63, 63);
+    // }
   }
 }
 </style>

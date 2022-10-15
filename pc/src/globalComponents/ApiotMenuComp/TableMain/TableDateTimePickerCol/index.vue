@@ -31,6 +31,7 @@
         ref="filterCol"
         :configData="configData"
         :grandFather="grandFather"
+        v-if="configData.enableTableSearch"
       ></FilterCol>
     </template>
     <div slot-scope="scope">

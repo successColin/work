@@ -321,3 +321,10 @@ textarea::-ms-input-placeholder {
 .el-button--mini {
   border-radius: 4px !important;
 }
+
+.luckysheet-input-box {
+  // border: 0;
+  // margin: 3px;
+  box-shadow: none;
+  z-index: 102;
+}

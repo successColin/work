@@ -90,6 +90,19 @@
           v-model="fatherObj.form[activeObj.compId]"
         ></apiot-input>
       </el-form-item> -->
+
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
+      </el-form-item>
       <el-form-item
         label="最小宽度"
         v-if="relateObj && relateObj.compName === 'TableMain'"
@@ -235,7 +248,7 @@
           </el-collapse-item>
         </el-collapse>
       </el-form-item>
-      <el-form-item label="下级加载方式">
+      <el-form-item label="下级加载方式" v-if="$route.query.isApp !== '1'">
         <el-select v-model="activeObj.loadType" placeholder="请选择">
           <el-option label="鼠标悬停" :value="1"></el-option>
           <el-option label="鼠标点击" :value="2"></el-option>
@@ -247,7 +260,7 @@
           <el-option label="仅末尾级字段" :value="2"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="$route.query.isApp !== '1'">
         <p class="switchBox">
           是否启用搜索
           <!-- :value="activeObj.showTab"

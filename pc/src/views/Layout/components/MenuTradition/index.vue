@@ -19,7 +19,7 @@
           >
             <template slot="title">
               <img
-                :src="item.icon.imageUrl"
+                :src="$parseImgUrl(item.icon.imageUrl)"
                 class="iconImg"
                 v-if="item.icon && item.icon.imageUrl"
               />
@@ -41,8 +41,6 @@
         </transition-group>
       </el-menu>
     </div>
-
-    <input ref="btn" class="notShow" />
   </div>
 </template>
 
@@ -88,9 +86,10 @@ export default {
       if (this.getFavArr.length) {
         allModuleArr.unshift(favObj);
       }
+      const tempAllArr = JSON.parse(JSON.stringify(allModuleArr));
       if (this.keywords) {
         const tempArr = [];
-        allModuleArr.forEach((item) => {
+        tempAllArr.forEach((item) => {
           if (item.children) {
             const tempChildren = this.resolveKeyword(item.children);
             if (tempChildren.length) {
@@ -130,14 +129,20 @@ export default {
     changeSelect(item) {
       this.activeIndex = `${item.id}`;
     },
-    resolveKeyword(arr) {
-      const tempChildren = arr.filter((child) => {
-        if (child.children) {
-          return this.resolveKeyword(child.children).length;
+    resolveKeyword(menuArr) {
+      const arr = [];
+      menuArr.forEach((child) => {
+        if (child.menuName.toLowerCase().indexOf(this.keywords.toLowerCase()) !== -1) {
+          arr.push(child);
+        } else if (child.children) {
+          const res = this.resolveKeyword(child.children);
+          if (res.length) {
+            child.children = res;
+            arr.push(child);
+          }
         }
-        return child.menuName.indexOf(this.keywords) !== -1;
       });
-      return tempChildren;
+      return arr;
     },
     itemClick(item) {
       this.changeSelect(item);
@@ -179,6 +184,7 @@ export default {
       }
       try {
         menu.isCollect = !menu.isCollect;
+        this.$store.getters.getRouteObj[menu.id].isCollect = menu.isCollect;
         await this.postChangeCollect(menu);
 
         if (menu.isCollect) {
@@ -191,7 +197,6 @@ export default {
         menu.isCollect = !menu.isCollect;
         this.canFav = true;
       }
-      console.log(menu);
     },
     async postChangeCollect({ id, isCollect, menuName }) {
       await postChangeCollect({
@@ -213,14 +218,6 @@ export default {
 
   beforeDestroy() {
     this.$bus.$off('changeSelect', this.changeSelect);
-  },
-
-  watch: {
-    $route: {
-      handler() {
-        this.$refs.btn.focus();
-      }
-    }
   }
 };
 </script>
@@ -274,7 +271,7 @@ export default {
     }
     .isCollect {
       position: absolute;
-      left: 226px;
+      left: 190px;
       color: #fab71c;
       font-size: 13px;
       will-change: transform;

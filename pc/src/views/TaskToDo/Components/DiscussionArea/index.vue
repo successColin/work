@@ -70,7 +70,7 @@
       <apiot-button type="primary">发表</apiot-button>
     </div>
     <apiot-dialog :visible.sync="visible">
-      <img :src="url" alt="" />
+      <img :src="$parseImgUrl(url)" alt="" />
     </apiot-dialog>
   </div>
 </template>

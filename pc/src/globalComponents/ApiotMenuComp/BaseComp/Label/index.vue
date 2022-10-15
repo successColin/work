@@ -34,7 +34,7 @@
         "
       >
         <img
-          :src="configData.icon.imageUrl"
+          :src="$parseImgUrl(configData.icon.imageUrl)"
           alt=""
           v-if="configData.icon.imageUrl"
           class="full"
@@ -54,6 +54,7 @@
         v-for="(item, i) in getContentArr"
         :key="i"
         :style="getItemStyle(item)"
+        :title="getDictInfo(item, 'name') || item"
       >
         <i
           v-if="configData.enableDictIcon && getDictInfo(item, 'icon')"
@@ -181,11 +182,40 @@ export default {
         }
         return 'label占位';
       }
+      if (this.configData.enableCascade) {
+        const content = this.labelValue || this.parent.form[`${this.configData.compId}`];
+        if (content) {
+          const arr = [];
+          content.split(',').forEach((item) => {
+            const tempArr = item.split('(');
+            if (tempArr.length) {
+              const name = tempArr[0];
+              arr.push(name);
+            }
+          });
+          if (arr.length) {
+            return arr.join('/');
+          }
+        }
+      }
       // 所有其他
       if (this.isCard || this.isTree) {
         if (+this.configData.dataSource.columnTypeDict === 3) {
           if (this.configData.timeShowType === 1) {
             return this.labelValue.toString().slice(0, 10);
+          }
+          if (this.configData.timeShowType === 3) {
+            return this.labelValue.toString().slice(0, -3);
+          }
+        }
+        if (+this.configData.dataSource.columnTypeDict === 1) {
+          if (this.configData.numberShowType === 2) {
+            return this.showRes(this.labelValue);
+          }
+        }
+        if (+this.configData.dataSource.columnTypeDict === 4) {
+          if (this.configData.numberShowType === 2) {
+            return this.showRes(+this.labelValue);
           }
         }
         return this.labelValue;
@@ -202,6 +232,19 @@ export default {
       if (+this.configData.dataSource.columnTypeDict === 3) {
         if (this.configData.timeShowType === 1) {
           return this.parent.form[`${this.configData.compId}`].slice(0, 10);
+        }
+        if (this.configData.timeShowType === 3) {
+          return this.parent.form[`${this.configData.compId}`].slice(0, -3);
+        }
+      }
+      if (+this.configData.dataSource.columnTypeDict === 1) {
+        if (this.configData.numberShowType === 2) {
+          return this.showRes(this.parent.form[`${this.configData.compId}`]);
+        }
+      }
+      if (+this.configData.dataSource.columnTypeDict === 4) {
+        if (this.configData.numberShowType === 2) {
+          return this.showRes(+this.labelValue);
         }
       }
       return this.parent.form[`${this.configData.compId}`];
@@ -258,9 +301,9 @@ export default {
           !this.configData.enableMultiColumn &&
           !this.configData.enableDict
         ) {
-          if (this.configData.labelBg.style !== 0) {
-            style += `background:${this.configData.labelBg.color};`;
-          }
+          // if (this.configData.labelBg.style !== 0) {
+          //   style += `background:${this.configData.labelBg.color};`;
+          // }
 
           if (this.configData.labelBg.style === 1) {
             style += 'borderRadius: 4px;';
@@ -333,7 +376,7 @@ export default {
     },
     // 是不是多表树下级
     isMultiTree() {
-      if (this.grandFather && this.grandFather.compName === 'MultiTree') {
+      if (this.grandFather && ['MultiTree'].includes(this.grandFather.compName)) {
         return true;
       }
       return false;
@@ -432,6 +475,19 @@ export default {
   },
 
   methods: {
+    // 处理结果
+    showRes(value) {
+      let inputValue = value.toString();
+      const index = inputValue.indexOf('.');
+      if (index !== -1) {
+        const intNum = inputValue.substring(0, index).replace(/\B(?=(?:\d{3})+$)/g, ',');
+        const dot = inputValue.substring(index, inputValue.length);
+        inputValue = intNum + dot;
+      } else {
+        inputValue = inputValue.substring(0, inputValue.length).replace(/\B(?=(?:\d{3})+$)/g, ',');
+      }
+      return inputValue;
+    },
     // 处理过滤条件变量为真实值
     resolveFilterVar(panelObj) {
       if (panelObj && panelObj.panelName) {
@@ -462,6 +518,11 @@ export default {
         panelObj.panelData.forEach((item) => {
           if (item.mainComp.type === 2) {
             panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+          } else if (item.mainComp.type === 3) {
+            panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+              true,
+              item.mainComp.fixedValue
+            );
           } else {
             panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
           }
@@ -492,6 +553,12 @@ export default {
       }
     },
     jumpMenu() {
+      if (this.$route.name === 'sharePage') {
+        return this.$message({
+          type: 'warning',
+          message: '分享页面无跳转菜单的权限'
+        });
+      }
       const curMenuArr = this.getMenu()[this.configData.compId];
       const obj = curMenuArr.find((menu) => {
         if (!menu.jumpTerm) {
@@ -541,6 +608,7 @@ export default {
   beforeDestroy() {
     if (this.unwatch) {
       this.unwatch();
+      this.parent.form[this.configData.compId] = '';
     }
   }
 };
@@ -619,6 +687,13 @@ export default {
       font-size: 13px;
       font-weight: normal;
       cursor: pointer;
+    }
+    &__content {
+      // flex: 1;
+      width: max-content;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }

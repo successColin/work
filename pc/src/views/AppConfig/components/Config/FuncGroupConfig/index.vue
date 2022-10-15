@@ -131,6 +131,14 @@
         <i class="iconfont icon-xinzeng m-r-4"></i
         >{{ $t('common.add', { name: '功能菜单' }) }}
       </apiot-button>
+      <apiot-button
+        :loading.sync="loading"
+        @click="addConfigMenu(4, true)"
+        class="funcGroupConfig__addGroup config__body--btn"
+      >
+        <i class="iconfont icon-xinzeng m-r-4"></i
+        >{{ $t('common.add', { name: '自定义菜单' }) }}
+      </apiot-button>
     </div>
   </section>
 </template>
@@ -278,8 +286,10 @@ export default {
         params.routeKey = 'configMenu';
       } else if (type === 2) {
         params.routeKey = 'sysKnowledge';
-      } else {
+      } else if (type === 3) {
         params.routeKey = 'applyMenu';
+      } else if (type === 4) {
+        params.routeKey = 'customMenu';
       }
       params.sysMenu.routeName = params.routeKey;
       try {
@@ -354,10 +364,10 @@ export default {
               // 任务层
               resultLayer: {
                 // 配置任务字段数组
-                columnArr: [
-                ]
+                columnArr: []
               }
-            }
+            },
+            customId: ''
           };
           if (this.activeObj.isFooter && this.backAllConfig.enableMine) {
             this.activeObj.menuArr.splice(-1, 0, addObj);

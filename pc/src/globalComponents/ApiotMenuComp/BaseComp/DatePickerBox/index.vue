@@ -7,12 +7,18 @@
       { noHover: !isConfig },
       { active: isConfig && activeObj.compId === configData.compId },
       { isTable: isTable },
+      { onelineCalss: isQueryEle },
+      { boxPadding: isQueryEle && !isConfig },
     ]"
     v-if="showInput"
   >
-    <el-form-item :prop="`${configData.compId}`" v-if="!isTable">
+    <el-form-item
+      :prop="`${configData.compId}`"
+      v-if="!isTable"
+      :class="[{ onelineCalss__form: isQueryEle }]"
+    >
       <span class="span-box" slot="label">
-        <span> {{ configData.name }} </span>
+        <span style="white-space: nowrap"> {{ configData.name }} </span>
         <el-tooltip
           :content="configData.helpInfo"
           placement="top"
@@ -21,15 +27,33 @@
           <i class="iconfont icon-bangzhu" />
         </el-tooltip>
       </span>
-
+      <!-- 日期框 -->
       <el-date-picker
+        v-if="!configData.timeInterval"
         type="date"
         :placeholder="configData.placeholder"
+        format="yyyy-MM-dd"
         value-format="yyyy-MM-dd"
         :editable="false"
         v-model="parent.form[configData.compId]"
         :disabled="configData.canReadonly"
         :picker-options="pickerOptions"
+      >
+      </el-date-picker>
+      <!-- 日期区间框 -->
+      <el-date-picker
+        v-else
+        type="daterange"
+        :start-placeholder="configData.startPlaceholder"
+        :end-placeholder="configData.endPlaceholder"
+        format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd"
+        :editable="false"
+        v-model="dataTime"
+        :disabled="configData.canReadonly"
+        :picker-options="pickerOptions"
+        range-separator="至"
+        @change="handleChangePicker"
       >
       </el-date-picker>
     </el-form-item>
@@ -48,13 +72,19 @@
 
 <script>
 import { formatDate } from '@/utils/utils';
+import { timeShortcuts } from '@/config';
 import compMixin from '../../compMixin';
 
 export default {
   data() {
     return {
-      curCompType: 2,
-      pickerOptions: {
+      dataTime: '',
+      curCompType: 2
+    };
+  },
+  computed: {
+    pickerOptions() {
+      const obj = {
         disabledDate: (time) => {
           let minTime = '';
           let maxTime = '';
@@ -87,8 +117,12 @@ export default {
           }
           return false;
         }
+      };
+      if (this.configData.timeInterval) {
+        obj.shortcuts = timeShortcuts;
       }
-    };
+      return obj;
+    }
   },
   mixins: [compMixin],
   inject: [
@@ -108,7 +142,32 @@ export default {
     this.initTime();
   },
 
+  watch: {
+    'parent.form': {
+      handler(v) {
+        const copy = JSON.parse(JSON.stringify(v))[this.configData.compId];
+        if (!copy) {
+          this.dataTime = '';
+          return;
+        }
+        if (copy.indexOf(',') !== -1) {
+          const val = copy && copy.split(',');
+          const startTime = formatDate(new Date(val[0]), 'yyyy-MM-dd hh:mm:ss');
+          const endTime = formatDate(new Date(val[1]), 'yyyy-MM-dd hh:mm:ss');
+          this.dataTime = [startTime, endTime];
+        } else {
+          this.dataTime = copy;
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+
   methods: {
+    handleChangePicker(v) {
+      this.parent.form[this.configData.compId] = v && v.join(',');
+    },
     initTime() {
       if (this.configData.defaultType === 1) {
         this.parent.form[this.configData.compId] = formatDate(new Date(), 'yyyy-MM-dd');
@@ -119,6 +178,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+@import '../index';
 .singleBox {
   position: relative;
   box-sizing: border-box;

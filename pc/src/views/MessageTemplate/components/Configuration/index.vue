@@ -29,7 +29,10 @@
       :content="innerContent"
       @change="changeInner"
     ></tab-inner>
-    <tab-ding slot="com_5"></tab-ding>
+    <tab-ding
+      slot="com_5"
+      @change="changeDing"
+      :content="dingContent"/>
   </page-tabs>
 </template>
 
@@ -88,6 +91,10 @@ export default {
     innerContent() {
       return this.contents.find((item) => item.messageType === 4) || {};
     },
+    // 钉钉信配置内容
+    dingContent() {
+      return this.contents.find((item) => item.messageType === 5) || {};
+    },
     tabsArr() {
       return (
         this.$store.state.dictManage.MESSAGE_TYPE.filter(
@@ -118,6 +125,9 @@ export default {
     },
     changeWechat(content) {
       this.changecOnfigurationObj(content, 3);
+    },
+    changeDing(content) {
+      this.changecOnfigurationObj(content, 5);
     },
     changeInner(content) {
       this.changecOnfigurationObj(content, 4);

@@ -25,6 +25,7 @@ export function addUser(data) {
     url: query.DO_ADD_USER,
     method: 'post',
     data,
+    showMsg: true
   });
 }
 
@@ -34,6 +35,7 @@ export function updateUser(data) {
     url: query.DO_UPDATE_USER,
     method: 'put',
     data,
+    showMsg: true
   });
 }
 

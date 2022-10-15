@@ -80,6 +80,27 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
+        <el-form-item :label="$t('user.userwechat')" prop="wechat">
+          <apiot-input
+              :placeholder="$t('user.placeEnterWechat')"
+              v-model="formData.wechat"
+          >
+          </apiot-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item :label="$t('user.accountState')" prop="enabled">
+          <el-switch
+              v-model="formData.enabled"
+              :active-text="$t('user.Enable')"
+              :active-value="true"
+              :inactive-value="false"
+              :inactive-text="$t('user.Disable')"
+          >
+          </el-switch>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
         <el-form-item :label="$t('user.orgName')" prop="orgid">
           <edit-org
             :orgObj="formData.orgObj || {}"
@@ -113,22 +134,10 @@
       <!--        </el-form-item>-->
       <!--      </el-col>-->
       <el-col :span="12">
-        <el-form-item :label="$t('user.accountState')" prop="enabled">
-          <el-switch
-            v-model="formData.enabled"
-            :active-text="$t('user.Enable')"
-            :active-value="true"
-            :inactive-value="false"
-            :inactive-text="$t('user.Disable')"
-          >
-          </el-switch>
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item :label="$t('user.addLable')" prop="tags">
+        <el-form-item :label="$t('user.addLable')" prop="userLabel">
           <add-Tag
             v-on:editTag="handleEditTag"
-            :tags="formData.tags"
+            :tags="formData.userLabel"
             :updateData="updateData"
           ></add-Tag>
         </el-form-item>
@@ -228,7 +237,7 @@ export default {
     },
     handleEditTag(tagArr) {
       // 编辑标签
-      this.updateData({ tags: tagArr });
+      this.updateData({ userLabel: tagArr });
     },
     handleEditOrg(obj, filed1, filed2) {
       // 修改组织

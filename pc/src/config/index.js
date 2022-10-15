@@ -11,6 +11,7 @@ module.exports = {
     { content: '1、请按照模板对应字段备注填写相应数据；' },
     { content: '2、如有多张工作表，只导入第一张工作表；' },
     { content: '3、请勿擅自修改模版内的表头字段，以免导入失败；' },
+    { content: '4、导入数据最多5000条；' },
   ],
   lambdaArr: [
     // 条件
@@ -76,6 +77,8 @@ module.exports = {
     'resetpswd',
     'successtip',
     'helpCenterShow',
+    'appCustomPage',
+    'sharePage',
     '404',
     '401',
     'example',
@@ -160,4 +163,222 @@ module.exports = {
       ],
     },
   ],
+  allowFileType:
+    '.png, .jpg,.jpeg, .gif, .txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .mp3, .mp4, .avi, .vsdx, .zip, .rar, .m4a, .xmind, .emmx, .log, .chm',
+  timeShortcuts: [
+    {
+      text: '今天',
+      onClick(picker) {
+        const t =
+          new Date(new Date().toLocaleDateString()).getTime() +
+          3600 * 1000 * 24;
+        const end = new Date(t - 1000);
+        const start = new Date(t - 3600 * 1000 * 24 * 1);
+        picker.$emit('pick', [start, end]);
+      },
+    },
+    {
+      text: '昨天',
+      onClick(picker) {
+        const t = new Date(new Date().toLocaleDateString()).getTime();
+        const end = new Date(t - 1000);
+        const start = new Date(t - 3600 * 1000 * 24 * 1);
+        picker.$emit('pick', [start, end]);
+      },
+    },
+    {
+      text: '最近一周',
+      onClick(picker) {
+        const t =
+          new Date(new Date().toLocaleDateString()).getTime() +
+          3600 * 1000 * 24;
+        const end = new Date(t - 1000);
+        const start = new Date(t - 3600 * 1000 * 24 * 7);
+        picker.$emit('pick', [start, end]);
+      },
+    },
+    {
+      text: '最近一个月',
+      onClick(picker) {
+        // const t = new Date(new Date().toLocaleDateString()).getTime() + 3600 * 1000 * 24;
+        // const end = new Date(t - 1000);
+        // const start = new Date(t - 3600 * 1000 * 24 * 30);
+        // picker.$emit('pick', [start, end]);
+        const end = new Date();
+        const year = end.getFullYear();
+        const month = end.getMonth() + 1; // 0-11表示1-12月
+        const day = end.getDate();
+        const dateObj = {};
+        dateObj.end = `${year}-${month.toString().padStart(2, '0')}-${day
+          .toString()
+          .padStart(2, '0')}`;
+        const endMonthDay = new Date(year, month, 0).getDate(); // 当前月的总天数
+        if (month - 1 <= 0) {
+          // 如果是1月，年数往前推一年<br>
+          dateObj.start = `${year - 1}-${12}-${day}`;
+        } else {
+          const startMonthDay = new Date(
+            year,
+            parseInt(month, 10) - 1,
+            0,
+          ).getDate();
+          if (startMonthDay < day) {
+            // 1个月前所在月的总天数小于现在的天日期
+            if (day < endMonthDay) {
+              // 当前天日期小于当前月总天数
+              dateObj.start = `${year}-${month - 1}-${
+                startMonthDay - (endMonthDay - day)
+              }`;
+            } else {
+              dateObj.start = `${year}-${month - 1}-${startMonthDay}`;
+            }
+          } else {
+            dateObj.start = `${year}-${month - 1}-${day}`;
+          }
+        }
+        const arr = dateObj.start.split('-');
+        const allDay = new Date(arr[0], arr[1], 0).getDate();
+        if (+arr[2] + 1 > allDay) {
+          arr[1] = +arr[1] + 1;
+          arr[2] = '01';
+          if (arr[1] > 12) {
+            arr[0] = +arr[0] - 1;
+            arr[1] = '01';
+          }
+        } else {
+          arr[2] = +arr[2] + 1;
+        }
+        const newStartTime = `${arr[0]}-${arr[1]
+          .toString()
+          .padStart(2, '0')}-${arr[2].toString().padStart(2, '0')}`;
+        picker.$emit('pick', [
+          `${newStartTime} 00:00:00`,
+          `${dateObj.end} 23:59:59`,
+        ]);
+      },
+    },
+    {
+      text: '最近三个月',
+      onClick(picker) {
+        const end = new Date();
+        const year = end.getFullYear();
+        const month = end.getMonth() + 1; // 0-11表示1-12月
+        const day = end.getDate();
+        const dateObj = {};
+        dateObj.end = `${year}-${month.toString().padStart(2, '0')}-${day
+          .toString()
+          .padStart(2, '0')}`;
+        const endMonthDay = new Date(year, month, 0).getDate(); // 当前月的总天数
+        if (month - 3 <= 0) {
+          // 如果是1、2、3月，年数往前推一年
+          // 3个月前所在月的总天数
+          const start3MonthDay = new Date(
+            year - 1,
+            12 - (3 - parseInt(month, 10)),
+            0,
+          ).getDate();
+          if (start3MonthDay < day) {
+            // 3个月前所在月的总天数小于现在的天日期
+            dateObj.start = `${year - 1}-${12 - (3 - month)}-${start3MonthDay}`;
+          } else {
+            dateObj.start = `${year - 1}-${12 - (3 - month)}-${day}`;
+          }
+        } else {
+          // 3个月前所在月的总天数
+          const start3MonthDay = new Date(
+            year,
+            parseInt(month, 10) - 3,
+            0,
+          ).getDate();
+          if (start3MonthDay < day) {
+            // 3个月前所在月的总天数小于现在的天日期
+            if (day < endMonthDay) {
+              // 当前天日期小于当前月总天数,2月份比较特殊的月份
+              dateObj.start = `${year}-${month - 3}-${
+                start3MonthDay - (endMonthDay - day)
+              }`;
+            } else {
+              dateObj.start = `${year}-${month - 3}-${start3MonthDay}`;
+            }
+          } else {
+            dateObj.start = `${year}-${month - 3}-${day}`;
+          }
+        }
+        const arr = dateObj.start.split('-');
+        const allDay = new Date(arr[0], arr[1], 0).getDate();
+        if (+arr[2] + 1 > allDay) {
+          arr[1] = +arr[1] + 1;
+          arr[2] = '01';
+          if (arr[1] > 12) {
+            arr[0] = +arr[0] - 1;
+            arr[1] = '01';
+          }
+        } else {
+          arr[2] = +arr[2] + 1;
+        }
+        const newStartTime = `${arr[0]}-${arr[1]
+          .toString()
+          .padStart(2, '0')}-${arr[2].toString().padStart(2, '0')}`;
+        picker.$emit('pick', [
+          `${newStartTime} 00:00:00`,
+          `${dateObj.end} 23:59:59`,
+        ]);
+      },
+    },
+    {
+      text: '大于当前时间',
+      onClick(picker) {
+        const end = new Date('2099/12/31 00:00:00');
+        const start = new Date();
+        picker.$emit('pick', [start, end]);
+      },
+    },
+    {
+      text: '小于当前时间',
+      onClick(picker) {
+        const end = new Date();
+        const start = new Date('1900/01/01 00:00:00');
+        picker.$emit('pick', [start, end]);
+      },
+    },
+  ],
+  engIndex: [
+    { name: 'A', i: 0 },
+    { name: 'B', i: 1 },
+    { name: 'C', i: 2 },
+    { name: 'D', i: 3 },
+    { name: 'E', i: 4 },
+    { name: 'F', i: 5 },
+    { name: 'G', i: 6 },
+    { name: 'H', i: 7 },
+    { name: 'I', i: 8 },
+    { name: 'G', i: 9 },
+    { name: 'K', i: 10 },
+    { name: 'L', i: 11 },
+    { name: 'M', i: 12 },
+    { name: 'N', i: 13 },
+    { name: 'O', i: 14 },
+    { name: 'P', i: 15 },
+    { name: 'Q', i: 16 },
+    { name: 'R', i: 17 },
+    { name: 'S', i: 18 },
+    { name: 'T', i: 19 },
+    { name: 'U', i: 20 },
+    { name: 'V', i: 21 },
+    { name: 'W', i: 22 },
+    { name: 'X', i: 23 },
+    { name: 'Y', i: 24 },
+    { name: 'Z', i: 25 },
+  ],
+  allOption: {
+    color: '#FFEAEB',
+    enUS: 'all',
+    fontColor: '#E02020',
+    icon: { icon: 'icon-dajuanbaogao', color: '#5A80ED' },
+    name: '全部',
+    sno: 0,
+    value: 0,
+    zhCN: '全部',
+    zhTW: '全部',
+  },
 };

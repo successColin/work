@@ -41,6 +41,16 @@
           :tabsCount="tabsCount"
       />
     </template>
+    <template v-slot:CC>
+      <list
+          @changeTabsTitle="changeTabsTitle"
+          com="CC"
+          ref="CC"
+          :activeName="activeName"
+          @closeApproval="close"
+          :tabsCount="tabsCount"
+      />
+    </template>
   </apiot-tabs>
 </template>
 
@@ -104,6 +114,11 @@ export default {
           label: '我发起的',
           compName: 'IInitiatedIt',
           key: 'IInitiatedIt',
+        },
+        {
+          label: '抄送给我',
+          compName: 'CC',
+          key: 'CC',
         },
       ];
       return arr.map((item) => {

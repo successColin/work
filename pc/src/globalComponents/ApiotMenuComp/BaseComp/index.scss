@@ -1,5 +1,6 @@
 .onelineCalss {
   min-height: 40px !important;
+  
   &__form {
     display: flex;
     align-items: center;
@@ -13,4 +14,7 @@
       }
     }
   }
+}
+.boxPadding {
+  padding: 4px 15px 8px 35px !important;
 }

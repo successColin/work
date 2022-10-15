@@ -18,6 +18,18 @@ export function getFields(params) {
 }
 
 /**
+ * 获取流程图树配置
+ * @param params
+ * @returns {*}
+ */
+export function getFlowTree(params) {
+  return fetch.request({
+    url: query.GET_FLOW_TREE,
+    params
+  });
+}
+
+/**
  * 获取流程列表
  * @param params
  * @returns {*}
@@ -223,6 +235,17 @@ export function getCompletedTasks(params) {
   return fetch.request({
     params,
     url: query.GET_MY_COMPLETED_TASKS_LIST
+  });
+}
+/**
+ * 抄送给我的
+ * @param params
+ * @returns {*}
+ */
+export function getCCTasks(params) {
+  return fetch.request({
+    params,
+    url: query.GET_MY_CC_TASKS_LIST
   });
 }
 /**
@@ -441,5 +464,29 @@ export function fetchApiList() {
   return fetch.request({
     url: query.GET_API_LIST,
     method: 'get'
+  });
+}
+
+/**
+ * 批量同意
+ * @returns {*}
+ */
+export function batchApproval(data) {
+  return fetch.request({
+    url: query.BATCH_AGREE,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 驳回
+ * @returns {*}
+ */
+export function batchReject(data) {
+  return fetch.request({
+    url: query.BATCH_REJECT,
+    method: 'post',
+    data
   });
 }

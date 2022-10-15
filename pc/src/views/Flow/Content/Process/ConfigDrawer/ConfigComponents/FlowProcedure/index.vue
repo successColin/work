@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="contentWrap" :key="key">
+  <div class="contentWrap">
     <div class="config-property">
       <div class="form-item">
         <div class="form-item-label">存储过程</div>
@@ -177,9 +177,10 @@ export default {
       this.key += 1;
     },
     selectColumnRes(column) {
-      const { id, proceduresName } = column;
+      const { id, proceduresName, proceduresMethod } = column;
       this.sysProceduresObj = {
         sysProceduresId: id,
+        proceduresMethod,
         sysProceduresName: proceduresName
       };
       this.listProceduresParameter();

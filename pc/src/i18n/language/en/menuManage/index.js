@@ -13,6 +13,7 @@ export default {
     unfavorite: 'unfavorite',
     menuModule: 'menu module',
     icon: 'icon',
+    parant: 'parent node',
     fonticon: 'fonticon',
     selficon: 'selficon',
     system: 'system',

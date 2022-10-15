@@ -21,6 +21,7 @@ module.exports = {
     host: '0.0.0.0',
     port: 8088,
     open: true,
+    https: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
@@ -30,15 +31,13 @@ module.exports = {
     }, // 错误在页面弹出、警告不在页面弹出
     proxy: {
       '/api': {
-        target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
-        // target: 'http://192.168.0.20:8080', // cl
-        // target: 'http://192.168.0.112:8080', // jt
-        // target: 'http://192.168.0.136:8080', // lf
+        // target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
+        // target: 'http://192.168.0.37:8080', // cl
+        // target: 'http://192.168.0.28:8080', // jt
+        target: 'http://192.168.0.136:8080', // lf
         // target: 'http://192.168.0.21:8080', // zs
-        // target: 'http://192.168.0.4:8080', // jh
-        // target: 'http://47.99.87.62:84/', // jh
+        // target: 'http://192.168.0.23:8080', // jh
         // target: 'http://47.99.87.62:93/',
-        // target: 'http://47.99.87.62:93',
         // target: 'http://47.99.87.62:84/', // 泰州石化
         changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
         pathRewrite: {
@@ -61,6 +60,7 @@ module.exports = {
         vue$: 'vue/dist/vue.esm.js',
         '@': resolve('src'),
         '@s': resolve('static'),
+        '@p': resolve('public'),
         _c: resolve('src/components'),
         _u: resolve('src/utils'),
         _v: resolve('src/views'),

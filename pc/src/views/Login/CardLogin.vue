@@ -9,7 +9,7 @@
   <div
     class="cardLogin"
     :style="{
-      background: `url(${imgUrl}) no-repeat center`,
+      background: `url(${$parseImgUrl(imgUrl)}) no-repeat center`,
       backgroundSize: '100% 100%',
     }"
   >
@@ -118,7 +118,7 @@ export default {
     type() {
       return this.styleWidthObj && this.styleWidthObj.value;
     }
-  }
+  },
 };
 </script>
 <style lang='scss' scoped>

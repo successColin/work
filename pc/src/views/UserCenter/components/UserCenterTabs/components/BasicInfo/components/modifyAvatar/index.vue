@@ -196,6 +196,7 @@ export default {
   }
   .el-dialog {
     width: 640px;
+    height: 460px;
     border-radius: 8px;
   }
 

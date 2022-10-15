@@ -7,59 +7,67 @@
 */
 <!-- 页面 -->
 <template>
-
   <div class="homePageConfig" @click="pageConfigInit">
     <Header
-        @doBack="doBack"
-        :scale="scale"
-        @doSave="doSave"
-        @changeScale="changeScale"
-        @changeScaleObj="changeScaleObj"
-        @resetScale="changeAutoScale"
+      @doBack="doBack"
+      :scale="scale"
+      :autoScale="autoScale"
+      @doSave="doSave"
+      @changeScale="changeScale"
+      @changeScaleObj="changeScaleObj"
+      @changeSliderScale="onlyChangeScalc"
+      @resetScale="changeAutoScale"
     ></Header>
     <div class="homePageContent">
       <div
-          class="homePageContent__sidebar"
-          :class="{[isOpen? 'sidebarOpen' : 'sidebarClose']: true}">
+        class="homePageContent__sidebar"
+        :class="{ [isOpen ? 'sidebarOpen' : 'sidebarClose']: true }"
+      >
         <Sidebar
-            @dragObject="dragEnd"
-            :list="list"
-            :activeComponent="activeComponent"
-            @updateActiveComponent="doUpdateActiveComponent"
-            @updateList="updateList"
+          @dragObject="dragEnd"
+          :list="list"
+          :activeComponent="activeComponent"
+          @updateActiveComponent="doUpdateActiveComponent"
+          @updateList="updateList"
         ></Sidebar>
       </div>
       <div class="homePageContent__main">
         <!-- 设计区域 -->
-        <div class="homePageContent__main--content"
-             @click.stop="handleClick($event, 'homePageContent__main--content')">
+        <div
+          class="homePageContent__main--content"
+          @click.stop="handleClick($event, 'homePageContent__main--content')"
+        >
           <div
-              class="homePageContent__main--bg"
-              :key="updateKey"
-              :style="getStylesStransformScale()"
+            class="homePageContent__main--bg"
+            :key="updateKey"
+            :style="getStylesStransformScale()"
           >
             <!-- 设计区域 -->
-            <div class="homePageContent__main--area"
-                 @click="handleClick($event, 'homePageContent__main--area')">
+            <div
+              class="homePageContent__main--area"
+              @click="handleClick($event, 'homePageContent__main--area')"
+            >
               <CommonContainer
-                  v-for="configItem in showList"
-                  :key="configItem.componentId"
-                  :config="configItem"
-                  :scale="scale"
-                  :bgConfig="menuProperties"
-                  :activeComponent="activeComponent"
-                  @updateActiveComponent="doUpdateActiveComponent"
-                  @rightClickComponent="doRightClick"
-                  :list="list"
-                  @updateList="updateList"
+                v-for="configItem in showList"
+                :key="configItem.componentId"
+                :config="configItem"
+                :scale="scale"
+                :bgConfig="menuProperties"
+                :activeComponent="activeComponent"
+                @updateActiveComponent="doUpdateActiveComponent"
+                @rightClickComponent="doRightClick"
+                :list="list"
+                @updateList="updateList"
               ></CommonContainer>
             </div>
             <!--栅格区域-->
             <div class="design_grid">
-              <canvas ref="bgCanvas"
-                      :width="menuProperties.width"
-                      :height="menuProperties.height"
-                      class="canvasWrap"></canvas>
+              <canvas
+                ref="bgCanvas"
+                :width="menuProperties.width"
+                :height="menuProperties.height"
+                class="canvasWrap"
+              ></canvas>
             </div>
             <!-- 背景图 -->
             <div class="design__bg" :style="getStylesBgUrl()"></div>
@@ -69,26 +77,26 @@
       <div class="homePageContent__attribute">
         <!--属性配置区域-->
         <component
-            :activeComponent="activeComponent"
-            :is="`${activateComponentKey}Config`"
-            :list="list"
-            :key="activeComponent.componentId"
-            :config="menuProperties"
-            @updateList="updateList"
+          :activeComponent="activeComponent"
+          :is="`${activateComponentKey}Config`"
+          :list="list"
+          :key="activeComponent.componentId"
+          :config="menuProperties"
+          @updateList="updateList"
         ></component>
       </div>
       <div
-          class="homePageContent__fold"
-          :class="{[isOpen? 'foldOpen' : 'foldClose']: true}"
-          @click="isOpen=!isOpen"
+        class="homePageContent__fold"
+        :class="{ [isOpen ? 'foldOpen' : 'foldClose']: true }"
+        @click="isOpen = !isOpen"
       ></div>
       <RightClickOperation
-          :list="list"
-          @updateList="updateList"
-          :rightClick="rightClickInfo"
-          @resetRightClickInfo="resetRightClickInfo"
-          @updateActiveComponent="doUpdateActiveComponent"
-          :activeComponent="activeComponent"
+        :list="list"
+        @updateList="updateList"
+        :rightClick="rightClickInfo"
+        @resetRightClickInfo="resetRightClickInfo"
+        @updateActiveComponent="doUpdateActiveComponent"
+        :activeComponent="activeComponent"
       />
     </div>
   </div>
@@ -96,7 +104,7 @@
 
 <script>
 import { insertElement, fetchElementList, saveElementList } from '@/api/design';
-import { menuProperties } from './constants/global';
+import { menuProperties, menuAppProperties } from './constants/global';
 import Header from './Layout/Header/index';
 import Sidebar from './Layout/Sidebar/index';
 
@@ -109,7 +117,8 @@ const BasicBarChartConfig = () => import('./configComponents/BasicBarChartConfig
 const BasicLineChartConfig = () => import('./configComponents/BasicLineChartConfig/index');
 const CircleProgressBarConfig = () => import('./configComponents/CircleProgressBarConfig/index');
 const TransverseBarChartConfig = () => import('./configComponents/TransverseBarChartConfig/index');
-const HorizontalProgressBarConfig = () => import('./configComponents/HorizontalProgressBarConfig/index');
+const HorizontalProgressBarConfig = () =>
+  import('./configComponents/HorizontalProgressBarConfig/index');
 const ColumnLineMixConfig = () => import('./configComponents/ColumnLineMixConfig/index');
 const DashboardConfig = () => import('./configComponents/DashboardConfig/index');
 const SingleLineTextHomeConfig = () => import('./configComponents/SingleLineTextHomeConfig/index');
@@ -118,6 +127,7 @@ const BackgroundBoxConfig = () => import('./configComponents/BackgroundBoxConfig
 const RealTimeConfig = () => import('./configComponents/RealTimeConfig/index');
 const RadarChartConfig = () => import('./configComponents/RadarChartConfig/index');
 const AuxiliaryLineConfig = () => import('./configComponents/LineConfig/index');
+const NoticeConfig = () => import('./configComponents/NoticeConfig/index');
 
 export default {
   data() {
@@ -126,7 +136,8 @@ export default {
       isOpen: true, // 默认展开
       scale: 0, // 缩放比列
       list: [], // 组件集合
-      menuProperties: { // 菜单属性
+      menuProperties: {
+        // 菜单属性
       },
       rightClickInfo: {}, // 右键鼠标集合
       timer: null,
@@ -138,6 +149,7 @@ export default {
 
   components: {
     CommonContainer,
+    NoticeConfig,
     Header,
     Sidebar,
     UnderlyingBasicConfig,
@@ -163,21 +175,33 @@ export default {
     getStylesBgUrl() {
       return function () {
         const { bgImage, bgColor } = this.menuProperties;
-        return `background-image:url(${bgImage || ''});background-color:${bgColor || ''} `;
+        return `background-image:url(${this.$parseImgUrl(bgImage) || ''});background-color:${
+          bgColor || ''
+        } `;
       };
     },
     showList() {
       return this.list.filter((item) => item.isShow);
     },
-    getStylesStransformScale() { // 设计区域大小，当大缩小设置
+    getStylesStransformScale() {
+      // 设计区域大小，当大缩小设置
       return function () {
         const {
-          width, height, enableShadows, xShadow, yShadow, shadowDistance, shadowColor, blurRadius
+          width,
+          height,
+          enableShadows,
+          xShadow,
+          yShadow,
+          shadowDistance,
+          shadowColor,
+          blurRadius,
+          bgImage
         } = this.menuProperties;
         let obj = {
           transform: `scale(${this.scale}, ${this.scale})`,
           width: `${width}px`,
           height: `${height}px`,
+          backgroundImage: `url('${this.$parseImgUrl(bgImage) || ''}')`
         };
         if (enableShadows) {
           obj = {
@@ -185,23 +209,32 @@ export default {
             'box-shadow': `${xShadow}px ${yShadow}px ${blurRadius}px ${shadowDistance}px ${shadowColor}`
           };
         }
+        const { clientType } = sessionStorage;
+        if (+clientType === 2) {
+          obj = {
+            ...obj,
+            left: '50%',
+            marginLeft: `-${width * this.scale / 2}px`
+          };
+        }
         return obj;
       };
     },
-    getComponentConfig() { // 获取单个组件的属性配置
+    getComponentConfig() {
+      // 获取单个组件的属性配置
       if (this.activateComponentKey === 'UnderlyingBasic') {
         return this.menuProperties;
       }
       return this.activeComponent;
-    },
+    }
   },
 
   mounted() {
-    this.initScaling();
     this.initElementList();
     window.addEventListener('resize', () => {
       this.initScaling();
     });
+    window.addEventListener('keyup', this.setComponentStyles);
     this.$nextTick(() => {
       this.drawGrid();
     });
@@ -244,7 +277,32 @@ export default {
     }
   },
   methods: {
-    async initElementList() { // 获取控件列表
+    async setComponentStyles(e) {
+      if (JSON.stringify(this.activeComponent) === '{}') {
+        return;
+      }
+      const { componentId } = this.activeComponent;
+      const { width, height } = this.menuProperties;
+      const elementList = this.list;
+      const index = elementList.findIndex((item) => item.componentId === componentId);
+      const current = elementList[index];
+      const { left, top } = current;
+      if (e.keyCode === 37 && left >= 1) {
+        current.left -= 1;
+      }
+      if (e.keyCode === 40 && top < height) {
+        current.top += 1;
+      }
+      if (e.keyCode === 38 && top >= 1) {
+        current.top -= 1;
+      }
+      if (e.keyCode === 39 && left < width) {
+        current.left += 1;
+      }
+      this.list.splice(index, 1, current);
+    },
+    async initElementList() {
+      // 获取控件列表
       const res = await fetchElementList({ id: this.$route.params.id });
       const { designJson, list } = res;
       const newList = list.map((item) => {
@@ -258,14 +316,21 @@ export default {
             ...SqlDataConfig,
             SQLResponse: sqlResponse,
             SQLFilterResponse: sqlFilterResponse
-          },
+          }
         };
       });
       this.updateList(newList);
-      this.menuProperties = designJson ? JSON.parse(designJson) : menuProperties;
-      console.log(this.menuProperties);
+      const { clientType } = sessionStorage;
+      // eslint-disable-next-line max-len
+      this.menuProperties = designJson ? JSON.parse(designJson) : (+clientType === 2 ? menuAppProperties : menuProperties);
+      if (+clientType !== 1) {
+        this.autoScale = false;
+        this.scale = 1;
+      }
+      this.initScaling();
     },
-    async doSave() { // 保存控件
+    async doSave() {
+      // 保存控件
       const newList = [];
       this.list.forEach((item) => {
         const { dataType, componentId, id = '', SqlDataConfig = {}, ...rest } = item;
@@ -275,11 +340,11 @@ export default {
           designJson: JSON.stringify(item),
           id,
           type: 0,
-          homepageId: this.$route.params.id,
+          homepageId: this.$route.params.id
         };
         if (dataType === 3) {
           obj.dataJson = JSON.stringify({
-            SQL: SqlDataConfig.SQL,
+            SQL: SqlDataConfig.SQL
           });
           obj.varJson = JSON.stringify(SqlDataConfig.variableConfig || []);
         }
@@ -292,7 +357,7 @@ export default {
           ...rest,
           dataType,
           componentId,
-          SqlDataConfig,
+          SqlDataConfig
         });
         newList.push(obj);
       });
@@ -316,7 +381,8 @@ export default {
         this.$router.replace('/HomePageConfig');
       }
     },
-    pageConfigInit() { // 页面恢复
+    pageConfigInit() {
+      // 页面恢复
       this.rightClickInfo = {};
       // this.activateComponentKey = 'UnderlyingBasic';
     },
@@ -327,9 +393,9 @@ export default {
       const { pageX, pageY } = e;
       const { height, width } = componentInfo;
       // eslint-disable-next-line no-mixed-operators
-      const lastTop = (pageY - 66) / this.scale - (height / 2 * this.scale);
+      const lastTop = (pageY - 66) / this.scale - (height / 2) * this.scale;
       // eslint-disable-next-line no-mixed-operators
-      const lastLeft = (pageX - 280 - 20) / this.scale - width * this.scale / 2;
+      const lastLeft = (pageX - 280 - 20) / this.scale - (width * this.scale) / 2;
       const top = Math.ceil(lastTop);
       const left = Math.ceil(lastLeft);
       const { scrollTop, scrollLeft } = document.querySelector('.homePageContent__main--content');
@@ -337,19 +403,26 @@ export default {
         top: top + scrollTop / this.scale,
         left: left + scrollLeft
       };
+      const { clientType } = sessionStorage;
+      if (+clientType === 2) {
+        const w1 = document.querySelector('.homePageContent__main--content').getBoundingClientRect().width;
+        const w2 = document.querySelector('.homePageContent__main--area').getBoundingClientRect().width;
+        positionsObj.left = pageX - 300 - (w1 - w2) / 2 - width * this.scale / 2;
+      }
       const designObj = { ...componentInfo, ...positionsObj, type: 0 };
       const newObj = JSON.parse(JSON.stringify(designObj));
       const data = await insertElement(newObj);
-      console.log({ ...newObj, id: data, homepageId: this.$route.params.id });
       this.list.push({ ...newObj, id: data, homepageId: this.$route.params.id });
       this.activeComponent = newObj;
       this.activateComponentKey = newObj.componentName;
     },
-    changeAutoScale() { // 选择自适应
+    changeAutoScale() {
+      // 选择自适应
       this.autoScale = true;
       this.initScaling();
     },
-    initScaling(callback) { // 初始化缩放比例
+    initScaling(callback) {
+      // 初始化缩放比例
       const dom = document.body.querySelector('.homePageContent__main--content');
       if (this.autoScale && dom) {
         const { width, height } = dom.getBoundingClientRect();
@@ -363,15 +436,27 @@ export default {
         }
       }
     },
+    onlyChangeScalc(v) {
+      this.scale = v;
+      this.$nextTick(() => {
+        this.drawGrid();
+      });
+    },
     changeScale(v) {
       this.scale = v;
+      if (v) {
+        this.autoScale = false;
+      } else {
+        this.autoScale = true;
+      }
       this.updateKey += 1;
       this.$nextTick(() => {
         this.drawGrid();
       });
     },
-    changeScaleObj() {
+    changeScaleObj({ value }) {
       this.autoScale = false;
+      this.scale = value;
     },
     handleClick(e, key) {
       const classList = Array.from(e.target.classList);
@@ -382,19 +467,23 @@ export default {
         this.rightClickInfo = {};
       }
     },
-    resetRightClickInfo() { // 隐藏右击
+    resetRightClickInfo() {
+      // 隐藏右击
       this.rightClickInfo = {};
     },
-    doUpdateActiveComponent(config) { // 更新激活组件
+    doUpdateActiveComponent(config) {
+      // 更新激活组件
       this.activeComponent = config;
       this.activateComponentKey = config.componentName || 'UnderlyingBasic';
       this.rightClickInfo = {};
     },
-    doRightClick(e) { // 右键处理
+    doRightClick(e) {
+      // 右键处理
       const { pageX, pageY } = e;
       this.rightClickInfo = { pageX, pageY };
     },
-    drawGrid() { //  画栅格
+    drawGrid() {
+      //  画栅格
       const myCanvas = document.querySelector('.canvasWrap');
       const ctx = myCanvas.getContext('2d');
       const { gridSize } = this.menuProperties;
@@ -424,19 +513,21 @@ export default {
         ctx.strokeStyle = '#F3F3F3';
         ctx.stroke();
       }
-    },
+    }
   },
   beforeDestroy() {
     if (window) {
       window.removeEventListener('resize', this.initScaling);
+      window.removeEventListener('keyup', this.setComponentStyles);
     }
     if (this.observer) {
       this.observer.disconnect();
       this.observer.takeRecords();
       this.observer = null;
     }
+    // sessionStorage.removeItem('clientType');
   },
-  name: 'homeMenuConfig',
+  name: 'homeMenuConfig'
 };
 </script>
 
@@ -444,7 +535,7 @@ export default {
 .homePageConfig {
   width: 100%;
   height: 100%;
-  background-color: #F6F6F8;
+  background-color: #f6f6f8;
 
   .homePageContent {
     width: 100%;
@@ -518,7 +609,7 @@ export default {
           z-index: 2;
           overflow: hidden;
         }
-        .design__bg{
+        .design__bg {
           position: absolute;
           top: 0;
           left: 0;
@@ -527,7 +618,7 @@ export default {
           max-width: 100%;
           max-height: 100%;
           background-repeat: no-repeat;
-          transition: all .3s ease;
+          transition: all 0.3s ease;
           pointer-events: none;
           background-size: 100%;
           z-index: 0;
@@ -549,7 +640,7 @@ export default {
     &__attribute {
       width: 300px;
       height: 100%;
-      background: #FFFFFF;
+      background: #ffffff;
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
     }
 
@@ -560,7 +651,7 @@ export default {
       margin-top: -6px;
       top: 45%;
       left: 280px;
-      background: #FFFFFF;
+      background: #ffffff;
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.18);
       border-radius: 0px 4px 4px 0px;
       cursor: pointer;
@@ -600,7 +691,7 @@ export default {
       animation-fill-mode: forwards;
 
       &::after {
-        content: "";
+        content: '';
         position: absolute;
         top: 32px;
         left: 4px;
@@ -621,13 +712,13 @@ export default {
       animation-fill-mode: forwards;
 
       &::after {
-        content: "";
+        content: '';
         position: absolute;
         top: 32px;
         left: 0px;
         border-width: 4px;
         border-style: solid;
-        border-color: transparent #333333 transparent transparent;;
+        border-color: transparent #333333 transparent transparent;
       }
     }
   }

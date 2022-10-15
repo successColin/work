@@ -34,7 +34,7 @@
      </div>
     </div>
     <div class="InputWrap">
-      <div>
+      <div style="margin-right: 10px">
         <label>
           左
         </label>

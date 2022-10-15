@@ -11,7 +11,7 @@
   <section class="avatar" v-if="item">
     <img
       v-if="item.url"
-      :src="item.url"
+      :src="$parseImgUrl(item.url)"
       class="userImage m-r-4"
       :class="large ? 'large' : ''"
     />
@@ -22,7 +22,9 @@
       :style="item.styleColor"
       >{{ item.imageName }}</span
     >
-    <span v-if="item.username && !onlyAvatar" class="username">{{ item.username }}</span>
+    <span v-if="item.username && !onlyAvatar" class="username">{{
+      item.username
+    }}</span>
   </section>
 </template>
 
@@ -118,7 +120,7 @@ export default {
     border-radius: 50%;
     flex-shrink: 0;
   }
-  .username{
+  .username {
     height: 24px;
     line-height: 24px;
     overflow: hidden;

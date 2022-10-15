@@ -37,6 +37,14 @@
         >
         </apiot-select>
       </el-form-item>
+      <!-- <el-form-item label="内容数据展示几条">
+        <apiot-select
+          v-model="ruleForm.type"
+          placeholder="请选择打印类型"
+          :options="typeOption"
+        >
+        </apiot-select>
+      </el-form-item> -->
       <el-form-item label="纸张大小">
         <apiot-select
           v-model="ruleForm.paperSize"
@@ -122,6 +130,14 @@
           <span class="m-l-5">mm</span>
         </section>
       </el-form-item>
+      <div class="configParams__page">
+        <div>页眉页脚</div>
+        <el-button type="text" @click="handleSetPage">设置</el-button>
+      </div>
+      <el-form-item label="背景图片">
+        <section class="configParams__paperSize"></section>
+        <apiot-upload :bgImgArr.sync="ruleForm.bgImgArr"></apiot-upload>
+      </el-form-item>
     </el-form>
     <el-form label-position="top" v-else>
       <el-form-item label="单元格">
@@ -141,10 +157,19 @@
       </el-form-item>
       <!-- <el-form-item label="公式"> </el-form-item> -->
     </el-form>
+    <!-- 查看历史(公共弹窗) -->
+    <config-page
+      title="设置页眉页脚"
+      :ruleForm.sync="ruleForm"
+      :dialogVisible="dialogVisible"
+      :visible.sync="dialogVisible"
+    ></config-page>
   </div>
 </template>
 
 <script>
+import ConfigPage from './ConfigPage';
+
 export default {
   props: {
     globalConfig: {
@@ -170,6 +195,7 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
       isPaperSizeCustom: true,
       ruleForm: {
         name: '',
@@ -178,10 +204,13 @@ export default {
         paperWidth: 210,
         paperHeight: 297,
         direction: 1,
-        marginTop: 0,
-        marginLeft: 0,
-        marginBottom: 0,
-        marginRight: 0
+        marginTop: 20,
+        marginLeft: 16,
+        marginBottom: 20,
+        marginRight: 16,
+        bgImgArr: [],
+        pageHeader: '',
+        pageFooter: ''
       },
       ruleForm1: {
         cell: '',
@@ -199,7 +228,7 @@ export default {
         },
         {
           value: 3,
-          name: 'B3'
+          name: 'A3'
         },
         {
           value: 4,
@@ -216,7 +245,9 @@ export default {
       ]
     };
   },
-  components: {},
+  components: {
+    ConfigPage
+  },
   computed: {
     typeOption() {
       return this.$store.getters.getCurDict('PRINT_TYPE');
@@ -239,44 +270,82 @@ export default {
       this.ruleForm1.elementType = v.elementType || 2;
     },
     globalConfig(v) {
-      // console.log(v);
+      console.log(v);
       this.ruleForm = v;
+      // this.ruleForm = {
+      //   ...this.ruleForm,
+      //   ...v
+      // };
     }
   },
-  mounted() {},
+  mounted() {
+    this.$emit('update:globalConfig', this.ruleForm);
+  },
   methods: {
+    // 设置页眉页脚
+    handleSetPage() {
+      this.dialogVisible = true;
+    },
     giveRuleForm() {
       this.$emit('update:globalConfig', this.ruleForm);
     },
     // handleChangeElementType(v) {},
     // 选择纸张
     handleChangePaperSize(v) {
+      const { direction } = this.ruleForm;
       this.$emit('update:globalConfig', this.ruleForm);
       switch (v) {
         // 'A4'
         case 1:
-          this.ruleForm.paperWidth = 210;
-          this.ruleForm.paperHeight = 297;
+          if (direction === 1) {
+            this.ruleForm.paperWidth = 210;
+            this.ruleForm.paperHeight = 297;
+          } else {
+            this.ruleForm.paperWidth = 297;
+            this.ruleForm.paperHeight = 210;
+          }
           break;
         // A5
         case 2:
-          this.ruleForm.paperWidth = 148;
-          this.ruleForm.paperHeight = 210;
+          if (direction === 1) {
+            this.ruleForm.paperWidth = 148;
+            this.ruleForm.paperHeight = 210;
+          } else {
+            this.ruleForm.paperWidth = 210;
+            this.ruleForm.paperHeight = 148;
+          }
+
           break;
         // B3
         case 3:
-          this.ruleForm.paperWidth = 353;
-          this.ruleForm.paperHeight = 500;
+          if (direction === 1) {
+            this.ruleForm.paperWidth = 297;
+            this.ruleForm.paperHeight = 420;
+          } else {
+            this.ruleForm.paperWidth = 420;
+            this.ruleForm.paperHeight = 297;
+          }
+
           break;
         // B4
         case 4:
-          this.ruleForm.paperWidth = 250;
-          this.ruleForm.paperHeight = 353;
+          if (direction === 1) {
+            this.ruleForm.paperWidth = 257;
+            this.ruleForm.paperHeight = 360;
+          } else {
+            this.ruleForm.paperWidth = 360;
+            this.ruleForm.paperHeight = 257;
+          }
           break;
         // B5
         case 5:
-          this.ruleForm.paperWidth = 176;
-          this.ruleForm.paperHeight = 250;
+          if (direction === 1) {
+            this.ruleForm.paperWidth = 182;
+            this.ruleForm.paperHeight = 253;
+          } else {
+            this.ruleForm.paperWidth = 253;
+            this.ruleForm.paperHeight = 182;
+          }
           break;
         default:
           break;
@@ -327,6 +396,19 @@ export default {
   &__iconBangzhu {
     color: #aaaaaa;
     cursor: pointer;
+  }
+  &__page {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    div:nth-child(1) {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333333;
+      padding-bottom: 6px;
+      font-family: PingFangSC-Medium, PingFang SC;
+    }
   }
   .btn {
     margin: 0;

@@ -11,7 +11,7 @@
           :style="`
             width: ${areaWidth};
             height: ${areaHeight};
-            background: url(${bgkImage}) no-repeat;
+            background: url(${$parseImgUrl(bgkImage)}) no-repeat;
             background-size: 100% 100%;`"
         ></div>
         <!-- 右边 -->

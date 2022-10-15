@@ -28,21 +28,26 @@
         ></FormItem>
       </apiot-drawer>
       <div class="wrap_saerchWrap_search">
-        <apiot-input
-          :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="input"
-          @input="reset"
-          @keyup.enter.native="doSearch"
-          @focus="isActive = true"
-          slotType="prefix"
-        >
-          <i
-            slot="prefix"
-            class="iconfont icon-sousuo"
-            :class="isActive ? 'on' : ''"
-            @click="doSearch"
-          ></i>
-        </apiot-input>
+<!--        <apiot-input-->
+<!--          :placeholder="$t('placeholder.pleaseEnterkeySearch')"-->
+<!--          v-model="input"-->
+<!--          @input="reset"-->
+<!--          @keyup.enter.native="doSearch"-->
+<!--          @focus="isActive = true"-->
+<!--          slotType="prefix"-->
+<!--        >-->
+<!--          <i-->
+<!--            slot="prefix"-->
+<!--            class="iconfont icon-sousuo"-->
+<!--            :class="isActive ? 'on' : ''"-->
+<!--            @click="doSearch"-->
+<!--          ></i>-->
+<!--        </apiot-input>-->
+        <search-input
+            :placeholder="$t('placeholder.pleaseEnterkeySearch')"
+            @getList="doSearch"
+            v-model="input"
+        ></search-input>
       </div>
     </div>
     <div class="wrap_div_roleWrap">
@@ -109,6 +114,7 @@
         class="copyWrap"
         :visible.sync="dialogVisible"
         :title="copyTitle"
+        :loading="copyLoading"
         v-on:sure-click="handleSubmit('copy')"
       >
         <FormItem
@@ -169,6 +175,7 @@ const Organization = () => import('./DesignDetial/Organization/organization');
 export default {
   data() {
     return {
+      copyLoading: false,
       currentRowkey: '', // 当前行
       activename: 'PCDesign', // 默认显示pc
       orgcustom: {}, // 组织弹框信息
@@ -305,7 +312,7 @@ export default {
         doUUpdate(params, doEditRoleDataAuth);
         this.orgcustom.dialogVisible = false;
       } catch (e) {
-        // console.log(e);
+        console.log(e);
       }
     },
     handleCancel() {
@@ -317,6 +324,7 @@ export default {
     doDesign(row) {
       // 进入设计界面
       this.showDesign = true;
+      this.activename = 'PCDesign';
       this.designObj = row;
     },
     doCopy(row) {
@@ -396,7 +404,9 @@ export default {
                   ...rest,
                   copyRoleId
                 };
+                this.copyLoading = true;
                 const res = await doCopyRole(newParams);
+                this.copyLoading = false;
                 this.dialogVisible = false;
                 this.$message({
                   type: 'success',
@@ -648,28 +658,28 @@ export default {
       float: right;
       height: 30px;
       margin-top: 2px;
-      text-align: right;
+      //text-align: right;
 
-      ::v-deep {
-        .el-input__inner {
-          width: 98%;
-          height: 30px;
-          margin-top: -2px;
-          padding-left: 12px;
-          font-size: 14px;
-          cursor: pointer;
-        }
-
-        .el-input__prefix {
-          left: auto;
-          right: 15px;
-          cursor: pointer;
-
-          .icon-sousuo {
-            line-height: 28px;
-          }
-        }
-      }
+      //::v-deep {
+      //  .el-input__inner {
+      //    width: 98%;
+      //    height: 30px;
+      //    margin-top: -2px;
+      //    padding-left: 12px;
+      //    font-size: 14px;
+      //    cursor: pointer;
+      //  }
+      //
+      //  .el-input__prefix {
+      //    left: auto;
+      //    right: 15px;
+      //    cursor: pointer;
+      //
+      //    .icon-sousuo {
+      //      line-height: 28px;
+      //    }
+      //  }
+      //}
     }
   }
 

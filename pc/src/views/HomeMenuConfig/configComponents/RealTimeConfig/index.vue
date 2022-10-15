@@ -119,11 +119,11 @@ export default {
       this.changeStyles(url, 'backgroundImage');
     },
     beforeAvatarUpload(file) {
-      const isJPG = ['image/png', 'image/jpg', 'image/jpeg'].includes(file.type);
+      const isJPG = ['image/png', 'image/jpg', 'image/jpeg', 'image/svg+xml'].includes(file.type);
       const isLt2M = file.size / 1024 / 1024 < 2;
       return new Promise((resolve, reject) => {
         if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
+          this.$message.error('上传图片只能是 JPG, png, jpeg,svg 格式!');
           reject(file);
           return false;
         }

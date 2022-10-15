@@ -1,15 +1,18 @@
 <!--  -->
 <template>
-  <div class="roleWrap__nameWrap" :class="{ 'haseBgColor': isShowBgColor}">
+  <div class="roleWrap__nameWrap" :class="{ haseBgColor: isShowBgColor }">
     <span :style="getColor(row)" class="avtor" v-if="!row.icon">
-        {{ renderAvtor(row) }}
+      {{ renderAvtor(row) }}
     </span>
     <span class="avtor" v-if="row.icon">
-      <img class="imgWrap" v-if="row.icon.imageUrl" :src="row.icon.imageUrl"/>
-      <span v-if="!row.icon.imageUrl"
-            class="avtor"
-            :style="getColor(row)"
-      >{{ renderAvtor(row) }}</span>
+      <img
+        class="imgWrap"
+        v-if="row.icon.imageUrl"
+        :src="$parseImgUrl(row.icon.imageUrl)"
+      />
+      <span v-if="!row.icon.imageUrl" class="avtor" :style="getColor(row)">{{
+        renderAvtor(row)
+      }}</span>
     </span>
     {{ row[prop] }}
   </div>
@@ -23,20 +26,19 @@ export default {
   props: {
     row: {
       type: Object,
-      default: () => {
-      },
+      default: () => {}
     },
     prop: {
       type: String,
-      default: 'name',
+      default: 'name'
     },
     isShowBgColor: {
       type: Boolean,
-      default: true,
+      default: true
     },
     userid: {
       type: String,
-      default: 'id',
+      default: 'id'
     }
   },
   data() {
@@ -64,8 +66,7 @@ export default {
     }
   },
 
-  mounted() {
-  },
+  mounted() {},
 
   methods: {}
 };
@@ -80,8 +81,8 @@ export default {
   padding-right: 10px;
   font-size: 14px;
   color: #333333;
-  &.haseBgColor{
-    background: #F1F3F6;
+  &.haseBgColor {
+    background: #f1f3f6;
   }
 }
 
@@ -95,7 +96,7 @@ export default {
   font-size: 10px;
   font-family: PingFangSC-Regular, PingFang SC;
   font-weight: 400;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .imgWrap {
@@ -104,5 +105,4 @@ export default {
   vertical-align: bottom;
   border-radius: 50%;
 }
-
 </style>

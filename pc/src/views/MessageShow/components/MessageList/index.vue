@@ -44,12 +44,14 @@
       v-if="messageArr.length"
       class="content"
       v-infinite-scroll="getPageInnerMailList"
-      infinite-scroll-immediate="false"
+      infinite-scroll-immediate="true"
     >
       <li class="content__item" v-for="item in messageArr" :key="item.id">
         <message-item
-            :type="type"
-            :message="item"
+          :type="type"
+          :message="item"
+          v-on="$listeners"
+          v-bind="$attrs"
             @singleRead="messageChanged"/>
       </li>
     </ul>
@@ -63,7 +65,9 @@ import MessageItem from '../MessageItem/index.vue';
 
 export default {
   name: 'MessageList',
-  components: { MessageItem },
+  components: {
+    MessageItem,
+  },
 
   props: {
     type: {
@@ -101,7 +105,7 @@ export default {
       command: '',
       page: 1,
       size: 20,
-      loading: false
+      loading: false,
     };
   },
 
@@ -116,7 +120,7 @@ export default {
       this.page = 1;
       this.getPageInnerMailList();
     },
-    // 获取组织树
+    // 获取消息
     getPageInnerMailList() {
       try {
         const param = {
@@ -200,7 +204,7 @@ export default {
         this.messageArr = arr;
         this.messageChanged();
       });
-    }
+    },
   },
 
   mounted() {

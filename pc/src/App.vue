@@ -7,22 +7,26 @@
 -->
 <template>
   <div id="app">
-    <keep-alive :include="['Layout']">
-      <router-view />
+    <keep-alive :include="['Layout']" :max="1">
+      <router-view v-if="showPage" />
     </keep-alive>
   </div>
 </template>
 
 <script>
 import { whitePathName } from '@/config';
-import { zwdingtalkLogin } from '@/api/login';
+import { zwdingtalkLogin, ssoLogin } from '@/api/login';
 import { getDingDingCode } from '@/utils/dingding/index';
 // import store from '@/store';
 
 export default {
   data() {
     return {
-      isSuccess: true
+      isSuccess: true,
+      excludeArr: [],
+      max: 1,
+      isLoggedIn: false,
+      showPage: true
     };
   },
   created() {
@@ -41,6 +45,20 @@ export default {
     }
   },
   methods: {
+    async singleLoginSso() {
+      if (+this.configs.ssoTypePc === 3) {
+        const rsaToken = window.location.href.split('?uid=')[1];
+        if (rsaToken) {
+          try {
+            this.showPage = false;
+            await ssoLogin({ rsaToken });
+            this.showPage = true;
+          } catch (error) {
+            this.showPage = true;
+          }
+        }
+      }
+    },
     // 先获取localStorage语言，如果没有在获取系统语言
     getSystemLanguage() {
       const lang = localStorage.getItem('apiotLanguage');
@@ -65,7 +83,17 @@ export default {
     // 获取配置
     async fetchConfig() {
       await this.$store.dispatch('getLoginConfigFun');
-      await this.$store.dispatch('getHomeRoute');
+      // 标准单点登录
+      await this.singleLoginSso();
+      // }
+      // await this.$store.dispatch('getHomeRoute');
+      // const pathArr = window.location.pathname.split('/');
+      // const pathName = pathArr[pathArr.length - 1];
+      const { name } = this.$route;
+      // console.log(pathName, JSON.stringify(pathArr), this.$route);
+      if (!whitePathName.includes(name)) {
+        await this.$store.dispatch('getHomeRoute');
+      }
       // 单点登录逻辑
       if (+this.configs.ssoTypePc === 2) {
         await this.ssoZheZhengDing();
@@ -122,7 +150,7 @@ export default {
 #app {
   width: 100%;
   height: 100%;
-  min-width: 1200px;
+  //min-width: 1024px;
   overflow-x: auto;
   overflow-y: hidden;
 }

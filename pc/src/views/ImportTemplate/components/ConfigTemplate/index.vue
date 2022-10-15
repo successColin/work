@@ -105,6 +105,7 @@ import {
 import EditPage from './components/EditPage';
 import MoreloadDialog from './components/MoreloadDialog';
 import SingleloadDialog from './components/SingleloadDialog';
+import ConversionType from './components/ConversionType';
 
 export default {
   props: {
@@ -173,8 +174,8 @@ export default {
         // 数据转换
         {
           label: 'importTemplate.dataConversionType',
-          prop: 'changeTypeString',
-          compName: 'ElTableColumn'
+          prop: 'changeType',
+          compName: 'ConversionType'
         },
         // 备注
         {
@@ -202,7 +203,8 @@ export default {
   components: {
     EditPage,
     SingleloadDialog,
-    MoreloadDialog
+    MoreloadDialog,
+    ConversionType
   },
   computed: {
     // 抽屉标题

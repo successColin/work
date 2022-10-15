@@ -398,3 +398,33 @@ export function exportErrorSpecialMessage(params) {
     params,
   });
 }
+// ============= 陈珑 接口
+// 通用导入
+export function importData(data) {
+  return FetchData.request({
+    url: '/system/sysImport/importData',
+    method: 'post',
+    data,
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  });
+}
+
+// 校验进度监控
+export function getCheckSysImportProgress(params) {
+  return FetchData.request({
+    url: '/system/sysImport/getCheckProgress',
+    method: 'get',
+    params,
+  });
+}
+
+// 进度监控
+export function getUploadsysImportProgress(params) {
+  return FetchData.request({
+    url: '/system/sysImport/getUploadProgress',
+    method: 'get',
+    params,
+  });
+}

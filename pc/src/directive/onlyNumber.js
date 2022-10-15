@@ -14,31 +14,13 @@ Vue.directive('onlyNumber', {
     function special(e) {
       // 190 48-57 96-105
       const numberArr = [
-        8,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        96,
-        97,
-        98,
-        99,
-        100,
-        101,
-        102,
-        103,
-        104,
-        105,
+        8, 9, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101,
+        102, 103, 104, 105, 189,
       ];
       if (binding.value === 2 && targetEl.value.indexOf('.') === -1) {
         numberArr.push(190);
       }
+      console.log(e.keyCode);
       if (!numberArr.includes(e.keyCode)) {
         e.preventDefault();
         return false;

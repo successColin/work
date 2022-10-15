@@ -16,6 +16,8 @@
       :modal="false"
       close-on-click-modal
       class="curMask"
+      :title="title"
+      @close="cancleClick"
     >
       <user-content v-on="$listeners" v-bind="$attrs" ref="user"></user-content>
       <span slot="footer" class="dialog-footer">
@@ -48,7 +50,12 @@ export default {
       loading: false
     };
   },
-  props: {},
+  props: {
+    title: {
+      type: String,
+      default: ''
+    }
+  },
   mounted() {},
   methods: {
     cancleClick() {

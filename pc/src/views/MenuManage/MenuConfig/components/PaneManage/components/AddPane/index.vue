@@ -61,6 +61,14 @@
           :inactivevalue="2"
         ></ApiotSwitch>
       </el-form-item>
+      <el-form-item label="是否可以分享" prop="type" v-if="curDrawerType !== 3">
+        <ApiotSwitch
+          :key="form.name"
+          v-model="form.enableShare"
+          :activeValue="1"
+          :inactivevalue="2"
+        ></ApiotSwitch>
+      </el-form-item>
       <el-form-item label="描述" prop="memo" v-if="curDrawerType !== 3">
         <apiot-input
           type="textarea"
@@ -91,6 +99,7 @@ export default {
         name: '',
         type: 2,
         enableWorkflow: 2,
+        enableShare: 2,
         menuId: '',
         memo: ''
       },
@@ -124,6 +133,7 @@ export default {
       this.form.name = row.panelName;
       this.form.type = row.panelType;
       this.form.enableWorkflow = row.enableWorkflow;
+      this.form.enableShare = row.enableShare;
       this.form.memo = row.memo;
       this.form.menuId = this.$route.params.id;
       this.rowInfo = row;
@@ -161,6 +171,7 @@ export default {
         panelName: this.form.name,
         panelType: this.form.type,
         enableWorkflow: this.form.enableWorkflow,
+        enableShare: this.form.enableShare,
         panelClassify: 1,
         clientType: this.$route.query.isApp === '1' ? 2 : 1
       };
@@ -190,6 +201,7 @@ export default {
         memo: this.form.memo,
         panelName: this.form.name,
         enableWorkflow: this.form.enableWorkflow,
+        enableShare: this.form.enableShare,
         panelClassify: 1
       };
       try {
@@ -211,7 +223,6 @@ export default {
       }
     },
     selectMenu(menu) {
-      // console.log(menu);
       this.menuObj = menu;
       this.form.menuId = menu.id;
     },
@@ -229,8 +240,7 @@ export default {
       }
       try {
         await copyPanel(params);
-        console.log(params.menuId === params.oldMenuId);
-        if (this.rowInfo.panelType !== 2 || params.menuId === params.oldMenuId) {
+        if (this.rowInfo.panelType !== 2 || +params.menuId === +params.oldMenuId) {
           this.$emit('addPaneRes');
         }
         this.rowInfo = null;

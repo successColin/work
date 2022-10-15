@@ -136,3 +136,28 @@ export function ureportfiles(params) {
     params,
   });
 }
+
+// ureport
+export function menuList(params) {
+  return FetchData.request({
+    url: '/system/sysMenu/menuList',
+    params,
+  });
+}
+
+// ureport
+export function listRecord(params) {
+  return FetchData.request({
+    url: '/system/stepRecord/listRecord',
+    params,
+  });
+}
+
+// 外链地址转换
+export function shortLink(data) {
+  return FetchData.request({
+    url: '/system/panel/shortLink',
+    method: 'post',
+    data,
+  });
+}

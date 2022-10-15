@@ -3,9 +3,9 @@
  * @Author: cmk
  * @Date: 2021-04-19 17:54:53
  * @Last Modified by: ytx
- * @Last Modified time: 2022-08-04 16:16:51
+ * @Last Modified time: 2022-08-10 11:48:40
  */
-import { getListByKey } from '@/api/globalConfig';
+import { getListByKey, getListByKeys } from '@/api/globalConfig';
 import { changeThemeColor } from '@/utils/themeColorClient';
 
 export default {
@@ -26,6 +26,9 @@ export default {
     // 文件服务器相关选项
     fileConfig: [],
     fileConfigArr: [],
+    // 水印及其相关选项,
+    waterConfig: [],
+    waterConfigArr: [],
   },
   getters: {
     getMenuType(state) {
@@ -75,6 +78,7 @@ export default {
       });
       state.themeConfigArr = res;
       state.themeConfig = obj;
+      console.log(state.themeConfig);
       state.menuType = state.themeConfig.menuStyle || 1;
       state.themeConfig.topHeight = state.themeConfig.topHeight
         ? +state.themeConfig.topHeight
@@ -113,6 +117,9 @@ export default {
       } else if (key === 'FILE_SERVER') {
         state.fileConfig = obj;
         state.fileConfigArr = res;
+      } else if (key === 'WATER_MASK') {
+        state.waterConfig = obj;
+        state.waterConfigArr = res;
       }
     },
     // 设置主题及相关配置
@@ -133,6 +140,17 @@ export default {
     async fetchConfigFun({ commit }, key = 'THIRD_LINKS') {
       const res = await getListByKey({ parameterKey: key });
       commit('resolveData', [res, key]);
+    },
+    async fetchConfigFuns({ commit }, key) {
+      const res = await getListByKeys({ parameterKey: key });
+      const keys = Object.keys(res);
+      keys.forEach((k) => {
+        if (k === 'THEME_AND_LOGO') {
+          commit('reduceDataToThemeConfig', res[k]);
+        } else {
+          commit('resolveData', [res[k], k]);
+        }
+      });
     },
   },
 };

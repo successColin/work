@@ -32,7 +32,7 @@
         <img
           v-else-if="getCurMulti.treeIcon.imageUrl"
           class="treeNode__treeIcon--img m-r-4"
-          :src="getCurMulti.treeIcon.imageUrl"
+          :src="$parseImgUrl(getCurMulti.treeIcon.imageUrl)"
         />
         <i
           v-else

@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <div class="singleTextWrap" :style="getRotateX" @contextmenu.prevent="show">
+  <div class="singleTextWrap" :style="getRotateX">
     <div class="imageContent" :style="getRotateY">
       <div class="imageBox" :style="getTextStyles()">
       </div>
@@ -67,7 +67,7 @@ export default {
         const { stylesObj = {} } = this.config;
         Object.keys(stylesObj).forEach((item) => {
           if (item === 'backgroundImage') {
-            styles += `background-image:url(${stylesObj[item]});`;
+            styles += `background-image:url(${this.$parseImgUrl(stylesObj[item])});`;
           } else if (item === 'rotationAngle') {
             styles += `transform:rotate(${stylesObj[item]}deg);`;
           } else {
@@ -77,9 +77,6 @@ export default {
         return styles;
       };
     },
-    getList() {
-      return this.$store.getters.list;
-    }
   },
   mounted() {
   },
@@ -89,44 +86,6 @@ export default {
     // },
   },
   methods: {
-    deactivated() {
-      // this.$emit("updateActiveComponent", {})
-    },
-    activated() {
-      this.$nextTick(() => {
-        this.$emit('updateActiveComponent', this.config);
-      });
-    },
-    update(obj) {
-      const { componentId } = this.config;
-      const list = [...this.getList];
-      const index = list.findIndex((item) => item.componentId === componentId);
-      const newInfo = {
-        ...this.config,
-        ...obj
-      };
-      list.splice(index, 1, newInfo);
-      this.$store.dispatch('config/updateComponentList', list);
-    },
-    dragstop(newRect) {
-      this.update(newRect);
-    },
-    dragging(newRect) {
-      this.update(newRect);
-    },
-    resize(newRect) {
-      this.update(newRect);
-    },
-    handleClick(e) {
-      console.log(e, 'handleClick');
-      // this.$nextTick(() => {
-      //   this.$emit("updateActiveComponent", this.config);
-      // })
-    },
-    show(e) {
-      this.$emit('updateActiveComponent', this.config);
-      this.$emit('rightClickComponent', e);
-    }
   },
   name: 'SingleLineText'
 };

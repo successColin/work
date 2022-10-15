@@ -7,75 +7,102 @@
       { showTitle: configData.showTitle },
       { isApp: $route.query.isApp == 1 },
       { 'p-t-10': !isConfig && pos === 0 },
-      { 'p-t-20': !isConfig && getBtnsArr.children.length === 0 },
+      { 'p-t-15': !isConfig && getBtnsArr.children.length === 0 },
     ]"
     @click="changeCurActiveObj(1, $event)"
-    :tip="configData.name"
     :title="isConfig ? configData.name : ''"
     v-show="showMenu"
   >
-    <BtnsArea
-      v-if="isShowBtn"
-      :configData="configData"
-      :activeObj="activeObj"
-      :hasTriggerComp="hasTriggerComp"
-      :isSidebar="isSidebar"
-      :getBtnsArr="getBtnsArr"
-      :getFeatureArr="getFeatureArr"
-      :fileDeleteIds="fileDeleteIds"
-      :moreOperateArr="moreOperateArr"
-      :showType="showType"
-      :nodeConfig="nodeConfig"
-      @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[1, 2, 5, 6]"
-      :isForm="true"
-    ></BtnsArea>
-    <section
-      ref="contentArea"
-      v-if="configData.children.length !== 0"
-      class="menuMain__feature"
-      v-loading="loading"
-      element-loading-background="hsla(0,0%,100%,.9)"
-      :class="[
-        { configClass: isConfig && getFeatureArr.children.length === 0 },
-        { borderType: isConfig },
-        {
-          highBorder:
-            isConfig &&
-            activeObj.compId === configData.compId &&
-            activeObj.areaType === 1,
-        },
-        { useStyle: !isConfig },
-        { hiddenBtnArea: configData.pageType === 1 },
-      ]"
-      configData="功能区"
+    <div
+      class="menuMain__title"
+      v-if="configData.showTitle"
+      @click="hiddenContent"
     >
-      <el-form
-        ref="form"
-        :model="getFeatureArr.form"
-        :rules="isConfig ? {} : getFeatureArr.rules"
-        :validate-on-rule-change="false"
-        label-width="80px"
-        label-position="top"
+      {{ configData.name }}
+      <i
+        class="iconfont icon-xialajiantou"
+        :class="[{ isHidden: isHidden }]"
+      ></i>
+    </div>
+    <div class="menuMain__content" :class="[{ isHidden: isHidden }]">
+      <BtnsArea
+        v-if="isShowBtn"
+        :configData="configData"
+        :activeObj="activeObj"
+        :hasTriggerComp="hasTriggerComp"
+        :isSidebar="isSidebar"
+        :getBtnsArr="getBtnsArr"
+        :getFeatureArr="getFeatureArr"
+        :fileDeleteIds="fileDeleteIds"
+        :moreOperateArr="moreOperateArr"
+        :showType="showType"
+        :nodeConfig="nodeConfig"
+        @click.native="changeCurActiveObj(2, $event)"
+        :btnTypesArr="[1, 2, 5, 15]"
+        :isForm="true"
+      ></BtnsArea>
+      <section
+        ref="contentArea"
+        v-if="configData.children.length !== 0"
+        class="menuMain__feature"
+        v-loading="loading"
+        element-loading-background="hsla(0,0%,100%,.9)"
+        :class="[
+          { configClass: isConfig && getFeatureArr.children.length === 0 },
+          { borderType: isConfig },
+          {
+            highBorder:
+              isConfig &&
+              activeObj.compId === configData.compId &&
+              activeObj.areaType === 1,
+          },
+          { useStyle: !isConfig },
+          { hiddenBtnArea: configData.pageType === 1 },
+        ]"
+        configData="功能区"
       >
-        <draggable
-          v-if="isConfig"
-          v-model="getFeatureArr.children"
-          group="comp"
-          animation="300"
-          ghostClass="featGhost"
-          filter=".notMove"
-          :areaType="1"
-          @start="featDragStart"
-          @end="featDragEnd"
-          :move="featDragMove"
-          :disabled="!isConfig"
-          :isForm="true"
+        <el-form
+          ref="form"
+          :model="getFeatureArr.form"
+          :rules="isConfig ? {} : getFeatureArr.rules"
+          :validate-on-rule-change="false"
+          label-width="80px"
+          label-position="top"
         >
-          <transition-group class="menuMain__feature--compList" tag="ul">
+          <draggable
+            v-if="isConfig"
+            v-model="getFeatureArr.children"
+            group="comp"
+            animation="300"
+            ghostClass="featGhost"
+            filter=".notMove"
+            :areaType="1"
+            @start="featDragStart"
+            @end="featDragEnd"
+            :move="featDragMove"
+            :disabled="!isConfig"
+            :isForm="true"
+          >
+            <transition-group class="menuMain__feature--compList" tag="ul">
+              <component
+                v-for="(child, i) in getFeatureArr.children"
+                :class="[{ notMove: child.labelNotChange }]"
+                :key="child.compId"
+                :is="child.compName"
+                :parent="getFeatureArr"
+                :grandFather="configData"
+                :i="i"
+                :activeObj="activeObj"
+                :hasTriggerComp="hasTriggerComp"
+                :configData="child"
+                :fileDeleteIds="fileDeleteIds"
+                :isForm="true"
+              ></component> </transition-group
+          ></draggable>
+          <div class="menuMain__feature--compList" v-else>
             <component
+              class="menuMain__feature--comp"
               v-for="(child, i) in getFeatureArr.children"
-              :class="[{ notMove: child.labelNotChange }]"
               :key="child.compId"
               :is="child.compName"
               :parent="getFeatureArr"
@@ -85,40 +112,27 @@
               :hasTriggerComp="hasTriggerComp"
               :configData="child"
               :fileDeleteIds="fileDeleteIds"
-              :isForm="true"
-            ></component> </transition-group
-        ></draggable>
-        <div class="menuMain__feature--compList" v-else>
-          <component
-            v-for="(child, i) in getFeatureArr.children"
-            :key="child.compId"
-            :is="child.compName"
-            :parent="getFeatureArr"
-            :grandFather="configData"
-            :i="i"
-            :activeObj="activeObj"
-            :hasTriggerComp="hasTriggerComp"
-            :configData="child"
-            :fileDeleteIds="fileDeleteIds"
-            :showType="showType"
-            :nodeConfig="nodeConfig"
-            :getIdCompId="getIdCompId"
-          ></component>
-        </div>
-      </el-form>
-    </section>
-    <section
-      v-if="configData.children.length === 0"
-      class="menuMain__wz"
-      :class="[
-        { borderType: isConfig },
-        {
-          highBorder: isConfig && activeObj.compId === configData.compId,
-        },
-      ]"
-    >
-      表单区
-    </section>
+              :showType="showType"
+              :nodeConfig="nodeConfig"
+              :getIdCompId="getIdCompId"
+              :backForm="backForm"
+            ></component>
+          </div>
+        </el-form>
+      </section>
+      <section
+        v-if="configData.children.length === 0"
+        class="menuMain__wz"
+        :class="[
+          { borderType: isConfig },
+          {
+            highBorder: isConfig && activeObj.compId === configData.compId,
+          },
+        ]"
+      >
+        表单区
+      </section>
+    </div>
   </div>
 </template>
 
@@ -159,7 +173,9 @@ export default {
       fileDeleteIds: [],
       isMenuMain: true,
       backForm: null,
-      setIdTerm: ''
+      setIdTerm: '',
+      isHidden: false,
+      timer: null
     };
   },
 
@@ -228,9 +244,9 @@ export default {
   },
   mounted() {
     if (!this.isConfig) {
-      // this.$nextTick(() => {
-      this.resetForm();
-      // });
+      this.$nextTick(() => {
+        this.resetForm();
+      });
 
       // 转换正则
       const keys = Object.keys(this.getFeatureArr.rules);
@@ -265,6 +281,23 @@ export default {
   },
 
   methods: {
+    // 是否隐藏内容
+    hiddenContent() {
+      if (this.isConfig) {
+        return false;
+      }
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        this.isHidden = !this.isHidden;
+      }, 100);
+      setTimeout(() => {
+        if (this.timer) {
+          clearTimeout(this.timer);
+        }
+      }, 300);
+    },
     // 刚打开tab的时候如果不是初始化的，则加载一次
     loadArea(compId) {
       // 代表刚打开的tab
@@ -295,9 +328,9 @@ export default {
           }
         });
       }
-      if (this.$refs.form) {
-        this.$refs.form.resetFields();
-      }
+      // if (this.$refs.form) {
+      //   this.$refs.form.resetFields();
+      // }
     },
     // 更新该区域
     reloadArea(areaArr, onlyFlag, compId, id) {
@@ -404,7 +437,11 @@ export default {
         }
         if (comp.compType === 2) {
           if (comp.dropDownType === 1) {
-            v = +v;
+            if (v) {
+              v = +v;
+            } else {
+              v = '';
+            }
           }
         }
         if ([3].includes(comp.compType)) {
@@ -480,6 +517,7 @@ export default {
         v = this.resolveValue(v, comp);
         if (v !== '') {
           tempObj[comp.compId] = v;
+          this.$set(tempObj, comp.compId, v);
           if (comp.compType === 6 || comp.compType === 7 || comp.compType === 15) {
             tempObj[`${comp.compId}_`] = data[`${comp.compId}_`];
           }
@@ -502,6 +540,7 @@ export default {
           ...this.getFeatureArr.form,
           ...tempObj
         };
+        // console.log(this.getFeatureArr.form);
         this.loading = false;
         this.initStart();
         // this.changeNotValueChange(false);
@@ -509,6 +548,8 @@ export default {
           if (this.$refs.form) {
             this.$refs.form.clearValidate();
           }
+          this.$bus.$emit('getSteps', this.getFeatureArr.form[this.getIdCompId]);
+          this.$broadcast('setRichValue');
           if (this.configData.reloadArea.length) {
             this.$bus.$emit(this.getEventName, this.configData.reloadArea, this.onlyFlag());
           } else {
@@ -604,7 +645,45 @@ export default {
   &.isApp {
     // height: auto;
   }
+
+  &__title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+    line-height: 40px;
+    padding: 0 10px;
+    cursor: pointer;
+    &:hover {
+      background-color: #efefef;
+      color: $--color-primary;
+      .icon-xialajiantou {
+        color: $--color-primary;
+      }
+    }
+    .icon-xialajiantou {
+      position: absolute;
+      right: 10px;
+      transition: all 0.2s linear;
+      &.isHidden {
+        transform: rotate(180deg);
+      }
+    }
+  }
+  &__content {
+    height: 100%;
+    transition: all 0.2s linear;
+    &.isHidden {
+      height: 0;
+      opacity: 0;
+    }
+  }
   &.showTitle {
+    font-size: 15px;
     padding-top: 40px;
     position: relative;
     &::before {
@@ -619,13 +698,17 @@ export default {
     }
   }
   &.flexReserve {
-    flex-direction: column-reverse;
+    .menuMain__content {
+      display: flex;
+      flex-direction: column-reverse;
+    }
   }
   &__feature {
-    min-height: calc(100% - 76px);
+    height: calc(100% - 52px);
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px 10px;
+    box-sizing: border-box;
     &.borderType:hover {
       border-width: 1px !important;
       border-style: solid !important;
@@ -651,6 +734,13 @@ export default {
       // & > div {
       //   margin-bottom: 10px;
       // }
+    }
+    &--comp:first-child {
+      ::v-deep {
+        .dividing__detail {
+          height: 30px !important;
+        }
+      }
     }
   }
   &__wz {

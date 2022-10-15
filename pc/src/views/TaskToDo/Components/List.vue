@@ -10,7 +10,12 @@
   <div class="listWrap" v-loading="loading">
     <div class="listContent">
       <div class="conditionWrap">
-        <el-radio-group v-model="radio1" size="small" @change="changeStatus">
+        <el-radio-group
+            v-model="radio1"
+            size="small"
+            @change="changeStatus"
+            v-if="radioArr.length"
+        >
           <el-radio-button
             v-for="item in radioArr"
             :label="item.value"
@@ -18,75 +23,112 @@
             >{{ item.name }}
           </el-radio-button>
         </el-radio-group>
-        <apiot-select style="width: 160px" v-model="selectValue">
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.name"
-            :value="item.value"
-          >
-          </el-option>
-        </apiot-select>
+        <el-checkbox
+            :indeterminate="isIndeterminate"
+            v-if="com==='LeaveItToMe'"
+            class="allSelect"
+            :value="isCheckAll"
+            @change="chooseAll"
+        >全选</el-checkbox>
+        <div></div>
+        <div class="rightCondition">
+          <div class="batchBtnWrap" v-if="com==='LeaveItToMe'">
+            <apiot-button
+                type="primary"
+                @click="doBatch(1)"
+            >
+              批量同意
+            </apiot-button>
+            <apiot-button
+                type="danger"
+                @click="doBatch(2)"
+            >
+              批量驳回
+            </apiot-button>
+          </div>
+          <apiot-select style="width: 160px" v-model="selectValue">
+            <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.name"
+                :value="item.value"
+            >
+            </el-option>
+          </apiot-select>
+        </div>
       </div>
       <div class="listBox">
         <div
           class="listItem"
           v-for="item in list"
           :key="item.id"
-          @click="handleClick(item)"
         >
-          <div class="listInfo">
-            <div>
+          <div class="check">
+            <apiot-checkbox
+                class="check-hook"
+                :hookId="item.taskId"
+                @change="choose(item)"
+                :value="checkValue(item)"
+                v-if="item.taskType===3&&com==='LeaveItToMe'"
+            ></apiot-checkbox>
+            <div
+                v-if="!(item.taskType===3&&com==='LeaveItToMe')"
+                style="width: 14px;height: 16px;"></div>
+          </div>
+          <div class="listItemRight" @click="handleClick(item)">
+            <div class="listInfo">
+              <div>
               <span
-                class="iconfont icon-danju"
-                :style="`color: ${getStatus(item).color};`"
+                  class="iconfont icon-danju"
+                  :style="`color: ${getStatus(item).color};`"
               ></span>
-            </div>
-            <div class="listInfoWrap">
-              <p
-                class="listTitle"
-                :title="`${item.instanceName}}`"
-                style="height: 24px; line-height: 24px"
-              >
+              </div>
+              <div class="listInfoWrap">
+                <p
+                    class="listTitle"
+                    :title="`${item.instanceName}}`"
+                    style="height: 24px; line-height: 24px"
+                >
                 <span
-                  v-if="
+                    v-if="
                     item.instanceStatus === 'REJECTED' && com === 'LeaveItToMe'
                   "
-                  class="listStatus"
-                  :style="`color: ${getStatus(item).color};background: ${
+                    class="listStatus"
+                    :style="`color: ${getStatus(item).color};background: ${
                     getStatus(item).bgColor
                   }`"
                 >
                   {{ getStatus(item).name }}</span
                 >
-                {{ item.instanceName }}
-              </p>
-              <div class="listDes" style="color: #333333">
-                <div v-if="item.timeLeft >= 0">
-                  剩余<span style="color: rgba(224, 32, 32, 1)">{{
-                    item.timeLeft
-                  }}</span
+                  {{ item.instanceName }}
+                </p>
+                <div class="listDes" style="color: #333333">
+                  <div v-if="item.timeLeft >= 0">
+                    剩余<span style="color: rgba(224, 32, 32, 1)">{{
+                      item.timeLeft
+                    }}</span
                   >天
+                  </div>
                 </div>
+                <p class="listDes" v-if="com!=='CC'">
+                  当前节点:
+                  <span style="color: #333333">{{ item.taskName }}</span>
+                </p>
               </div>
-              <p class="listDes">
-                当前节点:
-                <span style="color: #333333">{{ item.taskName }}</span>
-              </p>
             </div>
-          </div>
-          <div class="listKeycode" v-html="renderHtml(item.taskDesc)"></div>
-          <div class="listTag">
-            <div class="user">
-              <div class="userTitle">发起人</div>
-              <Users
-                :row="item"
-                :userid="String(item.createUserId)"
-                prop="triggerUserName"
-              ></Users>
+            <div class="listKeycode" v-html="renderHtml(item.taskDesc)"></div>
+            <div class="listTag">
+              <div class="user">
+                <div class="userTitle">发起人</div>
+                <Users
+                    :row="item"
+                    :userid="String(item.createUserId)"
+                    prop="triggerUserName"
+                ></Users>
+              </div>
+              <p class="textWrap"></p>
+              <p class="textWrap">发起时间: {{ item.triggerTime }}</p>
             </div>
-            <p class="textWrap"></p>
-            <p class="textWrap">发起时间: {{ item.triggerTime }}</p>
           </div>
         </div>
         <apiot-nodata v-if="!total"></apiot-nodata>
@@ -95,7 +137,7 @@
         <apiot-pagination
           :total="total"
           :current-page="current"
-          :page-size.sync="size"
+          :size="size"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         ></apiot-pagination>
@@ -108,6 +150,50 @@
       :approvalInfo="approvalInfo"
       :nodeConfig="nodeConfig"
     ></Approve>
+    <apiot-dialog
+        :title="getDialogName"
+        :loading="loading"
+        :visible.sync="visible1"
+        @close="handleCancel"
+        @sure-click="handleOk"
+        @cancle-click="handleCancel"
+    >
+      <div class="form-content" v-if="visible1">
+        <el-form
+            ref="valiForm"
+            @submit.native.prevent
+            :model="info"
+        >
+          <el-row class="form_el_row_wrap" style="margin: 0 !important">
+            <el-col :span="24">
+              <el-form-item
+                  label="备注"
+                  prop="memo"
+              >
+                <apiot-input
+                    v-forbid
+                    v-model="info.memo"
+                    type="textarea"
+                    placeholder="请输入描述内容"
+                ></apiot-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item
+                  label="抄送人"
+                  prop="ccList"
+              >
+                <CCUsers
+                    :value="ccList"
+                    @select-flow-approval="handleSelectCC"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
+    </apiot-dialog>
+
   </div>
 </template>
 
@@ -115,8 +201,9 @@
 import moment from 'moment';
 import Approve from '_v/TaskToDo/Components/Approve';
 import Users from '@/views/Users/Main/UserColumn/Users/index';
-import { getIInitiatedList, getMyTodoList, getCompletedTasks, getNodeInfo } from '@/api/flow';
+import { getIInitiatedList, getMyTodoList, getCompletedTasks, getNodeInfo, getCCTasks, batchReject, batchApproval } from '@/api/flow';
 
+const CCUsers = () => import('@/views/Flow/Content/Process/ConfigDrawer/ConfigComponents/FlowApproval/CCUsers');
 export default {
   props: {
     activeName: {
@@ -132,9 +219,11 @@ export default {
   },
   data() {
     return {
+      info: {},
+      approvalArr: [], // 批量审批数据集合
       nodeConfig: {},
       radio1: 'REJECTED',
-      selectValue: 1,
+      selectValue: 6,
       list: [],
       approvalInfo: {}, // 流程信息
       visible: false, //  审批界面弹框
@@ -142,16 +231,50 @@ export default {
       size: 10,
       current: 1,
       total: 0,
-      loading: false
+      loading: false,
+      operationType: 1,
+      visible1: false,
+      ccList: [], // 抄送人
     };
   },
 
   components: {
     Users,
-    Approve
+    Approve,
+    CCUsers
   },
 
   computed: {
+    getDialogName() {
+      if (this.operationType === 1) {
+        return '批量同意';
+      }
+      if (this.operationType === 2) {
+        return '批量驳回';
+      }
+      return '';
+    },
+    isIndeterminate() {
+      if (!this.approvalArr.length) return false;
+      const isFlag = this.list.every((item) => this.approvalArr.includes(item.taskId));
+      if (isFlag) {
+        return false;
+      }
+      const isFlag2 = this.list.some((item) => this.approvalArr.includes(item.taskId));
+      if (isFlag2) {
+        return true;
+      }
+      return false;
+    },
+    isCheckAll() {
+      if (!this.approvalArr.length) return false;
+      return this.list.every((item) => this.approvalArr.includes(item.taskId));
+    },
+    checkValue() {
+      return function ({ taskId }) {
+        return this.approvalArr.includes(taskId);
+      };
+    },
     renderHtml() {
       return function(value = '{}') {
         // eslint-disable-next-line no-unreachable
@@ -261,28 +384,107 @@ export default {
         {
           value: 5,
           name: '今年以内'
+        },
+        {
+          value: 6,
+          name: '全部'
         }
       ];
-    }
+    },
   },
 
   mounted() {
-    this.init(this.selectValue);
+    if (['LeaveItToMe', 'Completed'].includes(this.com)) {
+      this.init(this.selectValue);
+    }
     this.$bus.$off(`${this.com}_End_of_operation`).$on(`${this.com}_End_of_operation`, () => {
       this.visible = false;
+      const n = this.list.length;
+      const lastN = n - 1;
+      if (lastN === 0 || lastN < 0) {
+        this.current = 1;
+      }
+      this.init(this.selectValue);
     });
   },
 
   methods: {
-    handleCurrentChange(val) {
+    handleCancel() {
+      this.visible1 = false;
+      this.info = {};
+      this.ccList = [];
+      this.operationType = '';
+    },
+    handleOk() {
+      this.doSubmit();
+    },
+    doBatch(type) {
+      if (!this.approvalArr.length) {
+        this.$message.error('请选择任务！');
+        return;
+      }
+      this.operationType = type;
+      this.visible1 = true;
+    },
+    async doSubmit() {
+      if (!this.approvalArr.length) {
+        this.$message.error('请选择任务！');
+        return;
+      }
+      this.loading = true;
+      const api = this.operationType === 1 ? batchApproval : batchReject;
+      const params = {
+        ccUserIds: this.ccList.map((item) => item.id).join(','),
+        memo: this.info.memo || '',
+        taskIds: this.approvalArr.join(',')
+      };
+      try {
+        await api(params);
+        this.loading = false;
+        if (this.operationType === 1) {
+          this.$emit('closeApproval');
+        }
+        this.hideModal();
+        this.$message.success('操作成功!');
+        await this.init(this.selectValue);
+      } catch (e) {
+        this.loading = false;
+      }
+    },
+    hideModal() {
+      this.visible1 = false;
+      this.info = {};
+      this.ccList = [];
+      this.operationType = '';
+      this.approvalArr = [];
+    },
+    chooseAll(e) {
+      if (e) {
+        this.list.forEach((item) => {
+          const { taskId } = item;
+          if (!this.approvalArr.includes(taskId)) {
+            this.approvalArr.push(taskId);
+          }
+        });
+      } else {
+        this.list.forEach((item) => {
+          const { taskId } = item;
+          const i = this.approvalArr.findIndex((li) => li === taskId);
+          if (i !== -1) {
+            this.approvalArr.splice(i, 1);
+          }
+        });
+      }
+    },
+    async handleCurrentChange(val) {
       // 切换页码
       this.current = val;
-      this.init(this.selectValue);
+      await this.init(this.selectValue);
     },
-    handleSizeChange(val) {
+    async handleSizeChange(val) {
       // 切换页面条数
       this.size = val;
-      this.init(this.selectValue);
+      await this.init(this.selectValue);
     },
     async init(v) {
       const startDate = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
@@ -308,13 +510,17 @@ export default {
       }
       if (v === 4) {
         params.beginDate = moment(startDate)
-          .subtract(1, 'months')
+          .subtract(6, 'months')
           .format('YYYY-MM-DD HH:mm:ss');
       }
       if (v === 5) {
         params.beginDate = moment(startDate)
-          .subtract(6, 'years')
+          .subtract(1, 'years')
           .format('YYYY-MM-DD HH:mm:ss');
+      }
+      if (v === 6) {
+        delete params.beginDate;
+        delete params.endDate;
       }
       if (this.com === 'IInitiatedIt') {
         params.instanceStatus = this.radio1;
@@ -351,13 +557,26 @@ export default {
       if (this.com === 'Completed') {
         return getCompletedTasks;
       }
+      if (this.com === 'CC') {
+        return getCCTasks;
+      }
       return '';
     },
+    handleSelectCC(list) {
+      this.ccList = list;
+    },
+    choose({ taskId }) {
+      const index = this.approvalArr.findIndex((item) => item === taskId);
+      if (index === -1) {
+        this.approvalArr.push(taskId);
+      } else {
+        this.approvalArr.splice(index, 1);
+      }
+    },
     handleClick(item) {
-      console.log(item);
       this.approvalInfo = item; // 流程信息
-      const { taskType, nodeId } = this.approvalInfo;
-      if (taskType === 3 || taskType === 5) {
+      const { taskType, nodeId, instanceStatus } = this.approvalInfo;
+      if ([3, 5].includes(taskType) || (instanceStatus === 'REJECTED')) {
         // 该节点属于审批节点，需要去获取配置
         this.fetchNodeInfo(nodeId);
         return;
@@ -381,8 +600,6 @@ export default {
     visible: {
       handler(v) {
         if (!v) {
-          this.current = 1;
-          this.init(this.selectValue);
           this.$emit('closeApproval');
         }
       }
@@ -425,7 +642,15 @@ export default {
       justify-content: space-between;
       align-items: center;
       margin: 0 auto;
-
+      .allSelect {
+        margin-left: 10px;
+      }
+      .rightCondition {
+        display: flex;
+        .batchBtnWrap{
+          margin-right: 10px;
+        }
+      }
       ::v-deep {
         .el-radio-group {
           line-height: 48px;
@@ -465,6 +690,7 @@ export default {
 
       .listItem {
         display: flex;
+        position: relative;
         margin: 0 auto 14px auto;
         flex-flow: row nowrap;
         justify-content: space-between;
@@ -481,7 +707,15 @@ export default {
         &:hover {
           box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.14);
         }
-
+        .check {
+          margin-left: 15px;
+        }
+        .listItemRight{
+          display: flex;
+          flex: 0 0 98%;
+          justify-content: space-between;
+          align-items: center;
+        }
         .listTag {
           //height: 24px;
           width: 220px;

@@ -80,7 +80,7 @@ export default {
   computed: {
     // 获取显示列表是多个还是单个
     getValuesArr() {
-      return function(row) {
+      return function (row) {
         // 传入转换数组说明只显示单个
         const valueArr = row[this.prop];
         if (typeof valueArr === 'string') {
@@ -96,7 +96,7 @@ export default {
       return this.$store.getters.getCurDict(this.typesPropName);
     },
     getObj() {
-      return function(temp) {
+      return function (temp) {
         if (this.typesPropArr && this.typesPropArr.length) {
           // const temp = row[this.prop];
           const index = this.typesPropArr.findIndex((item) => +item.value === +temp);
@@ -106,7 +106,7 @@ export default {
       };
     },
     getStyle() {
-      return function(row) {
+      return function (row) {
         const obj = this.getObj(row);
         if (obj && obj.color) {
           return `color: ${obj.color};backgroundColor:${lighten(obj.color, 0.9)}`;

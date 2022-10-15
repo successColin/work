@@ -107,18 +107,6 @@
               @compositionend="handleComposition"
               @compositionstart="handleComposition"
             />
-            <!-- <el-autocomplete
-              v-model="state"
-              :fetch-suggestions="leaderSearchAsync"
-              placeholder="请输入内容"
-              @select="selectLeader"
-              value-key="username"
-            >
-              <template slot-scope="{ item }">
-                <span class="imageName m-r-6" :style="item.styleColor">{{item.imageName}}</span>
-                {{item.username}}
-              </template>
-            </el-autocomplete> -->
             <div
               class="leader-wrap"
               v-show="leaderList.length > 0 && leaderKeywords"

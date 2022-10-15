@@ -67,6 +67,7 @@
           :curTriggerComp="activeObj.relateBusiComp"
           :triggerCompMap="triggerCompMap"
           :filterMethods="filterMethods"
+          :canDelete="true"
           @compChange="compChange2"
         ></select-comp>
       </div>

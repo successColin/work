@@ -58,7 +58,8 @@
         v-if="
           fatherObj.appStyle === 3 ||
           $route.query.isApp !== '1' ||
-          (this.getParentObj(1) && this.getParentObj(1).name === '操作')
+          (this.getParentObj(1) &&
+            this.getParentObj(1).tableCompName === 'OperateCol')
         "
       >
         <el-select
@@ -66,7 +67,8 @@
           placeholder="请选择按钮样式"
           v-if="
             $route.query.isApp !== '1' ||
-            (this.getParentObj(1) && this.getParentObj(1).name === '操作')
+            (this.getParentObj(1) &&
+              this.getParentObj(1).tableCompName === 'OperateCol')
           "
           :disabled="isTreeBtn"
         >
@@ -158,6 +160,7 @@
       </h2> -->
       <apiot-button
         class="formButtonConfig__btn"
+        v-if="isShow"
         @click="showRuleDialog = true"
       >
         <i class="iconfont icon-xinzeng m-r-4"></i>提交前检验
@@ -169,9 +172,44 @@
       >
         <i class="iconfont icon-xinzeng m-r-4"></i>全部保存参数设置
       </apiot-button>
+      <el-form-item label="关联打印模板" v-if="activeObj.buttonType === 15">
+        <filterable-input
+          ref="filterableInput"
+          placeholder="请选择关联打印模板"
+          :showInfo="activeObj.printTemp"
+          :hasPagination="false"
+          :dialogType="8"
+          @selectRes="selectDict"
+        ></filterable-input>
+      </el-form-item>
+      <el-form-item label="状态" v-if="isShow">
+        <el-button-group>
+          <el-button
+            :class="[{ active: activeObj.singleStatus === 1 }]"
+            @click="activeObj.singleStatus = 1"
+            >普通</el-button
+          >
+          <el-button
+            :class="[{ active: activeObj.singleStatus === 2 }]"
+            @click="activeObj.singleStatus = 2"
+            >只读</el-button
+          >
+          <el-button
+            v-if="false"
+            :class="[{ active: activeObj.singleStatus === 3 }]"
+            @click="activeObj.singleStatus = 3"
+            >只读</el-button
+          >
+          <el-button
+            :class="[{ active: activeObj.singleStatus === 4 }]"
+            @click="activeObj.singleStatus = 4"
+            >隐藏</el-button
+          >
+        </el-button-group>
+      </el-form-item>
       <el-form-item
         label="关联类型"
-        v-if="![1, 2, 7, 8, 9, 14].includes(activeObj.buttonType)"
+        v-if="![1, 2, 7, 8, 9, 14, 15].includes(activeObj.buttonType) && isShow"
       >
         <el-radio v-model="activeObj.relateType" :label="1">弹出面板</el-radio>
         <el-radio
@@ -179,6 +217,12 @@
           :label="2"
           v-if="activeObj.buttonType === 5"
           >跳转菜单</el-radio
+        >
+        <el-radio
+          v-model="activeObj.relateType"
+          :label="3"
+          v-if="activeObj.buttonType === 5"
+          >跳转外部地址</el-radio
         >
         <apiot-button
           class="panelBtn"
@@ -194,6 +238,59 @@
         >
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
+        <apiot-input
+          v-if="activeObj.relateType === 3"
+          v-model="activeObj.outerLink"
+          placeholder="请输入外部地址"
+        ></apiot-input>
+      </el-form-item>
+      <el-form-item
+        label=""
+        v-if="activeObj.relateType === 3 && activeObj.outerLink"
+      >
+        <apiot-button class="paramsBtn" @click="addParams">
+          <i class="iconfont icon-shezhi m-r-4"></i>传入参数
+        </apiot-button>
+        <ul class="paramsList">
+          <li
+            class="paramsList__item"
+            v-for="(item, index) in activeObj.paramsArr"
+            :key="index"
+          >
+            <h1 class="paramsList__item--title">
+              传参{{ index + 1 }}
+              <i class="iconfont icon-shanchu" @click="deleteParams(index)"></i>
+            </h1>
+            <apiot-input
+              v-model="item.name"
+              class="paramsList__item--name"
+              placeholder="请输入传入参数名称"
+            ></apiot-input>
+            <div class="paramsList__item--box">
+              <el-select
+                v-model="item.type"
+                placeholder="请选择"
+                class="paramsList__item--sel"
+              >
+                <el-option label="固定值" :value="1"></el-option>
+                <el-option label="公式" :value="2"></el-option>
+              </el-select>
+              <apiot-input
+                v-model="item.fixed"
+                v-if="item.type === 1"
+                class="paramsList__item--fixed"
+                placeholder="请输入固定值"
+              ></apiot-input>
+              <select-formula
+                :configData="configData"
+                v-if="item.type === 2"
+                class="paramsList__item--formula"
+                :triggerCompMap="triggerCompMap"
+                v-model="item.formula"
+              ></select-formula>
+            </div>
+          </li>
+        </ul>
       </el-form-item>
       <el-form-item
         label="操作日志"
@@ -326,7 +423,7 @@
       </el-form-item>
       <el-form-item
         label="刷新类型"
-        v-show="![7, 8, 14].includes(activeObj.buttonType)"
+        v-show="![7, 8, 14].includes(activeObj.buttonType) && isShow"
       >
         <el-select v-model="activeObj.refreshType" placeholder="请选择">
           <el-option
@@ -367,7 +464,10 @@
           <el-option label="刷新当前区域" :value="5"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="" v-show="[8].includes(activeObj.buttonType)">
+      <el-form-item
+        label=""
+        v-show="[8].includes(activeObj.buttonType) && isShowNeedField"
+      >
         <p class="switchBox">
           导出数据库表字段
           <el-switch
@@ -398,7 +498,9 @@
       </el-form-item>
       <el-form-item
         label="业务文件字段配置"
-        v-if="[1, 2].includes(activeObj.downLoadType)"
+        v-if="
+          [1, 2].includes(activeObj.downLoadType) && activeObj.buttonType === 14
+        "
       >
         <el-select
           v-model="activeObj.fileColumns"
@@ -437,14 +539,21 @@
         label="导出设置"
         v-show="[8].includes(activeObj.buttonType)"
       >
-        <el-radio-group v-model="activeObj.exportSetting">
+        <el-radio-group v-model="activeObj.exportSetting" @change="handleRadio">
           <el-radio
             :label="item.value"
             :key="item.value"
-            v-for="item in exportSettingOption"
+            v-for="(item, i) in exportSettingOption"
             class="config__radio"
           >
             {{ item.name }}
+            <el-tooltip
+              content="导出的文件，无法重新导入"
+              placement="top"
+              v-show="i === 2 || i === 3"
+            >
+              <i class="iconfont icon-bangzhu" />
+            </el-tooltip>
           </el-radio>
         </el-radio-group>
       </el-form-item>
@@ -503,6 +612,7 @@
       :showOrHide="levelVisible"
       :value="activeObj.layeredStrategy"
       :filesOption="filesOption"
+      :tableName="getTableName"
       @saveLayeredStrategy="saveLayeredStrategy"
     />
   </div>
@@ -538,6 +648,7 @@ export default {
   },
   data() {
     return {
+      isShowNeedField: true,
       levelVisible: false,
       // 表字段
       filesOption: [],
@@ -613,6 +724,10 @@ export default {
         {
           label: '下载资料',
           value: 14
+        },
+        {
+          label: '打印',
+          value: 15
         }
       ],
       // 按钮表现形式
@@ -648,26 +763,58 @@ export default {
       selectColorArr: [],
       // 图标选择数组
       buttonIconArr: [
-        'iconfont-bianji',
-        'iconfont-fangda',
-        'iconfont-lishi',
-        'iconfont-piliangcaozuo',
-        'iconfont-daochu',
-        'iconfont-daoru',
-        'iconfont-qiehuan',
-        'iconfont-dayin',
-        'iconfont-shanchu',
-        'iconfont-qianyi',
-        'iconfont-xiazai',
-        'iconfont-shangchuan',
-        'iconfont-guanxiguanlian',
-        'iconfont-fuzhi',
-        'iconfont-zhengquequeding',
-        'iconfont-xinzeng',
-        'iconfont-suoxiao',
-        'iconfont-quxiaocuowu',
-        'iconfont-gengxin',
-        'iconfont-jibenxinxi'
+        'icon-bianji',
+        'icon-fangda',
+        'icon-lishi',
+        'icon-piliangcaozuo',
+        'icon-daochu',
+        'icon-daoru',
+        'icon-qiehuan',
+        'icon-dayin',
+        'icon-shanchu',
+        'icon-qianyi',
+        'icon-xiazai',
+        'icon-shangchuan',
+        'icon-guanxiguanlian',
+        'icon-fuzhi',
+        'icon-zhengquequeding',
+        'icon-xinzeng',
+        'icon-suoxiao',
+        'icon-quxiaocuowu',
+        'icon-gengxin',
+        'icon-jibenxinxi',
+        'icon-anniuicon_1',
+        'icon-anniuicon_2',
+        'icon-anniuicon_3',
+        'icon-anniuicon_4',
+        'icon-anniuicon_5',
+        'icon-anniuicon_6',
+        'icon-anniuicon_7',
+        'icon-anniuicon_8',
+        'icon-anniuicon_9',
+        'icon-anniuicon_10',
+        'icon-anniuicon_11',
+        'icon-anniuicon_12',
+        'icon-anniuicon_13',
+        'icon-anniuicon_14',
+        'icon-anniuicon_15',
+        'icon-anniuicon_16',
+        'icon-anniuicon_17',
+        'icon-anniuicon_18',
+        'icon-anniuicon_19',
+        'icon-anniuicon_20',
+        'icon-anniuicon_21',
+        'icon-anniuicon_22',
+        'icon-anniuicon_23',
+        'icon-anniuicon_24',
+        'icon-anniuicon_25',
+        'icon-anniuicon_26',
+        'icon-anniuicon_27',
+        'icon-anniuicon_28',
+        'icon-anniuicon_29',
+        'icon-anniuicon_30',
+        'icon-anniuicon_31',
+        'icon-anniuicon_32'
       ],
       buttonTips: [
         {
@@ -743,6 +890,14 @@ export default {
           value: 7
         },
         {
+          label: '更新当前树表',
+          value: 10
+        },
+        {
+          label: '关闭并更新上一页树表',
+          value: 11
+        },
+        {
           label: '刷新当前区域',
           value: 5
         }
@@ -809,6 +964,12 @@ export default {
     }
   },
   computed: {
+    getTableName() {
+      if (this.getParentObj(2).tableInfo) {
+        return this.getParentObj(2).tableInfo.tableName;
+      }
+      return '';
+    },
     getCompArr() {
       const arr = [];
       if (this.activeObj.isTabBtn) {
@@ -883,7 +1044,7 @@ export default {
                 block.children.forEach((comp) => {
                   if (
                     (comp.compType <= 10 && comp.singleStatus === 1) ||
-                    comp.dataSource.columnName === 'id'
+                    (comp.dataSource && comp.dataSource.columnName === 'id')
                   ) {
                     tempArr.push({
                       name: comp.name,
@@ -909,7 +1070,7 @@ export default {
           block.children.forEach((comp) => {
             if (
               (comp.compType <= 10 && comp.singleStatus === 1) ||
-              comp.dataSource.columnName === 'id'
+              (comp.dataSource && comp.dataSource.columnName === 'id')
             ) {
               tempArr.push({
                 name: comp.name,
@@ -975,6 +1136,20 @@ export default {
   },
 
   methods: {
+    handleRadio(v) {
+      if (v === 3 || v === 4) {
+        this.isShowNeedField = false;
+      } else {
+        this.isShowNeedField = true;
+      }
+    },
+    // 选择关联打印模板
+    async selectDict(dict) {
+      if (this.activeObj.printTemp && dict.id === this.activeObj.printTemp.id) {
+        return;
+      }
+      this.activeObj.printTemp = dict;
+    },
     saveLayeredStrategy(v) {
       this.activeObj.layeredStrategy = v;
       this.$set(this.activeObj, 'layeredStrategy', v);
@@ -1059,6 +1234,21 @@ export default {
         isTree: v.isTree === 1,
         sortId: v.sortId
       };
+    },
+    // 添加外部链接参数
+    addParams() {
+      if (!this.activeObj.paramsArr) {
+        this.activeObj.paramsArr = [];
+      }
+      this.activeObj.paramsArr.push({
+        name: '',
+        type: 1,
+        fixed: '',
+        formula: ''
+      });
+    },
+    deleteParams(index) {
+      this.activeObj.paramsArr.splice(index, 1);
     }
   }
 };
@@ -1240,5 +1430,49 @@ export default {
 }
 .config__radio:nth-child(1) {
   margin-top: 5px;
+}
+.paramsBtn {
+  width: 100%;
+  .iconfont {
+    color: $--color-primary;
+  }
+}
+.paramsList {
+  &__item {
+    &--title {
+      position: relative;
+      height: 30px;
+      line-height: 30px;
+      margin-top: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #333333;
+      i {
+        position: absolute;
+        right: 0;
+        font-weight: normal;
+        cursor: pointer;
+        color: #d9d9d9;
+        &:hover {
+          color: $--color-primary;
+        }
+      }
+    }
+    &--name {
+      margin-bottom: 8px;
+    }
+    &--box {
+      display: flex;
+      align-items: center;
+    }
+    &--sel {
+      width: 100px !important;
+      margin-right: 10px;
+    }
+    &--fixed,
+    &--formula {
+      flex: 1;
+    }
+  }
 }
 </style>

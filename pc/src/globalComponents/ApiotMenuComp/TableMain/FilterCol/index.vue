@@ -19,7 +19,7 @@
         class="filter__all filter__check"
       >
         <el-checkbox
-          v-for="item in getDictArr"
+          v-for="item in effectArr"
           :key="item.value"
           :label="item.name"
         ></el-checkbox>
@@ -29,7 +29,7 @@
         class="filter__all"
         v-model="startValue"
         type="daterange"
-        value-format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd HH:mm:ss"
         :picker-options="pickerOptions"
         range-separator="至"
         start-placeholder="开始日期"
@@ -48,7 +48,7 @@
     </div>
     <div class="filter__btns">
       <apiot-button @click="visible = false"> 取消 </apiot-button>
-      <apiot-button type="primary" @click="sureClick"> 确定 </apiot-button>
+      <apiot-button type="primary" @click.stop="sureClick"> 确定 </apiot-button>
     </div>
     <i
       slot="reference"
@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import { timeShortcuts } from '@/config';
+
 export default {
   name: '',
   props: {
@@ -82,53 +84,7 @@ export default {
       filterValue: '', // 最终使用值
       visible: false,
       pickerOptions: {
-        shortcuts: [
-          {
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '大于当前时间',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              end.setTime(end.getTime() + 3600 * 1000 * 24 * 365 * 100);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '小于当前时间',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365 * 100);
-              picker.$emit('pick', [start, end]);
-            }
-          }
-        ]
+        shortcuts: timeShortcuts
       }
     };
   },
@@ -146,6 +102,19 @@ export default {
   computed: {
     getDictArr() {
       return this.$store.getters.getCurDict(this.configData.dataSource.dictObj.dictKey);
+    },
+    // 生效字典数组
+    effectArr() {
+      if (this.configData.effectDict && this.configData.effectDict.length) {
+        const arr = this.getDictArr.filter((item) => {
+          if (this.configData.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      return this.getDictArr;
     },
     getState() {
       return Array.isArray(this.filterValue) ? this.filterValue.length : this.filterValue;
@@ -224,13 +193,13 @@ export default {
       comp = JSON.parse(JSON.stringify(comp));
       if (comp.compType === 15) {
         // 启用字典
-        if (comp.enableDict) {
-          // 字典选择
-          comp.compType = 4;
-        } else if (comp.dataSource.relateName === '主表') {
+        if (comp.dataSource.relateName === '主表') {
           if (comp.enableMultiColumn) {
             // 数据多选框
             comp.compType = 7;
+          } else if (comp.enableDict) {
+            // 字典选择
+            comp.compType = 4;
           } else if (comp.dataSource.columnTypeDict === '3') {
             // 日期时间选择框
             comp.compType = 9;
@@ -298,6 +267,11 @@ export default {
     show() {
       if (this.filterValue !== this.startValue) {
         this.startValue = this.filterValue;
+      } else if (this.configData.enableDict) {
+        if (!this.startValue) {
+          this.startValue = [];
+          this.filterValue = [];
+        }
       }
       if (this.$parent.$parent.$parent.$parent.hideOtherFilter) {
         this.$parent.$parent.$parent.$parent.hideOtherFilter(this.configData.compId);
@@ -315,7 +289,7 @@ export default {
       let value = this.filterValue;
       if (this.type === 2) {
         const arr = [];
-        this.getDictArr.forEach((dict) => {
+        this.effectArr.forEach((dict) => {
           if (this.startValue.includes(dict.name)) {
             arr.push(dict.value);
           }
@@ -329,9 +303,10 @@ export default {
         });
         return;
       }
+
       const arr = this.createColumn(this.configData, value);
       // 清除高级搜索，普通搜索
-      this.$emit('clearSearch', this.onlyFlag(), this.grandFather.compId, false);
+      this.$bus.$emit('clearSearch', this.onlyFlag(), this.grandFather.compId, false);
       // 传递arr，到列表更新列表
       this.$bus.$emit('reloadArea', 'filterList', this.onlyFlag(), this.grandFather.compId, {
         compId: this.configData.compId,

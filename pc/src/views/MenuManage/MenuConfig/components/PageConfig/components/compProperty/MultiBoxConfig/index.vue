@@ -65,6 +65,23 @@
           <el-option label="降序" :value="2"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="字典生效值" v-if="activeObj.dataSource.dictObj">
+        <el-select
+          v-model="activeObj.effectDict"
+          :multiple="true"
+          :collapse-tags="true"
+          placeholder="请选择字典生效值"
+          :clearable="true"
+          @change="efffectChange"
+        >
+          <el-option
+            :label="item.name"
+            :value="item.value"
+            v-for="item in defaultValueArr"
+            :key="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="默认值" v-if="activeObj.dataSource.dictObj">
         <el-select
           v-model="fatherObj.form[activeObj.compId]"
@@ -75,7 +92,7 @@
           <el-option
             :label="item.name"
             :value="item.value"
-            v-for="item in defaultValueArr"
+            v-for="item in effectArr"
             :key="item.value"
           ></el-option>
         </el-select>
@@ -108,6 +125,18 @@
           >
         </el-select>
       </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -132,6 +161,18 @@
             >隐藏</el-button
           >
         </el-button-group>
+      </el-form-item>
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
       </el-form-item>
       <el-form-item
         label="最小宽度"

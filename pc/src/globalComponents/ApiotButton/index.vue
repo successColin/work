@@ -28,6 +28,10 @@ export default {
   mounted() {},
   methods: {
     removeFocus() {
+      const isTouch = 'ontouchend' in document;
+      if (isTouch) {
+        return;
+      }
       const input = document.getElementById('removeFocus') || this.createFocusInput();
       input.focus();
     },

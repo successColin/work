@@ -10,11 +10,22 @@
           @blur="nameBlur"
         ></apiot-input>
       </el-form-item>
-      <el-form-item v-if="false">
+      <el-form-item style="margin-bottom: 0">
+        <p class="switchBox">
+          显示标题
+          <el-switch
+            v-model="activeObj.showLabelTitle"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
+      <el-form-item>
         <span slot="label">
           <span class="span-box">
-            <span> 占位提示 </span>
-            <i class="iconfont icon-bangzhu" />
+            <span> 按钮提示 </span>
           </span>
         </span>
         <el-input
@@ -144,8 +155,8 @@
               v-model="activeObj.maxFileCount"
               :controls="false"
               :precision="0"
-              :min="1"
-              :max="10"
+              :min="activeObj.compType === 24 ? 1 : 0"
+              :max="20"
             ></el-input-number>
           </div>
         </div>

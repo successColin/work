@@ -10,7 +10,7 @@
   <div class="uploadGather">
     <div class="cUploadWrap" v-if="!isPublic">
       <div class="uploadImage" v-if="url">
-        <el-image :src="url"></el-image>
+        <el-image :src="$parseImgUrl(url)"></el-image>
         <div class="fileModal">
           <span class="icon-shanchu iconfont" @click="handleRemove"></span>
         </div>
@@ -33,7 +33,7 @@
           <div slot="file" slot-scope="{ file }">
             <img
               class="el-upload-list__item-thumbnail"
-              :src="file.url"
+              :src="$parseImgUrl(file.url)"
               alt=""
             />
             <span class="el-upload-list__item-actions">
@@ -61,7 +61,7 @@
           </div>
         </el-upload>
         <el-dialog :visible.sync="dialogVisible">
-          <img width="100%" :src="dialogImageUrl" alt="" />
+          <img width="100%" :src="$parseImgUrl(dialogImageUrl)" alt="" />
         </el-dialog>
       </div>
     </div>

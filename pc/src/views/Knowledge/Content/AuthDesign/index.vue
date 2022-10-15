@@ -46,7 +46,7 @@
             ></el-tab-pane>
           </el-tabs>
           <div class="tabs__content__type">
-            <div class="tabs__content__search">
+            <div class="tabs__content__search" style="padding-right: 0;">
               <search-input
                 style="width: 226px; margin: 0 auto; float: none"
                 @getList="doSearch"
@@ -352,6 +352,7 @@ export default {
     },
     handleClick({ name }) {
       this.activeName = name;
+      this.input = '';
     },
     doSearch() {
       // 进行模糊查询
@@ -498,14 +499,14 @@ export default {
       height: 42px;
       padding-right: 10px;
       line-height: 42px;
-      text-align: right;
+      //text-align: right;
       overflow: hidden;
       box-sizing: border-box;
-      ::v-deep {
-        .icon-sousuo {
-          right: 15px;
-        }
-      }
+      //::v-deep {
+      //  .icon-sousuo {
+      //    right: 15px;
+      //  }
+      //}
     }
     &__batch {
       margin-right: 10px;

@@ -163,6 +163,35 @@ export function switchMenu(data) {
   });
 }
 
-export function getInfoById() {
-  return fetch.request({});
+/**
+ * 获取公告列表
+ * @returns {*}
+ */
+export function getNoticeGroup(params) {
+  return fetch.request({
+    url: query.GET_ANNOUNCEMENT_LIST,
+    params
+  });
+}
+/**
+ * 获取公告列表
+ * @returns {*}
+ */
+export function getNoticeListById(params) {
+  return fetch.request({
+    url: query.GET_NOTICE_LIST_BY_ID,
+    params
+  });
+}
+
+/**
+ * 获取公告详情
+ * @param params
+ * @returns {*}
+ */
+export function getNoticeDetial(params) {
+  return fetch.request({
+    url: query.LOOK_DETIAL_NOTICE,
+    params
+  });
 }

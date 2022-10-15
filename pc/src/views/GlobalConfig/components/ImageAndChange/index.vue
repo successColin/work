@@ -17,7 +17,7 @@
       <div slot="file" slot-scope="{ file }">
         <el-image
           class="el-upload-list__item-thumbnail"
-          :src="file.url"
+          :src="$parseImgUrl(file.url)"
           fit="cover "
         ></el-image>
         <span class="el-upload-list__item-actions">
@@ -90,7 +90,9 @@ export default {
         if (!old && !!newValue && newValue.attributeValue) {
           // eslint-disable-next-line max-len
           this.fileList = [
-            { url: newValue.attributeValue.substr(0, newValue.attributeValue.length - 1) }
+            {
+              url: newValue.attributeValue.substr(0, newValue.attributeValue.length - 1)
+            }
           ];
         }
         if (
@@ -123,6 +125,7 @@ export default {
       });
     },
     handleChange(response, file) {
+      console.log(file);
       this.fileList.push(file);
       this.$emit('uploadSuccess');
     },

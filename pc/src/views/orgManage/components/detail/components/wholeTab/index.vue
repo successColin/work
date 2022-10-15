@@ -13,6 +13,7 @@
       v-if="listData.length>0"
       :listData.sync="listData"
       v-on="$listeners"
+      type="whole"
       v-bind="$attrs">
     </user-list>
     <apiot-pagination

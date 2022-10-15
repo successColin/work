@@ -58,6 +58,7 @@ const RealTime = () => import('../../components/RealTime/index');
 const AuxiliaryLine = () => import('../../components/Line/index');
 const HorizontalProgressBar = () => import('../../components/HorizontalProgressBar/index');
 const RadarChart = () => import('../../components/RadarChart/index');
+const Notice = () => import('../../components/Notice/index');
 
 export default {
   props: {
@@ -108,7 +109,8 @@ export default {
     BackgroundBox,
     HorizontalProgressBar,
     RadarChart,
-    AuxiliaryLine
+    AuxiliaryLine,
+    Notice
   },
 
   computed: {},

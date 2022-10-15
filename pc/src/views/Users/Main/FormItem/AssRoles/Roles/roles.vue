@@ -2,38 +2,45 @@
 <template>
   <div class="orgWrap" v-loading="loading">
     <div class="selectArrWrap" v-show="selectKeys.length">
-      <el-tag
+      <apiot-tag
         size="mini"
         v-for="tag in selectKeys"
         :key="tag.id"
         closable
-        @close="handleClose(tag)"
+        :itemTheme="2"
+        @deleteSelf="handleClose(tag)"
       >
         <i class="iconfont icon-jiaose"></i>{{ tag.roleName }}
-      </el-tag>
+      </apiot-tag>
     </div>
     <div class="orgWrapTitleAndSearch">
       <div class="orgWrapTitleAndSearch__title">{{ $t('user.RoleList') }}</div>
       <div class="orgWrapTitleAndSearch__search">
-        <el-input
-          ref="btn"
-          :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="input"
-          @keyup.enter.native="doSearch"
-          @blur="isActive = false"
-          @focus="isActive = true"
-          @input="reset"
-        >
-          <i
-            slot="prefix"
-            class="iconfont icon-sousuo"
-            :class="isActive ? 'on' : ''"
-            @click="doSearch"
-          ></i>
-        </el-input>
+<!--        <el-input-->
+<!--          ref="btn"-->
+<!--          :placeholder="$t('placeholder.pleaseEnterkeySearch')"-->
+<!--          v-model="input"-->
+<!--          @keyup.enter.native="doSearch"-->
+<!--          @blur="isActive = false"-->
+<!--          @focus="isActive = true"-->
+<!--          @input="reset"-->
+<!--        >-->
+<!--          <i-->
+<!--            slot="prefix"-->
+<!--            class="iconfont icon-sousuo"-->
+<!--            :class="isActive ? 'on' : ''"-->
+<!--            @click="doSearch"-->
+<!--          ></i>-->
+<!--        </el-input>-->
+        <search-input
+            :placeholder="$t('placeholder.pleaseEnterkeySearch')"
+            @getList="doSearch"
+            v-model="input"
+        ></search-input>
       </div>
     </div>
     <div class="listWrap">
+      <apiot-nodata v-if="!rolesList.length"></apiot-nodata>
       <div
         v-for="list in rolesList"
         :key="list.id"
@@ -92,12 +99,12 @@ export default {
       roleName: ''
     };
     this.init(params);
-    this.$refs.btn.$el.onkeydown = () => {
-      const _key = window.event.keyCode;
-      if (_key === 13) {
-        return false;
-      }
-    };
+    // this.$refs.btn.$el.onkeydown = () => {
+    //   const _key = window.event.keyCode;
+    //   if (_key === 13) {
+    //     return false;
+    //   }
+    // };
     this.selectKeys = JSON.parse(JSON.stringify(this.roles));
     // console.log(this.roles);
   },
@@ -217,27 +224,27 @@ export default {
 
     .orgWrapTitleAndSearch__search {
       float: right;
-      text-align: right;
+      //text-align: right;
 
       .on {
         color: $--color-primary;
       }
 
-      ::v-deep {
-        .el-input__inner {
-          width: 98%;
-          height: 30px;
-          padding-left: 12px;
-          font-size: 14px;
-          cursor: pointer;
-        }
-
-        .el-input__prefix {
-          left: auto;
-          right: 15px;
-          cursor: pointer;
-        }
-      }
+      //::v-deep {
+      //  .el-input__inner {
+      //    width: 98%;
+      //    height: 30px;
+      //    padding-left: 12px;
+      //    font-size: 14px;
+      //    cursor: pointer;
+      //  }
+      //
+      //  .el-input__prefix {
+      //    left: auto;
+      //    right: 15px;
+      //    cursor: pointer;
+      //  }
+      //}
     }
   }
 
@@ -257,6 +264,7 @@ export default {
       font-weight: 400;
       color: #333333;
       box-sizing: border-box;
+      cursor: pointer;
 
       ::v-deep {
         .el-checkbox {

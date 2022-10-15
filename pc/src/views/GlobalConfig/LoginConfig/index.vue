@@ -99,7 +99,11 @@
               </div>
             </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
-            <div v-if="[2, 4, 5].includes(i)" style="flex: none" class="common">
+            <div
+              v-if="[2, 4, 5, 9].includes(i)"
+              style="flex: none"
+              class="common"
+            >
               <apiot-radio
                 @change="(value) => changeRadio(value, item.key)"
                 v-model="params[item.key]"
@@ -175,7 +179,7 @@
                   fit="cover"
                   v-if="backgroundImg"
                   style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="backgroundImg"
+                  :src="$parseImgUrl(backgroundImg)"
                   class="userImage m-r-4"
                 >
                 </el-image>
@@ -198,7 +202,7 @@
               </apiot-button>
             </div>
             <!-- 登录页主题色 -->
-            <div v-if="i === 9" class="common">
+            <div v-if="i === 10" class="common">
               <div class="colorWrap">
                 <div
                   class="colorBox"
@@ -218,13 +222,13 @@
               </div>
             </div>
             <!-- 登录页LOGO -->
-            <div v-if="i === 10" class="passwordConfig__logo common">
+            <div v-if="i === 11" class="passwordConfig__logo common">
               <div v-if="!statement.isRegistration">
                 <el-image
                   fit="cover"
                   v-if="loginImg"
                   style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="loginImg"
+                  :src="$parseImgUrl(loginImg)"
                   class="userImage m-r-4"
                 >
                 </el-image>
@@ -247,13 +251,13 @@
             </div>
 
             <!-- 登录页轮播图 -->
-            <div v-if="i === 11" class="passwordConfig__logo common">
+            <div v-if="i === 12" class="passwordConfig__logo common">
               <div v-if="!statement.isLoopPics">
                 <el-image
                   v-for="(item, i) in loopMaps"
                   class="userImage m-r-4"
                   style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="item.url"
+                  :src="$parseImgUrl(item.url)"
                   :key="item.url + '__' + i"
                   fit="cover"
                 ></el-image>
@@ -275,7 +279,7 @@
                 <div slot="file" slot-scope="{ file }">
                   <img
                     class="el-upload-list__item-thumbnail"
-                    :src="file.url"
+                    :src="$parseImgUrl(file.url)"
                     alt=""
                   />
                   <span class="el-upload-list__item-actions">
@@ -294,6 +298,26 @@
                 @click="handleChangeCount('isLoopPics')"
               >
                 {{ changeBtnName(statement.isLoopPics) }}
+              </apiot-button>
+            </div>
+
+            <!-- 系统标题 -->
+            <div v-if="i === 13" class="common">
+              <div v-if="!statement.isSysTitle">
+                {{ sysTitle }}
+              </div>
+              <apiot-input
+                :style="selectWidth"
+                v-else
+                v-model="sysTitle"
+                @change="handleChangeSelectVal('sysTitle', $event)"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isSysTitle', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isSysTitle) }}
               </apiot-button>
             </div>
           </li>
@@ -335,6 +359,7 @@ export default {
       statement: {
         // 状态集合
         isRecord: false, // 备案号
+        isSysTitle: false, // 系统标题
         isRegistration: false, // 登录页
         isLoopPics: false, // l轮播图
         isClickErrorCount: false, // 错误次数点击
@@ -346,6 +371,7 @@ export default {
       loginObj: {}, // login url
       loginWidth: 20, // logo宽度
       record: '备案号', // 备案号
+      sysTitle: 'V10', // 系统标题
       errorCount: 1, // 错误次数
       onlineTimeOptionsArr: [
         {
@@ -464,9 +490,15 @@ export default {
         },
         {
           name: this.$t('globalConfig.styleBackgroundImage'),
-          col: 24,
+          col: 12,
           key: 'backgroundImage',
           attributeKey: 'backgroundImage'
+        },
+        {
+          name: this.$t('globalConfig.enableLoginFirst'),
+          col: 12,
+          key: 'enableLoginFirstPc',
+          attributeKey: 'enableLoginFirstPc'
         },
         {
           name: this.$t('globalConfig.themeColor'),
@@ -483,6 +515,11 @@ export default {
           name: this.$t('globalConfig.loginCarousel'),
           col: 24,
           attributeKey: 'loginLoopMaps'
+        },
+        {
+          name: this.$t('globalConfig.loginTitle'),
+          col: 24,
+          attributeKey: 'systemTitle'
         }
       ];
     },
@@ -568,6 +605,7 @@ export default {
     async init() {
       this.loading = true;
       await this.$store.dispatch('getCurrentDict', 'SCAN_TYPE,SSO_TYPE_PC');
+      this.$store.dispatch('getLoginConfigFun');
       this.scanTypeArr = this.$store.getters.getCurDict('SCAN_TYPE'); // 扫码类型
       this.ssoTypePcArr = this.$store.getters.getCurDict('SSO_TYPE_PC'); // 单点登录类型
       const res = await getListByKey({ parameterKey: 'LOGIN' });
@@ -576,6 +614,7 @@ export default {
       const errorObj =
         this.response.find((item) => item.attributeKey === 'sliderErrorsCount') || {};
       const recordObj = this.response.find((item) => item.attributeKey === 'record') || {};
+      const sysObj = this.response.find((item) => item.attributeKey === 'systemTitle') || {};
       const enableRegistrationObj =
         this.response.find((item) => item.attributeKey === 'enableRegistration') || {};
       const scanType = this.response.find((item) => item.attributeKey === 'scanType') || {};
@@ -591,6 +630,8 @@ export default {
       const logoObj = this.response.find((item) => item.attributeKey === 'loginLogo') || {};
       const backgroundObj =
         this.response.find((item) => item.attributeKey === 'backgroundImage') || {};
+      const enableLoginFirstPc =
+        this.response.find((item) => item.attributeKey === 'enableLoginFirstPc') || {};
       const logoObjWidth =
         this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
       const zzdConfig = this.response.find((item) => item.attributeKey === 'zzdConfig') || {};
@@ -607,7 +648,8 @@ export default {
         ...this.params,
         enableRegistration: enableRegistrationObj.attributeValue,
         enableForgetPassword: enableForgetPasswordObj.attributeValue,
-        enableMultilingual: enableMultilingual.attributeValue
+        enableMultilingual: enableMultilingual.attributeValue,
+        enableLoginFirstPc: enableLoginFirstPc.attributeValue
       };
       this.errorCount = Number(errorObj.attributeValue);
       this.loginStyle = Number(styleObj.attributeValue);
@@ -616,6 +658,7 @@ export default {
       this.stylePercentage = Number(stylePercentage.attributeValue);
       this.themeColor = Number(themeColorObj.attributeValue);
       this.record = recordObj.attributeValue;
+      this.sysTitle = sysObj.attributeValue;
       this.loginObj = logoObj;
       this.backgroundImageObj = backgroundObj;
       this.loginWidth = Number(logoObjWidth.attributeValue);
@@ -728,6 +771,12 @@ export default {
             attributeValue: this.record
           };
         }
+        if (key === 'isSysTitle') {
+          params = {
+            ...currentObj,
+            attributeValue: this.sysTitle
+          };
+        }
         if (key === 'isBackgroundImage') {
           // 登录logo保存
           await this.logoSave(attr);
@@ -784,6 +833,9 @@ export default {
             type: 'success',
             message: this.$t('common.successfullyModified')
           });
+          if (key === 'isSysTitle') {
+            document.title = this.sysTitle || 'V10';
+          }
         } catch (e) {
           this.loading = false;
         }
@@ -805,6 +857,8 @@ export default {
         this.loginStyle = val;
       } else if (name === 'stylePercentage') {
         this.stylePercentage = val;
+      } else if (name === 'sysTitle') {
+        this.sysTitle = val;
       }
     }
   },

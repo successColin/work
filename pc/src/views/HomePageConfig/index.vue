@@ -7,24 +7,34 @@
 */
 <!-- 页面 -->
 <template>
-  <div
+  <apiot-content
     class="menu"
     :asideLoading="asideLoading"
     :contentLoading="contentLoading"
   >
+    <template v-slot:sidebar>
+      <apiot-sidebar
+          ref="sidebar"
+          :isNeedAdd="false"
+          :isNeedNum="false"
+          :isNeedMove="false"
+          :isNeedOperate="false"
+          :groupList="gropList"
+          @selectList="selectList"
+      ></apiot-sidebar>
+    </template>
     <template>
       <section
         class="menu__wrapper"
-        :class="[{ apiotNoData: !menuArr.length }]"
       >
         <header class="menu__header">
           <apiot-button type="primary" @click="addMenu">
             <i class="iconfont icon-xinzeng m-r-4"></i>新增页面
           </apiot-button>
-          <search-input @getList="getList" v-model="keywords"></search-input>
+          <search-input @getList="sysMenuList" v-model="keywords"></search-input>
         </header>
 
-        <section class="menu__content">
+        <section class="menu__content" :class="[{ apiotNoData: !menuArr.length }]">
           <draggable
             v-model="menuArr"
             group="menu"
@@ -44,7 +54,7 @@
                 class="m-r-14"
                 :groupName="groupName"
                 :groupId="270"
-                @getList="getList"
+                @getList="sysMenuList"
                 @addCancle="addCancle"
                 @addSure="addSure"
                 @editSure="editSure"
@@ -55,7 +65,7 @@
         </section>
       </section>
     </template>
-  </div>
+  </apiot-content>
 </template>
 
 <script>
@@ -72,8 +82,19 @@ import MenuCard from './components/MenuCard';
 export default {
   data() {
     return {
+      groupType: null, // 分组类型
+      gropList: [
+        {
+          id: 1,
+          name: 'PC端',
+        },
+        {
+          id: 2,
+          name: '移动端',
+        },
+      ],
       loading: false,
-      asideLoading: true,
+      asideLoading: false,
       contentLoading: true,
       keywords: '',
       groupId: 1,
@@ -95,10 +116,19 @@ export default {
   computed: {},
 
   mounted() {
-    this.getList();
+    this.$nextTick(() => {
+      const { customItem } = sessionStorage;
+      this.$refs.sidebar.selectList(customItem ? JSON.parse(customItem) : this.gropList[0]);
+    });
   },
 
   methods: {
+    selectList(item) {
+      sessionStorage.customItem = JSON.stringify(item);
+      const { id } = item;
+      this.groupType = id;
+      this.sysMenuList(id);
+    },
     // 添加菜单
     addMenu() {
       this.menuArr.unshift({
@@ -112,6 +142,7 @@ export default {
           color: '',
           imageUrl: ''
         },
+        clientType: this.groupType,
         sno: 0 // 如果只有一个sno从0开始
       });
     },
@@ -121,24 +152,21 @@ export default {
     },
     // 确认新增
     addSure({ menuName, icon }) {
-      console.log(icon);
       const params = {
         menuName,
         // icon,
         colour: icon.color,
         designJson: 0,
         imageName: icon.icon,
-        imageUrl: icon.imageUrl
+        imageUrl: icon.imageUrl,
+        clientType: this.groupType,
+        sno: this.menuArr.length
       };
       this.sysMenuAdd(params);
     },
     // 确认编辑
     editSure(params) {
       this.sysMenuEdit(params);
-    },
-    // 获取数据
-    getList() {
-      this.sysMenuList();
     },
     // 删除菜单
     async deleteMenu(index) {
@@ -151,7 +179,8 @@ export default {
         id: this.menuArr[index].id
       });
       this.transitionName = 'move-right';
-      this.menuArr.splice(index, 1);
+      // this.menuArr.splice(index, 1);
+      await this.sysMenuList();
       // this.$store.dispatch('getRoute');
     },
     // 改变分组
@@ -208,6 +237,7 @@ export default {
       this.switchLocation({
         id: this.backMenuArr[evt.oldIndex].id,
         aimSno: this.backMenuArr[evt.newIndex].sno,
+        clientType: this.groupType,
         logData: {
           operateType: 4,
           name: this.$t('menu.menu'),
@@ -220,8 +250,12 @@ export default {
       try {
         this.contentLoading = true;
         this.transitionName = 'fadeInUp';
-        const data = await getFunctionList({ keywords: this.keywords });
+        const data = await getFunctionList({ keywords: this.keywords, clientType: this.groupType });
         this.contentLoading = false;
+        if (!data.length) {
+          this.menuArr = [];
+          return;
+        }
         data.forEach((item) => {
           const { colour, imageUrl, imageName } = item;
           item.state = 1;
@@ -232,9 +266,7 @@ export default {
             color: colour
           };
         });
-        if (data.length) {
-          this.menuArr = data;
-        }
+        this.menuArr = data;
       } catch (error) {
         this.contentLoading = false;
       }
@@ -244,20 +276,23 @@ export default {
       try {
         this.contentLoading = true;
         this.transitionName = 'move-right';
-        const data = await saveFunction(params);
+        await saveFunction(params);
+        await this.sysMenuList();
+        // const data = await saveFunction(params);
         this.contentLoading = false;
 
-        if (this.menuArr.length > 1) {
-          this.menuArr = [];
-          await this.switchLocation({
-            id: data.id,
-            aimSno: data.sno
-          });
-          await this.sysMenuList();
-        } else {
-          this.menuArr = [];
-          await this.sysMenuList();
-        }
+        // if (this.menuArr.length > 1) {
+        //   this.menuArr = [];
+        //   await this.switchLocation({
+        //     id: data.id,
+        //     aimSno: data.sno,
+        //     clientType: this.groupType,
+        //   });
+        //   await this.sysMenuList();
+        // } else {
+        //   this.menuArr = [];
+        //   await this.sysMenuList();
+        // }
         this.$message({
           type: 'success',
           message: this.$t('common.success', {
@@ -287,6 +322,7 @@ export default {
           imageUrl: icon.imageUrl,
           parentId,
           menuName,
+          clientType: this.groupType,
           id,
           enabled,
           menuCode,
@@ -336,10 +372,11 @@ export default {
     // 修改排序
     async switchLocation(params) {
       await switchMenu(params);
+      await this.sysMenuList();
     },
     // 上传成功
     async uploadSuccess() {
-      await this.getList();
+      await this.sysMenuList();
       this.loading = false;
       this.$message({
         type: 'success',

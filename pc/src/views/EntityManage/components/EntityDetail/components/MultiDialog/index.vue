@@ -61,6 +61,7 @@
         @change-selectd="changeSelectd"
         @tableInited="tableInited"
         @select-all="selectAll"
+        :lineSelect="true"
         dropClass=".multi__table"
         ref="multiDialogTable"
       >
@@ -97,6 +98,10 @@ export default {
       default() {
         return [];
       }
+    },
+    multiVisible: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -230,6 +235,14 @@ export default {
       this.currentMultiArr.splice(index, 1);
       this.currentMulti = this.getCurrntMultiArr.join(',');
       this.$refs.multiDialogTable.toggleRowSelection(this.tableData[index], false);
+    }
+  },
+
+  watch: {
+    multiVisible(v) {
+      if (!v) {
+        this.keyWord = '';
+      }
     }
   }
 };

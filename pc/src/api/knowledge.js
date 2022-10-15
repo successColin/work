@@ -47,6 +47,15 @@ export function getFileList(params) {
   });
 }
 
+// 分页获取列表
+export function getAllFileList(params) {
+  return fetch.request({
+    url: query.GET_KNOWLEDGE_ALL_LIST_BY_PAGE,
+    method: 'get',
+    params,
+  });
+}
+
 // 文件删除
 export function delFiles(data) {
   return fetch.request({
@@ -310,5 +319,15 @@ export function getHistory(data) {
     method: 'POST',
     data,
     url: '/system/materials/getHistory',
+  });
+}
+
+// 搜索关联资料列表
+export function downloadSingle(params) {
+  return fetch.request({
+    method: 'get',
+    params,
+    responseType: 'blob',
+    url: '/system/waterMark/addWaterMark',
   });
 }

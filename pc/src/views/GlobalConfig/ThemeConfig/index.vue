@@ -35,6 +35,7 @@
               <ApiotSwitch
                 v-model="$store.state.globalConfig.themeConfig[item.attr]"
                 @change="(value) => changeRadio(value, item.attr)"
+                inactivevalue="0"
               ></ApiotSwitch>
               <image-and-change
                 class="m-l-10 m-r-10"
@@ -164,14 +165,37 @@
             </div>
             <div v-else-if="i === 12" class="common">
               <div v-if="!statement.istopStyle">
-                {{ $store.state.globalConfig.themeConfig.topStyle }}
+                {{
+                  getTopStyleName(
+                    $store.state.globalConfig.themeConfig.topStyle
+                  )
+                }}
               </div>
-              <div v-else>
-                <apiot-select
+              <div v-else style="display: flex">
+                <el-select
                   style="width: 200px"
                   v-model="$store.state.globalConfig.themeConfig.topStyle"
-                  :options="topStyleArr"
-                ></apiot-select>
+                >
+                  <el-option
+                    v-for="item in topStyleArr"
+                    :key="item.value"
+                    :label="item.name"
+                    :value="item.value"
+                  >
+                  </el-option>
+                </el-select>
+                <image-and-change
+                  class="m-l-10 m-r-10"
+                  style="width: auto"
+                  v-if="$store.state.globalConfig.themeConfig.topStyle === '3'"
+                  ref="topStyleIcon"
+                  :imgObj="{
+                    attributeValue:
+                      $store.state.globalConfig.themeConfig.topStyleIcon,
+                  }"
+                  :isSmall="true"
+                  :showSlider="false"
+                />
               </div>
               <apiot-button
                 type="text"
@@ -187,7 +211,7 @@
                 <el-image
                   fit="cover"
                   style="width: 48px; height: 48px; border-radius: 4px"
-                  :src="loginImg"
+                  :src="$parseImgUrl(loginImg)"
                   v-if="loginImg"
                   class="userImage m-r-4"
                 >
@@ -317,19 +341,32 @@ export default {
         {
           name: this.$t('globalConfig.menuModuleMode'),
           value: 3
+        },
+        {
+          name: this.$t('globalConfig.menuShrinkMode'),
+          value: 4
         }
       ],
       imgObj: {
         enableMessageIcon: {},
         enableApprovalProcessIcon: {},
         enableHelpCenterIcon: {},
-        enableFullScreenIcon: {}
+        enableFullScreenIcon: {},
+        topStyleIcon: {}
       },
       checkList: [],
       topStyleArr: [
         {
-          name: '智能运维',
-          value: '智能运维'
+          name: '默认',
+          value: '1'
+        },
+        {
+          name: '无底图',
+          value: '2'
+        },
+        {
+          name: '自定义样式',
+          value: '3'
         }
       ],
       topHeight: 50
@@ -472,6 +509,21 @@ export default {
         const obj = options.find((item) => item.value === val);
         return obj && obj.name;
       };
+    },
+    // 获取系统顶部显示值
+    getTopStyleName() {
+      return (v) => {
+        const obj = this.topStyleArr.find((item) => {
+          if (item.value === v) {
+            return true;
+          }
+          return false;
+        });
+        if (obj) {
+          return obj.name;
+        }
+        return v;
+      };
     }
   },
   methods: {
@@ -548,6 +600,7 @@ export default {
       }
       if (key === 'istopStyle') {
         this.changeRadio(this.$store.state.globalConfig.themeConfig.topStyle, 'topStyle');
+        this.uploadSuccess('topStyleIcon');
       }
       if (key === 'isSocketUrl') {
         await this.changeRadio(this.$store.state.globalConfig.themeConfig.socketUrl, 'socketUrl');

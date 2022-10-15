@@ -12,6 +12,7 @@
         highlight-current
         lazy
         :load="loadNode"
+        :default-expanded-keys="defaultExpandedKeys"
         :expand-on-click-node="true"
         :render-content="renderContent"
         :props="defaultProps"
@@ -36,6 +37,7 @@ export default {
   },
   data() {
     return {
+      defaultExpandedKeys: [],
       defaultProps: {
         label: 'name',
         children: 'childList',
@@ -127,6 +129,7 @@ export default {
         this.$nextTick(() => {
           this.highLightKey = newRes.length ? newRes[0].rootPath : null;
           this.$refs.tree.setCurrentKey(this.highLightKey);
+          this.defaultExpandedKeys = this.highLightKey ? [this.highLightKey] : [];
           this.$bus.$emit(`selectTreeNode_${this.isolationSign}`, newRes[0] || {});
         });
         this.loading = false;
@@ -229,6 +232,9 @@ export default {
       &:hover {
         background: $--hover-color;
       }
+    }
+    .el-tree__empty-block{
+      min-height: 300px !important;
     }
   }
 }

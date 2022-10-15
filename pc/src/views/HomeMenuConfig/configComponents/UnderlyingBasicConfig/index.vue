@@ -14,6 +14,19 @@
     <div class="config__content">
       <div class="singleLineTextConfig">
         <el-form label-position="top" :model="config">
+          <el-form-item label="常用尺寸" v-if="isApp">
+            <el-select
+                :value="computedSize"
+                @change="changeSize"
+                placeholder="请选择尺寸">
+              <el-option
+                  :label="item.label"
+                  :value="item.value"
+                  v-for="item in appSizeOptions"
+                  :key="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="尺寸">
             <div class="tile">
               <div class="tile--item">
@@ -106,6 +119,20 @@
           <el-form-item label="阴影颜色" v-if="config.enableShadows">
             <CColorPicker v-model="config.shadowColor"></CColorPicker>
           </el-form-item>
+          <el-form-item label="背景图片">
+            <c-upload
+                :before-upload="beforeAvatarUpload"
+                @changeScreenBg="changeScreenBgUrl"
+                accept=".png,.jpg,.jpeg"
+                :url="config.bgImage"
+            >
+              <template v-slot:tip>
+                <div class="el-upload__tip">
+                  只能上传png,jpg,jpeg图片，且不超过5MB
+                </div>
+              </template>
+            </c-upload>
+          </el-form-item>
         </el-form>
       </div>
     </div>
@@ -114,6 +141,7 @@
 
 <script>
 import CColorPicker from '../../basicWidgets/CColorPicker/index';
+import CUpload from '../../basicWidgets/CUpload/index';
 
 export default {
   props: {
@@ -137,19 +165,94 @@ export default {
           label: '按设计图比例显示',
           value: 4
         }
+      ],
+      appSizeOptions: [
+        {
+          label: '自定义',
+          value: ''
+        },
+        {
+          label: '360*640',
+          value: '360*640'
+        },
+        {
+          label: '360*720',
+          value: '360*720'
+        },
+        {
+          label: '360*760',
+          value: '360*760'
+        },
+        {
+          label: '375*667',
+          value: '375*667'
+        },
+        {
+          label: '375*812',
+          value: '375*812'
+        },
+        {
+          label: '414*736',
+          value: '414*736'
+        },
+        {
+          label: '414*896',
+          value: '414*896'
+        }
       ]
     };
   },
   components: {
-    CColorPicker
+    CColorPicker,
+    CUpload
   },
 
-  computed: {},
+  computed: {
+    isApp() {
+      const { clientType } = sessionStorage;
+      return +clientType === 2;
+    },
+    computedSize() {
+      const { width, height } = this.config;
+      const v = `${width}*${height}`;
+      const current = this.appSizeOptions.find((item) => item.value === v);
+      if (current) return v;
+      return '';
+    }
+  },
 
   mounted() {
   },
 
-  methods: {},
+  methods: {
+    changeSize(v) { // 选择尺寸
+      if (!v) return;
+      const arr = v.split('*');
+      this.config.width = +arr[0];
+      this.config.height = +arr[1];
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = ['image/png', 'image/jpg', 'image/jpeg', 'image/svg+xml'].includes(file.type);
+      const isLt2M = file.size / 1024 / 1024 < 5;
+      return new Promise((resolve, reject) => {
+        if (!isJPG) {
+          this.$message.error('上传图片只能是 JPG, png, jpeg,svg 格式!');
+          reject(file);
+          return false;
+        }
+        if (!isLt2M) {
+          this.$message.error('上传图片大小不能超过 5MB!');
+          reject(file);
+          return false;
+        }
+        return resolve(file);
+      });
+    },
+    changeScreenBgUrl(url) {
+      // 修改背景图片
+      this.config.bgImage = url;
+    },
+  },
   name: 'index',
 };
 </script>

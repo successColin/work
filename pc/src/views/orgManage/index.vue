@@ -210,8 +210,18 @@ export default {
           if (cb) {
             cb(tData);
           } else {
+            console.log(1111);
+            this.tableData = tData;
+            // this.$nextTick(() => {
+            // });
             this.$nextTick(() => {
-              this.tableData = tData;
+              const domList = document.getElementsByClassName('el-table__expand-icon');
+              if (
+                domList[0] &&
+                !Array.from(domList[0].classList).includes('el-table__expand-icon--expanded')
+              ) {
+                domList[0].click();
+              }
             });
           }
           // if (this.curNodeId) {

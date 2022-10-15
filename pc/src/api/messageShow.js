@@ -45,3 +45,12 @@ export function getMailCount(params) {
     params,
   });
 }
+
+// 根据实例编码获取信息
+export function getByCode(params) {
+  return FetchData.request({
+    url: 'workflowTask/getByCode',
+    method: 'get',
+    params,
+  });
+}

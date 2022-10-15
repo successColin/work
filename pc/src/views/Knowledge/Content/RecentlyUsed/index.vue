@@ -328,6 +328,7 @@ export default {
     .list__content {
       min-height: 130px;
       padding: 15px;
+      overflow: hidden;
       .contentBox__item {
         float: left;
         position: relative;

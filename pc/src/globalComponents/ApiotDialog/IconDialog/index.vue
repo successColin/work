@@ -121,7 +121,7 @@
               :title="item.iconName"
               @click="selectImg(item)"
             >
-              <img :src="item.iconUrl" :alt="item.iconName" />
+              <img :src="$parseImgUrl(item.iconUrl)" :alt="item.iconName" />
               <p class="font__ellipsis">{{ item.iconName }}</p>
             </div>
           </div>
@@ -139,6 +139,7 @@
 <script>
 import { selectColorArr } from '@/config';
 import { getIconList } from '@/api/iconManage';
+
 import { iconSet } from './icon.json';
 
 export default {
@@ -162,12 +163,12 @@ export default {
     showSelfIcon: {
       type: Boolean,
       default: false
-    },
-    // 查询图标 1 是pc 2 是app
-    iconType: {
-      type: Number,
-      default: 1
     }
+    // 查询图标 1 是pc 2 是app
+    // iconType: {
+    //   type: Number,
+    //   default: 1
+    // }
   },
   data() {
     return {
@@ -191,7 +192,14 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+    isApp() {
+      if (['mine', 'funcPage'].includes(this.$route.name) || this.$route.query.isApp === '1') {
+        return true;
+      }
+      return false;
+    }
+  },
 
   methods: {
     // 初始化dialog
@@ -262,10 +270,11 @@ export default {
     },
     async getIconList(item) {
       this.showLoading = true;
+      console.log(this.$route);
       try {
         const params = {
           iconClassify: item.id,
-          iconType: this.iconType
+          iconType: this.isApp ? 2 : 1
         };
         const data = await getIconList(params);
         this.showLoading = false;

@@ -29,7 +29,7 @@
         v-if="Array.isArray(parent.form[configData.compId])"
       >
         <el-checkbox
-          v-for="item in getDictArr"
+          v-for="item in effectArr"
           :key="item.value"
           :label="item.value"
         >
@@ -41,7 +41,10 @@
             v-else-if="configData.dropDownStyle === 3 && item.icon"
           >
             <span class="option__self">
-              <img :src="item.icon.imgUrl" v-if="item.icon.imgUrl" />
+              <img
+                :src="$parseImgUrl(item.icon.imgUrl)"
+                v-if="item.icon.imgUrl"
+              />
               <i
                 v-else
                 :class="`iconfont ${item.icon.icon}`"
@@ -91,11 +94,7 @@ export default {
     },
     getDictArr() {
       let tempData = [];
-      if (
-        this.isConfig &&
-        this.configData.dataSource.dictObj &&
-        this.configData.dataSource.dictObj.id
-      ) {
+      if (this.isConfig && this.configData.dataSource.dictObj) {
         tempData = this.configData.dataSource.dictObj.dictValue;
       } else if (this.getDictKey) {
         tempData = this.$store.getters.getCurDict(this.getDictKey);
@@ -199,7 +198,7 @@ export default {
         display: inline-flex;
         align-items: center;
         height: 32px;
-        &:hover {
+        &:not(.is-disabled):hover {
           .option {
             color: $--color-primary;
           }

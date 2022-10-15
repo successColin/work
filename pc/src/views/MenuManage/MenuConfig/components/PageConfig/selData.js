@@ -37,7 +37,7 @@ const configData = [
                     compName: 'FormButton',
                     compType: 5,
                     helpInfo: '',
-                    iconFont: 'iconfont-xinzeng',
+                    iconFont: 'icon-xinzeng',
                     isTabBtn: true,
                     iconColor: '#5A80ED',
                     buttonForm: 1,
@@ -53,7 +53,7 @@ const configData = [
                     submitEnable: false,
                     propertyCompName: 'FormButtonConfig',
                     tabId: 'WXGBgF',
-                    btnTypesArr: [1, 2, 5, 6],
+                    btnTypesArr: [1, 2, 5, 15],
                   },
                   {
                     name: '确定',
@@ -65,7 +65,7 @@ const configData = [
                     compName: 'FormButton',
                     compType: 5,
                     helpInfo: '',
-                    iconFont: 'iconfont-xinzeng',
+                    iconFont: 'icon-xinzeng',
                     isTabBtn: true,
                     iconColor: '#5A80ED',
                     buttonForm: 1,
@@ -81,7 +81,7 @@ const configData = [
                     submitEnable: false,
                     propertyCompName: 'FormButtonConfig',
                     tabId: 'WXGBgF',
-                    btnTypesArr: [1, 2, 5, 6],
+                    btnTypesArr: [1, 2, 5, 15],
                     backName: '按钮',
                     relateType: 1,
                   },
@@ -249,6 +249,7 @@ const configData = [
                     termParams: '', // 过滤条件需要的组件参数id
                   },
                 ], // 数据多选框数据源
+                needPermissions: true, // 是否需要数据权限
               },
             ],
             tabBtnPos: 2,

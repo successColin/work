@@ -22,7 +22,7 @@
         <span class="iconfont icon-fenxiang btnWrap__btnCommon"></span>
         {{ $t('knowledge.Unfavorite') }}
       </apiot-button>
-      <apiot-button v-if="isShowAdd()" @click="handleAdd">
+      <apiot-button v-if="isShowAdd()" @click="handleAdd" :loading="loadingBtn">
         <span class="iconfont icon-xinzengwenjianjia btnWrap__btnCommon"></span>
         {{ $t('knowledge.Add_folder') }}
       </apiot-button>
@@ -75,7 +75,7 @@
           </el-dropdown-item>
           <el-dropdown-item
             :command="{ type: 'collect' }"
-            v-show="isShowMove()"
+            v-show="isShowMove() && groupType !== 9"
           >
             <span class="iconfont icon-shoucang" style="color: #4689f5"></span>
             {{ $t('knowledge.Favorites') }}
@@ -106,8 +106,8 @@
       >
         <el-button-group>
           <apiot-button
-              :type="active === 2 ? 'primary' : ''"
-              @click="changeView(2)"
+            :type="active === 2 ? 'primary' : ''"
+            @click="changeView(2)"
           >
             <span class="iconfont icon-liebiaozhanshi"></span>
           </apiot-button>
@@ -149,6 +149,7 @@
       >
       </recently-used>
       <block-content
+        :key="key"
         :list="list"
         :edit="edit"
         :loading="loading"
@@ -160,9 +161,11 @@
         v-on:preview="handlePreview"
         v-on:editFileName="editFileName"
         v-on:moveFileToNewFile="moveFilesToNewFile"
+        v-on:loadMore="loadMore"
       >
       </block-content>
       <list-content
+        :key="key"
         ref="listContent"
         :edit="edit"
         :groupType="String(groupType)"
@@ -176,6 +179,7 @@
         v-on:preview="handlePreview"
         v-on:editFileName="editFileName"
         v-on:showShareUserList="showShareUserList"
+        v-on:loadMore="loadMore"
         v-if="isShowListContent()"
       >
       </list-content>
@@ -213,6 +217,7 @@
       :visible.sync="dialogVisible"
       :title="$t('knowledge.move_to')"
       :before-close="clearFiles"
+      :loading="loading"
       v-on:sure-click="handleSubmit"
       v-on:cancle-click="cancel"
     >
@@ -246,6 +251,7 @@
     <image-zoom
       v-if="previewVisible"
       :previewObj="previewObj"
+      :picList="picList"
       v-on:doPreviewShare="doPreviewShare"
       v-on:hideImgPreview="hideImgPreview"
       v-on:doPreviewDel="doPreviewDel"
@@ -270,14 +276,23 @@
         v-if="videoVisible"
       ></video-preview>
     </apiot-dialog>
+    <PdfPreview
+      :title="previewObj.sysKlTree ? previewObj.sysKlTree.name : ''"
+      :visible.sync="pdfVisible"
+      v-if="pdfVisible"
+      :isShowSure="false"
+      :previewObj="previewObj"
+      :isBigDialog="true"
+    ></PdfPreview>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+// import mugenScroll from 'vue-mugen-scroll';
 import { Decrypt, getBlob, saveAs } from '_u/utils';
-import ajax from '@/api/axiosConfig';
 import {
+  downloadSingle,
   addFolder,
   delFiles,
   doCancelShareFiles,
@@ -290,6 +305,7 @@ import {
   getCollectList,
   getCommonList,
   getFileList,
+  getAllFileList,
   getKonwledgeList,
   getOthersShareFiles,
   getShareFiles,
@@ -298,6 +314,7 @@ import {
   unCollect,
   visitFiles
 } from '@/api/knowledge';
+import ajax from '@/api/axiosConfig';
 import query from '@/api/query';
 import audioFiile from '@/assets/img/audioFile.svg';
 import doc from '@/assets/img/DOC.svg';
@@ -310,6 +327,7 @@ import txt from '@/assets/img/TXT.svg';
 import vedio from '@/assets/img/vedio.svg';
 import xls from '@/assets/img/XLS.svg';
 import zipFile from '@/assets/img/zipFile.svg';
+import { allowFileType } from '@/config/index';
 import FilePath from './FilePath';
 
 const BlockContent = () => import('./BlockContent/index');
@@ -341,11 +359,12 @@ export default {
   },
   data() {
     return {
+      loadingBtn: false, // 按钮loading
       musicVisible: false, // 音频
       videoVisible: false, // 视频弹框
       videoTitle: '', // 视频名称
       doUploadFile: false, // 表示是否是其他页面的上传
-      accept: '.png, .jpg,.jpeg, .gif, .txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .mp3, .mp4, .avi, .vsdx, .zip, .rar, .m4a, .xmind, .emmx, .log',
+      accept: allowFileType,
       pathArr: [initPath],
       loading: false,
       fileList: [], // 能够正常上传的文件
@@ -356,7 +375,7 @@ export default {
       edit: false,
       groupType: 'all',
       keyWord: '',
-      showType: 1,
+      showType: 2,
       active: 2, //
       total: 0,
       selectKeys: [],
@@ -372,7 +391,11 @@ export default {
       shareObj: {}, // 要分享的对象
       businessTreeNode: {}, // 业务树节点
       size: 10,
-      current: 1
+      current: 1,
+      key: 0, // 强制更新列表
+      picList: [], // 文件列表
+      pdfVisible: false,
+      listTotal: 0 // 数据库所有文件的总和
     };
   },
 
@@ -389,6 +412,7 @@ export default {
     BussinessList,
     VideoPreview,
     MusicProgress
+    // mugenScroll
   },
 
   computed: {
@@ -592,14 +616,8 @@ export default {
       return function () {
         if (this.groupType === 10) {
           const arr = Object.keys(this.list);
-          let total = 0;
-          // todo: 可以换成reduce
           if (arr.length) {
-            arr.forEach((item) => {
-              // eslint-disable-next-line no-const-assign
-              total += this.list[item].length;
-            });
-            return total;
+            return arr.reduce((init, cur) => init + this.list[cur].length, 0);
           }
           return 0;
         }
@@ -618,6 +636,7 @@ export default {
       this.selectKeys = [];
     });
     this.$bus.$off('doSearch').$on('doSearch', (message) => {
+      this.current = 1;
       this.doSearch(message);
     });
     this.$bus.$off('selectMenu_knowledge').$on('selectMenu_knowledge', (message) => {
@@ -640,31 +659,51 @@ export default {
   },
   watch: {
     groupType: {
+      // 对应我的收藏，最近常，全部等分组选项
       immediate: true,
       deep: true,
       handler(newValue) {
         this.groupType = newValue;
         this.keyWord = '';
+        this.current = 1;
+        this.size = 100;
+        this.key += 1;
+        this.list = [];
+        this.pathArr = [initPath];
         if (this.showType !== 3) {
           if (this.isDialog) {
             this.showType = 2;
           }
-          this.init();
+          this.init('change');
         }
       }
     },
     showType: {
-      immediate: true,
+      // 对应我的，企业，业务
+      immediate: false,
       deep: true,
       handler(newValue) {
         this.showType = newValue;
         this.keyWord = '';
+        this.current = 1;
+        this.size = 100;
+        this.pathArr = [initPath];
         if (this.showType !== 3 && !this.isDialog) {
-          this.init();
+          this.init('change');
         }
         if (this.showType === 3) {
           this.list = [];
           this.pathArr = [initPath];
+        }
+      }
+    },
+    isDialog: {
+      immediate: true,
+      deep: true,
+      handler(v) {
+        // 关联资料只会关联企业的
+        if (v) {
+          this.showType = 2;
         }
       }
     },
@@ -676,6 +715,24 @@ export default {
   },
 
   methods: {
+    // sortChange(sortObj) { // 排序
+    //   this.specialInit({ orders: [sortObj] });
+    // },
+    loadMore() {
+      console.log(
+        '加载更多，',
+        this.list.length,
+        this.listTotal,
+        this.list.length >= this.listTotal
+      );
+      if (this.list.length >= this.listTotal) {
+        // 不允许加载
+        return;
+      }
+      this.current += 1;
+      this.loading = true;
+      this.init();
+    },
     // 初始化dialog的数据
     initDialog() {
       this.changeView(2);
@@ -732,10 +789,13 @@ export default {
           (this.selectKeys[0].treeType && this.selectKeys[0].treeType !== 1))
       ) {
         const fileObj = this.selectKeys[0].sysKlTree || this.selectKeys[0]; // 单个文件的下载
-        getBlob({ url: fileObj.url }, (blob) => {
-          saveAs(blob, fileObj.name);
-          this.loading = false;
-        });
+        // getBlob({ url: fileObj.url }, (blob) => {
+        //   saveAs(blob, fileObj.name);
+        //   this.loading = false;
+        // });
+        const data = await downloadSingle({ url: fileObj.url });
+        saveAs(data, fileObj.name);
+        this.loading = false;
         return;
       }
       const arr = this.selectKeys.map((item) => {
@@ -779,19 +839,22 @@ export default {
         // this.isSelectdEdit = false;
       }
     },
-    init() {
+    init(isNeedChange) {
       // 初始化
-      this.list = [];
-      this.pathArr = [initPath];
+      // this.list = [];
+      // this.pathArr = [initPath];
       if (this.groupType === 'all') {
         // 全部
+        const newPath = this.pathArr.at(-1);
         const params = {
           classId: this.showType,
           keywords: this.keyWord,
-          parentId: 0,
-          isFolder: 0
+          parentId: newPath.id === 'all' ? 0 : newPath.id,
+          isFolder: 0,
+          current: this.current,
+          size: this.size
         };
-        this.initKonwledge(params);
+        this.initKonwledge(params, isNeedChange);
         return;
       }
       if (this.groupType === 9) {
@@ -801,7 +864,7 @@ export default {
           keywords: this.keyWord,
           userId: this.userInfo.id
         };
-        this.initKonwledge(params);
+        this.initKonwledge(params, isNeedChange);
         return;
       }
       if (this.groupType === 10) {
@@ -812,11 +875,11 @@ export default {
           userId: this.userInfo.id
         };
         this.list = {};
-        this.initKonwledge(params);
+        this.initKonwledge(params, isNeedChange);
         return;
       }
       if (this.groupType === 7 || this.groupType === 8) {
-        this.initKonwledge({});
+        this.initKonwledge({}, isNeedChange);
         return;
       }
       if (this.groupType !== 'all') {
@@ -825,10 +888,10 @@ export default {
           classId: this.showType,
           keywords: this.keyWord,
           fileType: this.groupType,
-          current: 1,
-          size: 99999999
+          current: this.current,
+          size: this.size
         };
-        this.initKonwledge(params);
+        this.initKonwledge(params, isNeedChange);
       }
     },
     async doCancelShare() {
@@ -851,7 +914,7 @@ export default {
         };
         await doCancelShareFiles(params);
         this.selectKeys = [];
-        this.initKonwledge({});
+        await this.initKonwledge({});
       } catch (e) {
         this.selectKeys = [];
       }
@@ -867,9 +930,8 @@ export default {
       return new Promise((resolve, reject) => {
         const { name, size } = file;
         const nameArr = name.split('.');
-        const type = nameArr[nameArr.length - 1];
+        const type = nameArr.at(-1);
         const newSize = size / 1024 < 3000000;
-        console.log(type, '111', this.accept);
         if (this.accept.indexOf(type.toLowerCase()) === -1) {
           this.$message({
             type: 'warning',
@@ -902,16 +964,21 @@ export default {
       }
     },
     getFileType(suffix) {
-      if ('.png, .jpg,.gif, .jpeg'.indexOf(suffix) > -1) {
+      const type = suffix.toLowerCase();
+      if ('.png, .jpg,.gif, .jpeg'.indexOf(type) > -1) {
         return 3;
       }
-      if ('.txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .vsdx, .zip, .rar, .xmind, .emmx, .log'.indexOf(suffix) > -1) {
+      if (
+        '.txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .vsdx, .zip, .rar, .xmind, .emmx, .log, .chm'.indexOf(
+          type
+        ) > -1
+      ) {
         return 2;
       }
-      if ('.mp3'.indexOf(suffix) > -1) {
+      if ('.mp3'.indexOf(type) > -1) {
         return 5;
       }
-      if ('.mp4, .avi, .m4a'.indexOf(suffix) > -1) {
+      if ('.mp4, .avi, .m4a'.indexOf(type) > -1) {
         return 4;
       }
       return 6;
@@ -945,7 +1012,6 @@ export default {
       const formData = new FormData();
       const current = this.pathArr[this.pathArr.length - 1];
       const parentId = current.id === 'all' ? 0 : current.id;
-      console.log(this.doUploadFile, this.doUploadFile ? pid : parentId);
       formData.append('file', item.raw);
       formData.append('parentId', this.doUploadFile ? pid : parentId);
       formData.append('treeClass', this.showType);
@@ -990,11 +1056,51 @@ export default {
         .post(`${ajax.baseURL}system/knowledge/saveFile`, formData, config)
         .then(() => {
           this.delFileFromUploadingFiles(item);
-          this.initKonwledge({});
+          // this.current = 1;
+          // this.key += 1;
+
+          // this.initKonwledge({
+          //   size: 100,
+          //   current: this.current
+          // }, 'change');
+          this.specialInit();
         })
         .catch(() => {
           this.delFileFromUploadingFiles(item);
         });
+    },
+    specialInit(params) {
+      // 特殊
+      const total = this.current * this.size;
+      const n = this.list.length; //
+      const nextCurrent = this.current + 1;
+      if (n <= total && (total < this.listTotal || this.listTotal < total)) {
+        this.initKonwledge(
+          {
+            size: total,
+            current: 1,
+            ...params
+          },
+          'change'
+        );
+      } else if (n < total && n === this.listTotal) {
+        this.initKonwledge(
+          {
+            size: total,
+            current: 1,
+            ...params
+          },
+          'change'
+        );
+      } else if (n === total && n === this.listTotal) {
+        this.initKonwledge({
+          size: this.size,
+          current: nextCurrent,
+          ...params
+        });
+      } else {
+        this.initKonwledge({ ...params }, 'change');
+      }
     },
     delFileFromUploadingFiles(file) {
       // 无论上传成功或者是失败，都需要充管理的数组进行删除
@@ -1013,15 +1119,24 @@ export default {
     doSearch(message) {
       this.keyWord = message;
       this.selectKeys = [];
-      let params = {};
+      let params = {
+        classId: this.showType,
+        keywords: this.keyWord
+      };
       if (this.groupType === 9) {
         params = {
-          classId: this.showType,
-          keywords: this.keyWord,
+          ...params,
           userId: this.userInfo.id
         };
+      } else {
+        params = {
+          ...params,
+          size: this.size,
+          current: this.current
+        };
       }
-      this.initKonwledge(params);
+      this.key += 1;
+      this.initKonwledge(params, 'change');
     },
     hide() {
       // 关闭
@@ -1059,14 +1174,15 @@ export default {
         await editFolder({ id, name });
         if (this.groupType === 'all') {
           // 如果是全部，需要看路径进行刷新
-          const pid = this.pathArr[this.pathArr.length - 1].id;
-          const params = {
-            classId: this.showType,
-            keywords: this.keyWord,
-            parentId: pid === 'all' ? 0 : pid,
-            isFolder: 0
-          };
-          await this.initKonwledge(params);
+          // const pid = this.pathArr[this.pathArr.length - 1].id;
+          // const params = {
+          //   classId: this.showType,
+          //   keywords: this.keyWord,
+          //   parentId: pid === 'all' ? 0 : pid,
+          //   isFolder: 0
+          // };
+          // await this.initKonwledge(params);
+          this.specialInit();
           this.selectKeys = [];
           this.edit = false;
         } else {
@@ -1083,6 +1199,7 @@ export default {
       const index = this.pathArr.findIndex((obj) => obj.id === item.id);
       if (!['all', 9, 7, 8].includes(this.groupType)) return;
       let params = {};
+      this.current = 1;
       if (!index || index === -1) {
         this.pathArr = [initPath];
         if (this.showType === 3) {
@@ -1112,9 +1229,9 @@ export default {
         };
       }
       this.selectKeys = [];
-      this.initKonwledge(params);
+      this.initKonwledge(params, 'change');
     },
-    handlePreview(item) {
+    async handlePreview(item) {
       // 如果是文件夹类型，就进入下个文件夹，如果是文件，则预览
       if (this.showType === 3 || !item.sysKlTree) {
         item = {
@@ -1127,12 +1244,17 @@ export default {
       if (treeType === 1 && this.showType !== 3) {
         this.selectKeys = [];
         this.pathArr.push({ id, name, sysKlEmpower: item.sysKlEmpower });
+        this.current = 1;
         const params = {
           classId: this.showType,
           keywords: this.keyWord,
-          parentId: id
+          parentId: id,
+          size: this.size,
+          current: this.current
         };
-        this.initKonwledge(params);
+        this.listTotal = 0;
+        this.list = [];
+        await this.initKonwledge(params, 'change');
         return false;
       }
       if (treeType === 1 && this.showType === 3) {
@@ -1142,9 +1264,37 @@ export default {
         this.getBussinessFiles();
         return false;
       }
+      if (treeType === 2) {
+        const arr = name.split('.');
+        if (arr[1] && arr[1] === 'pdf') {
+          this.previewObj = item;
+          this.pdfVisible = true;
+        }
+      }
       if (treeType === 3) {
         // 图片预览
         this.previewObj = item;
+        this.picList = this.list.filter((liObj) => {
+          const { treeType: imageType } = liObj.sysKlTree || liObj;
+          return imageType === 3;
+        });
+        this.picList = this.picList.map((item1) => {
+          if (item1.sysKlTree) return item1;
+          return {
+            sysKlTree: {
+              ...item1
+            }
+          };
+        });
+        if (this.$store.state.globalConfig.waterConfig.enableWaterMask === '1') {
+          const index = this.picList.findIndex((file) => file.sysKlTree.id === item.sysKlTree.id);
+          if (index !== -1) {
+            this.loading = true;
+            const data = await downloadSingle({ url: this.picList[index].sysKlTree.url });
+            this.loading = false;
+            this.picList[index].sysKlTree.blob = data;
+          }
+        }
         this.previewVisible = true;
       }
       if (treeType === 4) {
@@ -1160,13 +1310,13 @@ export default {
       }
       visitFiles({ classId: this.showType, userId: this.userInfo.id, id });
     },
-    async initKonwledge(params) {
+    async initKonwledge(params, isNeedChange) {
       // 获取数据
       this.loading = true;
       try {
         let api = getKonwledgeList;
         if (this.groupType === 'all') {
-          api = getKonwledgeList;
+          api = getAllFileList;
         } else if ([2, 3, 4, 5, 6].includes(this.groupType)) {
           api = getFileList;
         } else if (this.groupType === 9) {
@@ -1180,16 +1330,18 @@ export default {
         }
         let data = {};
         if (this.groupType === 'all') {
-          const pid = this.pathArr[this.pathArr.length - 1].id;
+          const pid = this.pathArr.at(-1).id;
           const param = {
             classId: this.showType,
             keywords: this.keyWord,
             parentId: pid === 'all' ? 0 : pid,
-            isFolder: 0
+            isFolder: 0,
+            current: this.current,
+            size: this.size
           };
           data = { ...data, ...param, ...params };
         } else if (this.groupType === 9) {
-          const pid = this.pathArr[this.pathArr.length - 1].id;
+          const pid = this.pathArr.at(-1).id;
           if (pid === 'all') {
             data = {
               classId: this.showType,
@@ -1234,28 +1386,33 @@ export default {
             ...params,
             classId: this.showType,
             fileType: this.groupType,
-            current: 1,
-            keywords: this.keyWord,
-            size: 99999999
+            // current: 1,
+            keywords: this.keyWord
+            // size: 99999999
           };
         }
-        this.list = [];
+        // this.list = [];
         const treeData = await api(data);
-        const newTreeData = ['all', 9, 10, 7, 8].includes(this.groupType)
+        const newTreeData = [9, 10, 7, 8].includes(this.groupType)
           ? treeData
           : treeData.records || [];
         this.loading = false;
+        if (![9, 10, 7, 8].includes(this.groupType)) {
+          this.listTotal = treeData.total ?? 0;
+        }
         if (this.groupType === 10) {
           this.list = newTreeData;
         } else {
           const newListData = newTreeData.map((item) => ({ ...item, showIndex: true }));
           // console.log(newListData, 'newListData');
-          this.list = newListData.sort((a, b) => {
-            if (a.sysKlTree && b.sysKlTree) {
-              return a.sysKlTree.treeType - b.sysKlTree.treeType;
-            }
-            return a.treeType - b.treeType;
-          });
+          // const lastList = newListData.sort((a, b) => {
+          //   if (a.sysKlTree && b.sysKlTree) {
+          //     return a.sysKlTree.treeType - b.sysKlTree.treeType;
+          //   }
+          //   return a.treeType - b.treeType;
+          // });
+          this.list = isNeedChange === 'change' ? newListData : [...this.list, ...newListData];
+          console.log(this.list, 'this.list1111');
         }
       } catch (e) {
         this.loading = false;
@@ -1290,6 +1447,7 @@ export default {
         });
         return;
       }
+      this.loading = true;
       const pid = selectKeys[0].sysKlTree.id;
       if (this.doUploadFile) {
         this.doUploadFiles(pid);
@@ -1302,10 +1460,14 @@ export default {
           parentId: pid,
           ids: this.selectKeys.map((item) => item.sysKlTree.id).join(',')
         });
-        await this.initKonwledge({});
+        if (this.groupType === 'all') {
+          this.current = 1;
+          await this.initKonwledge({}, 'change');
+        }
         this.dialogVisible = false;
         this.selectKeys = [];
       } catch (e) {
+        this.loading = false;
         this.dialogVisible = false;
       }
     },
@@ -1361,13 +1523,13 @@ export default {
         parentId: id,
         ids: chooseItemId
       };
-      this.move(params);
+      await this.move(params);
     },
     async move(params) {
       try {
         await moveFiles(params);
         this.selectKeys = [];
-        await this.initKonwledge({});
+        await this.initKonwledge({}, 'change');
       } catch (e) {
         this.dialogVisible = false;
       }
@@ -1392,7 +1554,7 @@ export default {
           const params = {
             ids: this.selectKeys.map((item) => item.sysKlTree.id).join(',')
           };
-          this.doDel(params);
+          await this.doDel(params);
         } catch (err) {
           // this.isSelectdEdit = false;
         }
@@ -1428,7 +1590,8 @@ export default {
         await delFiles(params);
         this.loading = false;
         this.selectKeys = [];
-        this.initKonwledge({});
+        this.specialInit();
+        // await this.initKonwledge({}, 'change');
       } catch (e) {
         this.loading = false;
       }
@@ -1502,11 +1665,12 @@ export default {
       const len = arr.length;
       const name = `${this.$t('knowledge.no_name_file')}${len < 1 ? '' : len + 1}`;
       if (this.edit === true) {
-        this.edit = false;
-        this.selectKeys = [];
+        return;
+        // this.edit = false;
+        // this.selectKeys = [];
       }
       try {
-        const currentFolder = this.pathArr[this.pathArr.length - 1];
+        const currentFolder = this.pathArr.at(-1);
         const id = currentFolder.id === 'all' ? 0 : currentFolder.id;
         const res = await addFolder({
           name,
@@ -1533,14 +1697,14 @@ export default {
         if (!url) return xls;
         const suffixArr = url.split('.');
         if (!suffixArr.length) return txt;
-        const suffix = suffixArr[suffixArr.length - 1];
+        const suffix = suffixArr[suffixArr.length - 1].toLowerCase();
         if (suffix === 'txt') return txt;
         if (['xls', 'xlsx'].includes(suffix)) return xls;
         if (['ppt', 'pptx'].includes(suffix)) return ppt;
         if (suffix === 'pdf') return pdf;
         if (['docx', 'doc'].includes(suffix)) return doc;
         if (['zip', 'rar'].includes(suffix)) return zipFile;
-        if (['vsdx', 'xmind', 'emmx', 'log'].includes(suffix)) return elseFile;
+        if (['vsdx', 'xmind', 'emmx', 'log', 'chm'].includes(suffix)) return elseFile;
         return xls;
       }
       if ((obj.sysKlTree && obj.sysKlTree.treeType === 3) || obj.treeType === 3) {
@@ -1579,7 +1743,7 @@ export default {
           userId: this.userInfo.id,
           ids: idArr.join(',')
         });
-        this.initKonwledge({
+        await this.initKonwledge({
           classId: this.showType,
           keywords: this.keyWord,
           userId: this.userInfo.id
@@ -1692,7 +1856,8 @@ export default {
   .contentTypeWrap {
     width: 100%;
     height: calc(100% - 36px - 42px);
-    overflow: auto;
+    //overflow: auto;
+    overflow: hidden;
   }
 
   .moveWrap {

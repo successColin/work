@@ -21,18 +21,72 @@
         @contentChange="titleChange"
       ></codemirror>
     </div>
-    <div class="configuration--line">
+    <!-- <div class="configuration--line">
       <label class="header__label isRequired">{{
         $t('messageTemplate.address')
       }}</label>
-      <apiot-input
-        v-model="contentProps.jumpLink"
-        :placeholder="
-          $t('placeholder.pleaseEnterAny', {
-            any: $t('messageTemplate.address'),
-          })
-        "
-      ></apiot-input>
+    </div> -->
+    <div class="configuration--line">
+      <label class="header__label">交互方式</label>
+      <div class="interaction">
+        <apiot-radio
+          @change="(value) => changeRadio(value)"
+          v-model="contentProps.interactionType"
+          :label="1"
+          >跳转地址
+        </apiot-radio>
+        <apiot-radio
+          @change="(value) => changeRadio(value)"
+          v-model="contentProps.interactionType"
+          :label="2"
+          >跳转面板
+        </apiot-radio>
+        <apiot-radio
+          @change="(value) => changeRadio(value)"
+          v-model="contentProps.interactionType"
+          :label="3"
+          >跳转菜单
+        </apiot-radio>
+      </div>
+      <div>
+        <apiot-input
+          v-if="contentProps.interactionType === 1"
+          v-model="contentProps.jumpLink"
+          :placeholder="
+            $t('placeholder.pleaseEnterAny', {
+              any: $t('messageTemplate.address'),
+            })
+          "
+        ></apiot-input>
+        <apiot-button
+          v-if="contentProps.interactionType === 2"
+          class="panelBtn"
+          @click="handleJumpPaneConfig(1)"
+        >
+          <i class="iconfont icon-shezhi m-r-4"></i>PC跳转面板配置
+        </apiot-button>
+        <apiot-button
+          v-if="contentProps.interactionType === 2"
+          class="panelBtn"
+          @click="handleJumpPaneConfig(2)"
+        >
+          <i class="iconfont icon-shezhi m-r-4"></i>APP跳转面板配置
+        </apiot-button>
+        <apiot-button
+          v-if="contentProps.interactionType === 3"
+          class="panelBtn"
+          @click="handleJumpMenuConfig(1)"
+        >
+          <i class="iconfont icon-shezhi m-r-4"></i>PC跳转菜单配置
+        </apiot-button>
+        <apiot-button
+          v-if="contentProps.interactionType === 3"
+          class="panelBtn"
+          @click="handleJumpMenuConfig(2)"
+        >
+          <i class="iconfont icon-shezhi m-r-4"></i>APP跳转菜单配置
+        </apiot-button>
+      </div>
     </div>
     <div class="configuration--line">
       <label class="header__label isRequired">{{
@@ -48,14 +102,43 @@
         @contentChange="contentChange"
       ></codemirror>
     </div>
+    <!-- 跳转菜单配置 -->
+    <ToMenuConfig
+      ref="ToMenuConfig"
+      v-if="showMenuConfig"
+      :visible.sync="showMenuConfig"
+      :activeObj="menuType === 1 ? skipMenuConfig : skipMenuConfigApp"
+      :sourceType="1"
+      :isApp="menuType === 2 ? 1 : 0"
+      :variables="variables"
+      @cancle-click="handleMenuCancel"
+    ></ToMenuConfig>
+    <PanelConfig
+      v-if="paneVisible"
+      :visible.sync="paneVisible"
+      :tabPaneConfig="menuType === 1 ? tabPaneConfig : tabPaneConfigApp"
+      :activeObj="activeObj"
+      :isSelPanel="false"
+      :otherParams="{ panelType: 5,
+        unDesign: 1,
+        panelClassify: 1}"
+      @cancle-click="handleCancel"
+      :isCustomPage="true"
+      :treeType="5"
+      :isApp="menuType === 2 ? 1 : 0"
+      :variables="variables"
+      ref="panelConfig"
+    ></PanelConfig>
   </article>
 </template>
 
 <script>
+import ToMenuConfig from '_v/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/ToMenuConfig';
+import PanelConfig from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/PanelConfig';
 import Codemirror from '../Codemirror';
 
 export default {
-  components: { Codemirror },
+  components: { Codemirror, ToMenuConfig, PanelConfig },
 
   inject: ['getVariables'],
 
@@ -65,14 +148,19 @@ export default {
       default() {
         return {};
       }
-    }
+    },
   },
 
   data() {
     return {
       contentProps: { title: '', jumpLink: '', innerMailCategory: 3 },
       contentTemplate: '',
-      variables: []
+      variables: [],
+      showMenuConfig: false,
+      skipMenuConfig: [],
+      menuType: 1,
+      activeObj: { dialogTitle: '', dialogName: 'PanelDialog' },
+      paneVisible: false
     };
   },
 
@@ -81,9 +169,25 @@ export default {
       const { contentTemplate, contentProps } = this;
       return {
         ...this.content,
-        ...{ contentProps: JSON.stringify(contentProps), content: contentTemplate, messageType: 4 }
+        ...{ contentProps: JSON.stringify(contentProps), content: contentTemplate, messageType: 4 },
       };
-    }
+    },
+    menuContent() {
+      return {
+        ...this.curContent,
+        compId: `inner_${this.curContent.id}`
+      };
+    },
+    tabPaneConfig() {
+      const { panelConfig } = this.contentProps;
+      const { curPaneObj } = panelConfig || {};
+      return curPaneObj || {};
+    },
+    tabPaneConfigApp() {
+      const { panelConfigApp } = this.contentProps;
+      const { curPaneObj } = panelConfigApp || {};
+      return curPaneObj || {};
+    },
   },
 
   watch: {
@@ -93,7 +197,7 @@ export default {
       },
       immediate: true,
       deep: true
-    }
+    },
   },
 
   methods: {
@@ -101,6 +205,11 @@ export default {
       this.contentTemplate = this.content.content || '';
       const { contentProps } = this.content;
       if (contentProps) this.contentProps = JSON.parse(contentProps);
+      const { panelConfig, skipMenuConfig, skipMenuConfigApp } = this.contentProps;
+      this.skipMenuConfig = skipMenuConfig || [];
+      this.skipMenuConfigApp = skipMenuConfigApp || [];
+      const initObj = { dialogTitle: '', dialogName: 'PanelDialog' };
+      this.activeObj = panelConfig ? panelConfig.activeObj || initObj : initObj;
 
       this.variables = this.getVariables();
       this.$refs.innerTitle.init({ content: this.contentProps.title, variables: this.variables });
@@ -118,10 +227,84 @@ export default {
       this.contentProps.title = value.content;
       // this.$emit('change', this.curContent);
     },
+    changeRadio(value) {
+      this.contentProps.interactionType = value;
+    },
     // 值发生变化时
     contentChange(value) {
       this.contentTemplate = value.content;
       this.$emit('change', this.curContent);
+    },
+    handleCancel() {
+      const { curPaneObj, activeObj } = this.$refs.panelConfig;
+      const value = {
+        curPaneObj,
+        activeObj
+      };
+      const vars = {};
+      this.variables.map((item) => {
+        // eslint-disable-next-line prefer-template
+        vars[item.variableCode] = '${' + item.variableCode + '!}';
+        return item;
+      });
+      if (this.menuType === 1) {
+        this.contentProps = {
+          ...this.contentProps,
+          panelConfig: value,
+          variablesStr: JSON.stringify(vars)
+        };
+      } else {
+        this.contentProps = {
+          ...this.contentProps,
+          panelConfigApp: value,
+          variablesStr: JSON.stringify(vars)
+        };
+      }
+    },
+    handleMenuCancel() {
+      const { menuList = [] } = this.$refs.ToMenuConfig;
+      const vars = {};
+      this.variables.map((item) => {
+        // eslint-disable-next-line prefer-template
+        vars[item.variableCode] = '${' + item.variableCode + '!}';
+        return item;
+      });
+      if (this.menuType === 1) {
+        this.contentProps = {
+          ...this.contentProps,
+          skipMenuConfig: menuList,
+          variablesStr: JSON.stringify(vars)
+        };
+      } else {
+        this.contentProps = {
+          ...this.contentProps,
+          skipMenuConfigApp: menuList,
+          variablesStr: JSON.stringify(vars)
+        };
+      }
+      // this.changeTitle(menuList, 'skipMenuConfig');
+    },
+    changeTitle(value, key) { // 设置组件名称
+      const list = [...this.getList];
+      const index = this.reduceIndex();
+      const info = this.content;
+
+      const newInfo = {
+        ...info,
+        [key]: value
+      };
+      list.splice(index, 1, newInfo);
+      this.$emit('updateList', list);
+    },
+    handleJumpMenuConfig(type) {
+      // 1 pc端, 2 app
+      this.menuType = type;
+      this.showMenuConfig = true;
+    },
+    handleJumpPaneConfig(type) {
+      // 1 pc端, 2 app
+      this.menuType = type;
+      this.paneVisible = true;
     }
   },
 
@@ -154,6 +337,13 @@ export default {
       & .CodeMirror pre.CodeMirror-line {
         padding: 0;
       }
+    }
+  }
+}
+.inner{
+  ::v-deep{
+    .ToMenuConfig__li--select{
+      width: 200px;
     }
   }
 }

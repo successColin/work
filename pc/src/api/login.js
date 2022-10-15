@@ -108,3 +108,12 @@ export function zwdingtalkLogin(data) {
     },
   });
 }
+
+// 标准单点登录
+export function ssoLogin(params) {
+  return FetchData.request({
+    url: 'system/ssoLogin/getToken',
+    method: 'get',
+    params,
+  });
+}

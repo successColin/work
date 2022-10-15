@@ -8,6 +8,7 @@
         ref="tree"
         :check-strictly=true
         lazy
+        :default-expanded-keys="defaultExpandedKeys"
         :current-node-key="highLightKey"
         @node-click="checkNode"
         :load="loadNode"
@@ -37,6 +38,7 @@ export default {
         children: 'childList',
         isLeaf: ({ childrenTotal }) => !childrenTotal,
       },
+      defaultExpandedKeys: [],
       treeData: [],
       loading: false,
       highLightKey: null, // 高亮节点
@@ -81,6 +83,7 @@ export default {
         this.$nextTick(() => {
           this.highLightKey = res[0].id || null;
           this.$refs.tree.setCurrentKey(this.highLightKey);
+          this.defaultExpandedKeys = this.highLightKey ? [this.highLightKey] : [];
           this.$bus.$emit(`selectTreeNode_${this.isolationSign}`, res[0]);
         });
         this.loading = false;

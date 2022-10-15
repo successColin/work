@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="formula__params">
-      <div class="formula__params--comp">
+      <div class="formula__params--comp" v-if="!isVariables">
         <div class="formula__params--compHead">
           <el-dropdown class="formula__treeSelect" @command="treeSelect">
             <span class="formula__treeSelect--name">
@@ -157,6 +157,32 @@
           </el-tree>
         </div>
       </div>
+      <div class="formula__params--excle" v-if="isVariables">
+        <div class="formula__params--compHead">
+          变量
+        </div>
+        <div class="formula__params--formuTree formula__params--compTree">
+          <el-tree
+            v-if="showFormulaTree"
+            ref="variablesTree"
+            :data="variables"
+            node-key="id"
+            class="formula__tree"
+            default-expand-all
+            @node-click="variableNodeClick"
+            :filter-node-method="formulaFilterNode"
+            :expand-on-click-node="false"
+          >
+            <div
+              slot-scope="{ data }"
+              :key="data.variableCode"
+              class="formula__treeItem"
+            >
+              {{ data.variableName }}
+            </div>
+          </el-tree>
+        </div>
+      </div>
     </div>
   </apiot-dialog>
 </template>
@@ -187,7 +213,10 @@ export default {
     showType: {
       type: Array,
       default: () => [1]
-    }
+    },
+    variables: {
+      type: Array
+    },
   },
   data() {
     return {
@@ -215,7 +244,9 @@ export default {
             { name: 'GET_SCAN_VALUE', isFormula: true, type: 4 },
             { name: 'GET_SHOW_VALUE', isFormula: true, type: 1 },
             { name: 'GET_TABLE_VALUE', isFormula: true, type: 1 },
-            { name: 'GET_TIME_GAP', isFormula: true, type: 1 }
+            { name: 'GET_TABLE_IS_NULL', isFormula: true, type: 1 },
+            { name: 'GET_TIME_GAP', isFormula: true, type: 1 },
+            { name: 'GET_TIME_RES', isFormula: true, type: 1 }
           ]
         },
         {
@@ -312,6 +343,9 @@ export default {
         return 'color: #FC8256';
       }
       return 'color: #4789f5';
+    },
+    isVariables() {
+      return this.$route.path === '/messageTemplate';
     }
   },
 
@@ -357,6 +391,7 @@ export default {
       this.repalceCompMark();
       this.repalceFormulaMark();
       this.repalceSysMark();
+      this.repalceVariableMark();
       // 初始化方法
       this.initFunc();
     });
@@ -424,9 +459,22 @@ export default {
         }
         return '';
       });
+      parser.setFunction('GET_TABLE_IS_NULL', (params) => {
+        if (![1].includes(params.length)) {
+          return new Error('获取列表所有值，需要1个参数');
+        }
+        return '';
+      });
       parser.setFunction('GET_TIME_GAP', (params) => {
         if (![1, 2, 3].includes(params.length)) {
           return new Error('获取列表值，需要1个,2个或3个参数');
+        }
+        return '';
+      });
+      // GET_TIME_RES
+      parser.setFunction('GET_TIME_RES', (params) => {
+        if (![4, 3].includes(params.length)) {
+          return new Error('获取日期计算结果，需要3个或4个参数');
         }
         return '';
       });
@@ -612,6 +660,32 @@ export default {
         }
       }
     },
+    // 初始化方法替代
+    repalceVariableMark() {
+      const strArry = this.jsonEditor.getValue().split('\n'); // 一共几行
+      for (let line = 0, len = strArry.length; line < len; line += 1) {
+        // 提取出字符串中需要转化成标记的字符以及其所在的位置
+        const marTextArry = getChartsByEx(
+          strArry[line],
+          '\\$variable_+([a-zA-Z0-9]+)\\$'
+        );
+        for (let col = 0, len1 = marTextArry.length; col < len1; col += 1) {
+          const formulaName = marTextArry[col].result[1];
+          // 开始标记
+          this.jsonEditor.doc.markText(
+            { line, ch: marTextArry[col].from }, // 开始位置
+            { line, ch: marTextArry[col].to }, // 结束位置
+            {
+              replacedWith: this.createMartDom(formulaName, false, 5),
+              inclusiveLeft: false,
+              inclusiveRight: false,
+              selectRight: true,
+              handleMouseEvents: true
+            }
+          );
+        }
+      }
+    },
     // 处理返回字符串
     resolveRes() {
       const reg = /(=)\1*/g;
@@ -648,11 +722,13 @@ export default {
       if (sysReg.test(formulaStr)) {
         return true;
       }
+      if (this.jsonEditor.getValue().match(/variable_/g) &&
+        this.jsonEditor.getValue().match(/variable_/g).length === 1) {
+        return true;
+      }
       let str = formulaStr.replace(/\$([A-Za-z0-9]{6})\$/g, () => '""');
-      console.log(str);
       str = str.replace(/\$\d+-\d+-([a-zA-Z0-9_\-\u4e00-\u9fa5]+)\$/g, () => `'${RegExp.$1}'`);
       let res = parser.parse(`${str}`);
-      // console.log(res);
       if (res.error === '#VALUE!') {
         str = formulaStr.replace(/\$([A-Za-z0-9]{6})\$/g, () => '0');
         console.log(str);
@@ -874,6 +950,11 @@ export default {
       const key = `[${data.name}]`;
       this.setMarkText(key, data.name);
     },
+    variableNodeClick(data) {
+      const key = `$variable_${data.variableCode}$`;
+      this.treeType = 5;
+      this.setMarkText(key, data.variableName, false);
+    },
     setMarkText(key, name, isFormula = true) {
       const { ch, line } = this.cursor;
       const cursor = {
@@ -975,7 +1056,7 @@ export default {
     },
     // 创建标记节点
     createMartDom(markText, flag, type) {
-      console.log(type);
+      // console.log(type);
       const htmlNode = document.createElement('span');
       if (flag) {
         htmlNode.className = 'jsonEditor__formula';
@@ -991,6 +1072,9 @@ export default {
       } else if (+type === 4) {
         htmlNode.className = 'jsonEditor__zhiwei';
         htmlNode.title = '职位';
+      } else if (+type === 5) {
+        htmlNode.className = 'jsonEditor__bianliang';
+        htmlNode.title = '变量';
       }
       const htmlText = `${markText}`;
       htmlNode.innerHTML = htmlText;
@@ -1250,6 +1334,15 @@ export default {
       border-radius: 4px;
       background: #fff2d4;
       color: #fa9d0b;
+      font-size: 13px;
+    }
+    .jsonEditor__bianliang {
+      margin: 0 2px;
+      vertical-align: 2px;
+      padding: 2px 10px;
+      border-radius: 4px;
+      background: #fff2d4;
+      color: #fc8256;
       font-size: 13px;
     }
   }

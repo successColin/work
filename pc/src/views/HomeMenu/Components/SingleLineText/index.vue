@@ -10,11 +10,11 @@
 <template>
   <div class="singleTextWrap" :style="getContentStyles()">
     <div
-        class="singleTextContent"
-        :style="getTextStyles()"
-        :class="{ellipsis: config.enableEllipsis}"
-        @click="hrefUrl"
-        :title="content"
+      class="singleTextContent"
+      :style="getTextStyles()"
+      :class="{ ellipsis: config.enableEllipsis }"
+      @click="hrefUrl"
+      :title="content"
     >
       <span>{{ content }}</span>
     </div>
@@ -43,10 +43,15 @@ export default {
   props: {
     config: {
       type: Object,
-      default: () => {
-      }
+      default: () => {}
     },
     otherParams: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    elementData: {
       type: Object,
       default() {
         return {};
@@ -60,7 +65,7 @@ export default {
       content: '',
       obj: {}, // 文本对象
       timer: null,
-      panelConfig: {}, // 面板属性
+      panelConfig: {} // 面板属性
     };
   },
 
@@ -79,7 +84,15 @@ export default {
     getTextStyles() {
       return function () {
         // eslint-disable-next-line max-len
-        const { stylesObj = {}, gradientType, width, height, interactionType, enableEllipsis, enableBackground } = this.config;
+        const {
+          stylesObj = {},
+          gradientType,
+          width,
+          height,
+          interactionType,
+          enableEllipsis,
+          enableBackground
+        } = this.config;
         const {
           color1,
           color2,
@@ -92,7 +105,9 @@ export default {
           ...rest
         } = stylesObj;
         let styles = `width: ${width}px;height: ${height}px;`;
-        styles += enableEllipsis ? `line-height:${this.config.height}px;` : `line-height:${stylesObj.fontSize + 10}px;`;
+        styles += enableEllipsis
+          ? `line-height:${this.config.height}px;`
+          : `line-height:${stylesObj.fontSize + 10}px;`;
         Object.keys(rest).forEach((item) => {
           let singStyle = `${item}:${stylesObj[item]}`;
           if (item === 'fontSize' || item === 'letterSpacing') {
@@ -100,7 +115,8 @@ export default {
           }
           styles += `${singStyle}${singStyle ? ';' : ''}`;
         });
-        if (gradientType === 1 && color1 && color2) { // 左右渐变
+        if (gradientType === 1 && color1 && color2) {
+          // 左右渐变
           styles += `background-image: linear-gradient(to right, ${color1}, ${color2});`;
         } else if (gradientType === 2 && color1 && color2) {
           styles += `background-image: -webkit-gradient(linear,0 0,0 bottom,from(${color1}),to(${color2}));`;
@@ -122,13 +138,7 @@ export default {
       return function () {
         const { stylesObj = {}, enableBackground, width, height, top, left } = this.config;
         let styles = `width: ${width}px;height: ${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex}; `;
-        const {
-          backgroundColor,
-          borderRadius,
-          borderColor,
-          borderWidth,
-          borderStyle
-        } = stylesObj;
+        const { backgroundColor, borderRadius, borderColor, borderWidth, borderStyle } = stylesObj;
         if (enableBackground) {
           styles += ` backgroundColor:${backgroundColor}; borderRadius:${borderRadius}px;
           borderColor:${borderColor};borderWidth:${borderWidth}px;borderStyle:${borderStyle};`;
@@ -142,16 +152,32 @@ export default {
     this.initFunc();
   },
   watch: {
-    otherParams: {
+    // otherParams: {
+    //   deep: true,
+    //   immediate: false,
+    //   handler(v, o) {
+    //     const params = this.getParameters();
+    //     const { isShow } = this.config;
+    //     if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+    //       this.init();
+    //     } else if (
+    //       JSON.stringify(v) === '{}'
+    //         &&
+    //         JSON.stringify(o) !== '{}'
+    //         &&
+    //         params.varJson === '[]' && isShow
+    //     ) {
+    //       this.init();
+    //     }
+    //   }
+    // },
+    elementData: {
       deep: true,
       immediate: false,
       handler(v, o) {
-        const params = this.getParameters();
-        const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-          this.init();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
-          this.init();
+        const { id, dataType } = this.config;
+        if (!isEqual(v, o) && dataType === 3) {
+          this.reduceDataFilter(v[id]);
         }
       }
     }
@@ -159,7 +185,9 @@ export default {
   methods: {
     getParameters() {
       const { id, componentId } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
+      const reduce = (
+        obj // 将Object 处理成 Array
+      ) =>
         Object.keys(obj).map((item) => ({
           name: item,
           value: obj[item]
@@ -203,14 +231,14 @@ export default {
       if (dataType === 2) {
         await this.getApi();
       }
-      if (dataType === 3) {
-        await this.getSQL();
-      }
+      // if (dataType === 3) {
+      //   await this.getSQL();
+      // }
     },
     async getApi() {
       const { apiDataConfig } = this.config;
       const params = this.getParameters();
-      const res = await getInfoById(params) || [];
+      const res = (await getInfoById(params)) || [];
       if (res.length) {
         const obj = res[0] || {};
         const targetObj = obj.response || '{}';
@@ -252,26 +280,9 @@ export default {
         this.content = JSON.parse(targetObj)[apiEffect];
       }
     },
-    async getSQL() {
+    async reduceDataFilter(res) {
       const { SqlDataConfig } = this.config;
-      const {
-        SQLFilterFun,
-        enableSQLFilter,
-        SQLEffect,
-        SQLDataFilterId,
-        enableSQLAutoUpdate,
-        SQLUpdateTime = 1
-      } = SqlDataConfig;
-      const params = this.getParameters();
-      const res = await getInfoById(params);
-      if (enableSQLAutoUpdate) {
-        const time = SQLUpdateTime * 1000;
-        // eslint-disable-next-line no-unused-expressions
-        this.timer && clearTimeout(this.timer);
-        this.timer = setTimeout(() => {
-          this.getSQL();
-        }, time);
-      }
+      const { SQLFilterFun, enableSQLFilter, SQLEffect, SQLDataFilterId } = SqlDataConfig;
       if (!SQLEffect && !enableSQLFilter) {
         this.content = JSON.stringify(res);
         return;
@@ -286,37 +297,93 @@ export default {
       }
       this.content = JSON.stringify(res[SQLEffect]);
     },
-    doSkipMenu(skipMenuConfig) { // 跳菜单
+    async getSQL() {
+      const { SqlDataConfig } = this.config;
+      const { enableSQLAutoUpdate, SQLUpdateTime = 1 } = SqlDataConfig;
+      const params = this.getParameters();
+      const res = await getInfoById(params);
+      if (enableSQLAutoUpdate) {
+        const time = SQLUpdateTime * 1000;
+        // eslint-disable-next-line no-unused-expressions
+        this.timer && clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+          this.getSQL();
+        }, time);
+      }
+      await this.reduceDataFilter(res);
+    },
+    doSkipMenu(skipMenuConfig) {
+      // 跳菜单
       const menuConfig = skipMenuConfig.find((item) => {
-        if (!item.jumpTerm) { // 如果没有条件，默认跳
+        if (!item.jumpTerm) {
+          // 如果没有条件，默认跳
           return true;
         }
         const isFlag = this.formulaConversion(item.jumpTerm);
         return isFlag;
       });
+      console.log(skipMenuConfig, 'skipMenuConfig');
+      const commonReduce = (config) => {
+        config.menuVarObj = {};
+        config.menuFilter.forEach((item, index) => {
+          // 将公式值处理成固定值
+          const { filterTermStr, filterTermSql, filterTermType } = item;
+          if (filterTermType === 1) {
+            // 普通的过滤条件
+            const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
+            config.menuFilter[index].filterTermStr = JSON.stringify(newFilterTermStr);
+          }
+          if (filterTermType === 2) {
+            // sql过滤条件
+            const str = this.reduceSqlFilter(filterTermSql);
+            config.menuFilter[index].filterTermSql = str;
+          }
+        });
+        return config;
+      };
+      const { name, query = {} } = this.$route;
+      if (name === 'appCustomPage' && menuConfig) {
+        const { CSMUuid, CSMIsWebview } = query;
+        const newMenuConfig = commonReduce(menuConfig);
+        newMenuConfig.operationType = 'menu';
+        newMenuConfig.CSMUuid = CSMUuid;
+        if (CSMIsWebview === '1') {
+          // eslint-disable-next-line no-undef
+          uni.postMessage({ data: newMenuConfig });
+        }
+        if (CSMIsWebview === '2') {
+          window.parent.postMessage(newMenuConfig, '*');
+        }
+        if (CSMIsWebview === '3') {
+          // eslint-disable-next-line no-undef
+          dd.postMessage({ data: newMenuConfig });
+        }
+        if (CSMIsWebview === '4') {
+          // eslint-disable-next-line no-undef
+          // alert(jWeixin.miniProgram);
+          // eslint-disable-next-line no-undef
+          uni.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
+          // eslint-disable-next-line no-undef
+          // jWeixin.miniProgram.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
+          // eslint-disable-next-line no-undef
+          // jWeixin.miniProgram.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
+          // eslint-disable-next-line no-undef
+          uni.postMessage({ data: newMenuConfig });
+        }
+        return;
+      }
       if (menuConfig) {
         // 获取目标菜单
         const menu = this.$store.getters.getCurMenu(menuConfig.id);
         if (menu) {
           const curMenu = JSON.parse(JSON.stringify(menu));
           curMenu.path = `${curMenu.path}&isJump=1`;
-          menuConfig.menuVarObj = {};
-          menuConfig.menuFilter.forEach((item, index) => { // 将公式值处理成固定值
-            const { filterTermStr, filterTermSql, filterTermType } = item;
-            if (filterTermType === 1) { // 普通的过滤条件
-              const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
-              menuConfig.menuFilter[index].filterTermStr = JSON.stringify(newFilterTermStr);
-            }
-            if (filterTermType === 2) { // sql过滤条件
-              const str = this.reduceSqlFilter(filterTermSql);
-              menuConfig.menuFilter[index].filterTermSql = str;
-            }
-          });
+          const newMenuConfig = commonReduce(menuConfig);
           const menuObj = {};
-          menuObj[menuConfig.id] = menuConfig;
+          menuObj[menuConfig.id] = newMenuConfig;
           const { jumpMenuObj = '{}' } = sessionStorage;
           const newJumpMenuObj = JSON.parse(jumpMenuObj);
-          newJumpMenuObj[menuConfig.id] = menuConfig;
+          newJumpMenuObj[menuConfig.id] = newMenuConfig;
           sessionStorage.jumpMenuObj = JSON.stringify(newJumpMenuObj);
           this.$bus.$emit('changeMenuTab', curMenu);
         } else {
@@ -332,7 +399,8 @@ export default {
         });
       }
     },
-    reduceNormalFilter(filterTermStr) { // 处理普通的过滤条件
+    reduceNormalFilter(filterTermStr) {
+      // 处理普通的过滤条件
       const newFilterTermStr = filterTermStr ? JSON.parse(filterTermStr) : {};
       const { termArr = [] } = newFilterTermStr;
       termArr.forEach((termItem) => {
@@ -350,7 +418,8 @@ export default {
       }
       return newFilterTermStr;
     },
-    reduceSqlFilter(filterTermSql) { // 处理sql过滤条件
+    reduceSqlFilter(filterTermSql) {
+      // 处理sql过滤条件
       let str = this.regProcess(filterTermSql);
       const reg = /GET_FIELD_VALUE\('[\w\d\s]+'\)/g;
       str = str.replace(reg, (text) => {
@@ -360,15 +429,21 @@ export default {
       return str;
     },
     doSpringPanel(panelConfig) {
-      const { curPaneObj } = panelConfig;
+      const { curPaneObj, activeObj: { dialogTitle } } = panelConfig;
+      console.log(panelConfig, 'panelConfig');
       if (curPaneObj && curPaneObj.id) {
-        curPaneObj.panelFilter.forEach((item, index) => { // 将公式值处理成固定值
+        curPaneObj.panelFilter.forEach((item, index) => {
+          // 将公式值处理成固定值
           const { filterTermStr, filterTermSql, filterTermType } = item;
-          if (filterTermType === 1) { // 普通的过滤条件
+          if (filterTermType === 1) {
+            // 普通的过滤条件
             const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
-            curPaneObj.panelFilter[index].filterTermStr = newFilterTermStr ? JSON.stringify(newFilterTermStr) : '';
+            curPaneObj.panelFilter[index].filterTermStr = newFilterTermStr
+              ? JSON.stringify(newFilterTermStr)
+              : '';
           }
-          if (filterTermType === 2) { // sql过滤条件
+          if (filterTermType === 2) {
+            // sql过滤条件
             const str = this.reduceSqlFilter(filterTermSql);
             curPaneObj.panelFilter[index].filterTermSql = str;
           }
@@ -377,18 +452,41 @@ export default {
         const panelFixData = {};
         if (panelData && panelData.length) {
           panelData.forEach((item) => {
-            const { field, paneComp: { compId } } = item;
+            const {
+              field,
+              paneComp: { compId }
+            } = item;
             panelFixData[compId] = FIXED_OBJ[field] || field;
           });
         }
         curPaneObj.panelFixData = panelFixData;
+        const { name, query = {} } = this.$route;
+        if (name === 'appCustomPage') {
+          const { CSMUuid, CSMIsWebview } = query;
+          curPaneObj.operationType = 'pane';
+          curPaneObj.CSMUuid = CSMUuid;
+          curPaneObj.dialogTitle = dialogTitle || '';
+          if (CSMIsWebview === '1') {
+            // eslint-disable-next-line no-undef
+            uni.postMessage({ data: curPaneObj });
+          }
+          if (CSMIsWebview === '2') {
+            window.parent.postMessage(curPaneObj, '*');
+          }
+          if (CSMIsWebview === '3') {
+            // eslint-disable-next-line no-undef
+            dd.postMessage({ data: curPaneObj });
+          }
+          return;
+        }
         this.panelConfig = panelConfig;
         this.$nextTick(() => {
           this.visible = true;
         });
       }
     },
-    regProcess(str = '') { // 将公式中的特殊字符去除
+    regProcess(str = '') {
+      // 将公式中的特殊字符去除
       if (!str) return '';
       let formulaRes = str
         .replace(/\[|\]/g, '')
@@ -500,7 +598,8 @@ export default {
         return FIXED_OBJ[field];
       });
     },
-    hrefUrl() { // 点击操作
+    hrefUrl() {
+      // 点击操作
       const { interactionType, panelConfig, skipMenuConfig } = this.config;
       FIXED_OBJ = this.obj;
       // 1不需处理

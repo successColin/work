@@ -251,9 +251,12 @@
           </el-collapse-item>
         </el-collapse>
       </div>
-      <div class="contentConfig__box contentConfig__hasTab">
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="getCurrentTab.needPermissions != null"
+      >
         <h2 class="contentConfig__hasTab--switchBox">
-          是否需要数据权限
+          是否需要数据权限{{ getCurrentTab.needPermissions }}
           <el-switch
             class="contentConfig__hasTab--switch"
             v-model="getCurrentTab.needPermissions"
@@ -499,6 +502,7 @@ export default {
   },
   created() {
     this.initIcon();
+    console.log(this.getCurrentTab.needPermissions);
   },
   mounted() {
     this.resetCardIcon();

@@ -15,7 +15,7 @@ Vue.directive('fixedPlace', {
       // console.log(binding);
       if (binding.value) {
         // console.log(binding.value);
-        targetEl.value = (targetEl.value * 1).toFixed(binding.value);
+        targetEl.value = +(targetEl.value * 1).toFixed(binding.value);
         targetEl.dispatchEvent(new Event('input'));
       }
     }

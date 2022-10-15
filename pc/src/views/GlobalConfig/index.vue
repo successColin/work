@@ -88,20 +88,20 @@ export default {
           url: 'reportConfig',
           type: ''
         },
+        // {
+        //   name: 'globalConfig.fileServerOptions',
+        //   icon: 'icon-wenjianfuwuqixuanxiang',
+        //   color: '#FAB71C',
+        //   url: 'fileserverConfig',
+        //   type: ''
+        // },
         {
-          name: 'globalConfig.fileServerOptions',
-          icon: 'icon-wenjianfuwuqixuanxiang',
-          color: '#FC8256',
-          url: 'fileserverConfig',
+          name: 'globalConfig.watermarkOptions',
+          icon: 'icon-shuiyinxiangguanxuanxiang',
+          color: '#34C7BE',
+          url: 'watermarkConfig',
           type: ''
         }
-        // {
-        //   name: 'globalConfig.watermarkOptions',
-        //   icon: 'icon-shuiyinxiangguanxuanxiang',
-        //   color: '#34C7BE',
-        //   url: 'watermarkConfig',
-        //   type: ''
-        // }
       ]
     };
   },
@@ -109,6 +109,9 @@ export default {
     showSidebarArr() {
       return function () {
         const { userInfo = {} } = this.$store.state.userCenter;
+        if (!userInfo.tenantVO) {
+          return;
+        }
         const {
           tenantVO: { tenantCode }
         } = userInfo;

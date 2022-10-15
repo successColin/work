@@ -68,6 +68,18 @@
         ></filterable-input>
       </el-form-item>
       <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
+      </el-form-item>
+      <el-form-item
         label="最小宽度"
         v-if="relateObj && relateObj.compName === 'TableMain'"
       >
@@ -161,7 +173,11 @@
           <i class="iconfont icon-xinzeng m-r-4"></i>添加区间
         </apiot-button>
         <div class="color__areas">
-          <div class="color__areas__row" v-for="(item, index) in activeObj.ranges" :key="index">
+          <div
+            class="color__areas__row"
+            v-for="(item, index) in activeObj.ranges"
+            :key="index"
+          >
             <apiot-input
               class="color__areas__input"
               v-if="index === 0"
@@ -176,8 +192,7 @@
               placeholder="请输入固定值"
               disabled
             ></apiot-input>
-            %
-            ~
+            % ~
             <apiot-input
               class="color__areas__input"
               value="100"
@@ -201,22 +216,20 @@
               :predefine="selectColorArr"
             >
             </apiot-color-picker>
-            <i class="iconfont icon-guanbi"
-              :class="{noShow: index === 0}" @click="deleteColorArea(index)"></i>
+            <i
+              class="iconfont icon-guanbi"
+              :class="{ noShow: index === 0 }"
+              @click="deleteColorArea(index)"
+            ></i>
           </div>
         </div>
       </el-form-item>
       <el-form-item
         label="字体"
         class="font"
-        v-if="
-          !['TreeMain', 'MultiTree'].includes(relateObj.compName)
-        "
+        v-if="!['TreeMain', 'MultiTree'].includes(relateObj.compName)"
       >
-        <apiot-color-picker
-          v-model="activeObj.font.color"
-          class="m-r-8"
-        >
+        <apiot-color-picker v-model="activeObj.font.color" class="m-r-8">
         </apiot-color-picker>
         <el-select v-model="activeObj.font.size" class="m-r-8">
           <el-option label="12" :value="12"></el-option>
@@ -231,16 +244,16 @@
         </el-select>
       </el-form-item>
       <el-form-item label="内容显示" v-if="$route.query.isApp !== '1'">
-        <el-select v-model="activeObj.progressShowType" placeholder="请选择类型">
+        <el-select
+          v-model="activeObj.progressShowType"
+          placeholder="请选择类型"
+        >
           <el-option label="始终显示" :value="1"></el-option>
           <el-option label="鼠标悬停显示" :value="2"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="提交类型">
-        <el-select
-          v-model="activeObj.submitType"
-          placeholder="请选择类型"
-        >
+        <el-select v-model="activeObj.submitType" placeholder="请选择类型">
           <el-option label="始终提交" :value="1"></el-option>
           <el-option label="仅显示时提交" :value="2"></el-option>
           <el-option label="始终不提交" :value="3"></el-option>
@@ -264,8 +277,7 @@ export default {
     };
   },
 
-  components: {
-  },
+  components: {},
 
   computed: {
     getSingleRelate() {
@@ -301,7 +313,7 @@ export default {
       areas.push({
         color1: '#E74D4D',
         color2: '#FB6F5C',
-        range: 100,
+        range: 100
       });
       this.activeObj.ranges = areas;
     },
@@ -384,7 +396,7 @@ export default {
       } else if (this.activeObj.shouldRequired) {
         this.$set(this.fatherObj.rules, this.activeObj.compId, [ruleObj]);
       }
-    },
+    }
   }
 };
 </script>
@@ -392,7 +404,7 @@ export default {
 <style lang='scss' scoped>
 @import '../commonConfig';
 
-.color__areas__row{
+.color__areas__row {
   width: 100%;
   height: 42px;
   padding: 5px 0;
@@ -404,7 +416,7 @@ export default {
       height: 32px;
       width: 32px;
       border-radius: 4px;
-      border: 1px solid #E9E9E9;
+      border: 1px solid #e9e9e9;
       box-sizing: border-box;
     }
 
@@ -418,31 +430,31 @@ export default {
       border: none;
     }
   }
-  .color__areas__input{
+  .color__areas__input {
     width: 56px;
     height: 32px;
     border-radius: 4px;
-    border: 1px solid #E9E9E9;
+    border: 1px solid #e9e9e9;
     box-sizing: border-box;
     ::v-deep {
-      .el-input__inner{
+      .el-input__inner {
         border: none;
         height: 100%;
       }
     }
   }
-  .onlyone{
+  .onlyone {
     width: 153px;
   }
-  .icon-guanbi{
+  .icon-guanbi {
     font-size: 14px;
-    color: #BBC3CD;
+    color: #bbc3cd;
     cursor: pointer;
-    &:hover{
+    &:hover {
       color: $--color-primary;
     }
   }
-  .noShow{
+  .noShow {
     opacity: 0;
     cursor: inherit;
   }

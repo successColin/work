@@ -90,9 +90,9 @@
           @selectRes="selectMultiColumn"
         ></filterable-input>
       </el-form-item>
-      <el-form-item
+      <!-- <el-form-item
         style="margin-bottom: 0"
-        v-if="activeObj.dataSource.columnName"
+        v-if="activeObj.dataSource.columnName && isShow"
       >
         <p class="switchBox">
           是否启用字典
@@ -104,7 +104,7 @@
           >
           </el-switch>
         </p>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item
         label="字典表"
         v-if="activeObj.dataSource.columnName && activeObj.enableDict"
@@ -134,6 +134,18 @@
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
       </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
       <el-form-item label="状态">
         <el-button-group>
           <el-button
@@ -158,6 +170,18 @@
             >隐藏</el-button
           >
         </el-button-group>
+      </el-form-item>
+      <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && relateObj.compName === 'TableMain'"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
       </el-form-item>
       <el-form-item
         label="最小宽度"
@@ -241,7 +265,7 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="验证" v-if="isShow">
+      <el-form-item label="验证">
         <p class="switchBox">
           是否必填
           <el-switch

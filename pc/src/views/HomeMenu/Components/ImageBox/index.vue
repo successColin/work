@@ -9,8 +9,7 @@
 <template>
   <div class="singleTextWrap" :style="getRotateX">
     <div class="imageContent" :style="getRotateY">
-      <div class="imageBox" :style="getTextStyles()">
-      </div>
+      <div class="imageBox" :style="getTextStyles()"></div>
     </div>
   </div>
 </template>
@@ -24,8 +23,7 @@ export default {
   props: {
     config: {
       type: Object,
-      default: () => {
-      }
+      default: () => {}
     },
     otherParams: {
       type: Object,
@@ -40,8 +38,7 @@ export default {
     };
   },
 
-  components: {
-  },
+  components: {},
 
   computed: {
     getRotateY() {
@@ -58,13 +55,14 @@ export default {
       }
       return styles;
     },
-    getImageUrl() { // 获取图片路径
+    getImageUrl() {
+      // 获取图片路径
       return function (url) {
         if (!url) return '';
-        const reg = /(http|https):\/\/([\w.]+\/?)\S*/ig;
+        const reg = /(http|https):\/\/([\w.]+\/?)\S*/gi;
         const result = url.match(reg);
         if (!result || !IsURL(result)) return '';
-        return result[0] || '';
+        return this.$parseImgUrl(result[0]) || '';
       };
     },
     getTextStyles() {
@@ -72,18 +70,17 @@ export default {
         let styles = '';
         const { stylesObj = {}, dataType = 1 } = this.config;
         const { supportParameters } = stylesObj;
-        console.log(dataType);
         if (supportParameters === 1) {
           const url = this.getImageUrl(this.content);
-          styles += `background-image:url(${url});`;
+          styles += `background-image:url(${this.$parseImgUrl(url, this.hasToken)});`;
         }
         Object.keys(stylesObj).forEach((item) => {
           if (item === 'backgroundImage') {
             if (dataType === 1 && supportParameters !== 1) {
-              styles += `background-image:url(${stylesObj[item]});`;
+              styles += `background-image:url(${this.$parseImgUrl(stylesObj[item])});`;
             } else if ([2, 3].includes(dataType) && supportParameters !== 1) {
               const url = this.getImageUrl(this.content);
-              styles += `background-image:url(${url});`;
+              styles += `background-image:url(${this.$parseImgUrl(url, this.hasToken)});`;
             }
           } else if (item === 'rotationAngle') {
             styles += `transform:rotate(${stylesObj[item]}deg);`;
@@ -94,12 +91,19 @@ export default {
         return styles;
       };
     },
-    getList() {
-      return this.$store.getters.list;
+    hasToken() {
+      if (this.$route.name === 'appCustomPage') {
+        const { query } = this.$route;
+        const { hasOwnProperty } = Object.prototype;
+        if (hasOwnProperty.call(query, 'CSMToken') && query.CSMToken) {
+          return query.CSMToken;
+        }
+        return '';
+      }
+      return '';
     }
   },
-  beforeMount() {
-  },
+  beforeMount() {},
   mounted() {
     this.init();
   },
@@ -109,7 +113,10 @@ export default {
       immediate: false,
       handler(v, o) {
         const params = this.getParameters();
-        const { isShow, stylesObj: { supportParameters } } = this.config;
+        const {
+          isShow,
+          stylesObj: { supportParameters }
+        } = this.config;
         if (supportParameters === 1) {
           let url = '';
           Object.keys(v).forEach((item) => {
@@ -120,7 +127,12 @@ export default {
         }
         if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
           this.init();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+        } else if (
+          JSON.stringify(v) === '{}' &&
+          JSON.stringify(o) !== '{}' &&
+          params.varJson === '[]' &&
+          isShow
+        ) {
           this.init();
         }
       }
@@ -129,7 +141,9 @@ export default {
   methods: {
     getParameters() {
       const { id, componentId } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
+      const reduce = (
+        obj // 将Object 处理成 Array
+      ) =>
         Object.keys(obj).map((item) => ({
           name: item,
           value: obj[item]
@@ -157,7 +171,9 @@ export default {
     },
 
     async init() {
-      const { stylesObj: { supportParameters } } = this.config;
+      const {
+        stylesObj: { supportParameters }
+      } = this.config;
       if (supportParameters === 1) {
         const { query } = this.$route;
         let url = '';
@@ -178,7 +194,7 @@ export default {
     async getApi() {
       const { apiDataConfig } = this.config;
       const params = this.getParameters();
-      const res = await getInfoById(params) || [];
+      const res = (await getInfoById(params)) || [];
       if (res.length) {
         const obj = res[0] || {};
         const targetObj = obj.response || '{}';

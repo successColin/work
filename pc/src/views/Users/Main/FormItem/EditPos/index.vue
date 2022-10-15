@@ -3,14 +3,21 @@
     <el-button size="mini" @click="show"
       ><i class="iconfont icon-jiahao"></i> {{ $t('user.doAdd') }}</el-button
     >
-    <el-tag
-      v-show="JSON.stringify(orgObj) !== '{}'"
-      size="small"
-      closable
-      @close="handleClose"
-    >
-      <i class="iconfont icon-zhiwei"></i>{{ orgObj.name }}
-    </el-tag>
+<!--    <el-tag-->
+<!--      v-show="JSON.stringify(orgObj) !== '{}'"-->
+<!--      size="small"-->
+<!--      closable-->
+<!--      @close="handleClose"-->
+<!--    >-->
+<!--      <i class="iconfont icon-zhiwei"></i>{{ orgObj.name }}-->
+<!--    </el-tag>-->
+    <apiot-tag
+        v-show="JSON.stringify(orgObj) !== '{}'"
+        class="m-r-6"
+        @deleteSelf="handleClose"
+        :item="orgObj.name"
+        itemIconClass="icon-zhiwei"
+    ></apiot-tag>
     <apiot-dialog
       :visible.sync="dialogVisible"
       :title="$t('user.addPos')"
@@ -96,7 +103,12 @@ export default {
     .el-dialog__body {
       padding: 0 20px;
     }
-
+    .el-tree__empty-block {
+      min-height: 300px;
+    }
+    .wz {
+      line-height: 30px;
+    }
     .el-button--mini {
       padding: 0 8px;
       border: 1px dashed #e9e9e9;

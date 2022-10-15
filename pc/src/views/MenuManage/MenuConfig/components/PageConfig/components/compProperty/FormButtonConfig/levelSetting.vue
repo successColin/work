@@ -85,19 +85,29 @@
                       label="字段"
                   >
                     <template slot-scope="scope">
-                      <el-select
-                          v-model="scope.row.name"
-                          filterable
+                      <filterable-input
                           placeholder="请选择字段"
-                      >
-                        <el-option
-                            v-for="item in filesOption"
-                            :key="item.columnName"
-                            :label="`${item.columnName}(${item.memo})`"
-                            :value="item.columnName"
-                        >
-                        </el-option>
-                      </el-select>
+                          :tableName="tableName"
+                          columnTypes="3"
+                          :dialogType="2"
+                          :notShowSys="false"
+                          :showInfo="{columnName: scope.row.name}"
+                          :tableArr="filesOption"
+                          @selectRes="selectColumnRes($event, scope.row)"
+                      ></filterable-input>
+<!--                      <el-select-->
+<!--                          v-model="scope.row.name"-->
+<!--                          filterable-->
+<!--                          placeholder="请选择字段"-->
+<!--                      >-->
+<!--                        <el-option-->
+<!--                            v-for="item in filesOption"-->
+<!--                            :key="item.columnName"-->
+<!--                            :label="`${item.columnName}(${item.memo})`"-->
+<!--                            :value="item.columnName"-->
+<!--                        >-->
+<!--                        </el-option>-->
+<!--                      </el-select>-->
                     </template>
                   </el-table-column>
                   <el-table-column
@@ -193,6 +203,10 @@ export default {
       defalut() {
         return [];
       }
+    },
+    tableName: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -223,6 +237,9 @@ export default {
   },
 
   methods: {
+    selectColumnRes({ columnName }, row) {
+      row.name = columnName;
+    },
     // 新增区域
     handleCommand(v) {
       const obj = {
@@ -421,6 +438,11 @@ export default {
   .bizWrap{
     padding: 10px;
     height: 180px;
+    ::v-deep{
+      .filterableInput__result--table{
+        top: 0;
+      }
+    }
   }
   .summarySettingsWrap .icon-shanchu {
     color: #BBC3CD;

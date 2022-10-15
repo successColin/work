@@ -131,10 +131,24 @@
       >
         <el-select v-model="activeObj.timeShowType" class="m-r-8">
           <el-option label="日期(yyyy-MM-dd)" :value="1"></el-option>
+          <el-option label="日期时间(yyyy-MM-dd hh:mm)" :value="3"></el-option>
           <el-option
             label="日期时间(yyyy-MM-dd hh:mm:ss)"
             :value="2"
           ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        label="数字显示风格"
+        v-if="
+          activeObj.dataSource.columnName &&
+          [1, 4].includes(+activeObj.dataSource.columnTypeDict) &&
+          !activeObj.enableDict
+        "
+      >
+        <el-select v-model="activeObj.numberShowType" class="m-r-8">
+          <el-option label="普通" :value="1"></el-option>
+          <el-option label="千分位" :value="2"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item
@@ -187,6 +201,11 @@
             class="switchBox__switch"
             active-text="是"
             inactive-text="否"
+            @change="
+              if (activeObj.enableDict) {
+                activeObj.enableCascade = false;
+              }
+            "
           >
           </el-switch>
         </p>
@@ -203,6 +222,45 @@
           :dialogType="3"
           @selectRes="selectDict"
         ></filterable-input>
+      </el-form-item>
+      <el-form-item
+        label="字典生效值"
+        v-if="activeObj.enableDict && activeObj.dataSource.dictObj"
+      >
+        <el-select
+          v-model="activeObj.effectDict"
+          :multiple="true"
+          :collapse-tags="true"
+          placeholder="请选择字典生效值"
+          :clearable="true"
+        >
+          <el-option
+            :label="item.name"
+            :value="item.value"
+            v-for="item in defaultValueArr"
+            :key="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        style="margin-bottom: 0"
+        v-if="activeObj.dataSource.columnName"
+      >
+        <p class="switchBox">
+          是否是级联
+          <el-switch
+            v-model="activeObj.enableCascade"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+            @change="
+              if (activeObj.enableCascade) {
+                activeObj.enableDict = false;
+              }
+            "
+          >
+          </el-switch>
+        </p>
       </el-form-item>
       <el-form-item
         label="关联类型"
@@ -228,6 +286,18 @@
         >
           <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
         </apiot-button>
+      </el-form-item>
+      <el-form-item v-if="relateObj && relateObj.compName === 'TableMain'">
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
       </el-form-item>
       <el-form-item
         label="状态"
@@ -259,8 +329,20 @@
         </el-button-group>
       </el-form-item>
       <el-form-item
+        label="自定义最小宽度(单位%)"
+        v-if="relateObj && ['TableMain'].includes(relateObj.compName)"
+      >
+        <el-input-number
+          style="width: 100%"
+          v-model.number="curMinWidth"
+          :controls="false"
+          :min="1"
+          :max="25"
+        ></el-input-number>
+      </el-form-item>
+      <el-form-item
         label="最小宽度"
-        v-if="relateObj && relateObj.compName === 'TableMain'"
+        v-if="relateObj && ['TableMain'].includes(relateObj.compName)"
       >
         <el-button-group>
           <el-button
@@ -352,11 +434,26 @@
         >
         </apiot-color-picker>
         <el-select v-model="activeObj.font.size" class="m-r-8">
+          <el-option
+            label="默认"
+            :value="0"
+            v-if="$route.query.isApp === '1'"
+          ></el-option>
           <el-option label="12" :value="12"></el-option>
           <el-option label="13" :value="13"></el-option>
           <el-option label="14" :value="14"></el-option>
           <el-option label="15" :value="15"></el-option>
           <el-option label="16" :value="16"></el-option>
+          <el-option
+            label="17"
+            :value="17"
+            v-if="$route.query.isApp === '1'"
+          ></el-option>
+          <el-option
+            label="18"
+            :value="18"
+            v-if="$route.query.isApp === '1'"
+          ></el-option>
         </el-select>
         <el-select v-model="activeObj.font.style">
           <el-option label="常规字体" :value="1"></el-option>
@@ -442,6 +539,7 @@
       :activeObj="activeObj"
       :triggerCompMap="triggerCompMap"
       :getAllcheck="getAllcheck"
+      :isSelPanel="0"
     ></PanelConfig>
     <!-- 跳转菜单配置 -->
     <ToMenuConfig
@@ -489,6 +587,14 @@ export default {
   },
 
   computed: {
+    // 默认字典项
+    defaultValueArr() {
+      if (this.activeObj.dataSource.dictObj) {
+        const tempData = JSON.parse(JSON.stringify(this.activeObj.dataSource.dictObj.dictValue));
+        return tempData || [];
+      }
+      return [];
+    },
     getSingleRelate() {
       if (this.relateObj.relateTableArr) {
         return this.relateObj.relateTableArr.filter(
@@ -501,7 +607,6 @@ export default {
     },
     getMultiRelate() {
       if (this.relateObj.compName === 'MultiTree') {
-        console.log(this.relateObj);
         const arr = [];
         this.relateObj.multiDataSource.forEach((item) => {
           if (item.tableInfo.tableName) {
@@ -534,7 +639,6 @@ export default {
   },
 
   created() {
-    console.log(this.relateObj);
     this.initIcon();
     this.initLabel();
   },

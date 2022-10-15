@@ -8,36 +8,47 @@
 -->
 <!-- treeTable -->
 <template>
-  <ul class="org__select__content__list">
-    <li
-        v-for="item in userListData"
-        :key="'user_' + item.id"
-        @click="rowClick(item)"
-    >
-      <span class="block">
-        <el-checkbox
-            v-model="item.checked"
-            @click.native.stop
-            @change="(val) => checkChange(val, item)"
-        >
-        </el-checkbox>
-      </span>
-      <span class="title titleClass manage-tag m-r-6">
-        <user-avatar :userItem="item"></user-avatar>
-      </span>
-      <span class="block">
-        <i
-            class="iconfont m-r-6 collect"
-            :class="
-            item.isCollect
-              ? 'icon-shoucangxuanzhong'
-              : 'icon-shoucangweixuanzhong'
-          "
-            @click.stop="collectUser(item)"
-        ></i>
-      </span>
-    </li>
-  </ul>
+  <div class="wrap" :class="{hasPage: type === 'whole'}">
+    <ul class="org__select__content__list">
+      <li
+          v-for="item in userListData"
+          :key="'user_' + item.id"
+          @click="rowClick(item)"
+      >
+        <span class="block">
+          <el-checkbox
+              v-model="item.checked"
+              @click.native.stop
+              @change="(val) => checkChange(val, item)"
+          >
+          </el-checkbox>
+        </span>
+        <span class="title titleClass manage-tag m-r-6">
+          <user-avatar :userItem="item"></user-avatar>
+        </span>
+        <span class="block">
+          <i
+              class="iconfont m-r-6 collect"
+              :class="
+              item.isCollect
+                ? 'icon-shoucangxuanzhong'
+                : 'icon-shoucangweixuanzhong'
+            "
+              @click.stop="collectUser(item)"
+          ></i>
+        </span>
+      </li>
+    </ul>
+    <div class="checkAll">
+      <el-checkbox
+        v-model="checkAll"
+        @click.native.stop
+        @change="checkAllChange"
+      >
+      全选
+      </el-checkbox>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -51,7 +62,7 @@ export default {
   name: 'userlist',
   data() {
     return {
-      selection: []
+      selection: [],
     };
   },
   props: {
@@ -72,6 +83,12 @@ export default {
       default() {
         return [];
       }
+    },
+    type: {
+      type: String,
+      default() {
+        return '';
+      }
     }
   },
   mounted() {
@@ -88,6 +105,10 @@ export default {
         return item;
       });
       return rows;
+    },
+    checkAll() {
+      const len = this.listData.filter((item) => !item.checked).length;
+      return this.listData.length && !len;
     }
   },
   inject: ['getCollectUserList'],
@@ -100,6 +121,10 @@ export default {
       // console.log(row);
       // row.checked = val;
       this.$emit('updateSelection', row);
+    },
+    checkAllChange(val) {
+      console.log(val, 'val');
+      this.$emit('updateAllSelection', this.userListData, val);
     },
     collectUser(obj) {
       let api = addCollectionUser;

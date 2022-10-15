@@ -97,6 +97,7 @@ export default {
     pleaseEnterYourName: '请输入您的名字',
     pleaseEnterYourUsualEmail: '请输入您的常用邮箱',
     pleaseEnterRightEmail: '请输入正确的邮箱',
+    pleaseEnterRightwechat: '请输入正确的企业微信',
     brieflyDescribeYourBusinessNeeds: '简单描述一下您的业务需求～',
     pleaseSetANewPassword: '请设置新密码',
     PleaseConfirmTheNewPasswordAgain: '请再次确认新密码',

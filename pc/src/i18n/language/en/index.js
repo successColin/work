@@ -27,6 +27,8 @@ import systemLog from './systemLog';
 import tenant from './tenant';
 import timedTask from './timedTask';
 import userCenter from './userCenter';
+import passwordValid from './passwordValid';
+import announceManage from './announceManage';
 
 export default {
   ...common,
@@ -50,4 +52,6 @@ export default {
   ...importTemplate,
   ...messageShow,
   ...appconfig,
+  ...passwordValid,
+  ...announceManage,
 };

@@ -18,7 +18,7 @@
       :style="getCurStyle"
     >
       <i :class="`iconfont ${tempIcon}`" v-if="!tempImg"></i>
-      <img :src="tempImg" v-if="tempImg" class="showImg" />
+      <img :src="$parseImgUrl(tempImg)" v-if="tempImg" class="showImg" />
       <div class="iconSelect__change">
         <i class="iconfont icon-qiehuan"></i>
       </div>

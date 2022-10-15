@@ -24,7 +24,7 @@
             v-if="!config.icon.imageUrl && !config.icon.icon"
           ></i>
           <img
-            :src="config.icon.imageUrl"
+            :src="$parseImgUrl(config.icon.imageUrl)"
             alt=""
             v-if="config.icon.imageUrl"
             class="full"
@@ -47,7 +47,7 @@
             v-if="!config.icon.imageUrl && !config.icon.icon"
           ></i>
           <img
-            :src="config.icon.imageUrl"
+            :src="$parseImgUrl(config.icon.imageUrl)"
             alt=""
             v-if="config.icon.imageUrl"
             class="full"
@@ -67,7 +67,7 @@
             v-if="!config.icon.imageUrl && !config.icon.icon"
           ></i>
           <img
-            :src="config.icon.imageUrl"
+            :src="$parseImgUrl(config.icon.imageUrl)"
             alt=""
             v-if="config.icon.imageUrl"
             class="full"
@@ -90,7 +90,7 @@
             v-if="!config.selectIcon.imageUrl && !config.selectIcon.icon"
           ></i>
           <img
-            :src="config.selectIcon.imageUrl"
+            :src="$parseImgUrl(config.selectIcon.imageUrl)"
             alt=""
             v-if="config.selectIcon.imageUrl"
             class="full"
@@ -107,7 +107,7 @@
             v-if="!config.icon.imageUrl && !config.icon.icon"
           ></i>
           <img
-            :src="config.icon.imageUrl"
+            :src="$parseImgUrl(config.icon.imageUrl)"
             alt=""
             v-if="config.icon.imageUrl"
             class="full"
@@ -127,7 +127,7 @@
             v-if="!config.icon.imageUrl && !config.icon.icon"
           ></i>
           <img
-            :src="config.icon.imageUrl"
+            :src="$parseImgUrl(config.icon.imageUrl)"
             alt=""
             v-if="config.icon.imageUrl"
             class="full"
@@ -146,7 +146,11 @@
       v-if="this.getGroup.showStyle === 2"
       :class="[{ hasBorder: config.compId !== activeObj.compId }]"
     >
-      <img :src="config.bgImgUrl" v-if="config.bgImgUrl" alt="图片" />
+      <img
+        :src="$parseImgUrl(config.bgImgUrl)"
+        v-if="config.bgImgUrl"
+        alt="图片"
+      />
     </div>
   </div>
 </template>

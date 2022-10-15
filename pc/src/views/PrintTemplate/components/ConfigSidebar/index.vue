@@ -34,7 +34,6 @@
           default-expand-all
           :filter-node-method="filterNode"
           :expand-on-click-node="false"
-          :allow-drop="allowDrop"
           :allow-drag="allowDrag"
         >
           <div
@@ -45,7 +44,6 @@
             @mouseleave="handleMouseleave"
             @mousedown="handleMousedown(node)"
           >
-            <!-- :style="{ cursor: node.level == 5 ? 'move' : 'not-allowed' }" -->
             <img
               v-if="data.compType"
               :src="require(`@/assets/img/menu_images/${data.imgUrl}`)"
@@ -72,6 +70,10 @@ export default {
     dropObj: {
       type: Object,
       default: () => {}
+    },
+    allNode: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -92,18 +94,12 @@ export default {
 
   methods: {
     handleMousedown(node) {
-      // console.log(node);
-      if (node.data.compType) {
+      console.log(node, node.data);
+      if (node.data.compType || node.data.compName === 'TableMain') {
+        this.$emit('update:allNode', node);
         this.$emit('update:dropObj', node.data);
         this.$emit('update:isMove', true);
       }
-    },
-    // 拖拽时判定目标节点能否被放置
-    allowDrop(draggingNode, dropNode) {
-      if (draggingNode.id !== dropNode.id) {
-        return false;
-      }
-      return true;
     },
     // 判断节点能否被拖拽
     allowDrag(node) {
@@ -114,7 +110,7 @@ export default {
     },
     // 鼠标移入
     handleMouseenter(node, e) {
-      if (node.level === 5) {
+      if (node.data.compType || node.data.compName === 'TableMain') {
         e.target.style.outline = '1px dashed #107fff';
         e.target.style.padding = '6px 0';
         e.target.style.cursor = 'move';
@@ -130,45 +126,13 @@ export default {
       e.target.style.cursor = '';
       this.isHover = false;
     },
-    filterNode(value, data, node) {
-      const tempNode = this.findNode(node);
-      // console.log(value, data, node);
-      if (data.compType === 5) {
+    filterNode(value, data) {
+      if (data.areaType === 2) {
         return false;
       }
-      if (tempNode && tempNode.parent.data.showTab === false) {
-        if (
-          tempNode.parent.data.curCompId &&
-          tempNode.data.compId &&
-          tempNode.parent.data.curCompId === tempNode.data.compId
-        ) {
-          return true;
-        }
-        return false;
-      }
-
       return true;
     },
-    findNode(node) {
-      let tempNode = null;
-      while (node.parent && !tempNode) {
-        if (node.parent.data.showTab === false) {
-          tempNode = node;
-          break;
-        }
-        node = node.parent;
-      }
-      return tempNode;
-    },
-    getTreeName(data, node) {
-      if (
-        node.parent.data.curCompId &&
-        data.compId &&
-        node.parent.data.showTab === false &&
-        node.parent.data.curCompId === data.compId
-      ) {
-        return `${data.name}(隐藏)`;
-      }
+    getTreeName(data) {
       if (data.dataSource && data.dataSource.relateName) {
         return `${data.name}(${data.dataSource.relateName})`;
       }
@@ -207,7 +171,6 @@ export default {
   watch: {
     configData: {
       handler() {
-        // console.log(v);
         this.showTree = false;
         this.$nextTick(() => {
           this.showTree = true;

@@ -6,7 +6,7 @@
         {{ $t('role.selectAll') }}
       </apiot-checkbox>
     </div>
-    <div class="filesContent">
+    <div class="filesContent" v-loadMore="loadMore">
       <div
         v-if="!list.length && !loading"
         class="apiotNoData"
@@ -229,6 +229,9 @@ export default {
   },
 
   methods: {
+    loadMore() {
+      this.$emit('loadMore');
+    },
     showHisList(item) {
       this.$emit('showHisList', item);
     },
@@ -324,6 +327,7 @@ export default {
     padding: 15px;
     height: calc(100% - 40px);
     box-sizing: border-box;
+    overflow: auto;
 
     .contentBox__item {
       float: left;

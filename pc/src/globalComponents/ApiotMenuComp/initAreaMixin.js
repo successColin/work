@@ -14,11 +14,13 @@ export default {
     return {
       menuMain: null,
       loading: false,
+      isActivated: false,
     };
   },
   mounted() {
     if (this.configData.needPermissions == null) {
-      this.configData.needPermissions = true;
+      // this.configData.needPermissions = true;
+      this.$set(this.configData, 'needPermissions', true);
     }
     if (this.configData.children.length === 0 && this.isConfig) {
       this.initArea();

@@ -63,7 +63,7 @@
                       <img
                         class="collection__iconSize"
                         v-if="item.icon && item.icon.imageUrl"
-                        :src="item.icon && item.icon.imageUrl"
+                        :src="$parseImgUrl(item.icon && item.icon.imageUrl)"
                       />
                       <i
                         :class="[
@@ -116,7 +116,7 @@
                         <img
                           class="allMenu__imgColor"
                           v-if="item.icon && item.icon.imageUrl"
-                          :src="item.icon && item.icon.imageUrl"
+                          :src="$parseImgUrl(item.icon && item.icon.imageUrl)"
                         />
                         <i
                           :class="[
@@ -325,14 +325,20 @@ export default {
       });
       this.menuCenterFavArr = res.reverse();
     },
-    resolveKeyword(arr) {
-      const tempChildren = arr.filter((child) => {
-        if (child.children) {
-          return this.resolveKeyword(child.children).length;
+    resolveKeyword(menuArr) {
+      const arr = [];
+      menuArr.forEach((child) => {
+        if (child.menuName.toLowerCase().indexOf(this.keywords.toLowerCase()) !== -1) {
+          arr.push(child);
+        } else if (child.children) {
+          const res = this.resolveKeyword(child.children);
+          if (res.length) {
+            child.children = res;
+            arr.push(child);
+          }
         }
-        return child.menuName.indexOf(this.keywords) !== -1;
       });
-      return tempChildren;
+      return arr;
     },
     // 模糊搜索 正则匹配
     fuzzyQuery(keyWord, list) {
@@ -340,9 +346,10 @@ export default {
         return;
       }
       const allModuleArr = [...this.$store.getters.getRouteArr];
+      const tempAllArr = JSON.parse(JSON.stringify(allModuleArr));
       if (keyWord) {
         const tempArr = [];
-        allModuleArr.forEach((item) => {
+        tempAllArr.forEach((item) => {
           if (item.children) {
             const tempChildren = this.resolveKeyword(item.children);
             if (tempChildren.length) {
@@ -369,7 +376,8 @@ export default {
               invert: false,
               easeTime: 300
             },
-            bounce: false
+            bounce: false,
+            click: true
           });
           // 左右滚动
           this.scroll = new BScroll(this.$refs.menu, {
@@ -379,7 +387,8 @@ export default {
               easeTime: 300
             },
             bounce: false,
-            probeType: 3
+            probeType: 3,
+            click: true
           });
           const { length } = this.positionValArr;
           const arr = [];
@@ -437,6 +446,7 @@ export default {
       }
       try {
         item.isCollect = !item.isCollect;
+        this.$store.getters.getRouteObj[item.id].isCollect = item.isCollect;
         const params = {
           menuId: item.id,
           isCollect: item.isCollect,

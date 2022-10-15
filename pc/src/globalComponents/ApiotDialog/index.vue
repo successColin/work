@@ -21,6 +21,9 @@
     @open="open"
     tabindex="0"
   >
+    <span slot="title" class="dialog-title" v-if="showCustomTitle">
+      <slot name="title"></slot>
+    </span>
     <slot></slot>
     <span
       slot="footer"
@@ -87,6 +90,11 @@ export default {
     },
     // 弹出框是否大号
     isBigDialog: {
+      type: Boolean,
+      default: false
+    },
+    // 是否自定义标题
+    showCustomTitle: {
       type: Boolean,
       default: false
     }
@@ -187,6 +195,11 @@ export default {
     box-sizing: border-box;
     height: 54px;
     padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    .el-dialog__headerbtn {
+      top: auto;
+    }
   }
 
   .el-dialog__title {

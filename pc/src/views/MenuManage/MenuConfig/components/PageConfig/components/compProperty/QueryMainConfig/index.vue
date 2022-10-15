@@ -69,6 +69,7 @@
       v-if="isBtnArea"
       :getBtnsArea="getBtnsArea"
       :isBtnArea="isBtnArea"
+      :isQuery="true"
     ></BtnsAreaConfig>
     <!-- 配置关联表弹窗 -->
     <RelateTableDialog

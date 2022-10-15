@@ -13,39 +13,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <title>机至数科-APIoT</title>
+    <!--    <title>机至数科-APIoT</title>-->
     <!-- 本地 -->
     <link rel="stylesheet" href="/luckysheet/plugins/css/pluginsCss.css" />
     <link rel="stylesheet" href="/luckysheet/plugins/plugins.css" />
     <link rel="stylesheet" href="/luckysheet/css/luckysheet.css" />
     <link rel="stylesheet" href="/luckysheet/assets/iconfont/iconfont.css" />
-    <script src="/luckysheet/plugins/js/plugin.js" async></script>
-    <script src="/luckysheet/luckysheet.umd.js" async></script>
-    <!-- 线上 -->
-    <!-- <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/css/pluginsCss.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/plugins.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/luckysheet/dist/css/luckysheet.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/luckysheet/dist/assets/iconfont/iconfont.css"
-    />
-    <script
-      src="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/js/plugin.js"
-      async
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/luckysheet/dist/luckysheet.umd.js"
-      async
-    ></script> -->
     <!-- ----------- -->
     <link rel="stylesheet" href="/static/css/reset.css" />
     <!-- v10 PC端 -->
@@ -57,11 +30,21 @@
       href="//at.alicdn.com/t/c/font_2455147_gj5ro4oc4zj.css"
     />
 
-    <!-- V10 PC端 图标管理 -->
+    <!-- V10 PC端 图标管理 无色-->
     <link
       rel="stylesheet"
-      href="//at.alicdn.com/t/font_2516478_vw78gt5teg.css"
+      href="//at.alicdn.com/t/c/font_3589589_lwag9mymt1.css"
     />
+    <!-- V10 PC端 图标管理 彩色-->
+    <!-- <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_3582418_t24meq8vm3r.css"
+    /> -->
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_3589590_oiiwz06t3.css"
+    />
+    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_2455147_fd7cs6ew5w6.css">
   </head>
   <body>
     <noscript>
@@ -73,4 +56,34 @@
     </noscript>
     <div id="app"></div>
   </body>
+  <script src="/luckysheet/plugins/js/plugin.js" defer></script>
+  <script src="/luckysheet/luckysheet.umd.js" defer></script>
+  <script src="/static/js/uni-webview.js" defer></script>
+  <script type="text/javascript">
+    var userAgent = navigator.userAgent;
+    // if (userAgent.indexOf('AlipayClient') > -1) {
+    if (userAgent.indexOf('DingTalk') > -1) {
+      // 支付宝小程序的 JS-SDK 防止 404 需要动态加载，如果不需要兼容支付宝小程序，则无需引用此 JS 文件。
+      document.writeln('<script src="/static/js/appx-web-view.js"' + '>' + '<' + '/' + 'script>');
+    } else if (/QQ/i.test(userAgent) && /miniProgram/i.test(userAgent)) {
+      // QQ 小程序
+      document.write(
+        '<script type="text/javascript" src="https://qqq.gtimg.cn/miniprogram/webview_jssdk/qqjssdk-1.0.0.js"><\/script>'
+      );
+    } else if (/miniProgram/i.test(userAgent) && /micromessenger/i.test(userAgent)) {
+      // 微信小程序 JS-SDK 如果不需要兼容微信小程序，则无需引用此 JS 文件。
+      document.write('<script type="text/javascript" src="/static/js/jweixin.js"><\/script>');
+    } else if (/toutiaomicroapp/i.test(userAgent)) {
+      // 头条小程序 JS-SDK 如果不需要兼容头条小程序，则无需引用此 JS 文件。
+      document.write(
+        '<script type="text/javascript" src="https://s3.pstatp.com/toutiao/tmajssdk/jssdk-1.0.1.js"><\/script>');
+    } else if (/swan/i.test(userAgent)) {
+      // 百度小程序 JS-SDK 如果不需要兼容百度小程序，则无需引用此 JS 文件。
+      document.write(
+        '<script type="text/javascript" src="https://b.bdstatic.com/searchbox/icms/searchbox/js/swan-2.0.18.js"><\/script>'
+      );
+    } else {
+      document.writeln('<script src="/static/js/gdtjsapi.js"' + '>' + '<' + '/' + 'script>');
+    }
+  </script>
 </html>

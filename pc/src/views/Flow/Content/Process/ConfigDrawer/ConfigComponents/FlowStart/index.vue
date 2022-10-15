@@ -137,6 +137,24 @@
           >
         </div>
       </div>
+      <div class="form-item">
+        <div class="form-item-label">PC端审批人界面配置</div>
+        <div class="form-item-content">
+          <apiot-button class="list-btn" @click="pageSet('pc')">
+            <i class="icon-shezhi iconfont"></i>
+            PC端审批人界面配置
+          </apiot-button>
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="form-item-label">APP端审批人界面配置</div>
+        <div class="form-item-content">
+          <apiot-button class="list-btn" @click="pageSet('app')">
+            <i class="icon-shezhi iconfont"></i>
+            APP端审批人界面配置
+          </apiot-button>
+        </div>
+      </div>
       <div>
         <apiot-button class="list-btn" @click="showDataFiltering">
           <i class="icon-shezhi iconfont"></i>
@@ -256,6 +274,15 @@
         :visible.sync="relateDialog"
         :getCurrentTab="getCurrentTab"
     ></RelateTableDialog>
+    <ApprovalPanelConfig
+        :configVisible.sync="configVisible"
+        ref="approvalPanelConfig"
+        :checkType="checkType"
+        :appCheckFormConfigJSON="appCheckFormConfigJSON"
+        :checkFormConfigJSON="checkFormConfigJSON"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+    />
   </div>
 </template>
 
@@ -264,6 +291,7 @@ import { getFields } from '@/api/flow';
 import { lambdaArr } from '@/config/index';
 import ActionTerm from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/GlobalConfig/components/AddAction/components/ActionTerm';
 import RelateTableDialog from '@/views/MenuManage/MenuConfig/components/PageConfig/components/compProperty/ContentConfig/RelateTableDialog';
+import ApprovalPanelConfig from '../ApprovalPanelConfig/index';
 
 export default {
   props: {
@@ -279,6 +307,21 @@ export default {
   },
   data() {
     return {
+      key1: 0,
+      configVisible: false, // 审批人页面配置弹框
+      isShowTitle: false, // 显示表头全选
+      isShowCheckAll: false, // 显示表头全选
+      isEditTitle: false, // 编辑全选
+      isEditCheckAll: false, // 编辑表头全选
+      isRequireTitle: false, // 必填全选
+      isRequireCheckAll: false, // 必填全选
+      panelOptions: [], // 面板下拉
+      panelActive: '', // 选中的面板
+      checkType: '', // 用于表示app还是pc端审批界面
+      checkFormConfigJSON: [], // 审批人页面配置
+      checkFormConfigJSONOrigin: [], // 审批人页面配置源数据
+      appCheckFormConfigJSON: [], // 审批人页面配置
+      appCheckFormConfigJSONOrigin: [], // 审批人页面配置源数据
       getCurrentTab: {
         tableInfo: { tableName: '' },
         relateTableArr: [],
@@ -306,7 +349,8 @@ export default {
 
   components: {
     ActionTerm,
-    RelateTableDialog
+    RelateTableDialog,
+    ApprovalPanelConfig
   },
 
   computed: {
@@ -368,7 +412,7 @@ export default {
         curInfo[key].compPath = this.getAllcheck[key].compPath;
       });
       return curInfo;
-    }
+    },
   },
 
   mounted() {
@@ -423,6 +467,32 @@ export default {
   },
 
   methods: {
+    handleOk(data) {
+      // 点击保存的时候，以修改的数据为主
+      if (!this.checkType) return;
+      if (this.checkType === 'pc') {
+        this.checkFormConfigJSONOrigin = JSON.parse(JSON.stringify(data));
+        this.checkFormConfigJSON = JSON.parse(JSON.stringify(data));
+      } else {
+        this.appCheckFormConfigJSONOrigin = JSON.parse(JSON.stringify(data));
+        this.appCheckFormConfigJSON = JSON.parse(JSON.stringify(data));
+      }
+      // this.nodeAbstractConfigOrigin = [...this.nodeAbstractConfig];
+      this.configVisible = false;
+      this.checkType = '';
+    },
+    handleCancel() {
+      // 点击取消的时候，以源数据为主
+      // if (!this.checkType) return;
+      if (this.checkType === 'pc') {
+        this.checkFormConfigJSON = JSON.parse(JSON.stringify(this.checkFormConfigJSONOrigin));
+      } else {
+        this.appCheckFormConfigJSON = JSON.parse(JSON.stringify(this.appCheckFormConfigJSONOrigin));
+      }
+      // this.nodeAbstractConfig = [...this.nodeAbstractConfigOrigin];
+      this.configVisible = false;
+      this.checkType = '';
+    },
     handleSaveConfig() {
       this.descConfigListOrigin = JSON.parse(JSON.stringify(this.descConfigList));
       if (this.descConfigList.length) {
@@ -449,21 +519,42 @@ export default {
     init() {
       if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.$nextTick(() => {
-          this.descConfigList = this.nodeInfo.descConfigList || [];
+          const {
+            descConfigList,
+            tableName,
+            triggerCond = {},
+            triggerPreCond,
+            checkFormConfig,
+            appCheckFormConfig
+          } = this.nodeInfo;
+          this.descConfigList = descConfigList || [];
           // eslint-disable-next-line max-len
-          this.descConfigListOrigin = JSON.parse(JSON.stringify(this.nodeInfo.descConfigList || []));
-          this.value = this.nodeInfo.tableName || '';
-          this.radio = this.nodeInfo.triggerCond.type || 'ONLYSAVE';
-          this.value1 = this.nodeInfo.triggerCond.fieldNames;
-          this.termObj = this.nodeInfo.triggerPreCond ? this.nodeInfo.triggerPreCond : {
+          this.descConfigListOrigin = JSON.parse(JSON.stringify(descConfigList || []));
+          this.value = tableName || '';
+          this.radio = triggerCond.type || 'ONLYSAVE';
+          this.value1 = triggerCond.fieldNames;
+          this.termObj = triggerPreCond || {
             termType: 1, // 1 代表外层and 内层 or
             termArr: [] // 条件数组
           };
           this.getCurrentTab = {
-            tableInfo: { tableName: this.nodeInfo.tableName },
+            tableInfo: { tableName },
             relateTableArr: [],
             relateTableIndex: 0
           };
+          this.checkFormConfigJSONOrigin = checkFormConfig
+            ? JSON.parse(JSON.stringify(checkFormConfig))
+            : [];
+          // eslint-disable-next-line max-len
+          this.checkFormConfigJSON = checkFormConfig ? JSON.parse(JSON.stringify(checkFormConfig)) : [];
+          // eslint-disable-next-line max-len
+          this.appCheckFormConfigJSONOrigin = appCheckFormConfig
+            ? JSON.parse(JSON.stringify(appCheckFormConfig))
+            : [];
+          // eslint-disable-next-line max-len
+          this.appCheckFormConfigJSON = appCheckFormConfig
+            ? JSON.parse(JSON.stringify(appCheckFormConfig))
+            : [];
         });
       }
     },
@@ -533,6 +624,28 @@ export default {
     },
     del(i) {
       this.descConfigList.splice(i, 1);
+    },
+    async pageSet(key) {
+      if (!key) return;
+      const { globalAttributes: {
+        pcPanelId, appPanelId, appPanelName, pcPanelName } } = this.currentVersion;
+      if (key === 'app' && !appPanelId) {
+        this.$message.error('请在全局属性中配置app面板!');
+        return;
+      }
+      if (key === 'pc' && !pcPanelId) {
+        this.$message.error('请在全局属性中配置PC面板!');
+        return;
+      }
+      this.$refs.approvalPanelConfig.init({
+        key,
+        appPanelName,
+        pcPanelName,
+        pcPanelId,
+        appPanelId
+      });
+      this.checkType = key;
+      this.configVisible = true;
     },
   },
   name: 'index'
@@ -733,7 +846,6 @@ export default {
     margin-bottom: 10px;
     text-align: left;
   }
-
   ::v-deep {
     .el-dialog__header {
       text-align: left;

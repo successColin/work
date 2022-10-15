@@ -26,6 +26,7 @@
         :placeholder="configData.placeholder"
         v-model="parent.form[configData.compId]"
         v-onlyNumber="configData.numberType"
+        v-remainNumber
         v-fixedPlace="configData.numberType === 2 && configData.decimalPlaces"
         :disabled="configData.canReadonly"
         ref="valueInput"

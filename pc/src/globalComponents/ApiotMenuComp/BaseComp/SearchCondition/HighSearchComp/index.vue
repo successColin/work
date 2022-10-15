@@ -49,9 +49,10 @@
         :placeholder="configData.placeholder"
         @change="selectChange"
         :multiple="true"
+        :collapse-tags="true"
       >
         <el-option
-          v-for="item in getDictArr"
+          v-for="item in effectArr"
           :key="item.value"
           :label="item.name"
           :value="item.value"
@@ -105,7 +106,7 @@
 </template>
 
 <script>
-// import { lambdaArr } from '@/config';
+import { timeShortcuts } from '@/config';
 
 export default {
   props: {
@@ -158,53 +159,7 @@ export default {
       panelObj: null, // 面板相关信息
       showPanel: false,
       pickerOptions: {
-        shortcuts: [
-          {
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '大于当前时间',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              end.setTime(end.getTime() + 3600 * 1000 * 24 * 365 * 100);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '小于当前时间',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365 * 100);
-              picker.$emit('pick', [start, end]);
-            }
-          }
-        ]
+        shortcuts: timeShortcuts
       },
       curCompId: ''
     };
@@ -213,6 +168,19 @@ export default {
   computed: {
     getDictArr() {
       return this.$store.getters.getCurDict(this.configData.dataSource.dictObj.dictKey);
+    },
+    // 生效字典数组
+    effectArr() {
+      if (this.configData.effectDict && this.configData.effectDict.length) {
+        const arr = this.getDictArr.filter((item) => {
+          if (this.configData.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      return this.getDictArr;
     },
     getCurrntMultiArr: {
       get() {
@@ -267,14 +235,13 @@ export default {
     initComp() {
       // 转换label
       if (this.configData.compType === 15) {
-        // 启用字典
-        if (this.configData.enableDict) {
-          // 字典选择
-          this.configData.compType = 4;
-        } else if (this.configData.dataSource.relateName === '主表') {
+        if (this.configData.dataSource.relateName === '主表') {
           if (this.configData.enableMultiColumn) {
             // 数据多选框
             this.configData.compType = 7;
+          } else if (this.configData.enableDict) {
+            // 字典选择
+            this.configData.compType = 4;
           } else if (this.configData.dataSource.columnTypeDict === '3') {
             // 日期时间选择框
             this.configData.compType = 9;
@@ -332,6 +299,11 @@ export default {
       panelObj.panelData.forEach((item) => {
         if (item.mainComp.type === 2) {
           panelObj.panelFixData[item.paneComp.compId] = item.mainComp.fixedValue;
+        } else if (item.mainComp.type === 3) {
+          panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+            true,
+            item.mainComp.fixedValue
+          );
         } else {
           panelObj.panelFixData[item.paneComp.compId] = this.getAllForm()[item.mainComp.compId];
         }
@@ -397,9 +369,9 @@ export default {
       console.log(this.form[this.configData.compId]);
       const arr = [];
       this.form[this.configData.compId].forEach((v) => {
-        const index = this.getDictArr.findIndex((dict) => dict.value === v);
+        const index = this.effectArr.findIndex((dict) => dict.value === v);
         if (index !== -1) {
-          arr.push(this.getDictArr[index].name);
+          arr.push(this.effectArr[index].name);
         }
       });
       this.form[`${this.configData.compId}_`] = arr.join();
@@ -497,6 +469,11 @@ export default {
       display: flex;
       align-items: center;
     }
+  }
+  .el-date-editor .el-range-input {
+    width: 44%;
+    font-size: 13px;
+    color: #333333;
   }
 }
 </style>

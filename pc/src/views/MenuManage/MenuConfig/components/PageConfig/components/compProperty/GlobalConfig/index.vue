@@ -10,16 +10,22 @@
           <i class="iconfont icon-guanxiguanlian m-r-4"></i>查看全局关系
         </apiot-button>
       </el-form-item>
-      <el-form-item label="分享链接">
+      <el-form-item
+        label="分享链接"
+        v-if="!isPanel && $store.state.globalConfig.ureportConfig.shareUrl"
+      >
         <apiot-input
+          readonly
+          placeholder="pc端分享地址"
+          class="m-b-10"
+          v-model="shareUrl"
+          ref="shareUrl"
+        ></apiot-input>
+        <!-- <apiot-input
           placeholder="这里是帮助信息填写"
           class="m-b-10"
-        ></apiot-input>
-        <apiot-input
-          placeholder="这里是帮助信息填写"
-          class="m-b-10"
-        ></apiot-input>
-        <apiot-button class="btn">
+        ></apiot-input> -->
+        <apiot-button class="btn" @click="copyShareUrl">
           <i class="iconfont icon-fuzhi m-r-4"></i>复制链接
         </apiot-button>
       </el-form-item>
@@ -58,12 +64,18 @@ export default {
     },
     hasTriggerComp: {
       type: Object
+    },
+    // 是不是面板
+    isPanel: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
       showTrigger: false,
-      showGird: false
+      showGird: false,
+      shareUrl: ''
     };
   },
 
@@ -76,7 +88,9 @@ export default {
 
   created() {},
 
-  mounted() {},
+  mounted() {
+    this.createShareUrl();
+  },
 
   methods: {
     async triggerConfig() {
@@ -86,6 +100,29 @@ export default {
     async showRelate() {
       await this.$parent.saveLayout();
       this.showGird = true;
+    },
+    createShareUrl() {
+      if (this.$route.query.isApp === '1') {
+        this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}?isLink=1&flag=1&id=${this.$route.params.id}`;
+      } else {
+        this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/sharePage/1/${this.$route.params.id}`;
+      }
+    },
+    copyShareUrl() {
+      // 创建输入框元素
+      const oInput = document.createElement('input');
+      // 将想要复制的值
+      oInput.value = this.shareUrl;
+      // 页面底部追加输入框
+      document.body.appendChild(oInput);
+      // 选中输入框
+      oInput.select();
+      // 执行浏览器复制命令
+      document.execCommand('Copy');
+      // 弹出复制成功信息
+      this.$message.success('复制成功');
+      // 复制后移除输入框
+      oInput.remove();
     }
   }
 };

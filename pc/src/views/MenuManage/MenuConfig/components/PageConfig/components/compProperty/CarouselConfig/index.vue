@@ -1,6 +1,6 @@
 <template>
   <div class="config singleLineTextConfig">
-    <h1 class="config__h1">分割线</h1>
+    <h1 class="config__h1">轮播图</h1>
     <el-form label-position="top" :model="activeObj">
       <!-- <el-form-item label="标题">
         <apiot-input

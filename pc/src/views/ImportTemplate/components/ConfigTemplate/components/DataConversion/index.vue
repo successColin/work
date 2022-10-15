@@ -198,39 +198,44 @@
           </draggable>
         </div>
       </div>
+      <!-- 自动编码生成 -->
+      <div v-else-if="currentType === 3">
+        <filterable-input
+          class="m-t-10"
+          ref="filterableInput"
+          placeholder="请选择字典"
+          :showInfo="dictObj"
+          :hasPagination="true"
+          :dialogType="3"
+          @selectRes="selectDict"
+        ></filterable-input>
+      </div>
     </el-form>
   </apiot-dialog>
 </template>
 
 <script>
 import { createUnique, formatDate } from '@/utils/utils';
+import { typeArr } from '../../config';
 
 export default {
   props: {
-    lineData: {
-      type: Object,
-      default: () => {}
-    },
+    // 转换对象
     dataConversionObj: {
       type: Object,
       default: () => {}
     },
+    // 是否显示
     visibleState: {
       type: Boolean,
       default: false
     },
-    parentTableName: {
-      type: String,
-      default: ''
-    },
-    primaryKey: {
-      type: String,
-      default: ''
-    },
+    // 自定编码规则，新增按钮
     dropdownList: {
       type: Array,
       default: () => []
     },
+    // 自动编码规则，提交日期类型
     timeArr: {
       type: Array,
       default: () => []
@@ -240,16 +245,22 @@ export default {
       type: Number,
       default: 1
     },
+    // 编码规则值
     codeArr: {
       type: Array,
       default: () => []
+    },
+    // 字典对象
+    dictObj: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
     return {
       // 释放__input 值
       ruleForm: {
-        changeType: '', // 转换类型 1字段转id 2日期
+        changeType: '', // 转换类型 1字段转id 2自动编码生成 3取字典值
         changeTableId: '', // 数据转换表id
         dateChangeTable: '', // 数据转换表
         changeBeforeId: '', // 数据转字段（前）id
@@ -263,8 +274,9 @@ export default {
       tableInfo3: null,
       showRes: '',
       // codingRules: [],
-      codeRuleList: {}, // 编码规则
-      autoIncrementRecord: ''
+      codeRuleList: [], // 编码规则
+      autoIncrementRecord: '',
+      currentDictObj: {} // 当前字典对象赋值
       // 数据转换类型
       // typeArr: [
       //   {
@@ -294,16 +306,7 @@ export default {
       return this.ruleForm.dateChangeTable || '';
     },
     typeArr() {
-      return [
-        {
-          value: 1,
-          name: this.$t('importTemplate.toTheAssociatedTableID')
-        },
-        {
-          value: 2,
-          name: this.$t('importTemplate.codeGeneration')
-        }
-      ];
+      return typeArr;
     },
     canAddIncremenet() {
       const index = this.codeArr.findIndex((rule) => rule.type === 'INCREMENT');
@@ -404,6 +407,17 @@ export default {
     }
   },
   methods: {
+    // 字典选择结果
+    async selectDict(dict) {
+      const { id, dictName } = dict;
+      if (this.dictObj && id === this.dictObj.id) {
+        return;
+      }
+      this.currentDictObj = {
+        id,
+        dictName
+      };
+    },
     getName(item) {
       const obj = this.dropdownList.find((v) => v.type === item.type);
       if (obj) {
@@ -483,23 +497,52 @@ export default {
         columnName: v.columnName
       };
     },
+    giveValue(type) {
+      if (type === 1) {
+        // 类型及转换为关联表ID
+        this.$emit('update:dataConversionObj', JSON.parse(JSON.stringify(this.ruleForm)));
+        // 编码规则
+        this.$emit('update:codeArr', []);
+        this.$emit('update:autoIncrementRecord', '');
+        // 字典值
+        this.$emit('update:dictObj', {});
+      } else if (type === 2) {
+        // 类型
+        this.$emit('update:dataConversionObj', { changeType: this.ruleForm.changeType });
+        // 编码规则
+        this.$emit('update:codeArr', this.codeRuleList);
+        this.$emit('update:autoIncrementRecord', this.autoIncrementRecord);
+        // 字典值
+        this.$emit('update:dictObj', {});
+      } else if (type === 3) {
+        this.$emit('update:dataConversionObj', { changeType: this.ruleForm.changeType });
+        // 编码规则
+        this.$emit('update:codeArr', []);
+        this.$emit('update:autoIncrementRecord', '');
+        // if (JSON.stringify(this.currentDictObj) === '{}') {
+        //   this.currentDictObj = this.dictObj;
+        // }
+        // 字典值
+        this.$emit('update:dictObj', this.currentDictObj);
+      }
+    },
     handleReleaseSubmit() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
           console.log(this.ruleForm);
           if (this.currentType === 1) {
             this.ruleForm.changeType = this.currentType;
-            this.$emit('update:dataConversionObj', JSON.parse(JSON.stringify(this.ruleForm)));
+            this.giveValue(1);
           } else if (this.currentType === 2) {
-            if (!this.showRes) {
+            if (!this.codeArr.length) {
               return this.$message({
                 type: 'warning',
                 message: '请编辑编码规则'
               });
             }
-            this.$emit('update:dataConversionObj', { changeType: this.ruleForm.changeType });
-            this.$emit('update:codeArr', this.codeRuleList);
-            this.$emit('update:autoIncrementRecord', this.autoIncrementRecord);
+            this.giveValue(2);
+          } else if (this.currentType === 3) {
+            this.giveValue(3);
           }
           this.$emit('update:dataType', this.currentType);
           this.$emit('update:visible', false);

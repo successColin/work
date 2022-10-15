@@ -51,6 +51,7 @@
         :iconCon="item.iconCon"
         :nameValue="item.nameValue"
         :typesPropName="item.typesPropName"
+        show-overflow-tooltip
       ></component>
     </apiot-table>
     <footer v-if="hasPagination" class="m-l-10">

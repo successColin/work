@@ -113,7 +113,7 @@
               </div>
               <div
                 class="searchConfig__compItem--panel"
-                v-if="[6, 7, 15].includes(child.compType)"
+                v-if="showPanle(child)"
               >
                 <filterable-input
                   placeholder="请选择面板"
@@ -201,6 +201,23 @@ export default {
   },
 
   computed: {
+    // 能否展示选择面板
+    showPanle() {
+      return (comp) => {
+        console.log(comp);
+        if ([6, 7, 15].includes(comp.compType)) {
+          if (comp.compType === 15 && comp.dataSource) {
+            if (comp.dataSource.relateName === '主表') {
+              if (!comp.enableMultiColumn) {
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+        return false;
+      };
+    },
     getCurTree() {
       const i = this.relateObj.pageType === 2 ? 1 : 0;
       const arr = this.relateObj.children[i].children.filter(
@@ -262,7 +279,9 @@ export default {
             panelClassify: 1,
             panelData: [], // 面板传递参数
             panelFilter: [] // 面板过滤条件
-          }
+          },
+          dataSource: comp.dataSource,
+          enableMultiColumn: comp.enableMultiColumn
         });
       });
     },

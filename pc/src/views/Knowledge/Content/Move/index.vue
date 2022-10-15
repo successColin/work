@@ -13,6 +13,7 @@
         :showSelection="false"
         :isNeedColumnDrop="false"
         lazy
+        :isAnimate="false"
         :load="load"
         @row-click="clickRow"
         @expand-change="doExpand"
@@ -28,8 +29,7 @@
               style="cursor: pointer; display: inline"
               @click.prevent="checkChange(scope.row)"
             >
-              <apiot-checkbox
-                style="margin-right: 5px"
+              <apiot-checkbox class="checkBoxWrap"
                 :value="isCheck(scope.row)"
                 @change="checkChange(scope.row)"
                 @click.native.stop
@@ -231,6 +231,9 @@ export default {
       margin-left: 10px;
       vertical-align: middle;
     }
+    .checkBoxWrap{
+      margin-left: 13px;
+    }
 
     ::v-deep {
       .el-table__expand-icon {
@@ -247,6 +250,12 @@ export default {
             content: '\ea22';
           }
         }
+      }
+      .el-table__expand-icon + div > .checkBoxWrap{
+        margin-left: 0;
+      }
+      .el-table__placeholder{
+        width: 7px;
       }
     }
   }

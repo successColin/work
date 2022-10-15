@@ -28,7 +28,7 @@
         <header class="dictionary__header dictionary__header--haspadding">
           <apiot-button
             type="primary"
-            v-show="dictGroupNodeSelected.curIndex"
+            v-show="![0, 1].includes(dictGroupNodeSelected.curIndex)"
             @click="addDict"
           >
             <i class="iconfont icon-xinzeng m-r-4"></i
@@ -94,6 +94,62 @@
 import { listDictByType, deleteDictById } from '@/api/dictManage';
 import AddDict from './components/AddDict';
 
+const groupList = [
+  {
+    sno: 0,
+    enUS: 'System',
+    zhCN: '系统分组',
+    color: '#A853F2',
+    value: 1,
+    id: 1,
+    name: '系统分组',
+  },
+  {
+    sno: 0,
+    enUS: 'Other',
+    zhCN: '系统动态分组',
+    color: '#34C7BE',
+    value: 6,
+    id: 6,
+    name: '系统动态分组',
+  },
+  {
+    sno: 1,
+    enUS: 'Type',
+    zhCN: '',
+    color: '#FAB71C',
+    value: 2,
+    id: 2,
+    name: '类型分组',
+  },
+  {
+    sno: 2,
+    enUS: 'Status',
+    zhCN: '状态分组',
+    color: '#EE5E5E',
+    value: 3,
+    id: 3,
+    name: '状态分组',
+  },
+  {
+    sno: 3,
+    enUS: 'Priority',
+    zhCN: '优先级分组',
+    color: '#5A80ED',
+    value: 4,
+    id: 4,
+    name: '优先级分组',
+  },
+  {
+    sno: 4,
+    enUS: 'Other',
+    zhCN: '其他分组',
+    color: '#34C7BE',
+    value: 5,
+    id: 5,
+    name: '其他分组',
+  },
+];
 export default {
   name: 'dictionary',
   components: { AddDict },
@@ -152,12 +208,7 @@ export default {
 
   computed: {
     gropList() {
-      return this.$store.state.dictManage.DICT_TYPE.map((item) => {
-        const { value, zhCN } = item;
-        item.id = value;
-        item.name = zhCN;
-        return item;
-      });
+      return groupList;
     },
     getGropSide() {
       return this.$refs.sidebar;
@@ -168,6 +219,9 @@ export default {
         if (column.compName === 'OperateColumn') {
           if (this.dictGroupNodeSelected.curIndex === 0) {
             return [{ name: 'common.look1', funcName: 'lookDict' }];
+          }
+          if (this.dictGroupNodeSelected.curIndex === 1) {
+            return [{ name: 'common.edit1', funcName: 'editDict' }];
           }
           return [
             { name: 'common.edit1', funcName: 'editDict' },

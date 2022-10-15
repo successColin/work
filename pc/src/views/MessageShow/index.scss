@@ -1,6 +1,6 @@
 .messageShow {
-  height: calc(100% + 40px);
-  transform: translateY(-56px);
+  height: calc(100% + 56px);
+  margin-top: -56px;
   ::v-deep{
     .el-drawer__body, .drawer__content{
       overflow: initial;
@@ -19,6 +19,16 @@
     }
     .el-tabs__content{
       padding-left: 36px;
+    }
+  }
+}
+.openedApprove{
+  .el-drawer__close-btn{
+    z-index: 0;
+  }
+  ::v-deep{
+    .btnWrap{
+      z-index: 1;
     }
   }
 }

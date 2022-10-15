@@ -10,6 +10,7 @@
       @sure-click="handleOk"
       @cancle-click="handleCancel('importVisible')"
       :isBigDialog="true"
+      :append-to-body="true"
     >
       <upload-templete
         v-if="importVisible"
@@ -27,8 +28,10 @@
       :isHideFooter="isHideFooter"
       :isHideCancel="false"
       :isHideOk="true"
-      :isShowSure="isShowSure"
+      :isShowSure="false"
       :cancelBtnName="!isShowSure ? 'common.close' : 'common.cancle'"
+      class="dialogClass"
+      :isBigDialog="true"
     >
       <preview
         v-if="status === 'preview'"
@@ -46,28 +49,31 @@
 
 <script>
 import {
-  checkOrgSpecialTemplate,
-  checkPDSpecialTemplate,
-  checkTreeTemplate,
-  checkUserSpecialTemplate,
-  getCheckSpecialProgress,
-  getCheckSpecialSpecialProgress,
-  getCheckTreeProgress,
-  getUploadTreeProgress,
-  importSpecialTemplate,
-  importTemplateOrgStart,
-  importTemplatePDStart,
-  importTemplateTreeOrgStart,
-  importTemplateUserStart,
-  importTreeTemplate
+  // checkOrgSpecialTemplate,
+  // checkPDSpecialTemplate,
+  // checkTreeTemplate,
+  // checkUserSpecialTemplate,
+  // getCheckSpecialProgress,
+  // getCheckSpecialSpecialProgress,
+  // getCheckTreeProgress,
+  // getUploadTreeProgress,
+  // importSpecialTemplate,
+  // importTemplateOrgStart,
+  // importTemplatePDStart,
+  // importTemplateTreeOrgStart,
+  // importTemplateUserStart,
+  importData,
+  // importTreeTemplate,
+  getUploadsysImportProgress,
+  getCheckSysImportProgress
 } from '@/api/importTemplate';
-import {
-  doCheckTemplateIsRight,
-  doImportProcess,
-  doImportStart,
-  doProcessChek,
-  doUploadFiles
-} from '@/api/user';
+// import {
+//   // doCheckTemplateIsRight,
+//   // doImportProcess,
+//   // doImportStart,
+//   // doProcessChek
+//   // doUploadFiles
+// } from '@/api/user';
 import { createUnique, Encrypt, getSeconds } from '@/utils/utils';
 
 const UploadTemplete = () => import('@/globalComponents/ApiotSysImport/UploadTemplete/index');
@@ -198,80 +204,83 @@ export default {
       formData.append('uuid', this.uniqueId);
       formData.append('file', this.file.raw);
       this.showLoading = true;
-      console.log(this.tableArr, this.sortId, this.isSpecial);
+      // console.log(this.tableArr, this.sortId, this.isSpecial);
       try {
-        if (this.isSpecial && this.tableArr.length === 1) {
-          // 校验模板
-          if (this.tableArr.find((v) => v === 'sys_org')) {
-            // 特殊组织表
-            await checkOrgSpecialTemplate(formData);
-          } else if (this.tableArr.find((v) => v === 'sys_user')) {
-            // 用户表
-            await checkUserSpecialTemplate(formData);
-          } else if (
-            this.tableArr.find((v) => v === 'sys_position') ||
-            this.tableArr.find((v) => v === 'sys_device')
-          ) {
-            // 设备位置表
-            await checkPDSpecialTemplate(formData);
-          }
-        } else if (this.isTree) {
-          // 常规树
-          await checkTreeTemplate(formData);
-        } else {
-          await doCheckTemplateIsRight(formData);
-        }
-        // 导入校验
-        if (this.isSpecial && this.tableArr.length === 1) {
-          if (
-            this.tableArr.find((v) => v === 'sys_org') ||
-            this.tableArr.find((v) => v === 'sys_user') ||
-            this.tableArr.find((v) => v === 'sys_position') ||
-            this.tableArr.find((v) => v === 'sys_device')
-          ) {
-            await importSpecialTemplate(formData);
-          }
-        } else if (this.isTree) {
-          await importTreeTemplate(formData);
-        } else {
-          await doUploadFiles(formData);
-        }
+        // if (this.isSpecial && this.tableArr.length === 1) {
+        //   // 校验模板
+        //   if (this.tableArr.find((v) => v === 'sys_org')) {
+        //     // 特殊组织表
+        //     await checkOrgSpecialTemplate(formData);
+        //   } else if (this.tableArr.find((v) => v === 'sys_user')) {
+        //     // 用户表
+        //     await checkUserSpecialTemplate(formData);
+        //   } else if (
+        //     this.tableArr.find((v) => v === 'sys_position') ||
+        //     this.tableArr.find((v) => v === 'sys_device')
+        //   ) {
+        //     // 设备位置表
+        //     await checkPDSpecialTemplate(formData);
+        //   }
+        // } else if (this.isTree) {
+        //   // 常规树
+        //   await checkTreeTemplate(formData);
+        // } else {
+        //   await doCheckTemplateIsRight(formData);
+        // }
+        // // 导入校验
+        // if (this.isSpecial && this.tableArr.length === 1) {
+        //   if (
+        //     this.tableArr.find((v) => v === 'sys_org') ||
+        //     this.tableArr.find((v) => v === 'sys_user') ||
+        //     this.tableArr.find((v) => v === 'sys_position') ||
+        //     this.tableArr.find((v) => v === 'sys_device')
+        //   ) {
+        //     await importSpecialTemplate(formData);
+        //   }
+        // } else if (this.isTree) {
+        //   await importTreeTemplate(formData);
+        // } else {
+        //   await doUploadFiles(formData);
+        // }
         this.showLoading = false;
         this.preVisible = true;
         this.$emit('update:importVisible', false);
         this.status = 'preview'; //  成功就进行预校验
         this.startTime = Date.parse(new Date());
-        this.doPreChek();
+        this.startImport();
+        setTimeout(() => {
+          this.doPreChek();
+        }, 1000);
       } catch (e) {
-        console.log(22222222222, e);
         this.showLoading = false;
       }
     },
-    // 进行预校验
+    // 校验进度监控
     doPreChek() {
       if (this.timer) {
         clearTimeout(this.timer);
       }
       this.timer = setTimeout(async () => {
         try {
-          let res;
-          console.log(this.tableArr);
-          if (this.isSpecial && this.tableArr.length === 1) {
-            if (
-              this.tableArr.find((v) => v === 'sys_org') ||
-              this.tableArr.find((v) => v === 'sys_user') ||
-              this.tableArr.find((v) => v === 'sys_position') ||
-              this.tableArr.find((v) => v === 'sys_device')
-            ) {
-              res = await getCheckSpecialProgress({ uuid: this.uniqueId });
-            }
-          } else if (this.isTree) {
-            res = await getCheckTreeProgress({ uuid: this.uniqueId });
-          } else {
-            res = await doProcessChek({ uuid: this.uniqueId });
-          }
-          console.log(1111111111111, res);
-          const { Row, Sum, isCheckFinish, errorRow = 0 } = res;
+          // let res;
+          // console.log(this.tableArr);
+          // if (this.isSpecial && this.tableArr.length === 1) {
+          //   if (
+          //     this.tableArr.find((v) => v === 'sys_org') ||
+          //     this.tableArr.find((v) => v === 'sys_user') ||
+          //     this.tableArr.find((v) => v === 'sys_position') ||
+          //     this.tableArr.find((v) => v === 'sys_device')
+          //   ) {
+          //     res = await getCheckSpecialProgress({ uuid: this.uniqueId });
+          //   }
+          // } else if (this.isTree) {
+          //   res = await getCheckTreeProgress({ uuid: this.uniqueId });
+          // } else {
+          //   res = await doProcessChek({ uuid: this.uniqueId });
+          // }
+          // console.log(1111111111111, res);
+          const res = await getCheckSysImportProgress({ uuid: this.uniqueId });
+          const { Row, Sum, isCheckFinish, errorRow = 0, status } = res;
           this.checkInfo = res;
           if (isCheckFinish || Row >= Sum) {
             // 预校验结束
@@ -280,7 +289,14 @@ export default {
               // 如果预校验结束并且错误数据为0，则开启导入
               this.status = 'import';
               this.checkInfo = {};
-              await this.startImport();
+              // await this.startImport();
+              setTimeout(() => {
+                this.doProcessImport();
+              }, 1000);
+            }
+          } else if (status === 201) {
+            if (this.timer) {
+              clearTimeout(this.timer);
             }
           } else {
             await this.doPreChek();
@@ -295,7 +311,7 @@ export default {
             clearTimeout(this.timer);
           }
         }
-      }, 5000);
+      }, 1000);
     },
     async startImport() {
       if (this.timer) {
@@ -343,30 +359,29 @@ export default {
       formData.append('logData.content', Encrypt(logContent));
       formData.append('logData.clientType', 'PC');
       formData.append('logData.curMenuId', this.$route.params.id);
-      if (this.isSpecial && this.tableArr.length === 1) {
-        // 特殊表导入
-        if (this.tableArr.find((v) => v === 'sys_org')) {
-          // 组织表
-          await importTemplateOrgStart(formData);
-        } else if (this.tableArr.find((v) => v === 'sys_user')) {
-          // 用户表
-          await importTemplateUserStart(formData);
-        } else if (
-          this.tableArr.find((v) => v === 'sys_position') ||
-          this.tableArr.find((v) => v === 'sys_device')
-        ) {
-          // 设备 和 位置表
-          await importTemplatePDStart(formData);
-        }
-      } else if (this.isTree) {
-        // 树导入
-        await importTemplateTreeOrgStart(formData);
-      } else {
-        // 常规的导入
-        await doImportStart(formData);
-      }
-
-      this.doProcessImport();
+      // if (this.isSpecial && this.tableArr.length === 1) {
+      //   // 特殊表导入
+      //   if (this.tableArr.find((v) => v === 'sys_org')) {
+      //     // 组织表
+      //     await importTemplateOrgStart(formData);
+      //   } else if (this.tableArr.find((v) => v === 'sys_user')) {
+      //     // 用户表
+      //     await importTemplateUserStart(formData);
+      //   } else if (
+      //     this.tableArr.find((v) => v === 'sys_position') ||
+      //     this.tableArr.find((v) => v === 'sys_device')
+      //   ) {
+      //     // 设备 和 位置表
+      //     await importTemplatePDStart(formData);
+      //   }
+      // } else if (this.isTree) {
+      //   // 树导入
+      //   await importTemplateTreeOrgStart(formData);
+      // } else {
+      //   // 常规的导入
+      //   await doImportStart(formData);
+      // }
+      await importData(formData);
     },
     async doProcessImport() {
       // 导入数据
@@ -375,21 +390,22 @@ export default {
       }
       this.timer = setTimeout(async () => {
         try {
-          let res;
-          if (this.isSpecial && this.tableArr.length === 1) {
-            if (
-              this.tableArr.find((v) => v === 'sys_org') ||
-              this.tableArr.find((v) => v === 'sys_user') ||
-              this.tableArr.find((v) => v === 'sys_position') ||
-              this.tableArr.find((v) => v === 'sys_device')
-            ) {
-              res = await getCheckSpecialSpecialProgress({ uuid: this.uniqueId });
-            }
-          } else if (this.isTree) {
-            res = await getUploadTreeProgress({ uuid: this.uniqueId });
-          } else {
-            res = await doImportProcess({ uuid: this.uniqueId });
-          }
+          // let res;
+          // if (this.isSpecial && this.tableArr.length === 1) {
+          //   if (
+          //     this.tableArr.find((v) => v === 'sys_org') ||
+          //     this.tableArr.find((v) => v === 'sys_user') ||
+          //     this.tableArr.find((v) => v === 'sys_position') ||
+          //     this.tableArr.find((v) => v === 'sys_device')
+          //   ) {
+          //     res = await getCheckSpecialSpecialProgress({ uuid: this.uniqueId });
+          //   }
+          // } else if (this.isTree) {
+          //   res = await getUploadTreeProgress({ uuid: this.uniqueId });
+          // } else {
+          //   res = await doImportProcess({ uuid: this.uniqueId });
+          // }
+          const res = await getUploadsysImportProgress({ uuid: this.uniqueId });
           const { Row, Sum, isImportFinish, status } = res;
           if (isImportFinish || Row >= Sum) {
             // 导入结束
@@ -413,7 +429,7 @@ export default {
             clearTimeout(this.timer);
           }
         }
-      }, 5000);
+      }, 1000);
     },
     handleCancel(key) {
       // 取消上传文件
@@ -422,6 +438,9 @@ export default {
         this.$emit('update:importVisible', false);
       } else {
         this[key] = false;
+        if (this.status === 'preview') {
+          this.$emit('update:importVisible', true);
+        }
       }
       this.status = '';
       this.uniqueId = '';
@@ -445,6 +464,14 @@ export default {
   .iconfont {
     margin-right: 4px;
     color: #4689f5;
+  }
+}
+.dialogClass {
+  ::v-deep {
+    .el-dialog__body {
+      height: 422px;
+      padding: 10px 20px 0;
+    }
   }
 }
 </style>

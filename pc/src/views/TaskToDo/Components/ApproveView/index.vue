@@ -15,6 +15,13 @@
 
     <div class="btnWrap">
       <apiot-button
+          type="success"
+          class="warning"
+          @click="dialogFlowVisible=true"
+      >
+        <i class="iconfont icon-chakan m-r-4"></i> 查看流程图谱
+      </apiot-button>
+      <apiot-button
         type="success"
         class="warning"
         v-if="nodeConfig.allowReferral && isShowBtn"
@@ -55,18 +62,14 @@
       <apiot-button type="primary" @click="doRevoke" v-if="isShowRevokeBtn">
         撤回
       </apiot-button>
-    </div>
-    <div class="btnWrap" v-if="isShowPasBtn">
-      <apiot-button type="primary" @click="showModal(5)">
+      <apiot-button v-if="isShowPasBtn" type="primary" @click="showModal(5)">
         {{ nodeConfig.submitText && nodeConfig.submitText }}
       </apiot-button>
+      <apiot-button type="primary" @click="doReset" v-if="isShowRejectBtn"> 重新发起 </apiot-button>
     </div>
-    <div class="btnWrap" v-if="isShowRejectBtn">
-      <apiot-button type="primary" @click="doReset"> 重新发起 </apiot-button>
-    </div>
+
     <div class="approverContent">
       <div class="approverInfo">
-        <!--        <img :src="require('./text.png')" alt="">-->
         <ApiotMenu
           :showType="showType"
           :panelObj="getPanelObj"
@@ -95,6 +98,7 @@
       :title="getDialogName"
       :loading="loading"
       :visible.sync="visible"
+      @close="closeDialog"
       @sure-click="handleOk"
       @cancle-click="handleCancel"
     >
@@ -117,6 +121,17 @@
                   type="textarea"
                   :placeholder="getPlaceholder"
                 ></apiot-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24" v-if="[1,2].includes(operationType)">
+              <el-form-item
+                  label="抄送人"
+                  prop="ccList"
+              >
+                <CCUsers
+                    :value="ccList"
+                  @select-flow-approval="handleSelectCC"
+                />
               </el-form-item>
             </el-col>
             <el-col
@@ -166,6 +181,14 @@
     <!--        </div>-->
     <!--      </div>-->
     <!--    </apiot-dialog>-->
+    <apiot-dialog
+        title="流程图谱"
+        :isBigDialog="true"
+        :isShowFooter="false"
+        :visible.sync="dialogFlowVisible"
+    >
+      <FlowChart :instanceId="approvalInfo.instanceId"/>
+    </apiot-dialog>
   </div>
 </template>
 
@@ -185,7 +208,9 @@ import ApiotMenu from '@/views/ApiotMenu/index';
 // import DiscussionArea from '../DiscussionArea/index';
 import { Message } from 'element-ui';
 import Flow from '../Flow/index';
+import FlowChart from '../FlowChart/index';
 
+const CCUsers = () => import('@/views/Flow/Content/Process/ConfigDrawer/ConfigComponents/FlowApproval/CCUsers');
 export default {
   props: {
     approvalInfo: {
@@ -204,10 +229,15 @@ export default {
       // 区别是哪个列表
       type: String,
       default: ''
+    },
+    isMessage: {
+      type: String,
+      default: null,
     }
   },
   data() {
     return {
+      dialogFlowVisible: false, // 流程图谱弹框
       dialogVisible: false,
       loading: false,
       isLoading: false,
@@ -218,6 +248,7 @@ export default {
       options: [],
       usersVisible: false,
       userArr: [],
+      ccList: [], // 抄送人
       opeType: '' // 加签类型
     };
   },
@@ -225,7 +256,9 @@ export default {
   components: {
     // DiscussionArea,
     ApiotMenu,
-    Flow
+    Flow,
+    CCUsers,
+    FlowChart
   },
 
   computed: {
@@ -262,7 +295,8 @@ export default {
       const params = {
         type: 'flow',
         dataId,
-        menuId
+        menuId,
+        isDisabled: this.checkIsCC
       };
       if (this.com === 'LeaveItToMe' && [3, 5].includes(taskType)) {
         // 如果是待我处理同时是审批节点和填写节点显示按钮
@@ -272,29 +306,52 @@ export default {
         params.isShowBtn = false;
       }
       // 我发起的而且是已经撤回的
+      // todo 逻辑调整
       if (this.com === 'IInitiatedIt' && ['REJECTED', 'REVOKED'].includes(instanceStatus)) {
         params.isShowBtn = true;
       }
       return params;
     },
+    checkIsCC() {
+      // 已经完成
+      // 抄送给我
+      // 我发起的 -- 已完成
+      // 我发起的 -- 已撤回
+      if (['Completed', 'CC'].includes(this.com)) return true;
+      const { instanceStatus } = this.approvalInfo;
+      if (this.com === 'IInitiatedIt' && ['COMPLETED', 'REVOKED'].includes(instanceStatus)) return true;
+      return false;
+    },
     isShowBtn() {
+      if (this.checkIsCC) { // 如果是抄送人列表，直接返回false
+        return false;
+      }
       const { executorUserId, taskType, taskStatus } = this.approvalInfo;
       const { id: userId } = this.$store.state.userCenter.userInfo;
       return executorUserId === userId && taskType === 3 && taskStatus === 1;
     },
     isShowRejectBtn() {
       // 是否显示再次提交按钮
+      if (this.checkIsCC) { // 如果是抄送人列表，直接返回false
+        return false;
+      }
       const { instanceStatus, triggerUserId } = this.approvalInfo;
       const { id: userId } = this.$store.state.userCenter.userInfo;
       return triggerUserId === userId && instanceStatus === 'REJECTED';
     },
     isShowRevokeBtn() {
       // 撤回按钮
+      if (this.checkIsCC) { // 如果是抄送人列表，直接返回false
+        return false;
+      }
       const { instanceStatus, triggerUserId } = this.approvalInfo;
       const { id: userId } = this.$store.state.userCenter.userInfo;
       return triggerUserId === userId && instanceStatus === 'IN_PROGRESS';
     },
     isShowPasBtn() {
+      if (this.checkIsCC) { // 如果是抄送人列表，直接返回false
+        return false;
+      }
       const { checkFormConfig = [] } = this.nodeConfig;
       const currentObj = checkFormConfig.find((item) => !!item.isRelation);
       const { executorUserId, taskType, taskStatus } = this.approvalInfo;
@@ -309,6 +366,9 @@ export default {
       return false;
     },
     isShowPasBtnCopy() {
+      if (this.checkIsCC) { // 如果是抄送人列表，直接返回false
+        return false;
+      }
       const { checkFormConfig = [] } = this.nodeConfig;
       const currentObj = checkFormConfig.find((item) => !!item.isRelation);
       const { executorUserId, taskType, taskStatus } = this.approvalInfo;
@@ -387,9 +447,13 @@ export default {
         this.showModal(5);
       }
     });
+    this.ccList = this.nodeConfig.ccList || [];
   },
 
   methods: {
+    handleSelectCC(list) {
+      this.ccList = list;
+    },
     handleSelectUser(list) {
       // console.log(list);
       if (!list.length) {
@@ -416,6 +480,7 @@ export default {
       this.options = data;
     },
     handleClose() {
+      console.log(111);
       this.dialogVisible = false;
     },
     handleOk() {
@@ -431,7 +496,12 @@ export default {
       }
       this.doSubmit();
     },
+    closeDialog() {
+      console.log(333);
+      this.ccList = this.nodeConfig.ccList || [];
+    },
     handleCancel() {
+      console.log(222);
       this.dialogVisible = false;
       this.info = {};
     },
@@ -448,11 +518,17 @@ export default {
       const { instanceId, nodeId, taskId } = this.approvalInfo;
       await revokeFlow({ instanceId, memo: '', nodeId, taskId });
       this.$bus.$emit(`${this.com}_End_of_operation`);
+      if (this.isMessage) {
+        this.$emit('hideMessage', false);
+      }
     },
     async doReset() {
       const { instanceId } = this.approvalInfo;
       await doLaunch({ instanceId });
       this.$bus.$emit(`${this.com}_End_of_operation`);
+      if (this.isMessage) {
+        this.$emit('hideMessage', false);
+      }
     },
     handleClick({ name }) {
       this.activeName = name;
@@ -473,8 +549,10 @@ export default {
       this.opeType = '';
       if (this.operationType !== 4) {
         this.$bus.$emit(`${this.com}_End_of_operation`);
+        if (this.isMessage) {
+          this.$emit('hideMessage', false);
+        }
       } else {
-        console.log(1111, this.com);
         this.$bus.$emit(`${this.com}_reset_flow`);
       }
       this.usersVisible = false;
@@ -522,14 +600,19 @@ export default {
         compMap: JSON.stringify(compMap)
       };
       if (this.operationType === 1 || this.operationType === 5) {
+        const ccObj = this.operationType === 1 ? {
+          ccUserIds: this.ccList.map((item) => item.id).join(','),
+        } : {};
         return {
           ...params,
+          ...ccObj,
           memo: this.info.memo
         };
       }
       if (this.operationType === 2) {
         return {
           ...params,
+          ccUserIds: this.ccList.map((item) => item.id).join(','),
           rejectTargetNodeId: this.info.rejectTargetNodeId,
           memo: this.info.memo
         };

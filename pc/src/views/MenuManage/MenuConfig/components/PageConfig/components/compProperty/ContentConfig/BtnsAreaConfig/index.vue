@@ -7,7 +7,7 @@
     <h1 class="config__h1" v-if="activeObj && activeObj.showH1">tab按钮区</h1>
     <h2 v-if="$route.query.isApp !== '1'">按钮排序</h2>
     <div class="btnArea__box m-b-10" v-if="$route.query.isApp !== '1'">
-      <p v-if="!isCard">
+      <p v-if="!isCard && !isQuery">
         <i class="iconfont icon-juzuo"></i>
         居左排序
       </p>
@@ -29,7 +29,10 @@
         ></draggable>
       </ul>
     </div>
-    <div class="btnArea__box" v-if="!isCard && $route.query.isApp !== '1'">
+    <div
+      class="btnArea__box"
+      v-if="!isCard && $route.query.isApp !== '1' && !isQuery"
+    >
       <p>
         <i class="iconfont icon-juyou" style="background: #34c7be"></i>
         居右排序
@@ -103,6 +106,10 @@ export default {
     isCard: {
       type: Boolean,
       default: false
+    },
+    isQuery: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -136,7 +143,7 @@ export default {
     }
   },
   watch: {
-    'getBtnsArea.children.length': function() {
+    'getBtnsArea.children.length': function () {
       this.initLeftAndRightArr();
     },
     rightBtnArr: {

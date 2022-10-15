@@ -157,9 +157,9 @@ export default {
     showFunc(data) {
       return data.typeDict === 1;
     },
-    cellMouseEnter(row) {
+    cellMouseEnter(row, timer) {
       if (row.typeDict === 1) {
-        row.showIndex = true;
+        clearTimeout(timer);
       }
     },
     canSelectEd(row) {

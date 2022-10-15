@@ -259,7 +259,8 @@
         :otherParams="{ panelType: 5,
                  unDesign: 1,
                  panelClassify: 1,
-                 clientType: 1}"
+                 clientType: getClientType
+                 }"
         @cancle-click="handleCancel"
         :isCustomPage="true"
         :treeType="5"
@@ -275,6 +276,7 @@
         :treeType="5"
         :showType="showType"
         :showContent="true"
+        :clientType="getClientType"
     ></ToMenuConfig>
   </div>
 </template>
@@ -375,6 +377,10 @@ export default {
   },
 
   computed: {
+    getClientType() {
+      const { clientType } = sessionStorage;
+      return +clientType;
+    },
     tabPaneConfig() {
       const { panelConfig } = this.getComponentInfo;
       const { curPaneObj } = panelConfig || {};
@@ -693,6 +699,9 @@ export default {
   }
   ::v-deep {
     .action__term--liChild {
+      width: 100px;
+    }
+    .dataTransfer__item--comp5 {
       width: 100px;
     }
   }

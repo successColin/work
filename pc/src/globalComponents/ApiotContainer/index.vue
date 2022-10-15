@@ -87,6 +87,7 @@ export default {
 .container {
   height: 100%;
   display: flex;
+  min-width: 900px;
   flex-direction: column;
   background-color: #f6f6f8;
   &__header {

@@ -3,7 +3,7 @@
     <el-avatar
       v-if="headImg && userInfo[headImg] && userInfo[headImg].imageUrl"
       :size="isBig ? 28 : 24"
-      :src="userInfo[headImg].imageUrl"
+      :src="$parseImgUrl(userInfo[headImg].imageUrl)"
     ></el-avatar>
     <div
       v-else

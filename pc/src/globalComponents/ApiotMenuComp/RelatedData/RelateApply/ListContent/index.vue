@@ -9,9 +9,11 @@
       :select-on-indeterminate="true"
       :showSelection="false"
       :isNeedColumnDrop="false"
+      :isAnimate="false"
       @selection-change="handleSelectionChange"
       @cell-mouse-enter="cellMouseEnter"
       @cell-mouse-leave="cellMouseLeave"
+      v-loadMore="loadMore"
     >
       <el-table-column width="40">
         <template #header slot-scope>
@@ -207,6 +209,9 @@ export default {
   },
 
   methods: {
+    loadMore() {
+      this.$emit('loadMore');
+    },
     // 初始化列
     initColumn() {
       const arr = this.configData.tableColumn;

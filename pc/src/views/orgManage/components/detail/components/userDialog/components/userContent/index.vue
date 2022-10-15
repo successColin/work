@@ -49,6 +49,7 @@
             :ref="item.name"
             :collectUserList.sync="collectUserList"
             @updateSelection="updateSelection"
+            @updateAllSelection="updateAllSelection"
             @resetSearchKeyword="switchTab"
             v-bind="$attrs"
           >
@@ -152,6 +153,22 @@ export default {
         this.selection.push(row);
       } else {
         this.selection.splice(index, 1);
+      }
+    },
+    updateAllSelection(rows, type) {
+      for (let i = 0; i < rows.length; i += 1) {
+        const index = this.selection.findIndex((item) => String(item.id) === String(rows[i].id));
+        if (index === -1) {
+          if (type) {
+            this.selection.push(rows[i]);
+          }
+        } else {
+          // eslint-disable-next-line no-lonely-if
+          if (!type) {
+            // this.selection.push(rows[i]);
+            this.selection.splice(index, 1);
+          }
+        }
       }
     },
     deleteLeader(row) {

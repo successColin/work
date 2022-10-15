@@ -83,7 +83,7 @@ export default {
           styles += `borderRadius:${borderRadius}px;
           borderColor:${borderColor};borderWidth:${borderWidth}px;borderStyle:${borderStyle};`;
         } else {
-          styles += `background-image:url(${backgroundImage});`;
+          styles += `background-image:url(${this.$parseImgUrl(backgroundImage)});`;
           styles += `transform:rotate(${rotationAngle}deg);opacity:${opacity};`;
         }
         return styles;

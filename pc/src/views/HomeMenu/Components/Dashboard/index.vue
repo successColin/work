@@ -54,6 +54,12 @@ export default {
       default() {
         return {};
       }
+    },
+    elementData: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -65,7 +71,8 @@ export default {
         height: '0'
       },
       supplementaryColor: [], // 补充色
-      list: []
+      list: [],
+      params: {},
     };
   },
 
@@ -479,18 +486,29 @@ export default {
     this.initDom();
   },
   watch: {
-    otherParams: {
+    // otherParams: {
+    //   deep: true,
+    //   immediate: true,
+    //   handler(v, o) {
+    //     const params = this.getParameters();
+    //     // eslint-disable-next-line no-warning-comments
+    //     // todo 逻辑有点问题，应该是这个控件的值发生改变，再去触发调用接口
+    //     const { isShow } = this.config;
+    //     if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+    //       this.fetchData();
+    /* eslint-disable-next-line max-len */
+    //     } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+    //       this.fetchData();
+    //     }
+    //   }
+    // }
+    elementData: {
       deep: true,
-      immediate: true,
+      immediate: false,
       handler(v, o) {
-        const params = this.getParameters();
-        // eslint-disable-next-line no-warning-comments
-        // todo 逻辑有点问题，应该是这个控件的值发生改变，再去触发调用接口
-        const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-          this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
-          this.fetchData();
+        const { id, dataType } = this.config;
+        if (!isEqual(v, o) && dataType === 3) {
+          this.reduceDataFilter(v[id]);
         }
       }
     }
@@ -504,7 +522,7 @@ export default {
           value: obj[item]
         }));
 
-      const { query } = this.$route;
+      const { query, name } = this.$route;
       const satisfyParams = {};
       if (JSON.stringify(this.otherParams) !== '{}') {
         Object.keys(this.otherParams).forEach((item) => {
@@ -514,11 +532,20 @@ export default {
           }
         });
       }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
+      let lastParams = {};
+      if (name !== 'appCustomPage') {
+        lastParams = {
+          ...satisfyParams,
+          ...this.params
+        };
+      } else {
+        lastParams = {
+          ...satisfyParams,
+          ...query,
+          ...this.params
+        };
+      }
+      const arr = reduce(lastParams);
       return {
         id,
         varJson: JSON.stringify(arr)
@@ -549,7 +576,7 @@ export default {
         );
       }
       if (dataType === 3) {
-        await this.getSQL();
+        // await this.getSQL();
         const option = this.getOption();
         // 绘制图表
         this.instance.myChart.setOption(
@@ -606,9 +633,6 @@ export default {
     async getSQL() {
       const { SqlDataConfig } = this.config;
       const {
-        SQLFilterFun,
-        enableSQLFilter,
-        SQLDataFilterId,
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
@@ -628,6 +652,15 @@ export default {
           );
         }, time);
       }
+      await this.reduceDataFilter(res);
+    },
+    async reduceDataFilter(res) {
+      const { SqlDataConfig } = this.config;
+      const {
+        SQLFilterFun,
+        enableSQLFilter,
+        SQLDataFilterId,
+      } = SqlDataConfig;
       if (!enableSQLFilter) {
         this.list = res;
         return;
@@ -644,7 +677,8 @@ export default {
         return;
       }
       this.list = res;
-    }
+    },
+
   },
   beforeDestroy() {
   },

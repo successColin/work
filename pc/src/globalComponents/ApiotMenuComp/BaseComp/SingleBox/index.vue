@@ -28,7 +28,7 @@
         :disabled="configData.canReadonly"
       >
         <el-radio
-          v-for="item in getDictArr"
+          v-for="item in effectArr"
           :key="item.value"
           :label="item.value"
           :disabled="configData.canReadonly"
@@ -41,7 +41,10 @@
             v-else-if="configData.dropDownStyle === 3 && item.icon"
           >
             <span class="option__self">
-              <img :src="item.icon.imgUrl" v-if="item.icon.imgUrl" />
+              <img
+                :src="$parseImgUrl(item.icon.imgUrl)"
+                v-if="item.icon.imgUrl"
+              />
               <i
                 v-else
                 :class="`iconfont ${item.icon.icon}`"
@@ -179,7 +182,7 @@ export default {
         display: inline-flex;
         align-items: center;
         height: 32px;
-        &:hover {
+        &:not(.is-disabled):hover {
           .option {
             color: $--color-primary;
           }
