@@ -79,7 +79,8 @@
           :src="$parseImgUrl(imgbgUrl)"
           :style="`
             width: ${contentWidth};
-            height: 100%;
+            height: ${contentHeight};
+            padding-top: ${globalConfig.marginTop}mm;
             position: absolute;
             margin: ${boxMargin};
           `"
@@ -421,6 +422,10 @@ export default {
     tableConfigOjb: {
       type: Object,
       default: () => {}
+    },
+    isConfig: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -477,6 +482,9 @@ export default {
     // 内容的宽度
     contentWidth() {
       return `calc(100% - ${this.globalConfig.marginRight}mm - ${this.globalConfig.marginLeft}mm)`;
+    },
+    contentHeight() {
+      return `calc(100% - ${this.globalConfig.marginBottom}mm - ${this.globalConfig.marginTop}mm)`;
     },
     lastBottom() {
       return function (v) {
@@ -762,7 +770,7 @@ export default {
     this.showCell = Math.floor(contentHeight / this.pxConversionMm(34)) - 1;
     this.excelImg = imagesArr;
     this.borderInfo = borderInfo;
-    this.page = Math.ceil(this.contentOjb.contentRow / this.showCell);
+    this.page = this.isConfig ? 1 : Math.ceil(this.contentOjb.contentRow / this.showCell);
   },
   methods: {
     tableStateAndField(i, index, field) {

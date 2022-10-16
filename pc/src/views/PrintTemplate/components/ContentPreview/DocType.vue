@@ -79,7 +79,8 @@
           :src="$parseImgUrl(imgbgUrl)"
           :style="`
             width: ${contentWidth};
-            height: 100%;
+            height: ${contentHeight};
+            padding-top: ${globalConfig.marginTop}mm;
             position: absolute;
             margin: ${boxMargin};
           `"
@@ -254,6 +255,10 @@ export default {
     tableConfigOjb: {
       type: Object,
       default: () => {}
+    },
+    isConfig: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -294,6 +299,9 @@ export default {
     },
     contentWidth() {
       return `calc(100% - ${this.globalConfig.marginRight}mm - ${this.globalConfig.marginLeft}mm)`;
+    },
+    contentHeight() {
+      return `calc(100% - ${this.globalConfig.marginBottom}mm - ${this.globalConfig.marginTop}mm)`;
     },
     tableStyle() {
       return function (i, index, td) {
@@ -541,7 +549,6 @@ export default {
     const lastConst = celldataList.findLast(
       (item) => (item.v && item.v.m) || (item.v && item.v.ct && item.v.ct.s)
     );
-    console.log(celldataList, lastConst);
     this.excelImg = imagesArr;
     this.borderInfo = borderInfo;
 
@@ -555,26 +562,27 @@ export default {
     this.showCellArr = [];
     let num = 0;
     let page = 1;
-    console.log(everyHeight);
     for (let i = 0; i < everyHeight.length; i += 1) {
       num += this.pxConversionMm(everyHeight[i]);
-      if (num > contentHeight * page - 2) {
+      console.log(this.pxConversionMm(everyHeight[i]));
+      if (num > (contentHeight - 10) * page) {
         page += 1;
         acceptArr.push(i);
       }
-      if (i === everyHeight.length) {
+      if (i === everyHeight.length - 1) {
         acceptArr.push(i);
       }
     }
     acceptArr.forEach((val, i, arr) => {
-      console.log(arr[i + 1], val);
       if (arr[i + 1]) {
-        this.showCellArr.push(arr[i + 1] - val);
+        const value = arr[i + 1] - val;
+        if (value) {
+          this.showCellArr.push(value);
+        }
       }
-      console.log(val, i, arr);
     });
-    console.log(everyHeight, acceptArr, this.showCellArr);
-    this.page = this.showCellArr.length || 1;
+    console.log(this.showCellArr, acceptArr);
+    this.page = this.isConfig ? 1 : this.showCellArr.length || 1;
     this.contentRow = (lastConst && lastConst.r) || 10;
   },
   methods: {

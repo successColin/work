@@ -24,6 +24,7 @@
         :globalConfig="globalConfig"
         :tableData="tableData"
         :tableConfigOjb="tableConfigOjb"
+        :isConfig="false"
       ></content-preview>
     </template>
   </apiot-tabs>
@@ -75,7 +76,7 @@ export default {
       });
       const { previewObj, areaHeight, areaWidth, globalConfig } = v;
       const { celldataList, borderInfo, everyHeight } = previewObj;
-      console.log(borderInfo);
+      console.log(JSON.parse(JSON.stringify(everyHeight)));
 
       this.$nextTick(() => {
         const allForm = this.getAllForm();
@@ -96,28 +97,29 @@ export default {
             item.v.m = allForm[index] || '';
           }
           // 表格
-          console.log(item);
           if (item.v.isTableField && item.v.m) {
             const field = item.v.m.slice(2, item.v.m.length - 1);
             item.v.field = field;
             // eslint-disable-next-line no-loop-func
             this.tableData.forEach((g, p, arr) => {
               const obj = item;
-              console.log(tableNum);
               obj.v.m = g[field];
               obj.r = r + p + tableNum * arr.length - tableNum;
               obj.oldR = r;
               newCelldataList.push(JSON.parse(JSON.stringify(obj)));
             });
             if (r !== nextItem.r) {
-              console.log(nextItem.r, item.r);
-              console.log(r);
               const arr = [];
               this.tableData.forEach(() => {
                 arr.push(34);
               });
-              console.log(r, arr, everyHeight, tableNum);
-              everyHeight.splice(r + 1 + tableNum * this.tableData.length, 0, ...arr);
+              const everyVal = r - tableNum + tableNum * this.tableData.length;
+              // if (tableNum !== 0) {
+              //   everyVal += 1;
+              // }
+              console.log(everyVal, r, tableNum, this.tableData.length);
+              const aaa = everyHeight.splice(everyVal, 1, ...arr);
+              console.log(aaa);
 
               tableNum += 1;
               num += this.tableData.length - 1;
@@ -204,10 +206,8 @@ export default {
           });
         }
         // 边框
-        console.log(tableRow);
         if (borderInfo && borderInfo.length) {
           borderInfo.forEach((item) => {
-            console.log(item);
             if (item.range) {
               item.range.forEach((g) => {
                 const val1 = g.row[0];
@@ -221,18 +221,16 @@ export default {
                     g.row[1] = val2 + this.tableData.length * borderNum - borderNum;
                   }
                 });
-                console.log(val1, val2);
               });
             }
           });
         }
         // newCelldataList.sort((a, b) => a.r - b.r);
-        console.log(borderInfo);
         this.previewObj = {
           ...previewObj,
           celldataList: newCelldataList
         };
-        console.log(newCelldataList);
+        console.log(everyHeight);
         this.areaHeight = areaHeight;
         this.areaWidth = areaWidth;
         this.globalConfig = globalConfig;
