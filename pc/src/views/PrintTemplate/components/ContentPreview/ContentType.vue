@@ -589,7 +589,6 @@ export default {
     // 获取对应边框的值
     tdBorderFun() {
       return function (trV, tdv, state = false) {
-        console.log(trV, tdv);
         let borderVal = '';
         this.borderInfo.forEach((v) => {
           const { range = [], borderType, color } = v; // style, rangeType
@@ -700,9 +699,9 @@ export default {
       excelImg,
       borderInfo = []
     } = this.previewObj;
+    console.log(this.previewObj);
     this.celldataList = celldataList;
     this.everyHeight = everyHeight;
-    console.log(everyHeight);
     this.everyWidth = everyWidth;
     this.maxHeight = maxHeight;
     this.maxWidth = maxWidth;
@@ -719,7 +718,6 @@ export default {
         imagesArr.push(item);
       });
     }
-    console.log(celldataList);
     const fixedTop = celldataList.find((item) => item.v.isTableField && item.v.field) || { r: 0 };
     const fixedBottom = celldataList.findLast((item) => item.v.isTableField && item.v.field) || {
       r: 0
@@ -727,39 +725,44 @@ export default {
     const lastConst = celldataList.findLast(
       (item) => (item.v && item.v.m) || (item.v && item.v.ct && item.v.ct.s)
     );
-    console.log(lastConst, fixedBottom, fixedTop);
+    const topRow = fixedTop.r;
+    const bottomRow = lastConst.r - fixedBottom.r;
+    const removeTopIndex = fixedBottom.r + 1;
+    const contentRow = fixedBottom.r - fixedTop.r + 1;
     this.contentOjb = {
-      topRow: fixedTop.r,
-      bottomRow: lastConst.r - fixedBottom.r,
-      removeTopIndex: fixedBottom.r + 1,
-      contentRow: fixedBottom.r - fixedTop.r + 1,
+      topRow,
+      bottomRow,
+      removeTopIndex,
+      contentRow,
       fixedTopEleHeight: 0,
       fixedBottomEleHeight: 0
     };
+    // 上边的距离
+    const topArr = everyHeight.slice(0, topRow);
+    let topNum = 0;
+    topArr.forEach((v) => {
+      topNum += v;
+    });
+    // 下边距离
+    const bottomArr = everyHeight.slice(
+      everyHeight.length - (maxHeight - lastConst.oldR - 1) - bottomRow,
+      everyHeight.length - (maxHeight - lastConst.oldR - 1)
+    );
+    let bottomNum = 0;
+    bottomArr.forEach((v) => {
+      bottomNum += v;
+    });
+    const contentHeight =
+      this.areaHeight &&
+      this.areaHeight.slice(0, this.areaHeight.length - 2) -
+        this.globalConfig.marginTop -
+        this.globalConfig.marginBottom -
+        this.pxConversionMm(bottomNum) -
+        this.pxConversionMm(topNum);
+    this.showCell = Math.floor(contentHeight / this.pxConversionMm(34)) - 1;
     this.excelImg = imagesArr;
     this.borderInfo = borderInfo;
     this.page = Math.ceil(this.contentOjb.contentRow / this.showCell);
-
-    // this.$nextTick(() => {
-    //   const fixedTopEle = document.getElementsByClassName('contentPreview__fixedTop')[0]
-    //     .offsetHeight;
-    //   const fixedBottomEle = document.getElementsByClassName('contentPreview__fixedBottom')[0]
-    //     .offsetHeight;
-    //   const fixedTopEleHeight = this.pxConversionMm(fixedTopEle);
-    //   const fixedBottomEleHeight = this.pxConversionMm(fixedBottomEle);
-    //   // 可以用的区域
-    //   const height =
-    //     this.areaHeight &&
-    //     this.areaHeight.slice(0, this.areaHeight.length - 2) -
-    //       fixedTopEleHeight -
-    //       fixedBottomEleHeight -
-    //       this.globalConfig.marginTop -
-    //       this.globalConfig.marginBottom;
-    //   const cellHeight = this.pxConversionMm(34);
-    //   console.log(height, cellHeight);
-    //   this.showCell = Math.floor(height / cellHeight);
-    //   console.log(this.showCell);
-    // });
   },
   methods: {
     tableStateAndField(i, index, field) {

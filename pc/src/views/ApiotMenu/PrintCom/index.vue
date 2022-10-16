@@ -96,6 +96,7 @@ export default {
             item.v.m = allForm[index] || '';
           }
           // 表格
+          console.log(item);
           if (item.v.isTableField && item.v.m) {
             const field = item.v.m.slice(2, item.v.m.length - 1);
             item.v.field = field;
@@ -105,7 +106,7 @@ export default {
               console.log(tableNum);
               obj.v.m = g[field];
               obj.r = r + p + tableNum * arr.length - tableNum;
-              console.log(obj);
+              obj.oldR = r;
               newCelldataList.push(JSON.parse(JSON.stringify(obj)));
             });
             if (r !== nextItem.r) {
@@ -198,7 +199,8 @@ export default {
           }
           newCelldataList.push({
             ...item,
-            r: newR
+            r: newR,
+            oldR: r
           });
         }
         // 边框

@@ -281,7 +281,6 @@ export default {
       const arr = [];
       const res = this.luckysheet.getAllSheets();
       // 扩展 循环每个sheet页
-      console.log(res);
       res.forEach((item, index) => {
         // 循环 sheet 下的 celldata
         const { name } = item;
@@ -292,8 +291,11 @@ export default {
         };
         item.celldata.forEach((val) => {
           console.log(val);
+          const { r, c } = val;
           const { m, v } = val.v;
-          if (m && v) {
+          console.log(c, this.maxWidth, r, this.maxHeight);
+          if (m && v && r + 1 <= this.maxHeight && c + 1 <= this.maxWidth) {
+            console.log(val);
             childObj.celldata.push(val);
           }
         });
@@ -540,8 +542,7 @@ export default {
               const { c, r } = postion;
               if (c !== '' && r !== '') {
                 const { compId } = _this.dropObj;
-                let { name } = _this.dropObj;
-                name = `${name}:`;
+                const { name } = _this.dropObj;
                 const val = `\${${compId}}`;
                 // 表格
                 if (_this.allTableFieldArr.length) {
@@ -570,8 +571,8 @@ export default {
                   });
                 } else {
                   _this.luckysheet.setCellValue(r, c, {
-                    v: name,
-                    m: name
+                    v: `${name}:`,
+                    m: `${name}:`
                   });
                   _this.luckysheet.setCellValue(r, c + 1, {
                     v: val,
@@ -602,6 +603,7 @@ export default {
           }
         }
       };
+      console.log(this.luckysheet);
       this.luckysheet.create(options);
       // 添加遮罩层
       document.getElementById('luckysheet-sheettable_0').append(this.$refs.excel);
@@ -627,7 +629,6 @@ export default {
     },
     // 预览
     excelPreview() {
-      this.changeExcelObj();
       // 取消编辑模式
       this.luckysheet.exitEditMode();
       // 算出多少行、多少列
@@ -645,16 +646,19 @@ export default {
         }
       }
       // 列
+      console.log(visibledatarow);
       for (let j = 0; j < visibledatarow.length; j += 1) {
         const numRow = j === 0 ? visibledatarow[j] : visibledatarow[j] - visibledatarow[j - 1];
         everyHeight.push(numRow);
+        console.log(visibledatarow[j], this.mmToPx(parseInt(this.excelBgkScopeHeightNum, 0)));
         if (visibledatarow[j] > this.mmToPx(parseInt(this.excelBgkScopeHeightNum, 0))) {
           this.maxHeight = j + 1;
           break;
         }
       }
+      console.log(everyWidth, everyHeight);
       this.borderInfo = config && config.borderInfo;
-
+      this.changeExcelObj();
       this.$emit('update:previewObj', {
         everyWidth,
         everyHeight,

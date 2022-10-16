@@ -270,7 +270,7 @@ export default {
       page: 1,
       currentPageHeader: '',
       currentPageFooter: '',
-      showCell: 15,
+      showCellArr: [],
       contentRow: 0
     };
   },
@@ -279,17 +279,17 @@ export default {
     // 内容高度
     contentShowCell() {
       return function (j) {
-        j += 1;
-        console.log(j, this.showCell, this.contentRow);
-        return j * this.showCell <= this.contentRow
-          ? this.showCell
-          : this.contentRow - (j - 1) * this.showCell + 1;
+        return this.showCellArr[j];
       };
     },
     // 内容的row
     contentShowRow() {
       return function (i, j) {
-        return i + j * this.showCell;
+        let num = 0;
+        for (let q = 0; q < j; q += 1) {
+          num += this.showCellArr[q];
+        }
+        return i + num;
       };
     },
     contentWidth() {
@@ -518,6 +518,7 @@ export default {
       excelImg,
       borderInfo = []
     } = this.previewObj;
+    console.log(this.previewObj);
     this.celldataList = celldataList;
     this.everyHeight = everyHeight;
     this.everyWidth = everyWidth;
@@ -541,10 +542,40 @@ export default {
       (item) => (item.v && item.v.m) || (item.v && item.v.ct && item.v.ct.s)
     );
     console.log(celldataList, lastConst);
-    this.contentRow = (lastConst && lastConst.r) || this.showCell;
     this.excelImg = imagesArr;
     this.borderInfo = borderInfo;
-    this.page = Math.ceil(this.contentRow / this.showCell);
+
+    // 没页显示几行
+    const contentHeight =
+      this.areaHeight &&
+      this.areaHeight.slice(0, this.areaHeight.length - 2) -
+        this.globalConfig.marginTop -
+        this.globalConfig.marginBottom;
+    const acceptArr = [0];
+    this.showCellArr = [];
+    let num = 0;
+    let page = 1;
+    console.log(everyHeight);
+    for (let i = 0; i < everyHeight.length; i += 1) {
+      num += this.pxConversionMm(everyHeight[i]);
+      if (num > contentHeight * page - 2) {
+        page += 1;
+        acceptArr.push(i);
+      }
+      if (i === everyHeight.length) {
+        acceptArr.push(i);
+      }
+    }
+    acceptArr.forEach((val, i, arr) => {
+      console.log(arr[i + 1], val);
+      if (arr[i + 1]) {
+        this.showCellArr.push(arr[i + 1] - val);
+      }
+      console.log(val, i, arr);
+    });
+    console.log(everyHeight, acceptArr, this.showCellArr);
+    this.page = this.showCellArr.length || 1;
+    this.contentRow = (lastConst && lastConst.r) || 10;
   },
   methods: {
     tableStateAndField(i, index, field) {
