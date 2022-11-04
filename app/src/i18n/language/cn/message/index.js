@@ -21,5 +21,7 @@ export default {
     MarkRead: '标记已读',
     GoForApproval: '前往审批',
     MarkAllRead: '全部标记已读',
+    announceDetail: '公告详情',
+    announceList: '公告列表',
   },
 };

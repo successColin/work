@@ -56,9 +56,7 @@ export default {
   props: {},
 
   data() {
-    return {
-      searchParam: {}
-    };
+    return {};
   },
 
   computed: {},
@@ -78,14 +76,14 @@ export default {
     // 点击按钮
     async clickNode(node) {
       // 跳转至审批详情
-      const { appPanelId, instanceName, instanceId, dataId, nodeId } = node;
+      const { appPanelId, instanceName, instanceId, dataId, nodeId, taskId } = node;
       if (!appPanelId) return;
       const { processConfigs } = this.$store.state.process;
       console.log(processConfigs);
       if (!processConfigs[nodeId]) await this.getNodeAttr(nodeId);
 
       uni.navigateTo({
-        url: `/menuConfigure/index?id=${appPanelId}&title=${instanceName}&isProcess=true&workflowDataId=${dataId}&instanceId=${instanceId}&processNodeId=${nodeId}`,
+        url: `/menuConfigure/index?id=${appPanelId}&title=${instanceName}&isProcess=true&workflowDataId=${dataId}&instanceId=${instanceId}&processNodeId=${nodeId}&taskId=${taskId}`,
         animationType: 'slide-in-right'
       });
     },
@@ -130,9 +128,12 @@ export default {
   mounted() {},
 
   created() {
-    this.searchParam.beginDate = this.$apiot.getRecentDay({ n: 7 });
-    this.searchParam.endDate = this.$apiot.dateFormat();
-    this.getData();
+    // 设置监听，用于转审时，刷新列表
+    this.$bus.$on('PROCESS_MYTODO', this.getData);
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('PROCESS_MYTODO');
   }
 };
 </script>

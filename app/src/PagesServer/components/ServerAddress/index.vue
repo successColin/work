@@ -83,7 +83,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     font-size: 34rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family: $--font-family;
     color: #333333;
     letter-spacing: 1;
   }
@@ -111,7 +111,7 @@ export default {
     margin-top: 14rpx;
     padding: 12rpx 20rpx;
     font-size: 24rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family: $--font-family;
     color: #333333;
     background: #f1f3f6;
   }

@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-06-17 14:46:02
  * @Last Modified by: ytx
- * @Last Modified time: 2022-06-22 11:48:10
+ * @Last Modified time: 2022-11-04 17:21:58
  */
 import axios from 'axios';
 import axiosAdapterUniapp from 'axios-adapter-uniapp';
@@ -18,12 +18,25 @@ class FetchData {
         : `${baseUrl}${PREFIX}/${VERSION}/`; // 请求路径
     this.timeout = 300000000; // 设置超时时间
     this.withCredentials = true;
+
+    // 需要记录token的结论
+    this.setTokenApi = [
+      'login',
+      'zwdingtalkLogin',
+      'weChat/loginByOpenId',
+      'weChat/login',
+      'weChat/registerLogin',
+      'exchangeTokenLogin',
+    ];
   }
 
   // 数据处理
   resolveData(data) {
     // 没参数不做处理返回
     if (!data || !data.logData) {
+      return data;
+    }
+    if (data.logData.content) {
       return data;
     }
     const userCenter = uni.getStorageSync('userCenter');
@@ -137,6 +150,7 @@ class FetchData {
         if (whitePathName.indexOf(config.url) === -1) {
           config.headers.token = Decrypt(uni.getStorageSync('token') || '');
         }
+        config.headers.menuId = uni.getStorageSync('curMenuId') || '';
         // 针对get类型 对于支付宝小程序需要做特殊的兼容
         // #ifdef MP-ALIPAY
         // params 必须为空否则将会产生2个一模一样的变量
@@ -170,16 +184,16 @@ class FetchData {
           // 兼容钉钉小程序返回的头信息，钉钉小程序返回的头信息为数组，需要将数组转换为对象
           res.header = Object.assign({}, ...res.header);
         }
-        if (
-          res.config.url === 'login' ||
-          res.config.url === 'zwdingtalkLogin'
-        ) {
+        if (this.setTokenApi.indexOf(res.config.url) !== -1) {
           const token = res.header.token || '';
           uni.setStorageSync('token', Encrypt(token));
         }
         const codeNumber = res.data.code;
         // 如果返回是非标准数据
         if (config.isNonstandard) {
+          return res.data;
+        }
+        if (res.data instanceof Blob) {
           return res.data;
         }
         if (codeNumber === '00000') {
@@ -252,6 +266,7 @@ class FetchData {
       if (!header) config.header = {};
 
       config.header.token = Decrypt(uni.getStorageSync('token') || '');
+      config.header.menuId = uni.getStorageSync('curMenuId') || '';
       config.url = `${baseURL || this.baseURL}${config.url}`;
       config.name = config.name || 'files';
       config.success = function(uploadFileRes) {
@@ -271,16 +286,56 @@ class FetchData {
           reject(uploadData.data);
         }
       };
-      // if (config.files) {
-      //   config.files = qs.stringify(config.files, {
-      //     arrayFormat: 'indices',
-      //     allowDots: true,
-      //   });
-      // }
       config.error = function(error) {
         reject(error);
       };
       uni.uploadFile(config);
+    });
+  }
+
+  // 下载文件
+  downloadFile(request, baseURL) {
+    // #ifdef APP-PLUS
+    // 接口请求地址
+    if (request.isAddPrefix) {
+      const currentServe = uni.getStorageSync('currentServe');
+      if (currentServe && !baseURL) {
+        baseURL = currentServe;
+        baseURL =
+          process.env.NODE_ENV === 'development'
+            ? `${baseURL}${PREFIX}/${VERSION}/`
+            : `${baseURL}${PREFIX}/${VERSION}/`;
+      }
+    }
+    // #endif
+
+    return new Promise((resolve, reject) => {
+      const config = { ...request };
+      const { header } = config;
+      if (!header) config.header = {};
+
+      config.header.token = Decrypt(uni.getStorageSync('token') || '');
+      config.header.menuId = uni.getStorageSync('curMenuId') || '';
+      config.url = `${request.isAddPrefix ? baseURL || this.baseURL : ''}${
+        config.url
+      }`;
+      config.success = function(res) {
+        console.log(res);
+        const codeNumber = res.statusCode;
+        // 如果返回是非标准数据
+        if (config.isNonstandard) {
+          resolve(res);
+        }
+        if (codeNumber === 200) {
+          const path = res.tempFilePath.split('&');
+
+          resolve(path[0]);
+        }
+      };
+      config.fail = function(error) {
+        reject(error);
+      };
+      uni.downloadFile(config);
     });
   }
 }

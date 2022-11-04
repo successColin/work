@@ -1,12 +1,8 @@
 <template>
   <view class="inspection-device">
-    <apiot-navbar :title="$t('inspection.inspectionDevice')">
-    </apiot-navbar>
+    <apiot-navbar :title="$t('inspection.inspectionDevice')"> </apiot-navbar>
     <view class="notdata" v-if="deviceData.length === 0">
-      <image
-        src="~@/static/img/common/nodata.svg"
-        class="nodata-img"
-      ></image>
+      <image src="~@/static/img/common/nodata.svg" class="nodata-img"></image>
       <text class="nodata-text">{{ $t('common.noData') }}</text
       ><!--暂无数据-->
     </view>
@@ -16,8 +12,8 @@
         <view class="route-detail">
           <text class="inspection-name">{{ inspectionDoName }}</text>
           <div class="inspection-num">
-            <span>总数：{{ moCount }}</span>
-            <span>已点检：{{ finishMoCount }}</span>
+            <span>{{ $t('inspection.total') }}：{{ moCount }}</span>
+            <span>{{ $t('inspection.completed') }}：{{ finishMoCount }}</span>
           </div>
         </view>
       </view>
@@ -25,9 +21,7 @@
         <checkbox-group @change="checkboxChange">
           <label
             class="device-info uni-list-cell"
-            :class="[
-              { 'animateListClick': focusIndex === index },
-            ]"
+            :class="[{ animateListClick: focusIndex === index }]"
             v-for="(item, index) in deviceData"
             :key="index"
             @click="handleJumpClick(item, index)"
@@ -39,15 +33,15 @@
                   <text class="moname">{{ item.deviceName }}</text>
                 </view>
                 <div class="checkbox-box">
-                  <i v-show="item.checked && isSelectDevie"
-                    class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"></i>
+                  <i
+                    v-show="item.checked && isSelectDevie"
+                    class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"
+                  ></i>
                   <checkbox
                     :value="item.deviceId"
                     :checked="item.checked"
                     class="checkbox-style"
-                    :class="[
-                      { showSelect: !item.checked },
-                    ]"
+                    :class="[{ showSelect: !item.checked }]"
                     v-if="isSelectDevie"
                   />
                 </div>
@@ -59,13 +53,17 @@
                     'inspection-num',
                     { ongoing: item.ongoing },
                     { finish: item.finish },
-                    { abnormal: item.abnormalPointCount > 0 }
+                    { abnormal: item.abnormalPointCount > 0 },
                   ]"
                   >{{ item.finishPointCount }}/{{ item.pointCount }}</text
                 >
               </view>
               <view class="item position-name-box">
-                <text class="position-name">设备位置：{{ item.devicePosition }}</text>
+                <text class="position-name">
+                  {{ $t('inspection.deviceLocation') }}：{{
+                    item.devicePosition
+                  }}</text
+                >
               </view>
             </view>
           </label>
@@ -74,52 +72,62 @@
     </view>
     <view class="formTemplate-btns foot" v-if="isSelectDevie">
       <div class="checkAll">
-        <label
-          class="label"
-        >
+        <label class="label">
           <checkbox-group @change="selectAll">
             <div class="checkbox-box">
-              <i v-show="isSelectAll" class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"></i>
+              <i
+                v-show="isSelectAll"
+                class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"
+              ></i>
               <checkbox
                 :value="1"
                 :checked="false"
                 class="checkbox-style"
-                :class="[
-                  { showSelect: !isSelectAll },
-                ]"
+                :class="[{ showSelect: !isSelectAll }]"
               />
             </div>
           </checkbox-group>
-          <span>全选</span>
+          <span>{{ $t('inspection.checkAll') }}</span>
         </label>
       </div>
-      <div
-        @click="cancelSelect"
-        class="btn-item"
-      >{{$t('common.cancle')}}</div>
+      <div @click="cancelSelect" class="btn-item">
+        {{ $t('common.cancle') }}
+      </div>
       <!-- :end="endDate" -->
       <picker
         :disabled="pickerDisabled"
         @click="handleNotSelect"
         mode="date"
-        :start="startDate"
         class="btn-item"
         @change="showSkipMemoFun"
       >
-        <span
-          class="confirm"
-        >{{$t('common.sure')}}</span>
+        <span class="confirm">{{ $t('common.sure') }}</span>
       </picker>
     </view>
-    <view class="inspection-operation"
-      v-else-if="(deviceLayer.unlockedType === 1 || deviceLayer.unlockedType === 3) &&
-      (deviceLayer.enableRFID || deviceLayer.scanUnlock || deviceLayer.fillCodeUnlock
-      || deviceLayer.jumpOver || deviceLayer.workDone)">
-      <view class="item rfid" v-if="isShowRfid && deviceLayer.enableRFID" @click="handleRfid">
+    <view
+      class="inspection-operation"
+      v-else-if="
+        (deviceLayer.unlockedType === 1 || deviceLayer.unlockedType === 3) &&
+        (deviceLayer.enableRFID ||
+          deviceLayer.scanUnlock ||
+          deviceLayer.fillCodeUnlock ||
+          deviceLayer.jumpOver ||
+          deviceLayer.workDone)
+      "
+    >
+      <view
+        class="item rfid"
+        v-if="isShowRfid && deviceLayer.enableRFID"
+        @click="handleRfid"
+      >
         <i class="appIcon appIcon-RFID"></i>
         <span class="item-text">RFID</span>
       </view>
-      <view class="item rfid" v-if="isShowRfidHR && deviceLayer.enableRFID" @click="handleRfidHR">
+      <view
+        class="item rfid"
+        v-if="isShowRfidHR && deviceLayer.enableRFID"
+        @click="handleRfidHR"
+      >
         <i class="appIcon appIcon-RFID"></i>
         <span class="item-text">RFID</span>
       </view>
@@ -128,57 +136,94 @@
         <span class="item-text">{{ $t('inspection.basic-scanCode') }}</span
         ><!--扫码-->
       </view>
-      <view class="item unlock" v-if="deviceLayer.fillCodeUnlock" @click="showUnlock">
+      <view
+        class="item unlock"
+        v-if="deviceLayer.fillCodeUnlock"
+        @click="showUnlock"
+      >
         <i class="appIcon appIcon-jiesuo"></i>
         <span class="item-text">{{ $t('inspection.inspection-unlock') }}</span
         ><!--解锁-->
       </view>
       <view
-        v-if="(!deviceLayer.enableRFID || !deviceLayer.scanUnlock || !deviceLayer.fillCodeUnlock)
-        && deviceLayer.jumpOver"
-        class="item unlock" @click="inspctionJumpDate">
+        v-if="
+          (!deviceLayer.enableRFID ||
+            !deviceLayer.scanUnlock ||
+            !deviceLayer.fillCodeUnlock) &&
+          deviceLayer.jumpOver
+        "
+        class="item unlock"
+        @click="inspctionJumpDate"
+      >
         <i class="appIcon appIcon-tiaoguo"></i>
         <span class="item-text">{{ $t('inspection.inspection-jump') }}</span
         ><!--跳过-->
       </view>
       <view
-        v-if="(!deviceLayer.enableRFID || !deviceLayer.scanUnlock || !deviceLayer.fillCodeUnlock)
-        && deviceLayer.workDone"
-        class="item unlock" @click="handleFinish">
+        v-if="
+          (!deviceLayer.enableRFID ||
+            !deviceLayer.scanUnlock ||
+            !deviceLayer.fillCodeUnlock) &&
+          deviceLayer.workDone
+        "
+        class="item unlock"
+        @click="handleFinish"
+      >
         <i class="appIcon appIcon-gongshi"></i>
         <span class="item-text">{{ $t('inspection.inspection-gongshi') }}</span
         ><!--工时-->
       </view>
       <!-- 按钮多于4个时显示更多 -->
       <view
-        v-if="deviceLayer.enableRFID && deviceLayer.scanUnlock && deviceLayer.fillCodeUnlock"
-        class="item more" @click="handleShowMore">
+        v-if="
+          deviceLayer.enableRFID &&
+          deviceLayer.scanUnlock &&
+          deviceLayer.fillCodeUnlock &&
+          (deviceLayer.jumpOver || deviceLayer.workDone)
+        "
+        class="item more"
+        @click="handleShowMore"
+      >
         <i class="appIcon appIcon-gengduoanniu"></i>
         <span class="item-text">{{ $t('inspection.more') }}</span
         ><!--更多-->
       </view>
       <view
-        v-if="deviceLayer.enableRFID && deviceLayer.scanUnlock && deviceLayer.fillCodeUnlock"
+        v-if="
+          deviceLayer.enableRFID &&
+          deviceLayer.scanUnlock &&
+          deviceLayer.fillCodeUnlock
+        "
         class="more-operation scale-animate scale-animate-right"
-        :class="[
-        { 'scale-animate-show': isShowMore },
-      ]">
-        <span v-if="deviceLayer.jumpOver" class="more-item" @click="inspctionJumpDate">
+        :class="[{ 'scale-animate-show': isShowMore }]"
+      >
+        <span
+          v-if="deviceLayer.jumpOver"
+          class="more-item"
+          @click="inspctionJumpDate"
+        >
           <i class="appIcon appIcon-tiaoguo"></i>
         </span>
-        <span v-if="deviceLayer.workDone" class="more-item" @click="handleFinish">
+        <span
+          v-if="deviceLayer.workDone"
+          class="more-item"
+          @click="handleFinish"
+        >
           <i class="appIcon appIcon-gongshi"></i>
         </span>
       </view>
     </view>
-    <view class="inspection-operation nolock" v-else-if="deviceLayer.unlockedType === 2">
+    <view
+      class="inspection-operation nolock"
+      v-else-if="deviceLayer.unlockedType === 2"
+    >
       <span v-if="deviceLayer.jumpOver" class="item" @click="inspctionJumpDate">
         <i class="appIcon appIcon-tiaoguo"></i>
-        跳过设备
+        {{ $t('inspection.skipDevice') }}
       </span>
       <span v-if="deviceLayer.workDone" class="item" @click="handleFinish">
         <i class="appIcon appIcon-gongshi"></i>
-        完成工时
+        {{ $t('inspection.workCompleted') }}
       </span>
     </view>
     <!-- 输入工时弹窗 -->
@@ -188,7 +233,7 @@
       @sure-click="finishInspection"
       :title="$t('inspection.inspection-workTime')"
       :placeholder="$t('inspection.inspection-significantNumber')"
-      >
+    >
     </apiot-prompt>
     <!-- 输入点检跳过备注弹窗 -->
     <apiot-prompt
@@ -197,7 +242,7 @@
       @sure-click="confirmSelect"
       :title="$t('inspection.page-note')"
       :placeholder="$t('inspection.inspection-jump-memo')"
-      >
+    >
     </apiot-prompt>
     <!-- 输入解锁码弹窗 -->
     <apiot-prompt
@@ -206,14 +251,14 @@
       @sure-click="handleUnlock"
       :title="$t('inspection.inspection-unlockDevice')"
       :placeholder="$t('inspection.inspection-enterCode')"
-      >
+    >
     </apiot-prompt>
     <!-- 确认弹窗 -->
     <apiot-tip-prompt
       v-if="showTipPrompt"
       :visible.sync="showTipPrompt"
       :promptData="promptData"
-      >
+    >
     </apiot-tip-prompt>
   </view>
 </template>
@@ -228,7 +273,7 @@ import {
   currencyHaiLiScanning,
   forceInspection,
   selectPointDoListByCode,
-  selectInspectionConfig,
+  selectInspectionConfig
 } from '../js/DB.js';
 import { inspectionSkip } from '@/api/inspection.js';
 import StaticNFC from '../js/NFC.js';
@@ -246,6 +291,9 @@ export default {
       this.deviceLayer = JSON.parse(res[0].deviceLayer);
     });
     this.getData();
+    if (!this.deviceLayer.workDone) {
+      this.finishInspection(1, 'auto');
+    }
   },
   onHide() {
     // 页面进入后台时，如果没关闭NFC时关闭
@@ -278,7 +326,6 @@ export default {
       isSelectDevie: false,
       selectdeviceId: [],
       pickerDisabled: false,
-      startDate: '',
       endDate: '',
       isShowMore: false,
       isDownloadComplete: false,
@@ -291,14 +338,14 @@ export default {
       promptData: {
         title: '',
         confirmText: '',
-        tip: '',
+        tip: ''
       },
       focusIndex: null,
       deviceLayer: {}
     };
   },
   computed: {
-    ...mapState('Inspection', ['inspectionDeviceLock']),
+    ...mapState('Inspection', ['inspectionDeviceLock'])
   },
   watch: {
     nowRfid(newValue) {
@@ -316,12 +363,12 @@ export default {
           this.promptData = {
             title: this.$t('common.tip'),
             confirmText: this.$t('common.sure'),
-            tip: this.$t('inspection.inspection-notFindDevice'),
+            tip: this.$t('inspection.inspection-notFindDevice')
           };
           this.showTipPrompt = true;
         }
       });
-    },
+    }
   },
   methods: {
     inspctionJumpDate() {
@@ -391,7 +438,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.inspection-skip'),
+          tip: this.$t('inspection.inspection-skip')
         };
         this.showTipPrompt = true;
       }
@@ -406,7 +453,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.inspection-memo'),
+          tip: this.$t('inspection.inspection-memo')
         };
         this.showTipPrompt = true;
         return;
@@ -415,7 +462,7 @@ export default {
         const params = {
           deviceIds: this.selectdeviceId,
           targetDate: this.selectDate,
-          skipMemo: value,
+          skipMemo: value
         };
         uni.showLoading();
         await inspectionSkip(params);
@@ -431,7 +478,7 @@ export default {
             this.promptData = {
               title: this.$t('common.tip'),
               confirmText: this.$t('common.sure'),
-              tip: '跳过成功',
+              tip: '跳过成功'
             };
             this.showTipPrompt = true;
             this.getData();
@@ -440,7 +487,7 @@ export default {
             this.promptData = {
               title: this.$t('common.tip'),
               confirmText: this.$t('common.sure'),
-              tip: this.$t('inspection.inspection-deletionFailed'),
+              tip: this.$t('inspection.inspection-deletionFailed')
             };
             this.showTipPrompt = true;
           }
@@ -454,7 +501,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: '跳过失败',
+          tip: this.$t('inspection.skipFailed')
         };
         this.showTipPrompt = true;
         uni.hideLoading();
@@ -470,7 +517,7 @@ export default {
         $t: i18nMsg,
         callback(res) {
           _this.nowRfid = res.value;
-        },
+        }
       });
       // rfid();
     },
@@ -484,7 +531,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.timeout'),
+          tip: this.$t('inspection.timeout')
         };
         this.showTipPrompt = true;
       }, 8000);
@@ -495,7 +542,7 @@ export default {
           uni.hideLoading();
           uni.showToast({
             title: this.$t('inspection.inspection-NFCLabel'), // 中文：'请将NFC标签靠近！'
-            icon: 'none',
+            icon: 'none'
           });
           this.readCardInfo();
         }, 1000);
@@ -557,7 +604,7 @@ export default {
               this.promptData = {
                 title: this.$t('common.tip'),
                 confirmText: this.$t('common.sure'),
-                tip: this.$t('inspection.inspection-notFindDevice'),
+                tip: this.$t('inspection.inspection-notFindDevice')
               };
               this.showTipPrompt = true;
             }
@@ -574,7 +621,7 @@ export default {
             this.promptData = {
               title: this.$t('common.tip'),
               confirmText: this.$t('common.sure'),
-              tip: this.$t('inspection.inspection-notFindDevice'),
+              tip: this.$t('inspection.inspection-notFindDevice')
             };
             this.showTipPrompt = true;
           }
@@ -596,7 +643,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.inspection-notFindDevice'),
+          tip: this.$t('inspection.inspection-notFindDevice')
         };
         this.showTipPrompt = true;
       } else {
@@ -605,25 +652,22 @@ export default {
       }
       this.showLockTask = false;
     },
-    finishInspection(value) {
+    finishInspection(value, type = null) {
       if (
         /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/.test(
           value
         )
       ) {
-        updateSql(
-          'inspectiondo',
-          { workingHours: parseFloat(value) },
-          { id: this.id },
-          () => {
+        updateSql('inspectiondo', { workingHours: parseFloat(value) }, { id: this.id }, () => {
+          if (!type) {
             uni.navigateBack();
           }
-        );
+        });
       } else {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.check-nan'),
+          tip: this.$t('inspection.check-nan')
         };
         this.showTipPrompt = true;
       }
@@ -640,9 +684,7 @@ export default {
           this.promptData = {
             title: this.$t('inspection.inspection-forceTip'),
             confirmText: this.$t('common.sure'),
-            tip: `${res[0].deviceCode},${this.$t(
-              'inspection.inspection-hasforceNoFinish'
-            )}`, // 中文：'有强制点没有完成',
+            tip: `${res[0].deviceCode},${this.$t('inspection.inspection-hasforceNoFinish')}` // 中文：'有强制点没有完成',
           };
           this.showTipPrompt = true;
         }
@@ -662,7 +704,7 @@ export default {
         });
         if (this.finishMoCount === this.moCount && this.finishMoCount !== 0) {
           selectworkingHours(this.id, (data) => {
-            if (!data[0].workingHours) {
+            if (!data[0].workingHours && this.deviceLayer.workDone) {
               setTimeout(() => {
                 this.handleFinish();
               }, 200);
@@ -678,7 +720,7 @@ export default {
       this.getData();
       this.isDownloadComplete = !this.isDownloadComplete;
     }
-  },
+  }
 };
 </script>
 
@@ -686,30 +728,35 @@ export default {
 .hasStatusTop {
   margin-top: var(--status-bar-height);
 }
-.inspection-device{
+.inspection-device {
   width: 100%;
-  .deviceBtn,.mainColor,.mainColor-blue,.mainColor-orange,.mainColor-violet,.mainColor-navyBlue{
+  .deviceBtn,
+  .mainColor,
+  .mainColor-blue,
+  .mainColor-orange,
+  .mainColor-violet,
+  .mainColor-navyBlue {
     float: right;
     margin-left: 40rpx;
   }
-  .btn-item{
+  .btn-item {
     width: 50%;
     display: inline-block;
     vertical-align: top;
-    .btn{
+    .btn {
       border-radius: 0px;
-      &:after{
+      &:after {
         border-radius: 0px;
       }
     }
   }
-  .checkbox-all{
+  .checkbox-all {
     margin-right: 2px;
-    .uni-checkbox-input{
+    .uni-checkbox-input {
       margin: 0;
     }
   }
-  .notdata{
+  .notdata {
     position: fixed;
     height: calc(100% - 176rpx);
     width: 100%;
@@ -717,13 +764,13 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    .nodata-img{
+    .nodata-img {
       width: 200rpx;
       height: 200rpx;
       margin-bottom: 30rpx;
     }
-    .nodata-text{
-      color: #9B9B9B;
+    .nodata-text {
+      color: #9b9b9b;
       font-size: 28rpx;
     }
   }
@@ -738,20 +785,20 @@ export default {
       opacity: 1;
     }
   }
-  .checkbox-box{
+  .checkbox-box {
     width: 32rpx;
     height: 32rpx;
     position: relative;
-    .appIcon{
+    .appIcon {
       font-size: 32rpx;
-      color: #4689F5;
+      color: #4689f5;
       top: 0rpx;
       left: 0;
       position: absolute;
       transform: scale(0);
       opacity: 0;
     }
-    .checkbox-style{
+    .checkbox-style {
       width: 32rpx;
       height: 32rpx;
       top: 0rpx;
@@ -759,55 +806,55 @@ export default {
       position: absolute;
       transform: scale(0);
       opacity: 0;
-      ::v-deep{
-        .uni-checkbox-wrapper{
+      ::v-deep {
+        .uni-checkbox-wrapper {
           vertical-align: super;
         }
-        .uni-checkbox-input{
+        .uni-checkbox-input {
           width: 32rpx;
           height: 32rpx;
           box-sizing: border-box;
         }
       }
     }
-    .showSelect{
-      animation: scaleShow .2s 1 forwards;
+    .showSelect {
+      animation: scaleShow 0.2s 1 forwards;
     }
   }
-  .inspection-device-box{
-    padding:200rpx 0 108rpx 0;
-    .inspection-top-route{
+  .inspection-device-box {
+    padding: 200rpx 0 108rpx 0;
+    .inspection-top-route {
       width: 100%;
       height: 180rpx;
       padding: 40rpx;
-      position:fixed;
-      top:88rpx;
-      background: #FFFFFF;
+      position: fixed;
+      top: 88rpx;
+      background: #ffffff;
       box-shadow: 0px 2rpx 10rpx 0px rgba(0, 0, 0, 0.2);
       border-radius: 0px 0px 20rpx 20rpx;
       z-index: 1;
       box-sizing: border-box;
       display: flex;
       align-items: center;
-      .img{
+      .img {
         width: 88rpx;
         height: 88rpx;
         margin-right: 30rpx;
       }
-      .route-detail{
+      .route-detail {
         width: calc(100% - 118rpx);
         height: 88rpx;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        .inspection-name{
+        .inspection-name {
           font-size: 28rpx;
           color: #333333;
           font-size: 34rpx;
-          font-weight: 500;
+          @include fontBlob(500);
           line-height: 42rpx;
         }
-        .inspection-num{
+        .inspection-num {
           width: 100%;
           font-size: 24rpx;
           color: #333333;
@@ -819,84 +866,87 @@ export default {
         }
       }
     }
-    .device-info{
+    .device-info {
       margin: 0 30rpx 20rpx;
       display: block;
       background: #fff;
       border-radius: 12rpx;
       box-shadow: 0px 2rpx 4rpx 0px rgba(0, 0, 0, 0.08);
-      .device-info-box{
+      .device-info-box {
         padding: 30rpx;
-        .item{
+        .item {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          .m-info{
+          .m-info {
             display: flex;
             align-items: center;
             height: 48rpx;
-            .img{
+            .img {
               width: 48rpx;
               height: 48rpx;
               margin-right: 14rpx;
             }
-            .moname{
+            .moname {
               color: #444444;
               font-size: 34rpx;
               margin-right: 18rpx;
               display: block;
             }
           }
-          .deviceCode{
+          .deviceCode {
             font-size: 28rpx;
             color: #333333;
             line-height: 62rpx;
           }
-          .inspection-num{
-            flex:0 1 100rpx;
+          .inspection-num {
+            flex: 0 1 100rpx;
             line-height: 40rpx;
             color: #fff;
             font-size: 26rpx;
-            background: #BBC3CD;
+            background: #bbc3cd;
             text-align: center;
             border-radius: 20rpx;
           }
-          .ongoing{
-            background: #F7B500;
+          .ongoing {
+            background: #f7b500;
           }
-          .finish{
-            background: #4689F5;
+          .finish {
+            background: #4689f5;
           }
-          .abnormal{
+          .abnormal {
             background: #f0605d;
           }
         }
       }
-      .position-name-box{
+      .position-name-box {
         height: 46rpx;
-        background: #F6F6F8;
+        background: #f6f6f8;
         border-radius: 8rpx;
-        .position-name,.position-storagelocation{
-          color: #9B9B9B;
+        .position-name,
+        .position-storagelocation {
+          color: #9b9b9b;
           font-size: 28rpx;
           margin-left: 10rpx;
         }
       }
     }
   }
-  .inspection-operation{
+  .inspection-operation {
     position: fixed;
     bottom: 30rpx;
     left: 20rpx;
     width: 710rpx;
     height: 88rpx;
     display: flex;
-    background: #FFFFFF;
+    background: #ffffff;
     box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
     border-radius: 44px;
     justify-content: space-around;
     align-items: center;
-    .item{
+    padding: 0 13rpx;
+    box-sizing: border-box;
+    .item {
       flex: 1;
       height: 62rpx;
       display: flex;
@@ -904,75 +954,76 @@ export default {
       align-items: center;
       position: relative;
       font-size: 28rpx;
-      &:after{
+      &:after {
         content: ' ';
         width: 1rpx;
         height: 24rpx;
-        background: #D9D9D9;
+        background: #d9d9d9;
         margin-right: -3rpx;
         position: absolute;
         right: -15rpx;
         top: 19rpx;
       }
-      .appIcon{
+      .appIcon {
         font-size: 38rpx;
         text-align: right;
         padding-right: 8rpx;
-        color: #4689F5;
+        color: #4689f5;
       }
-      .item-text{
+      .item-text {
         font-size: 28rpx;
         color: #444444;
         padding-left: 8rpx;
       }
     }
-    .more{
-      background: #4689F5;
+    .more {
+      background: #4689f5;
       border-radius: 31rpx;
-      .appIcon, .item-text{
+      .appIcon,
+      .item-text {
         color: #ffffff;
       }
-      &:after{
+      &:after {
         content: ' ';
         width: 0rpx;
       }
     }
-    .more-operation{
+    .more-operation {
       width: 80rpx;
       height: 200rpx;
       position: absolute;
       right: 0;
       top: -200rpx;
-      .more-item{
+      .more-item {
         width: 80rpx;
         height: 80rpx;
-        background: #FFFFFF;
+        background: #ffffff;
         box-shadow: 0px 4rpx 11rpx 0px rgba(0, 0, 0, 0.2);
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
         margin-bottom: 20rpx;
-        .appIcon{
+        .appIcon {
           font-size: 36rpx;
-          color: #4689F5;
+          color: #4689f5;
         }
       }
     }
   }
-  .nolock{
-    .item{
+  .nolock {
+    .item {
       width: 50%;
     }
   }
-  .download-complete{
+  .download-complete {
     width: 100%;
     height: 100%;
     position: fixed;
     left: 0;
     top: 0;
     z-index: 5;
-    .download-complete-layout{
+    .download-complete-layout {
       width: 100%;
       height: 100%;
       position: absolute;
@@ -980,10 +1031,10 @@ export default {
       top: 0;
       background: rgba(0, 0, 0, 0.3);
     }
-    .download-complete-content{
+    .download-complete-content {
       width: 440rpx;
       height: 460rpx;
-      background: #FFFFFF;
+      background: #ffffff;
       border-radius: 18rpx;
       margin: auto;
       display: flex;
@@ -995,33 +1046,33 @@ export default {
       top: 0;
       right: 0;
       bottom: 0;
-      .download-complete-img{
+      .download-complete-img {
         width: 200rpx;
         height: auto;
       }
-      .tip{
+      .tip {
         height: 108rpx;
         font-size: 30rpx;
         color: #333333;
         line-height: 108rpx;
         text-align: center;
       }
-      .download-complete-button{
+      .download-complete-button {
         width: 320rpx;
         height: 72rpx;
-        background: #4689F5;
+        background: #4689f5;
         border-radius: 42rpx;
         text-align: center;
         font-size: 30rpx;
-        color: #FFFFFF;
+        color: #ffffff;
         line-height: 72rpx;
       }
     }
   }
-  .formTemplate-btns{
+  .formTemplate-btns {
     width: 100%;
     height: 110rpx;
-    background: #FFFFFF;
+    background: #ffffff;
     position: fixed;
     left: 0;
     bottom: 0;
@@ -1029,10 +1080,10 @@ export default {
     justify-content: center;
     align-items: center;
     z-index: 10;
-    .checkAll{
+    .checkAll {
       width: 140rpx;
       height: 72rpx;
-      .label{
+      .label {
         width: 100%;
         height: 100%;
         display: flex;
@@ -1043,29 +1094,29 @@ export default {
         font-size: 28rpx;
       }
     }
-    .btn-item{
+    .btn-item {
       width: 260rpx;
       height: 72rpx;
-      background: #F1F3F6;
+      background: #f1f3f6;
       border-radius: 12rpx;
       margin: 0 12rpx;
       color: #333333;
       font-size: 30rpx;
       line-height: 72rpx;
       text-align: center;
-      .confirm{
+      .confirm {
         width: 100%;
         height: 72rpx;
         border-radius: 12rpx;
         font-size: 30rpx;
         line-height: 72rpx;
-        background: #4689F5;
-        color: #FFFFFF;
+        background: #4689f5;
+        color: #ffffff;
         display: inline-block;
         text-align: center;
       }
     }
-    .red{
+    .red {
       background: red;
     }
   }

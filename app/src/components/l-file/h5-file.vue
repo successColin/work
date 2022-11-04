@@ -5,7 +5,7 @@
     <div v-if="showTip" align="center" class="fixed tis">
       <div class="tis-content">
         <div>
-          <img src="../../static/logo.png" />
+          <img src="~@/static/img/login_images/logo.svg" />
         </div>
         <div class="tis-progress">
           努力上传中
@@ -237,8 +237,7 @@ export default {
     margin-top: 30rpx;
     line-height: 80rpx;
     font-size: 32rpx;
-    font-family: PingFangSC-Medium, PingFang SC;
-    font-weight: 500;
+    @include fontBlob(500);
     color: #333333;
   }
 }

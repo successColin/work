@@ -16,20 +16,20 @@ export function getPageInnerMail(params) {
 }
 
 // 设置我的站内信已读
-export function markMailRead(params) {
+export function markMailRead(data) {
   return FetchData.request({
     url: 'innerMail/read',
-    method: 'get',
-    params,
+    method: 'post',
+    data,
   });
 }
 
 // 设置我的站内信已读
-export function markMailAllRead(params) {
+export function markMailAllRead(data) {
   return FetchData.request({
     url: 'innerMail/readMyAll',
-    method: 'get',
-    params,
+    method: 'post',
+    data,
   });
 }
 
@@ -37,6 +37,15 @@ export function markMailAllRead(params) {
 export function getMailCount(params) {
   return FetchData.request({
     url: 'innerMail/queryCount',
+    method: 'get',
+    params,
+  });
+}
+
+// 根据实例编码获取信息
+export function getByCode(params) {
+  return FetchData.request({
+    url: 'workflowTask/getByCode',
     method: 'get',
     params,
   });

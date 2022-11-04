@@ -75,12 +75,6 @@ import PopupLine from '../components/PopupLine';
 import ListData from '../components/ListData';
 import MoreOper from '../components/MoreOper';
 import UploadFile from '../components/UploadFile';
-// 图片
-import docTypeUrl from '@/static/img/fileType/DOC.svg';
-import imgTypeUrl from '@/static/img/fileType/IMAG.svg';
-import mp4TypeUrl from '@/static/img/fileType/MP4.svg';
-import mp3TypeUrl from '@/static/img/fileType/MP3.svg';
-import otyerTypeUrl from '@/static/img/fileType/OTHER.svg';
 
 export default {
   props: {
@@ -101,27 +95,27 @@ export default {
         },
         {
           name: '文档',
-          url: docTypeUrl,
+          url: 'appIcon-DOC',
           state: false
         },
         {
           name: '图片',
-          url: imgTypeUrl,
+          url: 'appIcon-tupianwenjian',
           state: false
         },
         {
           name: '视频',
-          url: mp4TypeUrl,
+          url: 'appIcon-shipinwenjian',
           state: false
         },
         {
           name: '音频',
-          url: mp3TypeUrl,
+          url: 'appIcon-yuyinwenjian',
           state: false
         },
         {
           name: '其他',
-          url: otyerTypeUrl,
+          url: 'appIcon-qitawenjian',
           state: false
         }
       ],

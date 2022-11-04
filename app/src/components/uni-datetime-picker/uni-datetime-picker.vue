@@ -569,7 +569,7 @@ export default {
     },
     platform() {
       const systemInfo = uni.getSystemInfoSync();
-      this.isPhone = systemInfo.windowWidth <= 500;
+      this.isPhone = systemInfo.windowWidth <= 750;
       this.windowWidth = systemInfo.windowWidth;
     },
     show(event) {
@@ -584,10 +584,7 @@ export default {
       this.popover = {
         top: '10px'
       };
-      const dateEditor = uni
-        .createSelectorQuery()
-        .in(this)
-        .select('.uni-date-editor');
+      const dateEditor = uni.createSelectorQuery().in(this).select('.uni-date-editor');
       dateEditor
         .boundingClientRect((rect) => {
           if (this.windowWidth - rect.left < this.datePopupWidth) {
@@ -864,7 +861,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .uni-date-x {
   display: flex;
   flex-direction: row;
@@ -1080,13 +1077,15 @@ export default {
 }
 
 .appIcon-riqi {
+  display: inline-block;
   color: #bbc3cd;
-  font-size: 18px;
+  font-size: 20px;
+  padding-right: 20rpx;
 }
 
 .uni-date__placeholder {
   font-size: 16px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  font-family: $--font-family;
   color: #aaaaaa;
   text-align: left;
 }

@@ -9,6 +9,8 @@ const formatDate = (date, fmt = 'yyyy-MM-dd hh:mm:ss') => {
     date = new Date(date);
   } else date = new Date();
 
+  if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
+
   if (/(y+)/.test(fmt)) {
     fmt = fmt.replace(
       RegExp.$1,

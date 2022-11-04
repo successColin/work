@@ -7,30 +7,47 @@
     // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
       "path": "pages/index/index"
-    },
-    {
-      "path": "pages/Login/index"
-    },
-    {
-      "path": "pages/MenuHome/index"
-    },
-    {
-      "path": "pages/MenuMine/index",
-      "style": {
-        "backgroundColor": "#F6F6F8"
-      }
-    },
-    {
-      "path": "pages/Login/loginForgot"
-    },
-    {
-      "path": "pages/MenuHome/applicationTab"
-    },
-    {
-      "path": "pages/webViewTemplate/index"
     }
   ],
   "subPackages": [
+    {
+      "root": "Login",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "loginForgot"
+        }
+      ]
+    },
+    // #ifdef MP-ALIPAY
+    {
+      "root": "PagesDing", // 钉钉相关界面
+
+      "pages": [
+        {
+          "path": "associatedUser"
+        },
+        {
+          "path": "ex"
+        }
+      ]
+    },
+    // #endif
+    // #ifdef MP-WEIXIN
+    {
+      "root": "PagesWX",
+      "pages": [
+        {
+          "path": "Login"
+        },
+        {
+          "path": "Register"
+        }
+      ]
+    },
+    // #endif
     {
       "root": "menuConfigure", // 配置界面
       "pages": [
@@ -51,12 +68,33 @@
       ]
     },
     {
-      "root": "interfaceCommon", // 通用功能，例如搜索界面
+      "root": "MenuHome",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "applicationTab"
+        }
+      ]
+    },
+    {
+      "root": "interfaceCommon", // 通用功能，例如搜索界面1
       "pages": [
         {
           "path": "search",
           "style": {
             "backgroundColor": "#FFFFFF"
+          }
+        },
+        {
+          "path": "webView",
+          "style": {
+            // #ifdef MP
+            "navigationStyle": "default",
+            // #endif
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
           }
         }
       ]
@@ -88,11 +126,29 @@
           "path": "inspection/inspectionPoint",
           "style": {
             "backgroundColor": "#F6F6F8",
-            "navigationBarTextStyle": "black"
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
           }
         },
         {
           "path": "inspection/inspectionUpload",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "root": "userloginManage",
+      "pages": [
+        {
+          "path": "index",
           "style": {
             "backgroundColor": "#F6F6F8",
             "navigationBarTextStyle": "black"
@@ -123,6 +179,9 @@
             "backgroundColor": "#F6F6F8",
             "navigationBarTextStyle": "black"
           }
+        },
+        {
+          "path": "webViewTemplate/index"
         }
       ]
     },
@@ -165,6 +224,9 @@
       "pages": [
         {
           "path": "index"
+        },
+        {
+          "path": "components/webview/index"
         }
       ]
     },
@@ -183,12 +245,29 @@
           "path": "index"
         }
       ]
+    },
+    {
+      "root": "Notice",
+      "pages": [
+        {
+          "path": "NoticeList/index"
+        },
+        {
+          "path": "NoticeDetail/index"
+        }
+      ]
     }
   ],
   "preloadRule": {
-    "pages/MenuHome/index": {
+    "pages/index/index": {
       "network": "all",
-      "packages": ["menuConfigure", "knowledgeBase", "PagesProcess"]
+      "packages": [
+        "Login",
+        "MenuHome",
+        "menuConfigure",
+        "knowledgeBase",
+        "PagesProcess"
+      ]
     },
     "menuConfigure/index": {
       "network": "all",

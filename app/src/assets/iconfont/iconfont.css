@@ -1,0 +1,302 @@
+@font-face {
+  font-family: "appIcon"; /* Project id 2808920 */
+  src: url('@/assets/iconfont/iconfont.woff2?t=1660121337563') format('woff2'),
+       url('@/assets/iconfont/iconfont.woff?t=1660121337563') format('woff'),
+       url('@/assets/iconfont/iconfont.ttf?t=1660121337563') format('truetype');
+}
+
+.appIcon {
+  font-family: "appIcon" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.appIcon-duoyuyan:before {
+  content: "\eb2f";
+}
+
+.appIcon-qizhi:before {
+  content: "\eb1b";
+}
+
+.appIcon-jicha:before {
+  content: "\eb16";
+}
+
+.appIcon-cha:before {
+  content: "\eb17";
+}
+
+.appIcon-yiban:before {
+  content: "\eb18";
+}
+
+.appIcon-manyi:before {
+  content: "\eb19";
+}
+
+.appIcon-chaozan:before {
+  content: "\eb1a";
+}
+
+.appIcon-quanbusheweiyidu:before {
+  content: "\eb09";
+}
+
+.appIcon-shenpi:before {
+  content: "\eb08";
+}
+
+.appIcon-xitongxiaoxi:before {
+  content: "\eb06";
+}
+
+.appIcon-gongzuoliucheng:before {
+  content: "\eb07";
+}
+
+.appIcon-tongguo:before {
+  content: "\eb02";
+}
+
+.appIcon-bohui:before {
+  content: "\eb03";
+}
+
+.appIcon-zhuanshen:before {
+  content: "\eb04";
+}
+
+.appIcon-jiaqian:before {
+  content: "\eb05";
+}
+
+.appIcon-huitui:before {
+  content: "\eb00";
+}
+
+.appIcon-fuwuqi:before {
+  content: "\eafa";
+}
+
+.appIcon-shuzhanshi:before {
+  content: "\eaef";
+}
+
+.appIcon-liebiaozhanshi:before {
+  content: "\eaf0";
+}
+
+.appIcon-xiugaitouxiang:before {
+  content: "\eaee";
+}
+
+.appIcon-bangdingdingding:before {
+  content: "\eaec";
+}
+
+.appIcon-bangdingweixin:before {
+  content: "\eaed";
+}
+
+.appIcon-xiugaimimatishi:before {
+  content: "\eaeb";
+}
+
+.appIcon-erweima:before {
+  content: "\eaea";
+}
+
+.appIcon-anquanshezhi:before {
+  content: "\eae5";
+}
+
+.appIcon-zhuxiaodenglu:before {
+  content: "\eae6";
+}
+
+.appIcon-qingchuhuancun:before {
+  content: "\eae7";
+}
+
+.appIcon-guanyubanben:before {
+  content: "\eae8";
+}
+
+.appIcon-yijianfankui:before {
+  content: "\eae9";
+}
+
+.appIcon-quanshan:before {
+  content: "\eae3";
+}
+
+.appIcon-xialasanjiao:before {
+  content: "\eadc";
+}
+
+.appIcon-shebei:before {
+  content: "\ead9";
+}
+
+.appIcon-weizhi:before {
+  content: "\eada";
+}
+
+.appIcon-xiugaigongshi:before {
+  content: "\ead8";
+}
+
+.appIcon-celiangzhi:before {
+  content: "\ead7";
+}
+
+.appIcon-tingji:before {
+  content: "\ead4";
+}
+
+.appIcon-yichang:before {
+  content: "\ead5";
+}
+
+.appIcon-zhengchang:before {
+  content: "\ead6";
+}
+
+.appIcon-a-fuxuankuangxuanzhong:before {
+  content: "\ead2";
+}
+
+.appIcon-RFID:before {
+  content: "\ead1";
+}
+
+.appIcon-gengduoanniu:before {
+  content: "\ead0";
+}
+
+.appIcon-tishi:before {
+  content: "\eacf";
+}
+
+.appIcon-guanbi:before {
+  content: "\eace";
+}
+
+.appIcon-gongshi:before {
+  content: "\eaca";
+}
+
+.appIcon-jiesuo:before {
+  content: "\eacb";
+}
+
+.appIcon-tiaoguo:before {
+  content: "\eacc";
+}
+
+.appIcon-saoma:before {
+  content: "\eacd";
+}
+
+.appIcon-xialagouxuan:before {
+  content: "\eac9";
+}
+
+.appIcon-shangchuan:before {
+  content: "\eac7";
+}
+
+.appIcon-riqi:before {
+  content: "\eac8";
+}
+
+.appIcon-jiaose:before {
+  content: "\eac4";
+}
+
+.appIcon-zhiwei:before {
+  content: "\eac5";
+}
+
+.appIcon-zuzhi:before {
+  content: "\eac6";
+}
+
+.appIcon-a-shujuxuanzejinru:before {
+  content: "\eac3";
+}
+
+.appIcon-fenxiang:before {
+  content: "\eabf";
+}
+
+.appIcon-shanchu:before {
+  content: "\eac0";
+}
+
+.appIcon-xinjianwenjianjia:before {
+  content: "\eac1";
+}
+
+.appIcon-xiazai:before {
+  content: "\eac2";
+}
+
+.appIcon-gengduo:before {
+  content: "\eaba";
+}
+
+.appIcon-yichu:before {
+  content: "\eabb";
+}
+
+.appIcon-shaixuan:before {
+  content: "\eabc";
+}
+
+.appIcon-tianjiagongneng:before {
+  content: "\eabd";
+}
+
+.appIcon-sousuo:before {
+  content: "\eabe";
+}
+
+.appIcon-yishoucang:before {
+  content: "\eab8";
+}
+
+.appIcon-shoucang:before {
+  content: "\eab9";
+}
+
+.appIcon-mimaxianshi:before {
+  content: "\ea80";
+}
+
+.appIcon-mimayincang:before {
+  content: "\ea81";
+}
+
+.appIcon-fanhuijiantou:before {
+  content: "\ea7f";
+}
+
+.appIcon-shoujihaodenglu:before {
+  content: "\ea7e";
+}
+
+.appIcon-zhanghao:before {
+  content: "\ea7c";
+}
+
+.appIcon-mima:before {
+  content: "\ea7d";
+}
+
+.appIcon-yuyan:before {
+  content: "\eb2f";
+}

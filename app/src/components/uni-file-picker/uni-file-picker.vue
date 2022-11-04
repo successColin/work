@@ -5,7 +5,7 @@
       <text class="file-count">{{ filesList.length }}/{{ limitLength }}</text>
     </view>
     <upload-image
-      v-if="fileMediatype === 'image' && showType === 'grid'"
+      v-if="showType === 'grid'"
       :readonly="readonly"
       :image-styles="imageStyles"
       :files-list="filesList"
@@ -24,7 +24,7 @@
       </slot>
     </upload-image>
     <upload-file
-      v-if="fileMediatype !== 'image' || showType !== 'grid'"
+      v-else
       :readonly="readonly"
       :list-styles="listStyles"
       :files-list="filesList"
@@ -34,7 +34,17 @@
       @choose="choose"
       @delFile="delFile"
     >
-      <slot><button type="primary" size="mini">选择文件</button></slot>
+      <slot
+        ><view class="chooseFileBtn"
+          ><button type="default">
+            <i
+              class="appIcon appIcon-shangchuan"
+              :class="[`themeColor__font-${getThemeIndex}`]"
+            ></i>
+            {{ fileMediatypeText }}
+          </button></view
+        ></slot
+      >
     </upload-file>
   </view>
 </template>
@@ -181,8 +191,8 @@ export default {
       type: Object,
       default() {
         return {
-          width: '140rpx',
-          height: '140rpx'
+          width: '224rpx',
+          height: '224rpx'
         };
       }
     },
@@ -199,6 +209,11 @@ export default {
       default() {
         return ['original', 'compressed'];
       }
+    },
+    // 是否要上传到云控件
+    canUniCloud: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -226,6 +241,15 @@ export default {
     // #endif
   },
   computed: {
+    fileMediatypeText() {
+      const { fileMediatype } = this;
+      if (fileMediatype === 'image') return '上传图片';
+      if (fileMediatype === 'video') return '上传视频';
+      return '上传文件';
+    },
+    getThemeIndex() {
+      return this.$store.getters.getThemeIndex;
+    },
     filesList() {
       const files = [];
       this.files.forEach((v) => {
@@ -234,10 +258,7 @@ export default {
       return files;
     },
     showType() {
-      if (this.fileMediatype === 'image') {
-        return this.mode;
-      }
-      return 'list';
+      return this.mode;
     },
     limitLength() {
       if (this.returnType === 'object') {
@@ -254,7 +275,9 @@ export default {
   },
   created() {
     // TODO 兼容不开通服务空间的情况
-    if (!(uniCloud.config && uniCloud.config.provider)) {
+    console.log('TODO 兼容不开通服务空间的情况========================');
+    if (!(uniCloud.config && uniCloud.config.provider) || !this.canUniCloud) {
+      console.log('TODO 兼容不开通服务空间的情况========================11');
       this.noSpace = true;
       uniCloud.chooseAndUploadFile = chooseAndUploadFile;
     }
@@ -360,6 +383,7 @@ export default {
     chooseFiles() {
       const _extname = get_extname(this.fileExtname);
       // 获取后缀
+      console.log('333333333333333333333333333');
       uniCloud
         .chooseAndUploadFile({
           type: this.fileMediatype,
@@ -374,6 +398,7 @@ export default {
           }
         })
         .then((result) => {
+          console.log(result);
           this.setSuccessAndError(result.tempFiles);
         })
         .catch((err) => {
@@ -618,7 +643,23 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+.chooseFileBtn {
+  width: 100%;
+  .appIcon-shangchuan {
+    display: inline-block;
+    margin-right: 4rpx;
+    font-size: 38rpx;
+  }
+  button {
+    height: 78rpx !important;
+    font-size: 30rpx;
+    border-radius: 12rpx;
+    background-color: #fff !important;
+    line-height: 78rpx;
+    color: #333333;
+  }
+}
 .uni-file-picker {
   /* #ifndef APP-NVUE */
   box-sizing: border-box;

@@ -8,13 +8,28 @@
  */
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import zhCN from './language/cn';
+// eslint-disable-next-line import/no-named-default
+import { default as zhCN, default as zhTW } from './language/cn';
 import enUS from './language/en';
 
 Vue.use(VueI18n);
 
-let lang = uni.getStorageSync('language') || uni.getSystemInfoSync().language;
-lang = lang.replace(/_/, '') || 'zhCN'; // 截取lang前2位字符
+let lang = uni.getStorageSync('apiotLanguage');
+if (!lang) {
+  lang = uni.getLocale();
+  switch (lang) {
+    case 'zh-Hans':
+      lang = 'zhCN';
+      break;
+    case 'zh-Hant':
+      lang = 'zhTW';
+      break;
+    default:
+      lang = 'enUS';
+      break;
+  }
+  uni.setStorageSync('apiotLanguage', lang);
+}
 export default new VueI18n({
   // 默认中文
   locale: lang,
@@ -23,5 +38,6 @@ export default new VueI18n({
   messages: {
     zhCN,
     enUS,
+    zhTW,
   },
 });

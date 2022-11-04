@@ -7,7 +7,8 @@
 -->
 <template>
   <view class="telephone">
-    <apiot-navbar :title="$t('mine.changePhone')"></apiot-navbar>
+    <apiot-navbar :title="$t('mine.changePhone')"
+      v-if="!hasDing"></apiot-navbar>
     <view class="telephone__content">
       <view class="telephone__content__tip">
         <view class="tip-icon">
@@ -15,10 +16,11 @@
         </view>
         <view class="tip-content">
           <p class="content">
-            提示：收不到验证码，可
+            {{$t('mine.codeTip1')}}
             <view class="switch"
-              @click="switchPassword">{{changeByPassword ? '切换手机号' : '切换密码'}}</view>
-            验证！
+              @click="switchPassword">
+              {{changeByPassword ? $t('mine.checkPhone') : $t('mine.checkPassword')}}</view>
+            {{$t('mine.codeTip2')}}
           </p>
         </view>
       </view>
@@ -108,10 +110,16 @@
       </view>
     </view>
     <view class="telephone__foot">
-      <button class="sure" @click="changeTelephone" :loading="isSubmit">
+      <apiot-button
+        class="sure"
+        type="primary"
+        shape="circle"
+        :loading="isSubmit"
+        @click="changeTelephone"
+        >
         <i class="appIcon appIcon-zhengchang"></i>
-        确定修改
-      </button>
+        {{$t('mine.confirmModification')}}</apiot-button
+      >
     </view>
   </view>
 </template>
@@ -139,6 +147,7 @@ export default {
       },
       isSubmit: false,
       changeByPassword: true,
+      hasDing: false
       // userInfo: {}
     };
   },
@@ -204,11 +213,21 @@ export default {
   mounted() {
     this.telephoneForm.oldTelephone = this.userInfo.telephone;
   },
-  onLoad() {},
+  onLoad() {
+    // #ifdef MP-ALIPAY
+    this.hasDing = true;
+    // #endif
+  },
 
   onShow() {},
 
-  onReady() {}
+  onReady() {
+    // #ifdef MP-ALIPAY
+    uni.setNavigationBarTitle({
+      title: this.$t('mine.changePhone')
+    });
+    // #endif
+  }
 };
 </script>
 

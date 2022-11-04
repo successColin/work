@@ -1,18 +1,22 @@
 <template>
   <div>
     <apiot-modal ref="apiotModal" class="backmask">
-    <!-- <apiot-modal v-if="showUpload && uplaodType" ref="apiotModal" class="backmask"> -->
-      <image class="updateImg" mode="aspectFit" src="../images/updateVersion.svg"></image>
-      <view class="large">发现新版本</view>
-      <view class="normal">是否升级到{{appVersion}}？</view>
+      <!-- <apiot-modal v-if="showUpload && uplaodType" ref="apiotModal" class="backmask"> -->
+      <image
+        class="updateImg"
+        mode="aspectFit"
+        src="../images/updateVersion.svg"
+      ></image>
+      <view class="large">{{ $t('mine.newUpdateVersion') }}</view>
+      <view class="normal"
+        >{{ $t('mine.whetherUpgrade') }}{{ appVersion }}？</view
+      >
     </apiot-modal>
-    <apiot-modal ref="apiotConfirmModal" class="backmask">
-    </apiot-modal>
+    <apiot-modal ref="apiotConfirmModal" class="backmask"> </apiot-modal>
   </div>
 </template>
 
 <script>
-
 export default {
   name: 'VersionUpgrade',
   data() {
@@ -21,8 +25,8 @@ export default {
       uploadMsg: {
         1: 'mine.versionUpdate', // 版本更新
         2: 'mine.pdestalRenewal', // 基座更新
-        3: 'mine.manualUpdate', // 手动更新
-      },
+        3: 'mine.manualUpdate' // 手动更新
+      }
     };
   },
   computed: {
@@ -52,18 +56,18 @@ export default {
     },
     currenversionmemo() {
       const { appVersion } = this;
-      const currentversion =
-        this.appVersionInfo.find((item) => item.version === appVersion) || {};
+      const currentversion = this.appVersionInfo.find((item) => item.version === appVersion) || {};
       return currentversion.memo;
     },
     uploadBtnTile() {
       return this.$t(`${this.uploadMsg[this.uplaodType] || ''}`);
-    },
+    }
   },
   methods: {
     manualUpdate() {
-      // 手动更新
+      // 手动更新installAtionPackAgeURL
       const { installAtionPackAgeURL } = this.appUploadUrl;
+      console.log(installAtionPackAgeURL, 'installAtionPackAgeURL');
       if (installAtionPackAgeURL) plus.runtime.openURL(installAtionPackAgeURL);
       // 浏览器打开手动更新地址进行更新
       else {
@@ -80,17 +84,17 @@ export default {
       }
       uni.showLoading({
         title: `${tipMsg + this.$t('common.download')}...`,
-        mask: true,
+        mask: true
       });
       this.showUpgrade(false);
       uni.downloadFile({
         // 下载
-        url,
+        url: this.$apiot.getComUrlByToken(url),
         success: (downloadResult) => {
           if (downloadResult.statusCode === 200) {
             uni.showLoading({
               title: `${tipMsg + this.$t('mine.uploadInstallation')}...`,
-              mask: true,
+              mask: true
             });
             plus.runtime.install(
               downloadResult.tempFilePath,
@@ -102,7 +106,7 @@ export default {
               (e) => {
                 uni.hideLoading();
                 uni.showToast({
-                  title: e.message,
+                  title: e.message
                 });
               }
             );
@@ -115,17 +119,16 @@ export default {
           uni.hideLoading();
           // 中文：下载失败
           uni.showToast({
-            title: `${tipMsg + this.$t('mine.downloadFailed')}...`,
+            title: `${tipMsg + this.$t('mine.downloadFailed')}...`
           });
-        },
+        }
       });
     },
     pdestalRenewal() {
       // 基座更新
       const appplatform = uni.getSystemInfoSync().platform;
       const iosDownloadUrl =
-        this.appUploadUrl.iosDownloadUrl ||
-        'https://apps.apple.com/cn/app/id1262402097'; // 默认appStore地址
+        this.appUploadUrl.iosDownloadUrl || 'https://apps.apple.com/cn/app/id1262402097'; // 默认appStore地址
       if (appplatform === 'ios') {
         plus.runtime.openURL(iosDownloadUrl);
       } else {
@@ -139,14 +142,10 @@ export default {
       // 升级app
       // 升级app分手动更新、基座更新、版本更新
       // 基座更新为强制更新
-      if (this.uplaodType === 3) this.manualUpdate();
-      // 手动更新
-      else if (this.uplaodType === 2) this.pdestalRenewal();
+      console.log(this.uplaodType);
+      if (this.uplaodType === 2) this.pdestalRenewal();
       else {
-        this.versionUpdate(
-          `${this.appUploadUrl.upgradeURL}?token=${uni.getStorageSync('token')}`,
-          this.$t('mine.updatePackage')
-        );
+        this.versionUpdate(this.appUploadUrl.upgradeURL, this.$t('mine.updatePackage'));
       }
     },
     async showUpgrade() {
@@ -154,7 +153,7 @@ export default {
         await this.$refs.apiotModal.showAsyncModal({
           showTile: false,
           cancelTitle: this.$t('common.NotUpdated'),
-          sureTitle: this.$t('common.UpdateNow'),
+          sureTitle: this.$t('common.UpdateNow')
         });
         this.uploadApp();
       } catch (error) {
@@ -171,27 +170,27 @@ export default {
       } catch (error) {
         console.error(error);
       }
-    },
+    }
   },
   created() {
-    if (this.upgradeMode !== 3) {
-      // 如果不是手动更新，那么就只有升级包更新
-      // 如果是升级包更新，需要在更新之前判断基座是否匹配
-      // 如果基座不匹配，需要先升级基座，如何再进行升级
-      if (this.baseVersion !== this.baseLatestVersion) {
-        this.uplaodType = 2;
-        // 基座更新
-      } else {
-        this.uplaodType = 1; // 升级包更新
-      }
+    // if (this.upgradeMode !== 2) {
+    // 如果不是手动更新，那么就只有升级包更新
+    // 如果是升级包更新，需要在更新之前判断基座是否匹配
+    // 如果基座不匹配，需要先升级基座，如何再进行升级
+    if (this.baseVersion !== this.baseLatestVersion || this.upgradeMode === 2) {
+      this.uplaodType = 2;
+      // 基座更新
     } else {
-      // 手动更新
-      this.uplaodType = 3;
+      this.uplaodType = 1; // 升级包更新
     }
+    // } else {
+    //   // 手动更新
+    //   this.uplaodType = 3;
+    // }
     this.$nextTick(() => {
       this.showUpgrade();
     });
-  },
+  }
 };
 </script>
 
@@ -203,17 +202,17 @@ export default {
   left: 0;
   right: 0;
   z-index: 1000;
-  .updateImg{
+  .updateImg {
     width: 240rpx;
     height: 207rpx;
     margin-bottom: 20rpx;
   }
-  .large{
+  .large {
     font-size: 34rpx;
     color: #333333;
     line-height: 58rpx;
   }
-  .normal{
+  .normal {
     font-size: 28rpx;
     color: #808080;
     line-height: 56rpx;

@@ -32,7 +32,7 @@ export default {
   components: {},
   computed: {
     imgUrl() {
-      return require(`@/static/img/fileType/${this.url}`);
+      return '';
     }
   },
   watch: {},

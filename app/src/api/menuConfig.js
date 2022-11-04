@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: sss
- * @Last Modified time: 2022-04-14 16:16:08
+ * @Last Modified time: 2022-10-18 14:52:24
  * @desc：菜单配置
  */
 import FetchData from './axiosConfig';
@@ -47,6 +47,18 @@ export function getSidebarSingle(params) {
   return FetchData.request({
     url: 'application/select/single',
     params,
+  });
+}
+
+// 文件下载，存储于临时路径中
+// isAddPrefix
+export function downloadFile(filesUrl, isAddPrefix = true) {
+  console.log(filesUrl);
+  console.log(isAddPrefix);
+  if (isAddPrefix) filesUrl = `system/waterMark/addWaterMark?url=${filesUrl}`;
+  return FetchData.downloadFile({
+    url: filesUrl,
+    isAddPrefix,
   });
 }
 
@@ -111,11 +123,11 @@ export function batchSave(data) {
 }
 
 // 按钮删除
-export function batchDelete(params) {
+export function batchDelete(data) {
   return FetchData.request({
     url: 'application/save/batchDelete',
-    method: 'delete',
-    params,
+    method: 'post',
+    data,
   });
 }
 
@@ -169,5 +181,103 @@ export function pageDeviceTree(params) {
   return FetchData.request({
     url: 'system/device/pageDevicePositionTree',
     params,
+  });
+}
+
+// 根据扫描获取扫描数据
+export function getScanData(data) {
+  return FetchData.request({
+    url: '/application/select/scanQuery',
+    method: 'post',
+    data,
+  });
+}
+
+// 多表树查询
+export function listMultiTree(params) {
+  return FetchData.request({
+    url: 'system/multiTree/listMultiTree',
+    params,
+  });
+}
+
+// 多表树查询分页
+export function pageMultiTree(params) {
+  return FetchData.request({
+    url: 'system/multiTree/pageMultiTree',
+    params,
+  });
+}
+
+// 根据组件id查询角标信息
+export function getSubscript(params) {
+  return FetchData.request({
+    url: 'application/select/getSubscript',
+    params,
+  });
+}
+
+// 查询当前时间登录用户的站内信数量
+export function getMailCount(params) {
+  return FetchData.request({
+    url: 'innerMail/queryCount',
+    params,
+  });
+}
+
+// 级联组件开发
+export function getCascadeInfo(params) {
+  return FetchData.request({
+    url: 'application/select/getCascadeInfo',
+    params,
+  });
+}
+
+// 查询字段唯一性
+export function getColumnUniqueness(params) {
+  return FetchData.request({
+    url: 'application/select/getColumnUniqueness',
+    params,
+  });
+}
+
+// 公告启用查询接口
+export function getAnnounceList(params) {
+  return FetchData.request({
+    url: 'system/announce/listAnnounce',
+    params,
+  });
+}
+
+// 公告详情接口
+export function getAnnounceDetail(params) {
+  return FetchData.request({
+    url: 'system/announce/searchAnnounceDetail',
+    params,
+  });
+}
+
+// 公告分组数量查询接口
+export function getAnnounceGroup(params) {
+  return FetchData.request({
+    url: 'system/announce/listAnnounceGroup',
+    params,
+  });
+}
+
+// 获取步骤列表
+export function getStepRecordList(params) {
+  return FetchData.request({
+    url: 'system/stepRecord/listRecord',
+    params,
+  });
+}
+
+// 外链地址转换
+export function shortLink(data) {
+  return FetchData.request({
+    url: '/system/panel/shortLink',
+    method: 'post',
+    data,
   });
 }

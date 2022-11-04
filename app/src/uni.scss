@@ -12,17 +12,33 @@
  * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
  */
 @import 'uview-ui/theme.scss';
+// 方法
+@mixin fontBlob($weight) {
+  font-family: 'PingFangSC-Medium', 'OPPOSans-Medium', 'MiSans-Medium',
+    'DroidSansFallback', 'Roboto-Bold';
+  font-weight: 600;
+}
 /* 颜色变量 */
+$--font-family: 'PingFangSC-Regular', 'PingFang SC', 'OPPOSans',
+  'DroidSansFallback', 'Microsoft YaHei', Helvetica, 'Roboto', Arial, sans-serif;
+// $--font-family: PingFangSC-Regular, 'PingFang SC', 'Roboto', 'OPPOSans', Avenir,
+// Microsoft YaHei, Helvetica, Arial, sans-serif;
 
 // 表单控件
 $form-el-height: 34px;
-$form-el-fontSize: 16px;
+$form-el-fontSize: 34rpx;
 $form-el-placeholderColor: #c1c1c1;
+$form-el-labelColor: #555555;
 $form-el-valueColor: #333333;
-$form-el-disabled: #fafafa;
-$form-el-disabled-valueColor: #666666;
+$form-el-disabled: #f6f6f8;
+$form-el-disabled-valueColor: #555555;
 $form-el-disabled-left: 10rpx;
 $form-row-btns-height: 88rpx;
+$form-el-labelFontSize: 30rpx;
+
+// 列表
+$list-nodata: #999999;
+$list-fontSize: 30rpx;
 
 // 导航栏
 $navbar-height: 45px;

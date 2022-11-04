@@ -23,5 +23,5 @@ export async function getDingDingCode() {
 
 // 浙政钉隐藏 title
 export async function hidddleDingDingTitle() {
-  ZheZhengdd.hideTitleBar();
+  console.log(1111);
 }

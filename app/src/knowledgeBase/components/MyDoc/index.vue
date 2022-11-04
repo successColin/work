@@ -143,11 +143,6 @@ import dataListMixin from '../dataListMixin';
 import SearchButton from '../components/SearchButton';
 // import UploadFile from '../components/UploadFile';
 // 图片
-import docTypeUrl from '@/static/img/fileType/DOC.svg';
-import imgTypeUrl from '@/static/img/fileType/IMAG.svg';
-import mp4TypeUrl from '@/static/img/fileType/MP4.svg';
-import mp3TypeUrl from '@/static/img/fileType/MP3.svg';
-import otyerTypeUrl from '@/static/img/fileType/OTHER.svg';
 
 export default {
   mixins: [dataListMixin],
@@ -155,7 +150,8 @@ export default {
     return {
       getList: this.getList,
       visitRecordFun: this.visitRecordFun,
-      fileTypeImg: this.fileTypeImg
+      fileTypeImg: this.fileTypeImg,
+      scrolltolower: this.scrolltolower
     };
   },
   props: {
@@ -205,31 +201,31 @@ export default {
         },
         {
           name: '文档',
-          url: docTypeUrl,
+          url: 'appIcon-DOC',
           state: false,
           id: 2
         },
         {
           name: '图片',
-          url: imgTypeUrl,
+          url: 'appIcon-tupianwenjian',
           state: false,
           id: 3
         },
         {
           name: '视频',
-          url: mp4TypeUrl,
+          url: 'appIcon-shipinwenjian',
           state: false,
           id: 4
         },
         {
           name: '音频',
-          url: mp3TypeUrl,
+          url: 'appIcon-yuyinwenjian',
           state: false,
           id: 5
         },
         {
           name: '其他',
-          url: otyerTypeUrl,
+          url: 'appIcon-qitawenjian',
           state: false,
           id: 6
         }

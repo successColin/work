@@ -9,7 +9,7 @@
   <section class="user" key="user">
     <u-image
       v-if="headImg && userInfo[headImg] && userInfo[headImg].imageUrl"
-      :src="userInfo[headImg].imageUrl"
+      :src="$apiot.getComUrlByToken(userInfo[headImg].imageUrl)"
       :radius="size / 2"
       :width="`${size}rpx`"
       :height="`${size}rpx`"
@@ -30,7 +30,7 @@
     <div class="user__name">{{ userInfo[prop] }}</div>
     <i
       v-if="isClear"
-      class="iconfont icon-guanbi user__clear"
+      class="appIcon appIcon-guanbi user__clear"
       @click="clear"
     ></i>
   </section>

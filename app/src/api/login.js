@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: ytx
- * @Last Modified time: 2022-06-21 15:45:37
+ * @Last Modified time: 2022-10-29 15:44:56
  */
 import FetchData from './axiosConfig';
 
@@ -72,6 +72,59 @@ export function getGlobalAppLogin() {
 export function zwdingtalkLogin(data) {
   return FetchData.request({
     url: 'zwdingtalkLogin',
+    method: 'post',
+    data,
+  });
+}
+
+// 标准单点登录
+export function ssoLogin(params) {
+  return FetchData.request({
+    url: 'system/ssoLogin/getToken',
+    method: 'get',
+    params,
+  });
+}
+
+// 标准单点登录
+export function verifyToken(params) {
+  return FetchData.request({
+    url: 'register/verifyToken',
+    method: 'get',
+    params,
+  });
+}
+// 微信免登接口
+export function wxLoginByOpenId(data) {
+  return FetchData.request({
+    url: 'weChat/loginByOpenId',
+    method: 'post',
+    showMsg: true,
+    data,
+  });
+}
+// 微信登录
+export function wxLogin(data) {
+  return FetchData.request({
+    url: 'weChat/login',
+    method: 'post',
+    data,
+  });
+}
+
+// 微信注册
+export function wxRegister(data) {
+  return FetchData.request({
+    url: 'weChat/registerLogin',
+    method: 'post',
+    data,
+  });
+}
+
+// 踢登确认
+export function exchangeTokenLogin(data) {
+  return FetchData.request({
+    url: 'exchangeTokenLogin',
     method: 'post',
     data,
   });

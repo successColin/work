@@ -17,18 +17,15 @@
       :key="index"
       @click="handleClick(item)"
     >
-      <image
-        class="popupLine__type--img"
-        :src="item.url"
-        alt=""
+      <i
         v-if="item.url"
-      />
-      <image
+        class="popupLine__type--img appIcon"
+        :class="item.url"
+      ></i>
+      <i
         v-if="item.state && item.name"
-        class="popupLine__type--selected"
-        :src="selectImg"
-        alt=""
-      />
+        class="popupLine__type--selected appIcon appIcon-shaixuanxuanzhong"
+      ></i>
       {{ item.name }}
     </div>
   </section>
@@ -43,10 +40,7 @@ export default {
     }
   },
   data() {
-    return {
-      selectImg:
-        'http://v9.mingcloud.top:9000/v10/icon/%E7%AD%9B%E9%80%89%20%E5%8B%BE%E9%80%89%E4%B8%AD.svg'
-    };
+    return {};
   },
   components: {},
   computed: {},
@@ -85,6 +79,7 @@ export default {
     position: relative;
     &--img {
       width: 33rpx;
+      height: 37rpx;
       margin-right: 11rpx;
     }
     &--selected {

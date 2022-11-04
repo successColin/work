@@ -414,7 +414,7 @@ $uni-shadow-base: 0 4rpx 20rpx 0 rgba(0, 0, 0, 0.1) !default;
 }
 
 .uni-fab__plus {
-  font-weight: bold;
+  @include fontBlob(500);
 }
 
 // .fab-circle-v {

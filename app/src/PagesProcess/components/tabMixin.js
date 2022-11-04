@@ -1,5 +1,13 @@
 export default {
-  props: {},
+  props: {
+    // 过滤条件
+    filterParam: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+  },
 
   data() {
     return {
@@ -9,6 +17,7 @@ export default {
       listData: [],
       isLoading: false,
       otherHight: 0,
+      searchParam: {},
     };
   },
 
@@ -30,7 +39,16 @@ export default {
     },
   },
 
-  watch: {},
+  watch: {
+    filterParam: {
+      handler(newValue) {
+        this.searchParam = { ...newValue };
+        this.getData();
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
 
   methods: {
     clickLoadMore() {

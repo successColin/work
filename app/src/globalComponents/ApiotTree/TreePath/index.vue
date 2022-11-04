@@ -116,7 +116,7 @@ export default {
       flex-shrink: 0;
       height: 88rpx;
       font-size: 28rpx;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-family: $--font-family;
       color: #333333;
       display: flex;
       align-items: center;

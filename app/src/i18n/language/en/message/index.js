@@ -21,5 +21,7 @@ export default {
     MarkRead: 'Mark read',
     GoForApproval: 'Go for approval',
     MarkAllRead: 'Mark all read',
+    announceDetail: 'announce detail',
+    announceList: 'announce list',
   },
 };

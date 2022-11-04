@@ -3,11 +3,12 @@
  * @Author: cmk
  * @Date: 2021-04-23 09:32:44
  * @Last Modified by: sss
- * @Last Modified time: 2022-04-22 14:43:57
+ * @Last Modified time: 2022-08-24 16:24:10
  */
 
 export default {
   common: {
+    searchResult: '的结果展示，共%{num}条',
     download: '下载',
     export: '导出%{name}',
     export1: '导出',

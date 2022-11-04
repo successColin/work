@@ -7,7 +7,7 @@
 -->
 <template>
   <section class="apiotButtonFont" v-if="iconName" @click.stop="clickBtn">
-    <span class="apiotButtonFont__icon" :class="[]">
+    <span class="apiotButtonFont__icon" :class="fontClass">
       <i :class="[suffixName, icon]"></i>
     </span>
   </section>
@@ -27,6 +27,10 @@ export default {
     suffixName: {
       type: String,
       default: 'appIcon'
+    },
+    isTheme: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -42,6 +46,13 @@ export default {
     },
     getThemeIndex() {
       return this.$store.getters.getThemeIndex;
+    },
+    fontClass() {
+      const { isTheme, getThemeIndex } = this;
+
+      const classArry = [];
+      if (isTheme) classArry.push(`themeColor__font-${getThemeIndex}`);
+      return classArry;
     }
   },
 

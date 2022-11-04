@@ -14,7 +14,8 @@
     >
       <u-list-item v-for="(item, index) in dataArr" :key="index">
         <section class="listData" @click="handleJumpIn(item)">
-          <image class="listData__img" :src="imgUrl(item)" alt="" />
+          <!-- <image class="listData__img" :src="" alt="" /> -->
+          <i class="listData__img appIcon" :class="[imgUrl(item)]"></i>
           <div class="listData__dec">
             <div class="listData__dec--right">
               <!-- 文件名 -->
@@ -30,8 +31,8 @@
                 }}
               </div>
               <!-- <div class="listData__dec--url">
-              <div>{{ item.url }}</div>
-            </div> -->
+                <div>{{ item.url }}</div>
+              </div> -->
             </div>
             <i
               class="appIcon appIcon-gengduo"
@@ -46,8 +47,8 @@
 </template>
 
 <script>
-import { PREVIEW_FILE } from '@/utils/preview.js';
-import nodata from '@/globalComponents/ApiotMenu/Common/nodata';
+// import { PREVIEW_FILE } from '@/utils/preview.js';
+import nodata from '@/menuConfigure/components/MenuMain/Nodata';
 
 export default {
   props: {
@@ -72,19 +73,28 @@ export default {
       default: ''
     }
   },
-  inject: ['getList', 'visitRecordFun', 'fileTypeImg'],
+  inject: ['getList', 'visitRecordFun', 'fileTypeImg', 'scrolltolower'],
   data() {
     return {};
   },
   components: { nodata },
   computed: {
+    // 是否需要加水印
+    isWatermark() {
+      const { WATER_MASK } = this.$store.state.base.globalConfig;
+      const waterMask = WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') || {};
+      if (!waterMask.attributeValue) return false;
+      return waterMask.attributeValue === '1';
+    },
     imgUrl() {
-      return function (name) {
+      return function(name) {
         return this.fileTypeImg(name);
       };
     },
     computedHeight() {
-      return '100%';
+      const { windowHeight, navbarHeight } = this.$store.state.base.systemInfo;
+      const height = windowHeight - navbarHeight - 50 - 44 - 33; // - 45
+      return height;
     }
   },
   watch: {},
@@ -94,11 +104,7 @@ export default {
       this.$emit('update:isShowMoreOper', true);
       this.$emit('update:currentObj', v);
     },
-    // 底部多少时候出发事件
-    scrolltolower() {
-      this.$emit('scrolltolower');
-    },
-    // 跳转子目录 和 预览
+    // 跳转子目录 和 预览1
     handleJumpIn(v) {
       if (v.sysKlTree.treeType === 1) {
         this.getList({
@@ -117,20 +123,17 @@ export default {
         // 记录访问次
         this.visitRecordFun(v);
         // 预览
-        const { id, name, url } = v.sysKlTree; // fileLength
-        const video = PREVIEW_FILE(
-          {
-            id,
-            name,
-            // fileLength,
-            url,
-            apiUrl: `${this.baseUrl || this.defaultUrl}file/fileDownload`,
-            token: uni.getStorageSync('token')
-          },
-          this
-        );
-        if (video.type === 'video') {
-          this.$emit('update:videoPreviewUrl', video.url);
+        const { name, url } = v.sysKlTree;
+        this.$apiot.preview.previewFile({
+          file: [v.sysKlTree],
+          isWatermark: this.isWatermark,
+          fileParamUrl: 'url',
+          fileParamName: 'name'
+        });
+        const suffix = this.$apiot.preview.getFileSuffix(name);
+        const type = this.$apiot.preview.getFileType(suffix);
+        if (type === 'video') {
+          this.$emit('update:videoPreviewUrl', url);
         }
       }
     }

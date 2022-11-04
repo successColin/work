@@ -9,13 +9,16 @@ module.exports = {
     }, // 错误在页面弹出、警告不在页面弹出
     proxy: {
       '/api': {
-        // target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
-        // target: 'http://192.168.0.20:8080', // cl
+        target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
+        // target: 'http://192.168.0.37:8080', // cl
         // target: 'http://192.168.0.136:8080', // lf
-        target: 'http://192.168.0.136:8080', // zs
-        // target: 'http://192.168.0.138:8080', // lf
-        // target: 'http://192.168.0.21:8080', // zs
+        // target: 'https://smrz.ywsoft.vip', // lf
+        // target: 'http://192.168.0.136:8080', // zs
+        // target: 'http://192.168.0.37:8080', // lf
+        // target: 'http://192.168.0.28:8080', // zs
+        // target: 'http://192.168.0.23:8080', // jh
         // target: 'http://47.99.87.62:84/',
+        // target: 'http://47.99.87.62:93/',
         changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
         pathRewrite: {
           '^/api': '/api',
@@ -38,10 +41,13 @@ module.exports = {
       ])
       .end();
 
-    config
-      .plugin('webpack-bundle-analyzer')
-      .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
-      .end();
+    if (process.env.use_analyzer) {
+      // 分析
+      config
+        .plugin('webpack-bundle-analyzer')
+        .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+        .end();
+    }
 
     config.when(process.env.NODE_ENV !== 'development', (curConfig) => {
       // 发行或运行时启用了压缩时会生效

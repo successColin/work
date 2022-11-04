@@ -64,12 +64,19 @@ export default {
     }
   },
 
+  watch: {
+    address(newV) {
+      this.$store.commit('setServerInfoOther', newV);
+    }
+  },
+
   methods: {
     checkAddress() {
       this.isClick = true;
       setTimeout(() => {
         this.isClick = false;
-        this.$emit('checkAddress', this.value);
+        const obj = { ...this.value, url: this.address };
+        this.$emit('checkAddress', obj);
       }, 200);
     }
   },
@@ -93,7 +100,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     font-size: 34rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family: $--font-family;
     color: #333333;
     letter-spacing: 1;
   }

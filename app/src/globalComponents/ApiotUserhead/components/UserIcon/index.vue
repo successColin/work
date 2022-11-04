@@ -14,7 +14,7 @@
       }"
     >
       <u-image
-        :src="userInfo[headImg].imageUrl"
+        :src="$apiot.getComUrlByToken(userInfo[headImg].imageUrl)"
         :radius="size / 2"
         :width="`${size}rpx`"
         :height="`${size}rpx`"
@@ -108,7 +108,7 @@ export default {
 .userIcon {
   &__circle {
     font-size: 40rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family: $--font-family;
     text-align: center;
     color: #ffffff;
     border-radius: 50%;

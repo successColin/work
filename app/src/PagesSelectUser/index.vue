@@ -13,7 +13,11 @@
         <span>{{ `已选择(${selectUsers.length})` }}</span>
       </section>
       <section class="pagesSelectUser__search">
-        <apiot-input-search></apiot-input-search>
+        <apiot-input-search
+          ref="pagesSelectUserSearch"
+          searchFlag="pagesSelectUserSearch"
+          @search="userSearch"
+        ></apiot-input-search>
       </section>
       <section class="pagesSelectUser__tab">
         <p
@@ -55,7 +59,7 @@
     <footer class="pagesSelectUser__footer">
       <div class="pagesSelectUser__footer--btns">
         <div class="btn cancel" @click="cancel">取消</div>
-        <div class="btn sure">确定</div>
+        <div class="btn sure" @click="sure">确定</div>
       </div>
     </footer>
   </view>
@@ -120,7 +124,8 @@ export default {
       size: 20,
       listData: [],
       otherParam: {},
-      collectionUsers: [] // 收藏的用户列表
+      collectionUsers: [], // 收藏的用户列表
+      isMultiple: false // 是否多选
     };
   },
 
@@ -147,6 +152,7 @@ export default {
   watch: {
     currentTab: {
       handler() {
+        if (this.$refs.pagesSelectUserSearch) this.$refs.pagesSelectUserSearch.searchParams = {};
         this.otherParam = {};
         this.getUserList();
       },
@@ -156,18 +162,26 @@ export default {
   },
 
   methods: {
+    userSearch(param) {
+      this.otherParam.keywords = param.keyword;
+      this.getUserList();
+      console.log(param);
+    },
     // 获取选中的人员
     getProvideSelectUsers() {
       return this.selectUsers;
     },
     // 取消或者选中人员
     cancelOrAddSelectUsers(user, isCancel) {
-      const { selectUsers } = this;
-
+      const { selectUsers, isMultiple } = this;
+      console.log('cancelOrAddSelectUsers');
       if (isCancel) {
         const index = selectUsers.findIndex((item) => item.id === user.id);
         if (index !== -1) this.selectUsers.splice(index, 1);
-      } else this.selectUsers.push(user);
+      } else if (!isCancel) {
+        if (isMultiple) this.selectUsers.push(user);
+        else this.selectUsers = [user];
+      }
     },
     // 刷新收藏列表
     getProvideRefreshCollectionUsers() {
@@ -235,10 +249,21 @@ export default {
     // 取消
     cancel() {
       uni.navigateBack();
+    },
+    sure() {
+      this.$bus.$emit(this.menuConfig.flag, this.selectUsers);
+      uni.navigateBack();
     }
   },
 
   onLoad(option) {
+    if (option.isMultiple === '1') this.isMultiple = true;
+    else this.isMultiple = false;
+
+    // 已经选中的用户
+    if (option.flag) {
+      this.selectUsers = this.$store.state.selectUser.checkUsers[option.flag] || [];
+    }
     this.menuConfig = { ...this.menuConfig, ...option };
     this.getUserCollection();
   }
@@ -255,8 +280,7 @@ export default {
     justify-content: space-between;
     background: #ffffff;
     font-size: 32rpx;
-    font-family: PingFangSC-Medium, PingFang SC;
-    font-weight: 600;
+    @include fontBlob(500);
     color: #333333;
     box-shadow: inset 0 -1rpx 0 0 #e9e9e9;
   }
@@ -270,7 +294,7 @@ export default {
       margin-right: 23rpx;
       display: inline-block;
       font-size: 28rpx;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-family: $--font-family;
       line-height: 36rpx;
       &::after {
         margin-right: 0;
@@ -286,6 +310,7 @@ export default {
   }
 
   &__footer {
+    height: 88rpx;
     &--btns {
       position: fixed;
       bottom: 0;
@@ -301,7 +326,7 @@ export default {
         line-height: 72rpx;
         border-radius: 12rpx;
         font-size: 30rpx;
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: $--font-family;
         color: #333333;
         text-align: center;
         &.cancel {

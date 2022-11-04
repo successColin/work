@@ -14,12 +14,44 @@
         :style="index !== 0 && styles.dividline && borderLineStyle"
       >
         <view class="uni-file-picker__item">
-          <view class="uni-file-picker__item--content">
-            <view class="files__image">
+          <view
+            class="uni-file-picker__item--content"
+            @click.stop="prviewImage(item, index)"
+          >
+            <view class="files__image 1111">
+              <!-- #ifdef H5 -->
+              <!-- <video
+                v-if="fileType(item, ['.mp4', '.webm', '.ogg'])"
+                :src="item.url"
+                :controls="false"
+                :show-center-play-btn="false"
+                object-fit="cover"
+              ></video> -->
+              <!-- #endif -->
+              <!-- #ifdef APP-PLUS -->
+              <!-- <video
+                v-if="fileType(item, ['.mp4', '.webm', '.ogg'])"
+                :src="item.url"
+                :show-center-play-btn="false"
+                object-fit="cover"
+                :poster="item.url"
+              ></video> -->
+              <!-- #endif -->
+              <!-- <i
+                :class="[
+                  'appIcon',
+                  $apiot.preview.previewFile(item.name || item.url),
+                ]"
+              ></i> -->
               <image
-                :src="item | fileUrl"
-                @click.stop="prviewImage(item, index)"
+                v-if="isImage(item.name || item.url)"
+                :src="$apiot.getComUrlByToken(item.url)"
               ></image>
+              <i
+                v-else
+                class="fileIconName appIcon"
+                :class="[fileIconName(item.name || item.url)]"
+              ></i>
             </view>
             <view class="files__name">
               <div class="files__name--neir">
@@ -27,11 +59,11 @@
               </div>
               <div class="files__name--subtitle">
                 <span v-if="item.uploadTime" class="file__date">{{
-                  item.uploadTime
+                  $apiot.dateFormat(item.uploadTime, 'yyyy-MM-dd hh:mm')
                 }}</span>
-                <span class="file__size">{{
+                <!-- <span class="file__size">{{
                   item.size | filesSizeFilter
-                }}</span>
+                }}</span> -->
               </div>
             </view>
           </view>
@@ -61,13 +93,17 @@
         </view>
       </view>
     </view>
+    <Player ref="player"></Player>
   </view>
 </template>
 
 <script>
+import Player from './components/player.vue';
+
 export default {
   name: 'uploadFile',
   emits: ['uploadFiles', 'choose', 'delFile'],
+  components: { Player },
   props: {
     filesList: {
       type: Array,
@@ -106,6 +142,34 @@ export default {
     }
   },
   computed: {
+    // 图标
+    fileIconName() {
+      return function (name) {
+        return this.$apiot.preview.getFileIconName(name);
+      };
+    },
+    // 是否为图片
+    isImage() {
+      return function (name) {
+        const type = this.$apiot.preview.getFileSuffix(name);
+        return ['.jpg', '.jpeg', '.png', '.gif', '.svg'].indexOf(type) !== -1;
+      };
+    },
+    // 是否需要加水印
+    isWatermark() {
+      const { WATER_MASK } = this.$store.state.base.globalConfig;
+      const waterMask = WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') || {};
+      if (!waterMask.attributeValue) return false;
+      return waterMask.attributeValue === '1';
+    },
+    fileType() {
+      return function (imag, typeArry) {
+        const { url, name } = imag;
+        if (!name) return false;
+        const type = name.substring(name.lastIndexOf('.'), name.length).toLocaleLowerCase();
+        return typeArry.indexOf(type) !== -1;
+      };
+    },
     list() {
       const files = [];
       this.filesList.forEach((v) => {
@@ -196,17 +260,31 @@ export default {
       }
       return value;
     },
-    prviewImage(img, index) {
-      // const imageType = 'jpg,jpeg,png,gif';
-      // const { extname } = img;
-      // if (extname) const urls = [];
-      // this.list.forEach((i) => {
-      //   urls.push(i.url);
-      // });
-      // uni.previewImage({
-      //   urls,
-      //   current: index
-      // });
+    getFileType(name) {
+      if (!name) return;
+      const type = name.substring(name.lastIndexOf('.'), name.length).toLocaleLowerCase();
+      return type;
+    },
+    async prviewImage(img) {
+      const { name, url } = img;
+      const suffix = this.$apiot.preview.getFileSuffix(url);
+      const fileType = this.$apiot.preview.getFileType(suffix);
+      if (['video', 'audio'].indexOf(fileType) !== -1) {
+        await this.$refs.player.showAsyncModal({
+          type: fileType,
+          url
+        });
+      } else {
+        let file = [img];
+        if (fileType === 'image') file = [...this.filesList];
+        this.$apiot.preview.previewFile({
+          file,
+          isWatermark: this.isWatermark,
+          fileParamUrl: 'url',
+          fileParamName: 'name',
+          current: img
+        });
+      }
     }
   },
   filters: {
@@ -216,56 +294,22 @@ export default {
       const sizes = ['B', 'KB', 'MB', 'GB', 'PB', 'TB', 'EB', 'ZB', 'YB'];
       const i = Math.floor(Math.log(size) / Math.log(k));
       return `${(size / Math.pow(k, i)).toPrecision(3)}${sizes[i]}`;
-    },
-    fileUrl(imag) {
-      const { url, name } = imag;
-      if (!name) return url;
-      const type = name.substring(name.lastIndexOf('.'), name.length).toLocaleLowerCase();
-      if (['.jpg', '.jpeg', '.png', '.gif'].indexOf(type) !== -1) {
-        return url;
-      }
-      if (type === '.pdf') {
-        return '../../../static/img/fileType/PDF.svg';
-      }
-      if (['.doc', '.docx'].indexOf(type) !== -1) {
-        return '../../../static/img/fileType/DOC.svg';
-      }
-      if (['.xls', '.xlsx'].indexOf(type) !== -1) {
-        return '../../../static/img/fileType/XLS.svg';
-      }
-      if (['.ppt', '.pptx'].indexOf(type) !== -1) {
-        return '../../../static/img/fileType/PPT.svg';
-      }
-      if (['.zip', '.rar'].indexOf(type) !== -1) {
-        return '../../../static/img/fileType/ZIP.svg';
-      }
-      if (type === '.mp4') {
-        return '../../../static/img/fileType/MP4.svg';
-      }
-      if (type === '.mp3') {
-        return '../../../static/img/fileType/MP3.svg';
-      }
-      if (type === '.txt') {
-        return '../../../static/img/fileType/TXT.svg';
-      }
-
-      return '../../../static/img/fileType/OTHER.svg';
     }
   }
 };
 </script>
 
 <style lang="scss">
+.fileIconName {
+  width: 100%;
+  height: 100%;
+}
 .uni-file-picker__files {
   /* #ifndef APP-NVUE */
   display: flex;
   /* #endif */
   flex-direction: column;
   // justify-content: flex-start;
-}
-
-.files-button {
-  // border: 1px red solid;
 }
 
 .uni-file-picker__lists {
@@ -322,7 +366,8 @@ export default {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  image {
+  image,
+  video {
     width: 100%;
     height: 100%;
   }
@@ -332,7 +377,7 @@ export default {
   flex: 1;
   font-size: 13px;
   line-height: 1.5;
-  color: #808080;
+  color: #999999;
   overflow: hidden;
   &--neir {
     width: 100%;
@@ -340,6 +385,7 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #333333;
+    font-size: $form-el-fontSize;
   }
 }
 .file__date {

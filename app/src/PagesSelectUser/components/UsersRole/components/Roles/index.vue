@@ -19,6 +19,7 @@
         class="roles__content--item"
         v-for="(role, index) in listData"
         :key="index"
+        @click.stop="clickRole(role)"
       >
         <i class="appIcon appIcon-jiaose"></i>
         <span class="roleName">{{ role.roleName }}</span>
@@ -62,6 +63,9 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    clickRole(role) {
+      this.$emit('click', role);
     }
   },
 
@@ -80,7 +84,7 @@ export default {
     box-shadow: inset 0 -1rpx 0 0 #e9e9e9;
     span {
       font-size: 32rpx;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-family: $--font-family;
       color: #333333;
       flex: 1;
     }
@@ -107,7 +111,7 @@ export default {
       }
       .roleName {
         font-size: 32rpx;
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: $--font-family;
         color: #333333;
         line-height: 40rpx;
       }

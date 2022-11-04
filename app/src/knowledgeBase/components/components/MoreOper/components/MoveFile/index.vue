@@ -27,7 +27,8 @@
             @click="handleJump(item)"
           >
             <div class="moveFile__box--left">
-              <image class="moveFile__box--img" :src="imgUrl(item)" alt="" />
+              <!-- <image class="moveFile__box--img" :src="imgUrl(item)" alt="" /> -->
+              <i class="moveFile__box--img" :class="[imgUrl(item)]"></i>
               <div class="moveFile__box--name">{{ item.sysKlTree.name }}</div>
             </div>
             <u-radio
@@ -134,11 +135,14 @@ export default {
         isFolder: 1, // 是否只显示文件夹(1是 0否)
         // keywords: '',
         parentId: 0,
+        current: 1,
+        size: 9999,
         ...params
       });
-      if (res.length !== 0) {
+      const { records } = res;
+      if (records.length !== 0) {
         this.currentValue = '';
-        this.listArr = res;
+        this.listArr = records;
         if (currentObj) {
           const { id, name } = currentObj.sysKlTree;
           this.pathArr.push({
@@ -208,8 +212,7 @@ export default {
   flex-direction: column;
   header {
     font-size: 32rpx;
-    font-family: PingFangSC-Medium, PingFang SC;
-    font-weight: 500;
+    @include fontBlob(500);
     color: #333333;
     text-align: center;
     display: flex;
@@ -221,6 +224,7 @@ export default {
   }
   &__box {
     flex: 1;
+    overflow: auto;
     &--item {
       margin: 0 30rpx;
       display: flex;

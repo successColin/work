@@ -14,6 +14,7 @@
       :readonly="readonly"
       :disabled="disabled"
       :fileMediatype="mode"
+      :mode="showType"
       @select="select"
       @delete="deleteImage"
     >
@@ -28,6 +29,7 @@ export default {
   components: {},
 
   props: {
+    // 文件类型
     mode: {
       type: String,
       default: 'image'
@@ -55,6 +57,11 @@ export default {
     size: {
       type: Number,
       default: 2
+    },
+    // 展示类型 grid=大图展示 list-card=小图片展示
+    showType: {
+      type: String,
+      default: 'grid'
     }
   },
 
@@ -62,26 +69,26 @@ export default {
     return {
       imageValue: [],
       uploadLish: [
-        {
-          name: '1.png',
-          uploadData: '2021-01-01 15:00:00',
-          url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
-        },
-        {
-          name: '2.png',
-          uploadData: '2021-01-01 15:00:00',
-          url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
-        },
-        {
-          name: '3.png',
-          uploadData: '2021-01-01 15:00:00',
-          url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
-        },
-        {
-          name: '4.png',
-          uploadData: '2021-01-01 15:00:00',
-          url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
-        }
+        // {
+        //   name: '1.png',
+        //   uploadData: '2021-01-01 15:00:00',
+        //   url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
+        // },
+        // {
+        //   name: '2.png',
+        //   uploadData: '2021-01-01 15:00:00',
+        //   url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
+        // },
+        // {
+        //   name: '3.png',
+        //   uploadData: '2021-01-01 15:00:00',
+        //   url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
+        // },
+        // {
+        //   name: '4.png',
+        //   uploadData: '2021-01-01 15:00:00',
+        //   url: 'https://cdn.uviewui.com/uview/swiper/1.jpg'
+        // }
       ]
     };
   },
@@ -104,7 +111,7 @@ export default {
       if (index !== -1) {
         this.$refs.uToast.show({
           type: 'error',
-          message: `单张图片不能超过${size}MB`
+          message: `文件不能超过${size}MB`
         });
         return;
       }

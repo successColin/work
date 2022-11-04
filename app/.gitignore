@@ -4,6 +4,8 @@ unpackage/
 dist/
 .history/
 package-lock.json
+uniCloud-aliyun/
+src/hybrid/html/
 
 # local env files
 .env.local

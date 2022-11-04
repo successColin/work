@@ -8,28 +8,73 @@
 <template>
   <view class="usersRole">
     <section class="usersRole__roleList">
-      <role-group></role-group>
+      <div class="roles__item" v-for="(item, index) in listData" :key="index">
+        <roles :group="item" @click="clickRole"></roles>
+      </div>
     </section>
+    <roles-user-modal
+      :show.sync="show"
+      :role="role"
+      :users="users"
+    ></roles-user-modal>
   </view>
 </template>
 
 <script>
-import RoleGroup from './components/RoleGroup';
+import { getRoleGroup } from '@/api/pagesSelectUser.js';
+import Roles from './components/Roles';
+import RolesUserModal from './components/RolesUserModal';
 
 export default {
-  components: { RoleGroup },
+  components: { Roles, RolesUserModal },
 
-  props: {},
+  inject: ['SetOtherParam'],
+
+  props: {
+    users: {
+      type: Array,
+      default() {
+        return [];
+      }
+    }
+  },
 
   data() {
-    return {};
+    return {
+      listData: [],
+      show: false,
+      role: {}
+    };
   },
 
   computed: {},
 
-  methods: {},
+  methods: {
+    async getRoleGroup() {
+      try {
+        const result = await getRoleGroup();
+        this.listData = [...result];
+        console.log(result);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    clickRole(role) {
+      this.$nextTick(() => {
+        uni.pageScrollTo({
+          scrollTop: 0,
+          duration: 10
+        });
+        this.SetOtherParam({ searchType: 2, roleGroupId: role.id });
+        this.role = role;
+        this.show = true;
+      });
+    }
+  },
 
-  mounted() {}
+  mounted() {
+    this.getRoleGroup();
+  }
 };
 </script>
 

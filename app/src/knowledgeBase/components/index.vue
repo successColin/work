@@ -21,12 +21,12 @@
     <!-- 业务文件 -->
     <!-- <business-doc v-else-if="currentNav === 3" :title="title"></business-doc> -->
     <!-- 底部 -->
-    <apiot-tabbar
+    <!-- <apiot-tabbar
       v-model="currentNav"
       :list="getFooterArea"
       :activeColor="$store.state.base.themeColor"
       @change="changeTab"
-    ></apiot-tabbar>
+    ></apiot-tabbar> -->
   </div>
 </template>
 
@@ -38,10 +38,10 @@ import EnterpriseDoc from './EnterpriseDoc';
 // 顶部图片
 // import recentlyDocNormal from '@/static/img/knowledge/recentlyDocNormal.svg';
 // import recentlyDocSelect from '@/static/img/knowledge/recentlyDocSelect.svg';
-import myDocNormal from '@/static/img/knowledge/myDocNormal.svg';
-import myDocSelect from '@/static/img/knowledge/myDocSelect.svg';
-import corporateDocSelect from '@/static/img/knowledge/corporateDocSelect.svg';
-import corporateDocNormal from '@/static/img/knowledge/corporateDocNormal.svg';
+// import myDocNormal from '@/knowledgeBase/images/myDocNormal.svg';
+// import myDocSelect from '@/knowledgeBase/images/myDocSelect.svg';
+// import corporateDocSelect from '@/knowledgeBase/images/corporateDocSelect.svg';
+// import corporateDocNormal from '@/knowledgeBase/images/corporateDocNormal.svg';
 // import businessDocNormal from '@/static/img/knowledge/businessDocNormal.svg';
 // import businessDocSelect from '@/static/img/knowledge/businessDocSelect.svg';
 
@@ -54,23 +54,23 @@ export default {
   },
   data() {
     return {
-      currentNav: 0,
+      currentNav: 1,
       getFooterArea: [
         // {
         //   iconPath: recentlyDocNormal,
         //   selectedIconPath: recentlyDocSelect,
         //   text: '最近'
         // },
-        {
-          iconPath: myDocNormal,
-          selectedIconPath: myDocSelect,
-          text: '我的文件'
-        },
-        {
-          iconPath: corporateDocNormal,
-          selectedIconPath: corporateDocSelect,
-          text: '企业文件'
-        }
+        // {
+        //   iconPath: myDocNormal,
+        //   selectedIconPath: myDocSelect,
+        //   text: '我的文件'
+        // },
+        // {
+        //   iconPath: corporateDocNormal,
+        //   selectedIconPath: corporateDocSelect,
+        //   text: '企业文件'
+        // }
         // {
         //   iconPath: businessDocNormal,
         //   selectedIconPath: businessDocSelect,

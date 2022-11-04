@@ -391,7 +391,7 @@ export default {
 @import '../../assets/css/style.components.scss';
 .apiotBtn {
   height: 100% !important;
-  font-family: PingFangSC-Regular, PingFang SC;
+  font-family: $--font-family;
   &.sys_btnSize {
     height: 88rpx !important;
   }

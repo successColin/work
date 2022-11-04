@@ -232,7 +232,11 @@ export default {
               : this.inactiveColor,
           fontSize: `${uni.upx2px(this.fontSize)}px`,
           zIndex: this.zIndex + 2,
-          fontWeight: index === this.getCurrent && this.bold ? 'bold' : 'normal'
+          fontFamily:
+            index === this.getCurrent && this.bold
+              ? 'PingFangSC-Medium, OPPOSans-Medium, MiSans-Medium,DroidSansFallback, Roboto-Bold'
+              : '',
+          fontWeight: index === this.getCurrent && this.bold ? '600' : 'normal'
         };
         if (index === this.getCurrent) {
           // 给选中的tab item添加外部自定义的样式
@@ -323,10 +327,7 @@ export default {
     },
     getQuery(cb) {
       try {
-        const view = uni
-          .createSelectorQuery()
-          .in(this)
-          .select('.apiot-tabs');
+        const view = uni.createSelectorQuery().in(this).select('.apiot-tabs');
         view
           .fields(
             {

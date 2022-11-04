@@ -33,7 +33,7 @@
             :name="elIconPath(index)"
             img-mode="scaleToFill"
             :color="elColor(index)"
-            customPrefix="iconfont"
+            customPrefix="iconfont icon"
           ></u-icon>
           <u-badge
             :count="item.count"
@@ -41,6 +41,31 @@
             v-if="item.count || item.isDot"
             :offset="[-2, getOffsetRight(item.count, item.isDot)]"
           ></u-badge>
+          <!-- 角标 -->
+          <span
+            class="hornMark markNum"
+            v-if="
+              item.EnableCornerMarker === 1 &&
+              item.panelHornMarkId &&
+              hornMarkNums[`${item.id}-${item.panelHornMarkId}`] &&
+              item.hornMarkType === 1
+            "
+          >
+            {{
+              hornMarkNums[`${item.id}-${item.panelHornMarkId}`] > 99
+                ? '99+'
+                : hornMarkNums[`${item.id}-${item.panelHornMarkId}`]
+            }}
+          </span>
+          <span
+            class="hornMark markSpot"
+            v-if="
+              item.EnableCornerMarker === 1 &&
+              item.panelHornMarkId &&
+              hornMarkNums[`${item.id}-${item.panelHornMarkId}`] &&
+              item.hornMarkType === 2
+            "
+          ></span>
         </view>
         <view
           class="u-tabbar__content__item__text"
@@ -48,7 +73,7 @@
             color: elColor(index),
           }"
         >
-          <text class="u-line-1">{{ item.text }}</text>
+          {{ item.text }}
         </view>
       </view>
       <view
@@ -143,6 +168,13 @@ export default {
     hideTabBar: {
       type: Boolean,
       default: true
+    },
+    // 角标
+    hornMarkNums: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -328,6 +360,7 @@ export default {
         transform: translateX(-50%);
         width: 100%;
         text-align: center;
+        z-index: 10;
       }
     }
 
@@ -355,6 +388,32 @@ export default {
         z-index: 6;
         transform: translateX(-50%);
       }
+    }
+    .hornMark {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 28rpx;
+      line-height: 28rpx;
+      background: #f6483e;
+      border-radius: 14rpx;
+      -webkit-border-radius: 14rpx;
+      -moz-border-radius: 14rpx;
+      -ms-border-radius: 14rpx;
+      -o-border-radius: 14rpx;
+      text-align: center;
+      color: #ffffff;
+      font-size: 20rpx;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .markSpot {
+      width: 16rpx;
+      height: 16rpx;
+    }
+    .markNum {
+      min-width: 28rpx;
+      padding: 0 8rpx;
     }
   }
 }

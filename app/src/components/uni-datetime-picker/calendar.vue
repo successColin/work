@@ -849,7 +849,7 @@ export default {
 
 .uni-calendar__box-bg-text {
   font-size: 200px;
-  font-weight: bold;
+  @include fontBlob(500);
   color: #999;
   opacity: 0.1;
   text-align: center;

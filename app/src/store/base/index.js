@@ -1,3 +1,4 @@
+import { listByKeys } from '@/api/userCenter';
 import { deflautTheme, selectColorArr } from '@/config/index.js';
 
 export default {
@@ -22,13 +23,19 @@ export default {
     baseVersion: '', // 当前基座版本号
     baseLatestVersion: '', // 最新基座版本号
     currentVersion: '', // 当前手机对应的版本号
-    upgradeMode: 1, // 更新类型，1-更新包；2-安装包；3-手动下载
+    upgradeMode: '', // 更新类型，1-更新包；2-安装包；3-手动下载
     appUploadUrl: {
       // app更新地址
       installAtionPackAgeURL: '', // 手动更新地址
       androidDownloadUrl: '', // 安卓安装包地址
       iosDownloadUrl: '', // ios安装包地址
       upgradeURL: '', // 升级包地址
+    },
+    globalLogin: {}, // app登录配置
+    globalConfig: {
+      // 全局配置
+      UREPORT_URL: [], // 域名地址相关
+      WATER_MASK: [], // 水印配置信息
     },
   },
   getters: {
@@ -50,6 +57,10 @@ export default {
     },
   },
   mutations: {
+    // 设置
+    setBaseGlobalConfig(state, { key, data }) {
+      state.globalConfig[key] = data;
+    },
     // 设置是否有弹窗
     setIsMask(state, value) {
       console.log(value);
@@ -65,17 +76,37 @@ export default {
       else state.maskOverhiddenClass = '';
     },
     setAppVersion(state, appversions) {
-      state.appVersion = appversions.appVersion || ''; // app版本号
-      state.updateMode = appversions.updateMode || ''; // 更新类型
+      state.appVersion = appversions.appVersion || ''; // 最新app版本号
+      state.baseLatestVersion = appversions.baseLatestVersion || ''; // 最新基座版本号
+      state.upgradeMode = appversions.upgradeMode || ''; // 更新类型
       state.appUploadUrl.upgradeURL = appversions.upgradeURL || ''; // 更新包地址
-      state.appUploadUrl.androidDownloadUrl = appversions.androidDownloadUrl || ''; // 安卓安装包地址
+      state.appUploadUrl.androidDownloadUrl =
+        appversions.androidDownloadUrl || ''; // 安卓安装包地址
       state.appUploadUrl.iosDownloadUrl = appversions.iosDownloadUrl || ''; // ios安装包地址
-      state.appUploadUrl.installAtionPackAgeURL = appversions.installAtionPackAgeURL || ''; // 手动更新地址
+      state.appUploadUrl.installAtionPackAgeURL =
+        appversions.installAtionPackAgeURL || ''; // 手动更新地址
     },
     setAppBaseInfo(state, info) {
       state.currentVersion = info.currentVersion || ''; // 当前手机对应的版本号
       state.baseVersion = info.baseVersion || ''; // 当前基座版本号
-    }
+    },
+    // 设置app登录配置
+    setGlobalLogin(state, value) {
+      state.globalLogin = value;
+      state.themeColor = selectColorArr[value.themeColor - 1];
+    },
   },
-  actions: {},
+  actions: {
+    async getGlobalConfig({ commit }, parameterKey) {
+      const data = await listByKeys({ parameterKey });
+      console.log(data);
+
+      Object.keys(data).forEach((key) => {
+        commit('setBaseGlobalConfig', {
+          key,
+          data: data[key],
+        });
+      });
+    },
+  },
 };

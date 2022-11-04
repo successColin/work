@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-09-06 09:23:01
  * @Last Modified by: sss
- * @Last Modified time: 2022-05-16 15:24:16
+ * @Last Modified time: 2022-08-18 16:28:27
  */
 export default {
   login: {
@@ -11,7 +11,16 @@ export default {
     forgot: '忘记密码？',
     login: '登录',
     modeTip: '其它登录方式',
-    welcomeMsg: 'Hi，欢迎登录%{name}！',
+    welcomeMsg: '欢迎登录%{name}！',
+    agreement: '请勾选服务协议!',
+    telephoneLogin: '手机号登录',
+    localTelephoneLogin: '本机号码一键登录',
+    otherTelephoneLogin: '其他手机号登录',
+    readAndAgree: '我已阅读并同意',
+    and: '和',
+    passwordExpirationPrompt: '你的账号%{name}密码已到期！',
+    firstLoginPrompt: '首次登录平台需修改密码！',
+    associatedUser: '关联用户',
   },
   loginForgot: {
     forgot: '忘记密码',
@@ -21,7 +30,7 @@ export default {
     verificationEmail: '邮箱验证',
     prev: '返回上一步',
     next: '下一步',
-    verifycodeTitle: '验证码已发送至%{type}',
+    verifycodeTitle: '验证码已发送%{type}',
     PHONE: '电话',
     EMAIL: '邮件',
     code: '验证码',

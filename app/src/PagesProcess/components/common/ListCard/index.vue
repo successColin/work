@@ -25,7 +25,7 @@
 
         <div class="listCard__content__header__title">
           <!-- 德国进口的风格和立法考了几分感慨国家的疯狂 -->
-          <span>{{ value.instanceName }}【{{ value.menuName || '' }}】</span>
+          <span>{{ value.instanceName }}</span>
         </div>
       </header>
 
@@ -66,9 +66,7 @@ export default {
     taskDesc() {
       const { taskDesc } = this.value;
       if (!taskDesc || taskDesc === '{}') {
-        return [
-          { name: '工单名称', value: '发动机涡轮故障的身高和艰苦大师傅高科技的风格的设计和' }
-        ];
+        return [];
       }
       const taskDescObj = JSON.parse(taskDesc);
 
@@ -108,7 +106,7 @@ export default {
     box-shadow: inset 0 -1rpx 0 0 #e0e0e0;
     &--right {
       font-size: 28rpx;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-family: $--font-family;
       color: #aaaaaa;
       .time {
         vertical-align: 4rpx;
@@ -129,7 +127,7 @@ export default {
       &__title {
         margin-left: 10rpx;
         font-size: 32rpx;
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: $--font-family;
         color: #333333;
         span {
           display: inline-block;
@@ -141,7 +139,7 @@ export default {
     &__desc {
       margin-top: 18rpx;
       font-size: 24rpx;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-family: $--font-family;
       color: #808080;
       line-height: 34rpx;
     }

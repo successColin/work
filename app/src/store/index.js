@@ -9,6 +9,7 @@ import map from './map/index';
 import menu from './menu/index';
 import process from './process';
 import search from './search';
+import selectUser from './selectUser';
 import serverInfo from './serverInfo';
 import userCenter from './userCenter';
 
@@ -29,6 +30,7 @@ export default new Vuex.Store({
     search,
     serverInfo,
     process,
+    selectUser,
   },
   plugins: [
     createPersistedState({

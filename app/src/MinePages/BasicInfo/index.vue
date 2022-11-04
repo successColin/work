@@ -8,6 +8,7 @@
 <template>
   <view class="basic" v-loading="uploading">
     <apiot-navbar
+      v-if="!hasDing"
       :title="$t('mine.basicInfo')"
     ></apiot-navbar>
     <view class="basic__content">
@@ -56,14 +57,14 @@
         <view class="basic__content__list__item">
           <view>{{$t('mine.bindWeixin')}}</view>
           <view class="value">
-            <i class="appIcon appIcon-bangdingweixin"></i>未绑定
+            <i class="appIcon appIcon-bangdingweixin"></i>{{$t('mine.unbound')}}
             <i class="appIcon appIcon-a-shujuxuanzejinru"></i>
           </view>
         </view>
         <view class="basic__content__list__item">
           <view>{{$t('mine.bindDingding')}}</view>
           <view class="value">
-            <i class="appIcon appIcon-bangdingdingding"></i>未绑定
+            <i class="appIcon appIcon-bangdingdingding"></i>{{$t('mine.unbound')}}
             <i class="appIcon appIcon-a-shujuxuanzejinru"></i>
           </view>
         </view>
@@ -88,7 +89,8 @@ export default {
       // currentTitle: '修改密码'
       // userInfo: {}
       fileList: [],
-      uploading: false
+      uploading: false,
+      hasDing: false
     };
   },
 
@@ -118,7 +120,7 @@ export default {
     async upload(filePath) {
       try {
         uni.showLoading({
-          title: '上传中'
+          title: this.$t('inspection.inspection-upPoint'),
         });
         await modifyAvatar(filePath);
         uni.hideLoading();
@@ -131,13 +133,20 @@ export default {
   },
 
   onLoad() {
-    console.log(this.userInfo, '111111111111');
+    // #ifdef MP-ALIPAY
+    this.hasDing = true;
+    // #endif
   },
 
   onShow() {
   },
 
   onReady() {
+    // #ifdef MP-ALIPAY
+    uni.setNavigationBarTitle({
+      title: this.$t('mine.basicInfo')
+    });
+    // #endif
     // #ifdef MP
     // uni.setNavigationBarTitle({
     //   title: this.currentTitle

@@ -22,11 +22,10 @@
       &--title,
       &--select {
         font-size: 32rpx;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
+        @include fontBlob(500);
       }
       &--back {
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: $--font-family;
         font-size: 28rpx;
         line-height: 30rpx;
       }

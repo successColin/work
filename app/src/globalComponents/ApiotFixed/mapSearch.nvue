@@ -158,7 +158,7 @@ export default {
   mounted() {},
 
   created() {
-    this.getInputTipsThrottle = throttle(this.getInputTips, 500);
+    this.getInputTipsThrottle = throttle(this.getInputTips, 300);
   },
 
   onReady() {

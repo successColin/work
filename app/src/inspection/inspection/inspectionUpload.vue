@@ -19,8 +19,11 @@
             <image class="img" src="../images/route.svg"></image
             >{{ item.routeName }}
           </div>
-          <span v-if="deviceLayer.workDone"
-            class="updateHours" @click="handleShowUpdateHours(item)">
+          <span
+            v-if="deviceLayer.workDone"
+            class="updateHours"
+            @click="handleShowUpdateHours(item)"
+          >
             {{ item.workingHours + $t('inspection.time-minutes') }}
             <i class="appIcon appIcon-xiugaigongshi"></i>
           </span>
@@ -39,22 +42,17 @@
             <text>{{ item.allCount }}</text>
           </view>
         </view>
-        <view class="result-detail" v-if="dictKey">
-          <view class="result-detail-item item2" v-for="obj in dicList"
-            :key="obj.value">
-            <text class="result-label"
-              :style="{color: obj.color}">
-              {{ obj.value === 1 ? item.normalCount :
-              obj.value === 2 ? item.abNormalCount : item.shutDownCount }}</text
+        <view class="result-detail">
+          <view
+            class="result-detail-item item2"
+            v-for="obj in resultLayer.columnArr"
+            :key="obj.columnName"
+          >
+            <text class="result-label" :style="{ color: obj.taskColor }">
+              {{ item[obj.columnName] }}</text
             ><!--中文：正常数-->
-            <text>{{ obj.name }}数</text>
+            <text>{{ obj.title }}</text>
           </view>
-          <!--中文：异常数-->
-          <!-- <view class="result-detail-item item2">
-            <text class="result-label red">{{ item.abNormalCount }}</text
-            >
-            <text>{{ $t('inspection.inspection-totalAbnormal') }}</text>
-          </view> -->
         </view>
         <view class="bottom-box">
           <text class="createdate">{{ item.createdate }}</text>
@@ -73,19 +71,19 @@
         {{ $t('inspection.inspection-upload') }}
       </div>
     </view>
-    <!-- 下载确认弹窗 -->
+    <!-- 提示弹窗 -->
     <apiot-tip-prompt
       v-if="showTipPrompt"
       :visible.sync="showTipPrompt"
       :promptData="promptData"
     >
     </apiot-tip-prompt>
-    <!-- 输入解锁码弹窗 -->
+    <!-- 修改工时弹窗 -->
     <apiot-prompt
       v-if="showUpdateHours"
       :visible.sync="showUpdateHours"
       @sure-click="handleUpdateHours"
-      :title="$t('inspection.inspection-unlockDevice')"
+      :title="$t('inspection.inspection-workTime')"
       :placeholder="$t('inspection.inspection-enterCode')"
     >
     </apiot-prompt>
@@ -106,23 +104,24 @@ import { batchUpload, uploadInspectionTask } from '@/api/inspection.js';
 
 export default {
   components: {},
-  onShow() {
-    this.getData();
-    selectInspectionConfig((res) => {
+  async onShow() {
+    await selectInspectionConfig((res) => {
       this.deviceLayer = JSON.parse(res[0].deviceLayer);
       this.taskLayer = JSON.parse(res[0].taskLayer);
+      this.resultLayer = JSON.parse(res[0].resultLayer);
+      console.log(this.resultLayer, 'this.resultLayer');
       const arr = this.taskLayer.columnArr.filter((item) => item.compType === 7);
       if (arr.length) {
         this.dictArr([arr[0].dictObj.dictKey]);
         this.dictKey = arr[0].dictObj.dictKey;
       }
+      this.getData();
     });
   },
   computed: {
     dicList() {
-      console.log(this.dictKey);
       return this.$store.getters.getCurDict(this.dictKey) || [];
-    },
+    }
   },
   data() {
     return {
@@ -143,7 +142,8 @@ export default {
       showUpdateHours: false,
       taskLayer: {},
       dictKey: '',
-      deviceLayer: {}
+      deviceLayer: {},
+      resultLayer: {}
     };
   },
   methods: {
@@ -152,12 +152,11 @@ export default {
     },
     getData() {
       const that = this;
-      selectInspectionHistory((res) => {
+      selectInspectionHistory(this.resultLayer.columnArr, (res) => {
         that.resultsData = res.map((item) => {
           if (!item.workingHours) item.workingHours = '';
           return item;
         });
-        console.log(that.resultsData);
       });
     },
     // 上传点检结果
@@ -165,7 +164,6 @@ export default {
       const _this = this;
       // 查询所有已点检的任务
       selectPointsByInspectionDoId(async (pointRes) => {
-        console.log(pointRes);
         try {
           this.upInspData = pointRes;
           const updataData = pointRes.map((item) => {
@@ -187,7 +185,6 @@ export default {
               taskResultList: arr
             };
           });
-          console.log(uploadResult);
           // 上传点检结果
           await uploadInspectionTask({ routeResultList: uploadResult });
           const taskId = pointRes.map((item) => item.inspectionTaskId);
@@ -200,7 +197,7 @@ export default {
           this.promptData = {
             title: this.$t('common.tip'),
             confirmText: this.$t('common.sure'),
-            tip: '上传失败'
+            tip: this.$t('inspection.uploadFailed')
           };
           this.showTipPrompt = true;
           console.error(e);
@@ -213,7 +210,6 @@ export default {
       that.upFileData = [];
       // 查询点检上传图片
       selectAllFile((res) => {
-        console.log(res);
         uni.showLoading({
           title: `${that.$t('inspection.inspection-upPoint')}...`,
           mask: true
@@ -346,7 +342,7 @@ export default {
           display: inline-block;
           font-size: 30rpx;
           color: #333333;
-          font-weight: 500;
+          @include fontBlob(500);
           .img {
             width: 48rpx;
             height: 48rpx;
@@ -410,7 +406,7 @@ export default {
           color: #808080;
           .result-label {
             font-size: 48rpx;
-            font-weight: 500;
+            @include fontBlob(500);
             color: #333333;
             line-height: 56rpx;
           }
@@ -448,7 +444,7 @@ export default {
   .formTemplate-btns {
     width: 100%;
     height: 88rpx;
-    position: fixed;
+    position: absolute;
     bottom: 30rpx;
     left: 0rpx;
     box-sizing: border-box;

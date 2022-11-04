@@ -7,7 +7,10 @@
 -->
 <template>
   <view class="telephone">
-    <apiot-navbar :title="$t('mine.changeUsername')"></apiot-navbar>
+    <apiot-navbar
+      :title="$t('mine.changeUsername')"
+      v-if="!hasDing"
+    ></apiot-navbar>
     <view class="telephone__content">
       <view class="item">
         <apiot-input
@@ -20,14 +23,20 @@
             })
           "
         ></apiot-input>
-        <view class="count">{{username.length}}/8</view>
+        <view class="count">{{ username.length }}/8</view>
       </view>
     </view>
     <view class="telephone__foot">
-      <button class="sure" @click="changeTelephone" :loading="isSubmit">
+      <apiot-button
+        class="sure"
+        type="primary"
+        shape="circle"
+        :loading="isSubmit"
+        @click="changeTelephone"
+      >
         <i class="appIcon appIcon-zhengchang"></i>
-        确定修改
-      </button>
+        {{ $t('mine.confirmModification') }}</apiot-button
+      >
     </view>
   </view>
 </template>
@@ -45,6 +54,7 @@ export default {
     return {
       username: '',
       isSubmit: false,
+      hasDing: false
       // userInfo: {}
     };
   },
@@ -88,7 +98,7 @@ export default {
         }, 500);
         // uni.removeStorageSync('token');
         // uni.removeStorageSync('password');
-        // uni.reLaunch({ url: '/pages/Login/index' });
+        // uni.reLaunch({ url: '/Login/index' });
       } catch (error) {
         this.isSubmit = false;
         if (error.name) {
@@ -106,11 +116,21 @@ export default {
   mounted() {
     this.username = this.userInfo.username;
   },
-  onLoad() {},
+  onLoad() {
+    // #ifdef MP-ALIPAY
+    this.hasDing = true;
+    // #endif
+  },
 
   onShow() {},
 
-  onReady() {}
+  onReady() {
+    // #ifdef MP-ALIPAY
+    uni.setNavigationBarTitle({
+      title: this.$t('mine.changeUsername')
+    });
+    // #endif
+  }
 };
 </script>
 
@@ -124,15 +144,15 @@ export default {
     background: #ffffff;
     box-sizing: border-box;
     padding-bottom: 0;
-    .item{
+    .item {
       height: 110rpx;
-      box-shadow: inset 0px -2rpx 0px 0px #E9E9E9;
+      box-shadow: inset 0px -2rpx 0px 0px #e9e9e9;
       position: relative;
-      .apiotInput{
+      .apiotInput {
         height: 100%;
         box-sizing: border-box;
       }
-      .count{
+      .count {
         position: absolute;
         right: 0rpx;
         top: 0;
@@ -170,14 +190,14 @@ export default {
       }
     }
   }
-  ::v-deep{
-    .u-form-item__body__left__content__label{
+  ::v-deep {
+    .u-form-item__body__left__content__label {
       font-size: 28rpx;
       color: #555555;
     }
-    .input-placeholder{
+    .input-placeholder {
       font-size: 32rpx;
-      color: #C1C1C1;
+      color: #c1c1c1;
     }
   }
 }

@@ -315,7 +315,7 @@ $countdown-width: 52rpx;
   justify-content: flex-start;
   padding: 2rpx 0;
   font-size: 26rpx;
-  font-family: PingFangSC-Regular, PingFang SC;
+  font-family: $--font-family;
 }
 
 .apiotCountdown__splitor {

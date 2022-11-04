@@ -1,3 +1,6 @@
+import { downloadSingle } from '@/api/knowledgeBase';
+import { saveAs } from '@/utils';
+
 const previewImage = (current, urls = []) => {
   // 预览图片
   uni.previewImage({
@@ -74,7 +77,7 @@ export const PREVIEW_FILE = (file, _this) => {
     // 如果是直接可以预览的文件，比如pdf与txt
     // 如果是H5端，可以直接用webview打开
     // #ifdef H5
-    const filepreviewUrl = `/pages/webViewTemplate/index?url=${url}&fileName=${name}`;
+    const filepreviewUrl = `/knowledgeBase/webViewTemplate/index?url=${url}&fileName=${name}&type=${type}`;
     uni.navigateTo({
       url: filepreviewUrl,
     });
@@ -100,7 +103,7 @@ export const PREVIEW_FILE = (file, _this) => {
   return video;
 };
 
-export const PREVIEW_DOWNLOAD_FILE = (file) => {
+export const PREVIEW_DOWNLOAD_FILE = async (file) => {
   // 文件下载
   const { url, name } = file;
   if (!url) {
@@ -113,16 +116,19 @@ export const PREVIEW_DOWNLOAD_FILE = (file) => {
     return;
   }
   // #ifdef H5
-  const link = document.createElement('a');
-  const body = document.querySelector('body');
 
-  link.href = url;
-  link.download = name;
-  link.style.display = 'none';
-  body.appendChild(link);
-
-  link.click();
-  body.removeChild(link);
+  console.log(url);
+  const data = await downloadSingle({ url });
+  saveAs(data, filename);
+  // const link = document.createElement('a');
+  // const body = document.querySelector('body');
+  // console.log(url);
+  // link.href = url;
+  // link.download = name;
+  // link.style.display = 'none';
+  // body.appendChild(link);
+  // link.click();
+  // body.removeChild(link);
 
   // #endif
   // #ifndef H5

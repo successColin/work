@@ -10,6 +10,10 @@ export default {
   },
   getters: {},
   mutations: {
+    // 设置其他环境的地址
+    setServerInfoOther(state, address) {
+      state.customAdress.url = address;
+    },
     setServerInfoAddress(state, address = {}) {
       const serverArry = [];
       const names = {

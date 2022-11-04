@@ -4,7 +4,10 @@
     </apiot-navbar>
     <view class="route-search hasStatusTop">
       <span class="search-btn">
-        <i class="appIcon appIcon-sousuo" :class="{searchFocus: isSearchFocus}"></i>
+        <i
+          class="appIcon appIcon-sousuo"
+          :class="{ searchFocus: isSearchFocus }"
+        ></i>
       </span>
       <input
         type="text"
@@ -20,10 +23,7 @@
       /><!--中文:请输入关键字搜索-->
     </view>
     <view class="notdata" v-if="routeData.length === 0">
-      <image
-        src="~@/static/img/common/nodata.svg"
-        class="nodata-img"
-      ></image>
+      <image src="~@/static/img/common/nodata.svg" class="nodata-img"></image>
       <text class="nodata-text">{{ $t('common.noData') }}</text
       ><!--暂无数据-->
     </view>
@@ -35,27 +35,26 @@
       <checkbox-group @change="checkboxChange">
         <label
           class="uni-list-cell inspection"
-          :class="[
-            { 'animateListClick': focusIndex === index },
-          ]"
+          :class="[{ animateListClick: focusIndex === index }]"
           v-for="(item, index) in routeData"
           :key="index"
           @click="handleJumpClick(item.id, item.routeName, item, index)"
         >
           <view class="inspection-item">
             <span class="inspection-name">
-              <image class="img" src="../images/route.svg"></image><span>{{ item.routeName }}</span>
+              <image class="img" src="../images/route.svg"></image
+              ><span>{{ item.routeName }}</span>
             </span>
             <div class="checkbox-box">
-              <i v-show="item.checked && isSelectRoute"
-                class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"></i>
+              <i
+                v-show="item.checked && isSelectRoute"
+                class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"
+              ></i>
               <checkbox
                 :value="item.id"
                 :checked="item.checked"
                 class="checkbox-style"
-                :class="[
-                  { showSelect: !item.checked },
-                ]"
+                :class="[{ showSelect: !item.checked }]"
                 v-if="isSelectRoute"
               />
             </div>
@@ -64,11 +63,18 @@
             <text class="code">{{ item.routeCode }}</text>
           </view>
           <view class="inspection-item">
-            <text class="num allnum">总设备：{{ item.deviceCount }}</text>
-            <text class="num" :class="[
-                { ongoing: item.ongoing },
-                { finish: item.finish },
-              ]">已点检：{{ item.finishDeviceCount }}</text>
+            <text class="num allnum">
+              {{ $t('inspection.inspection-totalDevice') }}：{{
+                item.deviceCount
+              }}</text
+            >
+            <text
+              class="num"
+              :class="[{ ongoing: item.ongoing }, { finish: item.finish }]"
+              >{{ $t('inspection.completed') }}：{{
+                item.finishDeviceCount
+              }}</text
+            >
           </view>
           <!-- <view class="inspection-item">
             <text class="date">{{ item.minPlanStartDate }}</text>
@@ -78,77 +84,82 @@
     </view>
     <view class="formTemplate-btns foot" v-show="isSelectRoute">
       <div class="checkAll">
-        <label
-          class="label"
-        >
+        <label class="label">
           <checkbox-group @change="selectAll">
             <div class="checkbox-box">
-              <i v-show="isSelectAll" class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"></i>
+              <i
+                v-show="isSelectAll"
+                class="appIcon appIcon-a-fuxuankuangxuanzhong showSelect"
+              ></i>
               <checkbox
                 :value="1"
                 :checked="false"
                 class="checkbox-style"
-                :class="[
-                  { showSelect: !isSelectAll },
-                ]"
+                :class="[{ showSelect: !isSelectAll }]"
               />
             </div>
           </checkbox-group>
-          <span>全选</span>
+          <span>{{ $t('inspection.checkAll') }}</span>
         </label>
       </div>
-      <div
-        @click="cancelSelect"
-        class="btn-item"
-      >{{$t('common.cancle')}}</div>
+      <div @click="cancelSelect" class="btn-item">
+        {{ $t('common.cancle') }}
+      </div>
       <picker
         :disabled="pickerDisabled"
         @click="handleNotSelect"
         mode="date"
-        :start="startDate"
         class="btn-item"
         @change="showSkipMemoFun"
       >
-        <span
-          class="confirm"
-        >{{$t('common.sure')}}</span>
+        <span class="confirm">{{ $t('common.sure') }}</span>
       </picker>
     </view>
-    <div class="bottom-foot no-data" v-show="routeData.length === 0 && !isSelectRoute">
-      <div class="foot-button dark"
-        @click="handleBttomBtnClick">
+    <div
+      class="bottom-foot no-data"
+      v-show="routeData.length === 0 && !isSelectRoute"
+    >
+      <div class="foot-button dark" @click="handleBttomBtnClick">
         <i class="appIcon appIcon-xiazai"></i>
-        下载路线
+        {{ $t('inspection.downloadRoute') }}
       </div>
     </div>
-    <div class="bottom-foot"  v-show="routeData.length !== 0 && !isSelectRoute">
-      <div class="foot-button"
-        @click="handleBttomBtnClick">
+    <div class="bottom-foot" v-show="routeData.length !== 0 && !isSelectRoute">
+      <div class="foot-button" @click="handleBttomBtnClick">
         <i class="appIcon appIcon-xiazai"></i>
-        下载路线
+        {{ $t('inspection.downloadRoute') }}
       </div>
       <span class="line" v-if="routeLayer.routePass"></span>
-      <div v-if="routeLayer.routePass" class="foot-button" @click="inspctionJumpDate">
+      <div
+        v-if="routeLayer.routePass"
+        class="foot-button"
+        @click="inspctionJumpDate"
+      >
         <i class="appIcon appIcon-tiaoguo"></i>
-        跳过路线
+        {{ $t('inspection.skipRoute') }}
       </div>
       <span class="line"></span>
       <div class="foot-button dark" @click="inspctionUpload">
         <i class="appIcon appIcon-shangchuan"></i>
-        上传结果
+        {{ $t('inspection.uploadResults') }}
       </div>
     </div>
     <div class="download-wrap" v-show="isDownloading">
       <div class="download-layout"></div>
       <div class="download-content">
         <div class="tips">
-          <p class="title">下载</p>
-          <p class="tip"><i class="appIcon appIcon-shangchuan"></i>提示：本次下载会清空原本所有数据，请谨慎操作！</p>
+          <p class="title">{{ $t('inspection.download') }}</p>
+          <p class="tip">
+            <i class="appIcon appIcon-shangchuan"></i>
+            {{ $t('inspection.inspection-isDownload') }}
+          </p>
         </div>
         <view class="progress-box-parent">
           <view class="progress-bg">
             <view class="progress-box">
-              <text class="progress-title">{{ $t('inspection.inspectionRouteTask') }}</text
+              <text class="progress-title">{{
+                $t('inspection.inspectionRouteTask')
+              }}</text
               ><!--巡检路线任务-->
               <progress
                 class="progress"
@@ -160,7 +171,9 @@
               />
             </view>
             <view class="progress-box">
-              <text class="progress-title">{{ $t('inspection.inspectionPointTast') }}</text
+              <text class="progress-title">{{
+                $t('inspection.inspectionPointTast')
+              }}</text
               ><!--巡检点任务-->
               <progress
                 class="progress"
@@ -179,9 +192,14 @@
     <view class="download-complete" v-if="isDownloadComplete">
       <div class="download-complete-layout"></div>
       <div class="download-complete-content">
-        <image src="../images/complete.svg" class="download-complete-img"></image>
+        <image
+          src="../images/complete.svg"
+          class="download-complete-img"
+        ></image>
         <p class="tip">{{ $t('inspection.inspection-download-complete') }}</p>
-        <div class="download-complete-button" @click="reloadRouteData">我知道了</div>
+        <div class="download-complete-button" @click="reloadRouteData">
+          {{ $t('inspection.know') }}
+        </div>
       </div>
     </view>
     <!-- 输入点检跳过备注弹窗 -->
@@ -191,7 +209,7 @@
       @sure-click="confirmSelect"
       :title="$t('inspection.page-note')"
       :placeholder="$t('inspection.inspection-jump-memo')"
-      >
+    >
     </apiot-prompt>
     <!-- 下载确认弹窗 -->
     <!-- <apiot-confirm-modal
@@ -208,7 +226,7 @@
       v-if="showTipPrompt"
       :visible.sync="showTipPrompt"
       :promptData="promptData"
-      >
+    >
     </apiot-tip-prompt>
   </view>
 </template>
@@ -225,20 +243,19 @@ import {
   deleteRoute,
   deletePointByInspec,
   insertIntoInspectionConfigDo,
-  selectInspectionConfig,
+  selectInspectionConfig
   // readyConfigDB,
   // dropInspectionConfigTables,
 } from '../js/DB.js';
 
 export default {
-  components: { },
+  components: {},
   data() {
     return {
       keywords: '',
       isSelectRoute: false,
       routeData: [],
       selectRouteId: [],
-      startDate: '',
       endDate: '',
       pickerDisabled: false,
       params: {},
@@ -261,7 +278,7 @@ export default {
       promptData: {
         title: '',
         confirmText: '',
-        tip: '',
+        tip: ''
       },
       focusIndex: null,
       sysMenuId: '',
@@ -269,8 +286,7 @@ export default {
       title: '点检路线'
     };
   },
-  computed: {
-  },
+  computed: {},
   methods: {
     handleSearch() {
       this.getData();
@@ -293,7 +309,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.inspection-selectRouteSkip'),
+          tip: this.$t('inspection.inspection-selectRouteSkip')
         };
         this.showTipPrompt = true;
       }
@@ -325,7 +341,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: this.$t('inspection.inspection-memo'),
+          tip: this.$t('inspection.inspection-memo')
         };
         this.showTipPrompt = true;
         return;
@@ -335,7 +351,7 @@ export default {
         const params = {
           routeIds: this.selectRouteId,
           targetDate: this.selectDate,
-          skipMemo: value,
+          skipMemo: value
         };
         uni.showLoading();
         await inspectionSkip(params);
@@ -348,7 +364,7 @@ export default {
             this.promptData = {
               title: this.$t('common.tip'),
               confirmText: this.$t('common.sure'),
-              tip: '跳过成功',
+              tip: '跳过成功'
             };
             this.showTipPrompt = true;
             console.log(sucess);
@@ -357,7 +373,7 @@ export default {
             this.promptData = {
               title: this.$t('common.tip'),
               confirmText: this.$t('common.sure'),
-              tip: this.$t('inspection.inspection-deletionFailed'),
+              tip: this.$t('inspection.inspection-deletionFailed')
             };
             this.showTipPrompt = true;
             console.log(err);
@@ -370,7 +386,7 @@ export default {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: '跳过失败',
+          tip: '跳过失败'
         };
         this.showTipPrompt = true;
         console.error(e);
@@ -379,15 +395,11 @@ export default {
     },
     // 根据routerId删除点检路线
     removeInspec(routerId, cb, cbe) {
-      const deleteRoutePromise =
-        new Promise((resolve, reject) => deleteRoute(routerId, resolve, reject));
-      const deletePointByInspecPromise = new Promise((
-        resolve,
-        reject
-      ) => deletePointByInspec(routerId, resolve, reject));
-      Promise.all([deleteRoutePromise, deletePointByInspecPromise])
-        .then(cb)
-        .catch(cbe);
+      const deleteRoutePromise = new Promise((resolve, reject) =>
+        deleteRoute(routerId, resolve, reject));
+      const deletePointByInspecPromise = new Promise((resolve, reject) =>
+        deletePointByInspec(routerId, resolve, reject));
+      Promise.all([deleteRoutePromise, deletePointByInspecPromise]).then(cb).catch(cbe);
     },
     checkboxChange(e) {
       this.selectRouteId = e.detail.value;
@@ -440,7 +452,7 @@ export default {
     // 上传点检
     inspctionUpload() {
       uni.navigateTo({
-        url: 'inspectionUpload',
+        url: 'inspectionUpload'
       });
     },
     getData(params = {}) {
@@ -476,9 +488,7 @@ export default {
                 insertIntoInspectionConfigDo(
                   this.$store.state.menu.systemMenusConfig[this.sysMenuId],
                   () => {
-                    console.log(1111111111111133);
                     selectInspectionConfig((res) => {
-                      console.log(JSON.parse(res));
                       this.routeLayer = JSON.parse(res[0].routeLayer);
                     });
                   }
@@ -502,7 +512,7 @@ export default {
     async doDownloadInspectionTasks() {
       try {
         uni.showLoading({
-          title: this.$t('inspection.pageTip-downloading'), // 中文；'下载中...'
+          title: this.$t('inspection.pageTip-downloading') // 中文；'下载中...'
         });
         const result = await downloadInspectionTasks();
         const routes = [];
@@ -513,7 +523,7 @@ export default {
             ongoing: false,
             finish: false,
             finishMoCount: 0,
-            deviceNum: item.deviceList.length,
+            deviceNum: item.deviceList.length
           });
           if (item.deviceList.length) {
             item.deviceList.map((dev) => {
@@ -561,7 +571,7 @@ export default {
     console.log(option);
     this.title = option.title;
     this.sysMenuId = option.id;
-  },
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -569,48 +579,48 @@ export default {
   margin-top: var(--status-bar-height);
 }
 
-.inspection-route{
+.inspection-route {
   width: 100%;
   min-height: 100%;
   padding-bottom: 120rpx;
   position: relative;
-  .route-search{
+  .route-search {
     position: absolute;
-    top:88rpx;
+    top: 88rpx;
     width: 100%;
     display: flex;
     height: 88rpx;
     background: #fff;
-    box-shadow:0px 0px 1px 0px rgba(245,245,245,1);
+    box-shadow: 0px 0px 1px 0px rgba(245, 245, 245, 1);
     align-items: center;
     padding-left: 30rpx;
-    color: #9F9F9F;
+    color: #9f9f9f;
     z-index: 9;
     box-sizing: border-box;
-    box-shadow: inset 0px -1px 0px 0px #E9E9E9;
-    .search{
+    box-shadow: inset 0px -1px 0px 0px #e9e9e9;
+    .search {
       flex: 1 0 0;
       font-size: 28rpx;
       color: #333333;
     }
-    .placeholder{
-      color: #AAAAAA;
+    .placeholder {
+      color: #aaaaaa;
     }
-    .search-btn{
+    .search-btn {
       width: 58rpx;
-      color: #BBC3CD;
-      .appIcon{
+      color: #bbc3cd;
+      .appIcon {
         font-size: 38rpx;
-        transition: all .3s;
+        transition: all 0.3s;
       }
-      .searchFocus{
-        color: #4689F5;
+      .searchFocus {
+        color: #4689f5;
       }
     }
   }
-  .checkbox-all{
+  .checkbox-all {
     margin-right: 2px;
-    .uni-checkbox-input{
+    .uni-checkbox-input {
       margin: 0;
     }
   }
@@ -625,11 +635,15 @@ export default {
   //     }
   //   }
   // }
-  .mainColor,.mainColor-blue,.mainColor-orange,.mainColor-violet,.mainColor-navyBlue{
+  .mainColor,
+  .mainColor-blue,
+  .mainColor-orange,
+  .mainColor-violet,
+  .mainColor-navyBlue {
     float: right;
     margin-left: 40rpx;
   }
-  .notdata{
+  .notdata {
     position: fixed;
     height: calc(100% - 176rpx);
     width: 100%;
@@ -637,13 +651,13 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    .nodata-img{
+    .nodata-img {
       width: 200rpx;
       height: 200rpx;
       margin-bottom: 30rpx;
     }
-    .nodata-text{
-      color: #9B9B9B;
+    .nodata-text {
+      color: #9b9b9b;
       font-size: 28rpx;
     }
   }
@@ -658,20 +672,20 @@ export default {
       opacity: 1;
     }
   }
-  .checkbox-box{
+  .checkbox-box {
     width: 32rpx;
     height: 32rpx;
     position: relative;
-    .appIcon{
+    .appIcon {
       font-size: 32rpx;
-      color: #4689F5;
+      color: #4689f5;
       top: 0rpx;
       left: 0;
       position: absolute;
       transform: scale(0);
       opacity: 0;
     }
-    .checkbox-style{
+    .checkbox-style {
       width: 32rpx;
       height: 32rpx;
       top: 0rpx;
@@ -679,76 +693,76 @@ export default {
       position: absolute;
       transform: scale(0);
       opacity: 0;
-      ::v-deep{
-        .uni-checkbox-wrapper{
+      ::v-deep {
+        .uni-checkbox-wrapper {
           vertical-align: super;
         }
-        .uni-checkbox-input{
+        .uni-checkbox-input {
           width: 32rpx;
           height: 32rpx;
           box-sizing: border-box;
         }
       }
     }
-    .showSelect{
-      animation: scaleShow .2s 1 forwards;
+    .showSelect {
+      animation: scaleShow 0.2s 1 forwards;
     }
   }
-  .inspection-route-box{
+  .inspection-route-box {
     padding: 20rpx 30rpx;
     padding-top: 108rpx;
-    &.hasBtn{
-      padding-bottom:128rpx;
+    &.hasBtn {
+      padding-bottom: 128rpx;
     }
-    .inspection{
+    .inspection {
       width: 100%;
       padding: 30rpx;
-      margin-bottom:20rpx;
+      margin-bottom: 20rpx;
       display: block;
       box-sizing: border-box;
-      background: #FFFFFF;
+      background: #ffffff;
       box-shadow: 0px 2rpx 4rpx 0px rgba(0, 0, 0, 0.08);
       border-radius: 12rpx;
-      .inspection-item{
+      .inspection-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        .inspection-name{
+        .inspection-name {
           font-size: 34rpx;
           color: #333333;
           line-height: 100%;
-          font-weight: 500;
+          @include fontBlob(500);
           display: flex;
           align-items: center;
           justify-content: flex-start;
-          .img{
+          .img {
             width: 48rpx;
             height: 48rpx;
             margin-right: 14rpx;
           }
         }
-        .code{
+        .code {
           font-size: 28rpx;
           color: #333333;
           line-height: 62rpx;
         }
-        .num{
+        .num {
           height: 48rpx;
-          background: #BBC3CD;
+          background: #bbc3cd;
           border-radius: 24rpx;
           padding: 0 20rpx;
           font-size: 24rpx;
-          color: #FFFFFF;
+          color: #ffffff;
           line-height: 48rpx;
         }
-        .allnum{
-          background: #F1F7FF;
-          color: #4689F5;
+        .allnum {
+          background: #f1f7ff;
+          color: #4689f5;
         }
-        .date{
+        .date {
           width: 100%;
           height: 46rpx;
-          background: #F6F6F8;
+          background: #f6f6f8;
           border-radius: 8rpx;
           font-size: 24rpx;
           color: #666666;
@@ -756,29 +770,29 @@ export default {
           padding: 0 20rpx;
           margin-top: 16rpx;
         }
-        .ongoing{
-          background: #F7B500;
+        .ongoing {
+          background: #f7b500;
         }
-        .finish{
-          background: #4689F5;
+        .finish {
+          background: #4689f5;
         }
       }
     }
   }
-  .formTemplate-btns{
+  .formTemplate-btns {
     width: 100%;
     height: 110rpx;
-    background: #FFFFFF;
+    background: #ffffff;
     position: fixed;
     left: 0;
     bottom: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    .checkAll{
+    .checkAll {
       width: 140rpx;
       height: 72rpx;
-      .label{
+      .label {
         width: 100%;
         height: 100%;
         display: flex;
@@ -789,45 +803,45 @@ export default {
         font-size: 28rpx;
       }
     }
-    .btn-item{
+    .btn-item {
       width: 260rpx;
       height: 72rpx;
-      background: #F1F3F6;
+      background: #f1f3f6;
       border-radius: 12rpx;
       margin: 0 12rpx;
       color: #333333;
       font-size: 30rpx;
       line-height: 72rpx;
       text-align: center;
-      .confirm{
+      .confirm {
         width: 100%;
         height: 72rpx;
         border-radius: 12rpx;
         font-size: 30rpx;
         line-height: 72rpx;
-        background: #4689F5;
-        color: #FFFFFF;
+        background: #4689f5;
+        color: #ffffff;
         display: inline-block;
         text-align: center;
       }
     }
-    .red{
+    .red {
       background: red;
     }
   }
-  .bottom-foot{
+  .bottom-foot {
     position: fixed;
     width: 710rpx;
     height: 88rpx;
     left: 20rpx;
     bottom: 30rpx;
-    background: #FFFFFF;
+    background: #ffffff;
     box-shadow: 0px 0px 20rpx 0px rgba(0, 0, 0, 0.1);
     border-radius: 44rpx;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    .foot-button{
+    .foot-button {
       flex: 1;
       line-height: 62rpx;
       text-align: center;
@@ -837,42 +851,43 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      .appIcon{
+      .appIcon {
         font-size: 38rpx;
         margin-right: 10rpx;
-        color: #4689F5;
+        color: #4689f5;
       }
     }
-    .dark{
-      background: #4689F5;
+    .dark {
+      background: #4689f5;
       border-radius: 31rpx;
-      color: #FFFFFF;
-      .appIcon{
-        color: #FFFFFF;
+      color: #ffffff;
+      .appIcon {
+        color: #ffffff;
       }
     }
-    .line{
+    .line {
       width: 1rpx;
       height: 24rpx;
-      background: #D9D9D9;
+      background: #d9d9d9;
     }
   }
-  .no-data{
-    .foot-button{
+  .no-data {
+    .foot-button {
       width: 100%;
       height: 100%;
       line-height: 88rpx;
       margin: 0;
+      border-radius: 44rpx;
     }
   }
-  .download-wrap{
+  .download-wrap {
     width: 100%;
     height: 100%;
     position: fixed;
     overflow: hidden;
     left: 0;
     top: 0;
-    .download-layout{
+    .download-layout {
       width: 100%;
       height: 100%;
       position: absolute;
@@ -880,26 +895,26 @@ export default {
       left: 0;
       top: 0;
     }
-    .download-content{
+    .download-content {
       width: 100%;
       height: 600rpx;
-      background: #FFFFFF;
+      background: #ffffff;
       border-radius: 30px 30px 0px 0px;
       position: absolute;
       left: 0;
       bottom: 0;
       padding: 30rpx;
       box-sizing: border-box;
-      .tips{
-        .title{
+      .tips {
+        .title {
           line-height: 80rpx;
           color: #333333;
           font-size: 32rpx;
         }
-        .tip{
+        .tip {
           width: 100%;
           height: 88rpx;
-          background: #F6F6F8;
+          background: #f6f6f8;
           border-radius: 18rpx;
           font-size: 24rpx;
           line-height: 34rpx;
@@ -908,21 +923,21 @@ export default {
           box-sizing: border-box;
         }
       }
-      .progress-box-parent{
+      .progress-box-parent {
         padding-top: 20rpx;
-        margin-bottom:  20rpx;
-        .progress-bg{
+        margin-bottom: 20rpx;
+        .progress-bg {
           border-radius: 8rpx;
           background: #fff;
           padding: 13rpx 0rpx 36rpx;
         }
-        ::v-deep{
-          .uni-progress-bar{
+        ::v-deep {
+          .uni-progress-bar {
             border-radius: 5rpx;
           }
         }
       }
-      .progress-title{
+      .progress-title {
         font-size: 26rpx;
         // color:$default-lable;
         margin: 20rpx 0;
@@ -930,56 +945,56 @@ export default {
       }
     }
   }
-  .routeFilter{
+  .routeFilter {
     width: 100%;
     height: 750rpx;
     position: fixed;
     left: 0;
     bottom: 0;
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 30rpx 30rpx 0px 0px;
     padding-top: 30rpx;
-    .filter-title{
+    .filter-title {
       font-size: 32rpx;
       color: #333333;
       line-height: 80rpx;
       padding: 0 30rpx;
-      font-weight: 600;
+      @include fontBlob(500);
     }
-    .item{
+    .item {
       background: #fff;
       padding: 0 30rpx;
       display: block;
       box-sizing: border-box;
       margin-bottom: 10rpx;
-      .text{
+      .text {
         line-height: 68rpx;
         font-size: 32rpx;
         color: #555555;
         display: block;
       }
-      .content{
+      .content {
         height: 88rpx;
-        box-shadow: inset 0px -2rpx 0px 0px #E9E9E9;
+        box-shadow: inset 0px -2rpx 0px 0px #e9e9e9;
         font-size: 32rpx;
-        .routename{
-          height:  100%;
-          color: #AAAAAA;
-          .uni-input-wrapper{
-            .input-placeholder{
-              color: #AAAAAA;
+        .routename {
+          height: 100%;
+          color: #aaaaaa;
+          .uni-input-wrapper {
+            .input-placeholder {
+              color: #aaaaaa;
             }
           }
         }
-        ::v-deep{
+        ::v-deep {
           .datePicker__placeholder {
             font-size: 32rpx;
-            color: #AAAAAA;
+            color: #aaaaaa;
           }
         }
       }
     }
-    .filter-buttons{
+    .filter-buttons {
       width: 100%;
       height: 110rpx;
       display: flex;
@@ -988,37 +1003,37 @@ export default {
       margin-top: 70rpx;
       padding: 0 30rpx;
       box-sizing: border-box;
-      .btn-item{
+      .btn-item {
         width: 330rpx;
         height: 72rpx;
-        background: #F1F3F6;
+        background: #f1f3f6;
         border-radius: 12rpx;
         color: #333333;
         font-size: 30rpx;
         line-height: 72rpx;
         text-align: center;
       }
-      .filter-confirm{
+      .filter-confirm {
         width: 330rpx;
         height: 72rpx;
         border-radius: 12rpx;
         font-size: 30rpx;
         line-height: 72rpx;
-        background: #4689F5;
-        color: #FFFFFF;
+        background: #4689f5;
+        color: #ffffff;
         display: inline-block;
         text-align: center;
       }
     }
   }
-  .download-complete{
+  .download-complete {
     width: 100%;
     height: 100%;
     position: fixed;
     left: 0;
     top: 0;
     z-index: 10;
-    .download-complete-layout{
+    .download-complete-layout {
       width: 100%;
       height: 100%;
       position: absolute;
@@ -1026,10 +1041,10 @@ export default {
       top: 0;
       background: rgba(0, 0, 0, 0.3);
     }
-    .download-complete-content{
+    .download-complete-content {
       width: 440rpx;
       height: 460rpx;
-      background: #FFFFFF;
+      background: #ffffff;
       border-radius: 18rpx;
       margin: auto;
       display: flex;
@@ -1041,25 +1056,25 @@ export default {
       top: 0;
       right: 0;
       bottom: 0;
-      .download-complete-img{
+      .download-complete-img {
         width: 200rpx;
         height: 166rpx;
       }
-      .tip{
+      .tip {
         height: 108rpx;
         font-size: 30rpx;
         color: #333333;
         line-height: 108rpx;
         text-align: center;
       }
-      .download-complete-button{
+      .download-complete-button {
         width: 320rpx;
         height: 72rpx;
-        background: #4689F5;
+        background: #4689f5;
         border-radius: 42rpx;
         text-align: center;
         font-size: 30rpx;
-        color: #FFFFFF;
+        color: #ffffff;
         line-height: 72rpx;
       }
     }

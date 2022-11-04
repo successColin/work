@@ -6,13 +6,13 @@
  * @Desc: 消息liebiao
 -->
 <template>
-  <div class="messageItem" @click="markRead(messageData)">
-    <div class="messageItem__right" v-if="type === 'WORK_FLOW'">
+  <div class="messageItem" @click="markRead(messageData)" :class="{isRead: messageData.hasRead}">
+    <div class="messageItem__right" v-if="message.innerMailCategory === 2">
       <div class="message-top">
         <span class="title">
-          <i class="appIcon appIcon-gongzuoliucheng" :class="{isRead: messageData.hasRead}"></i>
+          <i class="appIcon appIcon-gongzuoliucheng"></i>
           工作流程<i v-if="!messageData.hasRead" class="spot"></i></span>
-        <span v-if="messageData.jumpLink" @click="handleMessage(messageData.jumpLink)"
+        <span v-if="messageData.variablesStr" @click.stop="handleNode(messageData)"
           class="messageLink">前往处理>></span>
       </div>
       <div class="message-header">
@@ -29,12 +29,13 @@
         <span>{{messageData.sendTime}}</span>
       </div>
     </div>
-    <div class="messageItem__right" v-if="type === 'SYSTEM'">
+    <div class="messageItem__right" v-if="message.innerMailCategory === 3">
       <div class="message-top">
         <span class="title">
           <i class="appIcon appIcon-xitongxiaoxi" :class="{isRead: messageData.hasRead}"></i>
           系统消息<i v-if="!messageData.hasRead" class="spot"></i></span>
-        <span v-if="!messageData.jumpLink" @click="handleMessage(messageData.jumpLink)"
+        <span v-if="messageData.jumpLink || messageData.skipMenuConfigApp"
+          @click.stop="handleMessage(messageData)"
           class="messageLink">前往处理>></span>
       </div>
       <div class="message-header">
@@ -109,21 +110,59 @@ export default {
 
   computed: {
   },
+  watch: {
+    message(v) {
+      this.messageData = {
+        ...v
+      };
+    },
+  },
 
   methods: {
     changeOnlyUnread() {
       this.isOnlyUnread = !this.isOnlyUnread;
     },
-    handleMessage(url) {
-      window.open(url, '_blank');
+    handleNode(item) {
+      this.$emit('clickNode', item.variablesStr);
+    },
+    handleMessage(item) {
+      const variablesStr = item.variablesStr ? JSON.parse(item.variablesStr) : {};
+      if (+item.interactionType === 3 && item.skipMenuConfigApp) {
+        const skipMenuConfigApp = JSON.parse(item.skipMenuConfigApp) || [];
+        this.$emit('clickMessage', skipMenuConfigApp, variablesStr, item.interactionType);
+      } else if (+item.interactionType === 2 && item.panelConfigApp) {
+        const panelConfigApp = JSON.parse(item.panelConfigApp) || [];
+        this.$emit('clickMessage', panelConfigApp, variablesStr, item.interactionType);
+      } else if (+item.interactionType === 1 && item.jumpLink) {
+        if (item.jumpLink) {
+          const url = `/Message/components/webview/index?url=${item.jumpLink}`;
+          uni.navigateTo({
+            url,
+          });
+          // #ifdef H5
+          // window.open(item.jumpLink);
+          // #endif
+          // #ifdef APP-PLUS
+          // plus.runtime.openURL(item.jumpLink);
+          // #endif
+        }
+      }
+      if (!item.hasRead) {
+        this.markRead(item);
+      }
     },
     markRead(item) {
       this.$emit('update:focusIndex', this.index);
+      if (item.hasRead) {
+        setTimeout(() => {
+          this.$emit('update:focusIndex', null);
+        }, 300);
+        return;
+      }
       const param = {
         ids: item.id
       };
       markMailRead(param).then((res) => {
-        console.log(res);
         this.messageData = {
           ...this.messageData,
           hasRead: true
@@ -136,7 +175,7 @@ export default {
   },
 
   mounted() {
-    if (this.type === 'WORK_FLOW') {
+    if (this.message.innerMailCategory === 2) {
       this.item = JSON.parse(this.message.content);
       const { flagData } = this.item;
       const arr = [];

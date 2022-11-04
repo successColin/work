@@ -91,15 +91,9 @@
                 <text class="value-text">{{ item.memo }}</text>
               </view> -->
             </view>
+            <!-- 测量 -->
             <view class="basic-content-info" v-if="item.taskType == 2
               && taskConfigByType(2, 1, 1).length">
-              <!-- 中文：测量单位 -->
-              <!-- <view class="info-item">
-                <text class="label-text"
-                  >{{ $t('inspection.inspection-measuredUnit') }}：</text
-                >
-                <text class="value-text">{{ item.unitname }}</text>
-              </view> -->
               <view class="info-item" :key="obj.id"
                 v-for="obj in taskConfigByType(2, 1, 1)">
                 <text class="label-text"
@@ -121,13 +115,6 @@
               class="basic-content-info"
               v-else-if="item.taskType > 3 && item.taskType != 999"
             >
-              <!-- 中文：测量单位 -->
-              <!-- <view class="info-item">
-                <text class="label-text"
-                  >{{ $t('inspection.inspection-measuredUnit') }}：</text
-                >
-                <text class="value-text">{{ item.unitname }}</text>
-              </view> -->
               <view class="info-item" :key="obj.id"
                 v-for="obj in taskConfigByType(item.taskType, 5, 1)">
                 <text class="label-text"
@@ -203,13 +190,33 @@
                 >{{ item.inspectUserDesc.length }}/50</text
               > -->
             </view>
+            <!-- 下拉框 -->
+            <view class="basic-content-info" v-if="taskConfigByType(item.taskType, 6, 1).length">
+              <view class="info-item" :key="obj.id"
+                v-for="obj in taskConfigByType(item.taskType, 6, 1)">
+                <text class="label-text"
+                  >{{ obj.columnTitle }}：</text
+                ><!--中文： 执行描述-->
+                <view class="inspectionSelect">
+                  <apiot-select-down
+                    :value="item[obj.columnObj.columnName]"
+                    :list="obj.dictObj.dictValue"
+                    showProp="zhCN"
+                    @select="(e) => select(e, obj.columnObj.columnName)"
+                  ></apiot-select-down>
+                </view>
+              </view>
+              <!-- <text class="textareaLength"
+                >{{ item.inspectUserDesc.length }}/50</text
+              > -->
+            </view>
             <!-- 上传图片 -->
             <view class="info-item info-files" v-if="taskConfigByType(item.taskType, 4, 1).length">
               <text class="label-text"
                 >{{ $t('inspection.pageTip-uploadImg') }}：</text
               ><!--中文： 执行描述-->
             </view>
-            <view class="img-files">
+            <view class="img-files" v-if="taskConfigByType(item.taskType, 4, 1).length">
               <view
                 class="upload-btn img-item"
                 @click="handleChooseImage(index)"
@@ -236,50 +243,27 @@
             <block v-if="item.taskType != 999 && taskConfigByType(item.taskType, 7, 1).length">
               <view
                 class="operation"
-                v-if="item.taskType == 1 || item.taskType == 3 || item.taskType == 999"
+                v-if="item.taskType == 1 || item.taskType == 3
+                  || item.taskType == 999 || !limitFunc"
               >
                 <text v-for="obj in dicList"
                   :key="obj.value"
                   :class="['btn', 'normal']"
-                  :style="{background: item.inspectCondition === obj.value ? obj.color : '',
-                    color: item.inspectCondition === obj.value ? obj.fontColor : '#444444'}"
+                  :style="{background: item.inspectCondition == obj.value ? obj.color : '',
+                    color: item.inspectCondition == obj.value ? obj.fontColor : '#444444'}"
                   @click="handleChangeState(index, obj.value)"
                   >
-                  <i v-if="obj.value === 1"
-                  :style="{color: item.inspectCondition === obj.value ? obj.fontColor : '#BBC3CD'}"
+                  <i v-if="obj.value == 1"
+                  :style="{color: item.inspectCondition == obj.value ? obj.fontColor : '#BBC3CD'}"
                     class="appIcon appIcon-zhengchang"></i>
-                  <i v-else-if="obj.value === 2"
-                  :style="{color: item.inspectCondition === obj.value ? obj.fontColor : '#BBC3CD'}"
+                  <i v-else-if="obj.value == 2"
+                  :style="{color: item.inspectCondition == obj.value ? obj.fontColor : '#BBC3CD'}"
                     class="appIcon appIcon-yichang"></i>
-                  <i v-else-if="obj.value === 3"
-                  :style="{color: item.inspectCondition === obj.value ? obj.fontColor : '#BBC3CD'}"
+                  <i v-else-if="obj.value == 3"
+                  :style="{color: item.inspectCondition == obj.value ? obj.fontColor : '#BBC3CD'}"
                     class="appIcon appIcon-tingji"></i>
                   {{obj.name}}
                 </text>
-                <!-- <text
-                  :class="['btn', 'normal', item.inspectCondition === 1 ? 'active' : '']"
-                  @click="handleChangeState(index, 1)"
-                  >
-                  <i class="appIcon appIcon-zhengchang"></i>
-                  {{ $t('inspection.inspection-normal') }}</text
-                > -->
-                <!--中文： 正常-->
-                <!-- <text
-                  :class="['btn', 'fault', item.inspectCondition === 2 ? 'active' : '']"
-                  @click="handleChangeState(index, 2)"
-                  >
-                  <i class="appIcon appIcon-yichang"></i>
-                  {{ $t('inspection.inspection-abnormal') }}</text
-                > -->
-                <!--中文: 异常-->
-                <!-- <text
-                  :class="['btn', 'shutdown', item.inspectCondition === 3 ? 'active' : '']"
-                  @click="handleChangeState(index, 3)"
-                  >
-                  <i class="appIcon appIcon-tingji"></i>
-                  {{ $t('inspection.inspection-shutdown') }}</text
-                > -->
-                <!--中文: 停机-->
               </view>
               <view class="operation" v-else>
                 <text v-for="obj in dicList"
@@ -299,22 +283,6 @@
                     class="appIcon appIcon-tingji"></i>
                   {{obj.name}}
                 </text>
-                <!-- <text
-                  :class="['btn', 'normal', item.inspectCondition === 1 ? 'active' : '']"
-                  >{{ $t('inspection.inspection-normal') }}</text
-                > -->
-                <!--中文： 正常-->
-                <!-- <text
-                  :class="['btn', 'fault', item.inspectCondition === 2 ? 'active' : '']"
-                  >{{ $t('inspection.inspection-abnormal') }}</text
-                > -->
-                <!--中文: 异常-->
-                <!-- <text
-                  :class="['btn', 'shutdown', item.inspectCondition === 3 ? 'active' : '']"
-                  @click="handleChangeState(index, 3)"
-                  >{{ $t('inspection.inspection-shutdown') }}</text
-                > -->
-                <!--中文: 停机-->
               </view>
             </block>
           </view>
@@ -362,8 +330,13 @@ export default {
         this.dictArr([arr[0].dictObj.dictKey]);
         this.dictKey = arr[0].dictObj.dictKey;
       }
-      console.log(this.taskLayer);
+      if (this.taskLayer.openFirstTask) {
+        this.openPointIndex = 0;
+      }
+      this.limitFunc = this.taskLayer.limitFunc;
+      this.enforceCheck = this.taskLayer.enforceCheck;
     });
+    // this.openFirstTask = this.taskLayer.openFirstTask;
     this.inspectionRouteId = options.inspectionRouteId;
     this.deviceCode = options.deviceCode;
     this.deviceName = options.deviceName;
@@ -402,14 +375,15 @@ export default {
     // 如果所有的点都没有点检过，那么也不需要判断强制点检
     if (
       this.openPointIndex !== -1 &&
-      this.pointList[this.openPointIndex].taskType === 999 &&
-      this.pointList[this.openPointIndex].fileList.length === 0
+      +this.pointList[this.openPointIndex].taskType === 999 &&
+      this.pointList[this.openPointIndex].fileList.length === 0 &&
+      this.enforceCheck
     ) {
       this.promptData = {
         title: this.$t('common.tip'),
         confirmText: this.$t('common.sure'),
         tip: `${this.pointList[this.openPointIndex].taskName},${this.$t(
-          'inspection-forcePoint'
+          'inspection.inspection-forcePoint'
         )}`, // 中文：'强制点检必须要有相关设备图片!',
       };
       this.showTipPrompt = true;
@@ -417,7 +391,7 @@ export default {
     } else if (
       this.openPointIndex !== -1 &&
       this.pointList[this.openPointIndex].inspectCondition === 2 &&
-      !this.pointList[this.openPointIndex].inspectUserDesc
+      !this.pointList[this.openPointIndex].inspectUserDesc && this.taskLayer.abnormalMemo
     ) {
       this.promptData = {
         title: this.$t('common.tip'),
@@ -451,7 +425,8 @@ export default {
       },
       taskLayer: {},
       dictKey: '',
-      deviceName: ''
+      deviceName: '',
+      openFirstTask: false,
     };
   },
   computed: {
@@ -497,7 +472,24 @@ export default {
     async dictArr(dict) {
       await this.$store.dispatch('getCurrentDict', dict.join());
     },
-    taskConfigByType(taskType, type, status) {
+    // 下拉框选择
+    select(e, columnName) {
+      const val = e[0].value;
+      const that = this;
+      const inspectTime = this.$apiot.dateFormat('', 'yyyy-MM-dd hh:mm:ss');
+      updateSql(
+        'inspectionpointdo',
+        {
+          [columnName]: val,
+          inspectTime,
+        },
+        { inspectionTaskId: this.pointList[this.openPointIndex].inspectionTaskId },
+        () => {
+          that.pointList[that.openPointIndex][columnName] = val;
+        }
+      );
+    },
+    taskConfigByType(taskType, type, status) { // taskType 任务类型， type 控件类型， status控件状态
       let arr = [];
       if (status) {
         arr = this.taskLayer.columnArr.filter((item) => item.compType === type
@@ -604,14 +596,15 @@ export default {
       // 如果是强制点检的点，没有上传图片时不允许点击其它点
       if (
         this.openPointIndex !== -1 &&
-        this.pointList[this.openPointIndex].taskType === 999 &&
-        this.pointList[this.openPointIndex].fileList.length === 0
+        +this.pointList[this.openPointIndex].taskType === 999 &&
+        this.pointList[this.openPointIndex].fileList.length === 0 &&
+        this.enforceCheck
       ) {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
           tip: `${this.pointList[this.openPointIndex].taskName},${this.$t(
-            'inspection-forcePoint'
+            'inspection.inspection-forcePoint'
           )}`, // 中文：'强制点检必须要有相关设备图片!',
         };
         this.showTipPrompt = true;
@@ -621,12 +614,12 @@ export default {
       if (
         this.openPointIndex !== -1 &&
         this.pointList[this.openPointIndex].inspectCondition === 2 &&
-        !this.pointList[this.openPointIndex].inspectUserDesc
+        !this.pointList[this.openPointIndex].inspectUserDesc && this.taskLayer.abnormalMemo
       ) {
         this.promptData = {
           title: this.$t('common.tip'),
           confirmText: this.$t('common.sure'),
-          tip: '异常状态下执行描述不能为空',
+          tip: this.$t('inspection.inspection-pointErrorStatus'),
         };
         this.showTipPrompt = true;
         return;
@@ -758,13 +751,15 @@ export default {
         val = 0;
       }
       const inspectTime = this.$apiot.dateFormat('', 'yyyy-MM-dd hh:mm:ss');
-      if (
-        val <= pointData.standardMeasureUpper &&
-        val >= pointData.standardMeasureLower
-      ) {
-        this.handleChangeState(this.openPointIndex, 1);
-      } else {
-        this.handleChangeState(this.openPointIndex, 2);
+      if (this.limitFunc) {
+        if (
+          val <= pointData.standardMeasureUpper &&
+          val >= pointData.standardMeasureLower
+        ) {
+          this.handleChangeState(this.openPointIndex, 1);
+        } else {
+          this.handleChangeState(this.openPointIndex, 2);
+        }
       }
       updateSql(
         'inspectionpointdo',
@@ -961,6 +956,7 @@ export default {
         { inspectionTaskId: that.pointList[index].inspectionTaskId },
         () => {
           that.pointList[index].inspectCondition = inspectCondition;
+          console.log(that.pointList[index].inspectCondition);
         }
       );
     },
@@ -1103,6 +1099,13 @@ export default {
             .info-item{
               box-shadow: inset 0px -2rpx 0px 0px #E9E9E9;
             }
+            .inspectionSelect{
+              flex: 1;
+              .placeholder{
+                color: #AAAAAA;
+                font-size: 28rpx;
+              }
+            }
             .info-textarea{
               box-shadow: none
             }
@@ -1119,6 +1122,8 @@ export default {
               flex-grow: 1;
             }
             .uni-input{
+              flex: 1;
+              flex-shrink: 0;
               .placeholder{
                 color: #AAAAAA;
                 font-size: 28rpx;
@@ -1230,7 +1235,7 @@ export default {
             display:flex;
             .btn{
               color: #444444;
-              width: 140rpx;
+              min-width: 140rpx;
               height: 60rpx;
               border-radius: 60rpx;
               border: 1rpx solid #D9D9D9;
@@ -1239,6 +1244,7 @@ export default {
               justify-content: center;
               align-items: center;
               display:flex;
+              padding: 0 15rpx;
               .appIcon{
                 margin-right: 8rpx;
                 color: #BBC3CD;

@@ -29,10 +29,37 @@ export default {
     JOB_TYPE: [], // 定时任务类型
     JOB_STATUS: [], // 定时任务状态
     JOB_EXECUTE_RESULT: [], // 定时任务执行结果
+    PROCESS_STATUS: [
+      // 流程状态
+      {
+        name: '被驳回',
+        value: 'REJECTED',
+        zhCN: '被驳回',
+        enUS: 'Rejected',
+      },
+      {
+        name: '进行中',
+        value: 'IN_PROGRESS',
+        zhCN: '进行中',
+        enUS: 'Inprogress',
+      },
+      {
+        name: '已完成',
+        value: 'COMPLETED',
+        zhCN: '已完成',
+        enUS: 'Completed',
+      },
+      {
+        name: '已撤回',
+        value: 'REVOKED',
+        zhCN: '已撤回',
+        enUS: 'Revoked',
+      },
+    ],
   },
   getters: {
     getCurDict(state) {
-      return function(dictName) {
+      return function (dictName) {
         return state[dictName];
       };
     },

@@ -6,7 +6,7 @@
  * @Desc: 通用搜索
 -->
 <template>
-  <view>
+  <view class="search">
     <!-- #ifndef MP-ALIPAY -->
     <apiot-navbar :title="$t('common.search')"></apiot-navbar>
     <!-- #endif -->
@@ -14,6 +14,7 @@
       <search-box
         ref="searchBox"
         :list="list"
+        :enableScan="enableScan"
         @search="handleSearch"
       ></search-box>
     </u-sticky>
@@ -54,7 +55,8 @@ export default {
         searchFlag: 'common' // 用于取缓存中的近期搜索
       },
       lastSearche: [], // 最近搜索列表
-      lastSearchesIndex: -1 // 最近搜索点击序号
+      lastSearchesIndex: -1, // 最近搜索点击序号
+      enableScan: false // 是否启动扫描
     };
   },
 
@@ -104,14 +106,16 @@ export default {
       const { flag } = this.searchInfo;
       // 记录到搜索缓存中
       const { keyword } = e;
-      const lastSearche = [...this.lastSearche];
-      const index = lastSearche.findIndex((v) => v.value === keyword);
-      if (index !== -1) lastSearche.splice(index, 1);
-      lastSearche.unshift({ value: keyword, time: new Date().getTime() });
-      this.$store.commit('setSearchLast', {
-        searchFlag: this.searchInfo.searchFlag,
-        lastSearchList: lastSearche
-      });
+      if (keyword) {
+        const lastSearche = [...this.lastSearche];
+        const index = lastSearche.findIndex((v) => v.value === keyword);
+        if (index !== -1) lastSearche.splice(index, 1);
+        lastSearche.unshift({ value: keyword, time: new Date().getTime() });
+        this.$store.commit('setSearchLast', {
+          searchFlag: this.searchInfo.searchFlag,
+          lastSearchList: lastSearche
+        });
+      }
       this.$bus.$emit(flag, { flag, searchParams: e });
       uni.navigateBack();
     },
@@ -138,6 +142,8 @@ export default {
         this.$refs.searchBox.setKeyword(param);
       });
     }
+
+    if (option.enableScan) this.enableScan = true;
     this.searchInfo = { ...this.searchInfo, ...option };
     this.getLastSearches();
   },
@@ -152,11 +158,17 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.search {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+  background: #fff;
+}
 .lastSearches {
   padding: 0 30rpx;
-  font-family: PingFangSC-Regular, PingFang SC;
-  min-height: 100vh;
-  background: #fff;
+  font-family: $--font-family;
+
   &__header {
     display: flex;
     justify-content: space-between;

@@ -1,8 +1,8 @@
 {
-    "name" : "APIoT V10",
+    "name" : "V10",
     "appid" : "__UNI__C408ADE",
     "description" : "",
-    "versionName" : "1.0.3",
+    "versionName" : "1.0.2.009",
     "versionCode" : 100,
     "transformPx" : false,
     "debug" : true,
@@ -17,7 +17,7 @@
         },
         "runmode" : "liberate",
         "usingComponents" : true,
-        "nvueCompiler" : "uni-app", //是否启用 uni-app 模式 
+        "nvueCompiler" : "uni-app", //是否启用 uni-app 模式
         "scrollIndicator" : "none",
         "splashscreen" : {
             "alwaysShowBeforeRender" : true,
@@ -27,8 +27,11 @@
         },
         "modules" : {
             "SQLite" : {},
+            "Geolocation" : {},
+            "Maps" : {},
+            "VideoPlayer" : {},
             "OAuth" : {},
-            "Geolocation" : {}
+            "Webview-x5" : {}
         },
         /* 模块配置 */
         "distribute" : {
@@ -70,19 +73,12 @@
                     "NSLocationAlwaysAndWhenInUseUsageDescription" : "若不允许，将无法访问位置",
                     "NSCalendarsUsageDescription" : "若不允许，将无法访问日历读取相关日历信息",
                     "NSSpeechRecognitionUsageDescription" : "若不允许，将无法将语音转化为文字",
-                    "NFCReaderUsageDescription" : "若不允许，将无法通过NFC卡读取相关信息"
+                    "NFCReaderUsageDescription" : ""
                 },
-                "capabilities" : {
-                    "entitlements" : {
-                        "com.apple.developer.associated-domains" : [ "applinks:static-008abda2-faf9-48dd-a6aa-eb82940d9e18.bspapp.com" ]
-                    }
-                }
+                "dSYMs" : false
             },
             /* ios打包配置 */
             "sdkConfigs" : {
-                "push" : {
-                    "unipush" : {}
-                },
                 "payment" : {},
                 "ad" : {},
                 "speech" : {
@@ -97,14 +93,19 @@
                 "oauth" : {
                     "univerify" : {}
                 },
-                "share" : {},
+                "share" : {
+                    "weixin" : {
+                        "appid" : "",
+                        "UniversalLinks" : ""
+                    }
+                },
                 "geolocation" : {}
             },
             "splashscreen" : {
                 "android" : {
-                    "hdpi" : "E:/V10/3-图片/启动页(1)(1)/480_762.png",
-                    "xhdpi" : "E:/V10/3-图片/启动页(1)(1)/720_1560.png",
-                    "xxhdpi" : "E:/V10/3-图片/启动页(1)(1)/1080_2340.png"
+                    "hdpi" : "E:/公司信息/3-公司开发相关证书/标准版APP打包相关文件/APIoT v10/启动图/480_762.png",
+                    "xhdpi" : "E:/公司信息/3-公司开发相关证书/标准版APP打包相关文件/APIoT v10/启动图/720_1560.png",
+                    "xxhdpi" : "E:/公司信息/3-公司开发相关证书/标准版APP打包相关文件/APIoT v10/启动图/1080_2340.png"
                 },
                 "ios" : {
                     "iphone" : {
@@ -114,7 +115,7 @@
                         "retina47" : "static/images/start/splash.png",
                         "retina40" : "static/images/start/splash.png"
                     },
-                    "storyboard" : "E:/project/ams2.0/明云科技/CustomStoryboard.zip"
+                    "storyboard" : "E:/公司信息/3-公司开发相关证书/标准版APP打包相关文件/APIoT v10/CustomStoryboard.zip"
                 },
                 "iosStyle" : "storyboard"
             },
@@ -158,8 +159,8 @@
     /* 快应用特有相关 */
     "h5" : {
         "router" : {
-            "base" : "",
-            "mode" : "hash"
+            "base" : "/onlineApp/",
+            "mode" : "history"
         },
         "domain" : "http://47.111.24.52",
         "sdkConfigs" : {
@@ -171,7 +172,7 @@
         }
     },
     "mp-weixin" : {
-        "appid" : "wxaa263793a156e70e",
+        "appid" : "wx53b82bf82de9b6f6",
         "setting" : {
             "postcss" : true,
             "minified" : true,
@@ -192,6 +193,7 @@
         "appid" : "5000000001434316",
         "optimization" : {
             "subPackages" : true
-        }
+        },
+        "enableNodeModuleBabelTransform" : true
     }
 }

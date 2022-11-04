@@ -10,7 +10,7 @@
     <!-- #ifndef MP-ALIPAY -->
     <apiot-navbar :title="$t('common.filter')"></apiot-navbar>
     <!-- #endif -->
-    <u-sticky :customNavHeight="customBar">
+    <u-sticky :customNavHeight="customBar" v-if="config.showRecode">
       <section class="filterRecord">
         <header class="filterRecord__header">
           <span class="title">最近筛选记录</span>
@@ -66,23 +66,24 @@
 </template>
 
 <script>
-import HighSearchForm from './components/HighSearchForm';
+import HighSearchForm from './components/MenuMain/ConfigMain/ConfigForm/HighSearchForm';
 
 export default {
   components: { HighSearchForm },
 
-  props: {},
-
   data() {
     return {
-      config: null,
+      config: {
+        showRecode: false // 是否需要显示最近一次搜索记录
+      },
       lastForm: {}
     };
   },
 
   computed: {
     lastFilterSeachEle() {
-      const { lastForm, featureArr } = this;
+      const { lastForm, featureArr, config } = this;
+      if (!config.showRecode) return;
       const { children } = featureArr;
       const formArray = [];
       const form = {};
@@ -135,10 +136,14 @@ export default {
         const featureArr = { ...this.featureArr };
         featureArr.form = this.$refs.highForm.configForm;
         this.$store.commit('setMunuHighSearch', featureArr);
-        this.$store.commit('setSearchFilter', {
-          searchFlag: this.config.highSearchFlag,
-          form: featureArr.form
-        });
+
+        // 是否需要记录高级筛选的值
+        if (this.config.showRecode) {
+          this.$store.commit('setSearchFilter', {
+            searchFlag: this.config.highSearchFlag,
+            form: featureArr.form
+          });
+        }
         this.$bus.$emit(this.config.flag, { form: featureArr.form });
       }
       uni.navigateBack();
@@ -146,10 +151,13 @@ export default {
   },
 
   onLoad(option = {}) {
+    // 是否需要记录最近一次查询记录
+    if (option.hisSearch === '1') option.showRecode = true;
+    else option.showRecode = false;
+
     this.config = option;
-    console.log(this.$store.state.search.lastFilterSeach);
     // eslint-disable-next-line max-len
-    if (option.highSearchFlag) this.lastForm = this.$store.state.search.lastFilterSeach[option.highSearchFlag] || {};
+    if (option.highSearchFlag && option.showRecode) this.lastForm = this.$store.state.search.lastFilterSeach[option.highSearchFlag] || {};
   },
 
   onReady() {
@@ -185,10 +193,9 @@ export default {
     justify-content: space-between;
     height: 85rpx;
     line-height: 85rpx;
-    font-family: PingFangSC-Medium, PingFang SC;
     .title {
       font-size: 32rpx;
-      font-weight: 600;
+      @include fontBlob(500);
     }
     .btn {
       font-size: 28rpx;
@@ -201,7 +208,7 @@ export default {
     border-radius: 14rpx;
     background: #f6f6f8;
     font-size: 28rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family: $--font-family;
     color: #808080;
     &--item {
       display: flex;

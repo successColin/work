@@ -3,10 +3,11 @@
  * @Author: cmk
  * @Date: 2021-04-23 09:33:03
  * @Last Modified by: sss
- * @Last Modified time: 2022-04-22 14:44:14
+ * @Last Modified time: 2022-08-24 16:24:19
  */
 export default {
   common: {
+    searchResult: 'results display, a total of %{num}',
     download: 'Download',
     export: 'Export %{name}',
     export1: 'Export',

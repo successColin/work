@@ -9,25 +9,35 @@
   <section class="searchBox">
     <div class="searchBox__types" v-if="list.length > 0">
       <apiot-select-down
-        :value="downSelect.value"
+        :value="downSelect && downSelect.value"
         :list="list"
         @select="select"
       ></apiot-select-down>
     </div>
-    <div class="filter--line"></div>
-    <div class="searchBox__content">
+    <div class="filter--line" v-if="list.length > 0"></div>
+    <div
+      class="searchBox__content"
+      :class="[list.length === 0 ? 'noSelect' : '']"
+    >
       <input
         v-model="keyword"
         focus
         placeholder-class="inputPlaceholder"
         :placeholder="placeholder"
+        confirm-type="search"
         @focus="handleFocus"
         @blur="handleBlur"
+        @confirm="click"
       />
       <i
         class="appIcon appIcon-sousuo"
         @click="click"
         :class="[isFocus ? getThemeColorFont : '']"
+      ></i>
+      <i
+        v-if="enableScan"
+        class="appIcon appIcon-saoma"
+        @click.stop="gotoScan"
       ></i>
     </div>
   </section>
@@ -43,7 +53,9 @@ export default {
       default() {
         return [];
       }
-    }
+    },
+    // 是否启动扫描
+    enableScan: Boolean
   },
 
   data() {
@@ -64,20 +76,29 @@ export default {
       return this.$store.getters.getThemeColorFont;
     },
     placeholder() {
-      return `在${this.listValue.name}中搜索`;
+      return `在${this.listValue.name || '关键字'}中搜索`;
     }
   },
 
   methods: {
+    async gotoScan() {
+      try {
+        const qrResult = await this.$apiot.scanCode();
+        const { result } = qrResult;
+        this.keyword = result;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     handleFocus() {
       this.isFocus = true;
     },
     handleBlur() {
       this.isFocus = false;
+      // this.click();
     },
     // 下拉框选择
     select(e) {
-      console.log(e);
       // eslint-disable-next-line prefer-destructuring
       this.downSelect = e[0];
     },
@@ -108,7 +129,7 @@ export default {
 <style lang='scss' scoped>
 .inputPlaceholder {
   font-size: 30rpx;
-  font-family: PingFangSC-Regular, PingFang SC;
+  font-family: $--font-family;
   font-weight: 400;
   color: #aaaaaa;
 }
@@ -133,14 +154,22 @@ export default {
     flex: 1;
     display: flex;
     align-items: center;
+    &.noSelect {
+      padding-left: 30rpx;
+    }
     input {
       flex: 1;
       height: 100%;
       font-size: 15px;
     }
-    .appIcon {
-      font-size: 19px;
+    .appIcon-sousuo {
+      font-size: 38rpx;
       padding: 20rpx 30rpx;
+      color: #bbc3cd;
+    }
+    .appIcon-saoma {
+      padding-right: 30rpx;
+      font-size: 48rpx;
       color: #bbc3cd;
     }
   }

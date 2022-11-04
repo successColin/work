@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: sss
- * @Last Modified time: 2021-10-08 17:24:42
+ * @Last Modified time: 2022-08-09 09:29:16
  */
 import { baseUrl, PREFIX, VERSION } from '../config';
 import { Decrypt } from '../utils';
@@ -46,7 +46,7 @@ export function batchUpload(file, data = {}, cb, cbe) {
     },
     fail: () => {
       if (cbe) cbe();
-    }
+    },
   });
 }
 
@@ -72,9 +72,9 @@ export function getSendMessageVerifyCode(params) {
 }
 
 // 获取登录页配置
-export function getLoginConfig() {
-  return FetchData.request({
-    url: '/system/global/getGlobalLogin',
-    method: 'get',
-  });
-}
+// export function getLoginConfig() {
+//   return FetchData.request({
+//     url: '/system/global/getGlobalLogin',
+//     method: 'get',
+//   });
+// }

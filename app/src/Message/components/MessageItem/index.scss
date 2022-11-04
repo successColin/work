@@ -28,7 +28,7 @@
       .appIcon-gongzuoliucheng{
         color: #5A80ED;
       }
-      .appIcon-xiaoxitongzhi1{
+      .appIcon-xitongxiaoxi{
         color: #34C7BE;
       }
       .spot{
@@ -129,6 +129,24 @@
       -ms-transform: scaleY(1);
       -o-transform: scaleY(1);
       opacity: 1;
+    }
+  }
+}
+
+.isRead{
+  color: #666666;
+  .messageItem__right{
+    color: #666666;
+    .message-header{
+      color: #666666;
+    }
+    .sponsor{
+      opacity: .5;
+    }
+  }
+  .messageItem__left{
+    .appIcon{
+      color: #BBC3CD;
     }
   }
 }

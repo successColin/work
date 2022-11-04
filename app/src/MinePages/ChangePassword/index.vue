@@ -7,16 +7,20 @@
 -->
 <template>
   <view class="password">
-    <apiot-navbar :title="$t('mine.changePassword')"></apiot-navbar>
+    <apiot-navbar
+      @navBack="navBack"
+      v-if="!hasDing"
+      :title="$t('mine.changePassword')"
+    ></apiot-navbar>
     <view class="password__content">
       <view class="password__content__tip">
         <view class="tip-icon">
           <i class="appIcon appIcon-xiugaimimatishi"></i>
         </view>
         <view class="tip-content">
-          <p class="title">账户密码修改提示</p>
+          <p class="title">{{ $t('mine.accountPasswordModificationTips') }}</p>
           <p class="content">
-            密码6～18位数，为保证更高的安全性，至少由数字、大小写字母、标点符号三种组成！
+            {{ $t('mine.passwordTips') }}
           </p>
         </view>
       </view>
@@ -73,17 +77,23 @@
       </view>
     </view>
     <view class="password__foot">
-      <button class="sure" @click="changePassword" :loading="isSubmit">
+      <apiot-button
+        class="sure"
+        type="primary"
+        shape="circle"
+        :loading="isSubmit"
+        @click="changePassword"
+      >
         <i class="appIcon appIcon-zhengchang"></i>
-        确定修改
-      </button>
+        {{ $t('mine.confirmModification') }}</apiot-button
+      >
     </view>
   </view>
 </template>
 
 <script>
 import FormItemPassword from './FormItemPassword';
-import { editUserPassword } from '@/api/mine';
+import { editUserPassword, logout } from '@/api/mine';
 import { Encrypt } from '@/utils';
 
 export default {
@@ -99,6 +109,8 @@ export default {
         confirmPassword: ''
       },
       isSubmit: false,
+      source: null,
+      hasDing: false
       // userInfo: {}
     };
   },
@@ -133,17 +145,18 @@ export default {
         };
         // const str = `${this.$t('userCenter.changePassword')}`;
         // param.logData = str;
-        console.log(param);
         await editUserPassword(param);
         this.isSubmit = false;
         uni.showToast({
           title: this.$t('common.successfullyModified'),
-          duration: 1000
+          duration: 1000,
+          icon: 'none'
         });
         setTimeout(() => {
           uni.removeStorageSync('token');
           uni.removeStorageSync('password');
-          uni.reLaunch({ url: '/pages/Login/index' });
+          logout();
+          uni.reLaunch({ url: '/Login/index' });
         }, 500);
       } catch (error) {
         this.isSubmit = false;
@@ -156,14 +169,32 @@ export default {
         }
       }
     },
+    navBack() {
+      if (this.source) {
+        logout();
+        setTimeout(() => {
+          uni.reLaunch({ url: '/Login/index' });
+        }, 50);
+      }
+    }
   },
-  mounted() {
+  mounted() {},
+  onLoad(option) {
+    this.source = option.source;
+    // #ifdef MP-ALIPAY
+    this.hasDing = true;
+    // #endif
   },
-  onLoad() {},
 
   onShow() {},
 
-  onReady() {}
+  onReady() {
+    // #ifdef MP-ALIPAY
+    uni.setNavigationBarTitle({
+      title: this.$t('mine.changePassword')
+    });
+    // #endif
+  }
 };
 </script>
 

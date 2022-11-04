@@ -7,16 +7,34 @@
  * @Des: 一些公共配置
  */
 module.exports = {
-  deflautTheme: '#4689F5', // deflautTheme必须在selectColorArr列表中
-  selectColorArr: ['#4689F5', '#CC3534'],
+  deflautTheme: '#4689f5', // deflautTheme必须在selectColorArr列表中
+  selectColorArr: [
+    '#4689f5',
+    '#C62127',
+    '#EE5E5E',
+    '#FAB71C',
+    '#FC8256',
+    '#34C7BE',
+    '#10B98A',
+    '#1CA6FF',
+    '#A853F2',
+    '#EF4373',
+    '#708DB7',
+  ],
   // 白名单
-  whitePathName: ['login'],
+  whitePathName: ['login', 'weChat/registerLogin', 'weChat/loginByOpenId'],
   // #ifdef H5
   baseUrl: '', // app地址
   // #endif
   // #ifndef H5
-  // baseUrl: 'http://47.99.87.62:84', // app地址
-  baseUrl: 'http://47.118.76.70:8080', // app地址
+  // baseUrl: 'http://192.168.0.20:8080', // cl
+  baseUrl: 'http://47.118.76.70:8080', // ios审核环境环境
+  // baseUrl: 'http://47.99.87.62:93', // 商务演示
+  // baseUrl: 'http://120.26.220.36',
+  // baseUrl: 'http://192.168.0.23:8080',
+  // baseUrl: 'http://120.26.220.36',
+  // baseUrl: 'http://192.168.0.28:8080',
+  // baseUrl: 'https://smrz.ywsoft.vip',
   // #endif
   PREFIX: '/api', // 前缀
   VERSION: 'v1', // 版本号，默认为1，后续有其他接口版本号是其他值
@@ -46,6 +64,16 @@ module.exports = {
       label: '离线点检',
       routeName: 'inspection',
       url: '/inspection/inspection/route',
+    },
+    {
+      label: '流程',
+      routeName: 'sysProcess',
+      url: '/PagesProcess/index',
+    },
+    {
+      label: '用户登录管理',
+      routeName: 'userloginManage',
+      url: '/userloginManage/index',
     },
   ],
 };

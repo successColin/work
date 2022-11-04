@@ -106,6 +106,10 @@ const createInspectionPointDo = function(cb, cbe) {
     inspectMeasureValue1 decimal(12,4) DEFAULT NULL,
     inspectMeasureValue2 decimal(12,4) DEFAULT NULL,
     inspectMeasureValue3 decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue4 decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue5 decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue6 decimal(12,4) DEFAULT NULL,
+    inspectMeasureValue7 decimal(12,4) DEFAULT NULL,
     inspectTime text DEFAULT NULL,
     inspectCondition int DEFAULT '0',
     qrCode VARCHAR(50) DEFAULT NULL,
@@ -147,6 +151,7 @@ const createInspectionConfigDo = function(cb, cbe) {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     routeLayer VARCHAR(500) DEFAULT NULL,
     deviceLayer VARCHAR(500) DEFAULT NULL,
+    resultLayer VARCHAR(500) DEFAULT NULL,
     taskLayer VARCHAR(500) DEFAULT NULL
   )`;
   DB.executeSql(sql, () => {
@@ -201,8 +206,8 @@ const readyConfigDB = function(cb, cbe) {
 // 插入巡检配置
 const insertIntoInspectionConfigDo = function(inspectiondoConfig, cb, cbe) {
   let inspectiondoDataSql = '';
-  const inspectiondoColumnName = ['id', 'routeLayer', 'deviceLayer', 'taskLayer'];
-  const resInspectiondoConfigData = ['id', 'routeLayer', 'deviceLayer', 'taskLayer'];
+  const inspectiondoColumnName = ['id', 'routeLayer', 'deviceLayer', 'taskLayer', 'resultLayer'];
+  const resInspectiondoConfigData = ['id', 'routeLayer', 'deviceLayer', 'taskLayer', 'resultLayer'];
   const str = JSON.stringify()
   const sqlStrBefore = ' select ';
   const sqlStrAfterAry = resInspectiondoConfigData.map((columnItem) => {
@@ -272,12 +277,14 @@ const insertInspectionpointDo = function(inspectionpointdoData, cb, cbe) {
     'inspectionPointId', 'inspectionTaskId', 'pointCode', 'pointName', 'taskType', 'taskStatus', 'inspectMethod', 'standardCondition', 'taskStartTime', 'taskMemo', 'devicePosition',
     'uploadstatus', 'standardMeasureLower', 'standardMeasureUpper', 'inspectOilQty', 'inspectUserDesc', 'inspectMeasureValue', 'inspectTime', 'inspectCondition',
     'qrCode', 'rfidCode', 'inspectUserId', 'standardOilQty', 'imageIds', 'timeCost', 'hasAbnormal', 'uploadTime', 'inspectMeasureValue1', 'inspectMeasureValue2', 'inspectMeasureValue3',
+    'inspectMeasureValue4', 'inspectMeasureValue5', 'inspectMeasureValue6', 'inspectMeasureValue7',
     'sno', 'rfid', 'exvarchar1', 'exvarchar2', 'exvarchar3', 'exint1', 'exint2', 'exint3', 'exdecimal1', 'exdecimal2', 'exdecimal3', 'exdate1', 'exdate2', 'exdate3'
   ];
   const resInspectiondoData = ['id', 'routeCode', 'routeName', 'inspectionRouteId', 'deviceId', 'deviceCode', 'deviceName', 'taskCode', 'taskName',
     'inspectionPointId', 'inspectionTaskId', 'pointCode', 'pointName', 'taskType', 'taskStatus', 'inspectMethod', 'standardCondition', 'taskStartTime', 'taskMemo', 'devicePosition',
     'uploadstatus', 'standardMeasureLower', 'standardMeasureUpper', 'inspectOilQty', 'inspectUserDesc', 'inspectMeasureValue', 'inspectTime', 'inspectCondition',
     'qrCode', 'rfidCode', 'inspectUserId', 'standardOilQty', 'imageIds', 'timeCost', 'hasAbnormal', 'uploadTime', 'inspectMeasureValue1', 'inspectMeasureValue2', 'inspectMeasureValue3',
+    'inspectMeasureValue4', 'inspectMeasureValue5', 'inspectMeasureValue6', 'inspectMeasureValue7',
     'sno', 'rfid', 'exvarchar1', 'exvarchar2', 'exvarchar3', 'exint1', 'exint2', 'exint3', 'exdecimal1', 'exdecimal2', 'exdecimal3', 'exdate1', 'exdate2', 'exdate3'
   ];
   inspectionpointdoData.forEach((item, index) => {
@@ -390,6 +397,7 @@ const selectInspectionDo = function(params = {}, cb, cbe) {
     ${keywords}
     GROUP BY
       inspectiondo.id
+    HAVING deviceCount > 0
     ORDER BY 
       inspectiondo.routeName;`;
   DB.selectSql(sql, (res) => {
@@ -422,7 +430,6 @@ const selectMoList = function(inspectionDoId, cb, cbe) {
       inspectionpointdo.deviceCode
     ORDER BY 
       inspectionpointdo.deviceCode;`;
-  console.log(sql);
   DB.selectSql(sql, (res) => {
     if (cb) cb(res);
   }, (e) => {
@@ -453,6 +460,10 @@ const selectPointDoListByCode = function(inspectionDoId, code, type, cb, cbe) {
     inspectionpointdo.inspectionPointId,
     inspectionpointdo.inspectionTaskId,
     inspectionpointdo.pointCode,
+    inspectionpointdo.deviceCode,
+    inspectionpointdo.deviceId,
+    inspectionpointdo.deviceName,
+    inspectionpointdo.devicePosition,
     inspectionpointdo.pointName,
     inspectionpointdo.taskName,
     inspectionpointdo.inspectionRouteId,
@@ -471,6 +482,10 @@ const selectPointDoListByCode = function(inspectionDoId, code, type, cb, cbe) {
     inspectionpointdo.inspectMeasureValue1,
     inspectionpointdo.inspectMeasureValue2,
     inspectionpointdo.inspectMeasureValue3,
+    inspectionpointdo.inspectMeasureValue4,
+    inspectionpointdo.inspectMeasureValue5,
+    inspectionpointdo.inspectMeasureValue6,
+    inspectionpointdo.inspectMeasureValue7,
     inspectionpointdo.imageIds,
     inspectionpointdo.hasAbnormal,
     inspectionpointdo.timeCost,
@@ -499,13 +514,9 @@ const selectPointDoListByCode = function(inspectionDoId, code, type, cb, cbe) {
     inspectionpointdo.sno IS NULL,
     inspectionpointdo.sno ASC,
     inspectionpointdo.inspectionTaskId ASC;`;
-  console.log(sql);
   DB.selectSql(sql, (res) => {
-    console.log(res, 111111111)
-    console.log(cb, 111111111)
     if (cb) cb(res);
   }, (e) => {
-    console.log(e, 222222222222)
     if (cbe) cbe(e);
   });
 };
@@ -535,6 +546,10 @@ const selectPointDoList = function(inspectionDoId, deviceCode, cb, cbe) {
       inspectionpointdo.inspectMeasureValue1,
       inspectionpointdo.inspectMeasureValue2,
       inspectionpointdo.inspectMeasureValue3,
+      inspectionpointdo.inspectMeasureValue4,
+      inspectionpointdo.inspectMeasureValue5,
+      inspectionpointdo.inspectMeasureValue6,
+      inspectionpointdo.inspectMeasureValue7,
       inspectionpointdo.imageIds,
       inspectionpointdo.hasAbnormal,
       inspectionpointdo.uploadTime,
@@ -603,12 +618,14 @@ const selectPointsByInspectionDoId = function(cb, cbe) {
   `select 
       inspectionPointId, deviceCode, deviceId, deviceName, 
       devicePosition, inspectMethod, inspectCondition, inspectMeasureValue1, inspectMeasureValue2, inspectMeasureValue3,
+      inspectMeasureValue4, inspectMeasureValue5, inspectMeasureValue6, inspectMeasureValue7,
       inspectMeasureValue, inspectMethod, inspectOilQty, inspectTime, inspectUserDesc, 
       inspectUserId, pointCode, pointName, qrCode, rfidCode, routeCode, inspectionRouteId, 
       routeName, standardCondition, standardMeasureLower, standardMeasureUpper, 
       standardOilQty, taskCode, inspectionTaskId, taskMemo, 
       taskName, taskStartTime, taskStatus, imageIds, hasAbnormal, uploadTime, timeCost,
-      taskType
+      taskType, exvarchar1, exvarchar2, exvarchar3, exint1, exint2, exint3, exdecimal1,
+      exdecimal2, exdecimal3, exdate1, exdate2, exdate3
   from 
     inspectionpointdo 
   where 
@@ -627,6 +644,7 @@ const selectPointsResults = function(inspectionDoId, cb, cbe) {
     `select 
       inspectionPointId, deviceCode, deviceId, deviceName, 
       devicePosition, inspectMethod, inspectCondition, inspectMeasureValue1, inspectMeasureValue2, inspectMeasureValue3, 
+      inspectMeasureValue4, inspectMeasureValue5, inspectMeasureValue6, inspectMeasureValue7,
       inspectMeasureValue, inspectMethod, inspectOilQty, inspectTime, inspectUserDesc, 
       inspectUserId, pointCode, pointName, qrCode, rfidCode, routeCode, inspectionRouteId, 
       routeName, standardCondition, standardMeasureLower, standardMeasureUpper, 
@@ -647,7 +665,18 @@ const selectPointsResults = function(inspectionDoId, cb, cbe) {
 };
 
 // 获取已修改路线
-const selectInspectionHistory = function(cb, cbe) {
+const selectInspectionHistory = function(columnArr, cb, cbe) {
+  let sqlStr = '';
+  columnArr.map((item) => {
+    sqlStr += `SUM(
+      CASE
+      WHEN inspectionpointdo.${item.columnObj.columnName} = ${item.value} THEN
+      1
+      ELSE
+      0
+      END
+      ) AS ${item.columnName},`
+  })
   const sql =
     `SELECT
     inspectiondo.id,
@@ -655,30 +684,7 @@ const selectInspectionHistory = function(cb, cbe) {
     inspectiondo.routeName,
     inspectiondo.workingHours,
     COUNT(*) AS allCount,
-    SUM(
-    CASE
-    WHEN inspectionpointdo.inspectCondition = 1 THEN
-    1
-    ELSE
-    0
-    END
-    ) AS normalCount,
-    SUM(
-    CASE
-    WHEN inspectionpointdo.inspectCondition = 2 THEN
-    1
-    ELSE
-    0
-    END
-    ) AS abNormalCount,
-    SUM(
-      CASE
-      WHEN inspectionpointdo.inspectCondition = 3 THEN
-      1
-      ELSE
-      0
-      END
-      ) AS shutDownCount,
+    ${sqlStr}
     (
     SELECT
     COUNT(*)
@@ -703,7 +709,7 @@ const selectInspectionHistory = function(cb, cbe) {
   WHERE inspectionpointdo.operatingstatus = 1 AND inspectionpointdo.uploadstatus = 0 AND inspectiondo.workingHours is not null
   GROUP BY
   inspectionpointdo.inspectionRouteId;`;
-
+      console.log(sql, 'sql')
   DB.selectSql(sql, (res) => {
     if (cb) cb(res);
   }, (e) => {
@@ -768,6 +774,10 @@ const selectInspectionUpData = function (cb, cbe) {
     inspectionpointdo.inspectMeasureValue1,
     inspectionpointdo.inspectMeasureValue2,
     inspectionpointdo.inspectMeasureValue3,
+    inspectionpointdo.inspectMeasureValue4,
+    inspectionpointdo.inspectMeasureValue5,
+    inspectionpointdo.inspectMeasureValue6,
+    inspectionpointdo.inspectMeasureValue7,
     inspectionpointdo.inspectMethod,
     inspectionpointdo.inspectOilQty,
     inspectionpointdo.inspectTime,

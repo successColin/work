@@ -77,7 +77,7 @@ export default {
   }
   .name {
     font-size: 32rpx;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family: $--font-family;
     color: #333333;
     flex: 1;
   }

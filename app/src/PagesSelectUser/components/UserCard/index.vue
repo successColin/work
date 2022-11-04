@@ -159,7 +159,7 @@ export default {
       margin-right: 10rpx;
       flex: 1;
       font-size: 32rpx;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-family: $--font-family;
       color: #333333;
       line-height: 40rpx;
       overflow: hidden;

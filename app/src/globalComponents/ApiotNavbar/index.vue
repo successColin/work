@@ -118,10 +118,9 @@ export default {
   left: 0;
   right: 0;
   top: 0;
-  font-family: PingFangSC-Medium, PingFang SC;
   color: #333333;
   font-size: 18px;
-  font-weight: 600;
+  @include fontBlob(500);
   background: #ffffff;
   z-index: 100;
 
@@ -166,7 +165,7 @@ export default {
       height: 21px;
       text-align: center;
       font-size: 36rpx;
-      font-weight: 600;
+      @include fontBlob(500);
     }
   }
   &__left {
@@ -186,7 +185,7 @@ export default {
   &__back {
     padding: 0 10rpx 0 30rpx;
     font-size: 30rpx;
-    font-weight: 600;
+    @include fontBlob(500);
   }
 }
 </style>

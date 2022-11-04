@@ -6,7 +6,7 @@
     }"
   >
     <!-- getRect()对组件根节点无效，因为写了.in(this)，故这里获取内层接点尺寸 -->
-    <view :id="id">
+    <view class="u-tabs-cotent" :id="id">
       <scroll-view
         scroll-x
         class="u-scroll-view"
@@ -32,6 +32,11 @@
           <view v-if="showBar" class="u-tab-bar" :style="[tabBarStyle]"></view>
         </view>
       </scroll-view>
+      <template>
+        <view class="u-tabs-slot">
+          <slot></slot>
+        </view>
+      </template>
     </view>
   </view>
 </template>
@@ -237,7 +242,11 @@ export default {
           width: this.$apiot.addUnit(this.itemWidth)
         };
         // 字体加粗
-        if (index === this.currentIndex && this.bold) style.fontWeight = '550';
+        if (index === this.currentIndex && this.bold) {
+          style.fontFamily =
+            'PingFangSC-Medium, OPPOSans-Medium, MiSans-Medium,DroidSansFallback, Roboto-Bold';
+          style.fontWeight = 600;
+        }
         if (index === this.currentIndex) {
           style.color = this.activeColor;
           // 给选中的tab item添加外部自定义的样式
@@ -339,6 +348,16 @@ $tabHeight: 44px;
 $barHeight: 3px;
 .u-tabs {
   box-shadow: inset 0 -1rpx 0 0 $line-color;
+}
+.u-tabs-cotent {
+  display: flex;
+  scroll-view {
+    flex: 1;
+  }
+}
+.u-tabs-slot {
+  height: $tabHeight;
+  line-height: $tabHeight;
 }
 view,
 scroll-view {

@@ -95,9 +95,9 @@
 </template>
 
 <script>
-import ListData from '@/globalComponents/ApiotMenu/RelationKnowledge/components/ListData';
-import MoreOper from '@/globalComponents/ApiotMenu/RelationKnowledge/components/MoreOper';
-import publicMixin from '@/globalComponents/ApiotMenu/RelationKnowledge/publicMixin';
+import ListData from '@/menuConfigure/components/MenuMain/RelationKnowledge/components/ListData';
+import MoreOper from '@/menuConfigure/components/MenuMain/RelationKnowledge/components/MoreOper';
+import publicMixin from '@/menuConfigure/components/MenuMain/RelationKnowledge/publicMixin';
 
 export default {
   mixins: [publicMixin],
