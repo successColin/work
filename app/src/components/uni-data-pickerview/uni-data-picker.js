@@ -494,6 +494,7 @@ export default {
 
       for (let i = 0; i < paths.length; i++) {
         var value = paths[i].value;
+        if (!value) break;
         var nodes = [];
 
         if (this.isLocaldata) {

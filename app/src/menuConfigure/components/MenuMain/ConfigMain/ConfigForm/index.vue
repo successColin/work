@@ -408,10 +408,8 @@ export default {
             curentData[key] = this.resolveFormula(true, el.formulaContent);
           } else if ([8, 9].indexOf(compType) !== -1) {
             if (defaultType === 1) {
-              console.log('我默认当前时间了');
               // 默认当前时间
               curentData[key] = this.$apiot.dateFormat('', compType === 9 ? '' : 'yyyy-MM-dd');
-              console.log(curentData[key]);
             } else curentData[key] = form[key].replace('T', ' ');
           } else curentData[key] = form[key];
         }

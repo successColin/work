@@ -14,6 +14,7 @@
     <u-sticky
       :customNavHeight="customBar"
       :disabled="htmlConfig.isSelectDataBox"
+      z-index="100"
     >
       <div>
         <apiot-tabs
