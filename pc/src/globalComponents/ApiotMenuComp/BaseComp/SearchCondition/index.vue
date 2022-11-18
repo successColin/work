@@ -158,7 +158,7 @@
         class="searchCondition__input"
         :selectArr="configData.searchCompArr"
         :selectValue.sync="selectValue"
-        v-model="keywords"
+        v-model.trim="keywords"
         :showPre="isSidebar ? true : isTree"
         @getList="getList"
         :placeholder="isConfig ? '' : configData.placeholder"
@@ -286,6 +286,7 @@ export default {
         this.listSearchRecords();
       }
       this.$bus.$on('clearSearch', this.clearSearch);
+      this.$bus.$on('changeShowType', this.changeSearchCompArr);
     }
   },
 
@@ -309,7 +310,7 @@ export default {
             form[comp.value] = [];
           }
           const curComp = this.getComp(comp.value);
-          if (curComp) {
+          if (curComp && curComp.canShow) {
             if (comp.panelObj && comp.panelObj.id) {
               curComp.panelObj = comp.panelObj;
             }
@@ -325,39 +326,42 @@ export default {
         const idsArr = [];
         this.configData.searchCompArr.forEach((comp) => {
           const curComp = this.getComp(comp.value);
-          if (curComp && !idsArr.includes(comp.value)) {
+          if (curComp && curComp.canShow && !idsArr.includes(comp.value)) {
             idsArr.push(comp.value);
             arr.push(comp);
           }
         });
         this.configData.searchCompArr = arr;
       } else {
-        const arr = [];
-        const idsArr = [];
-        this.featureArr.children.forEach((comp) => {
-          // console.log(comp.showTreeText, this.isTree);
-          if (
-            comp.compType &&
-            comp.dataSource.columnName !== 'id' &&
-            !idsArr.includes(comp.compId) &&
-            comp.canShow
-          ) {
-            // 树的进行显示的过滤
-            if (this.isTree) {
-              if (!comp.showTreeText) {
-                return;
-              }
-            }
-            idsArr.push(comp.compId);
-            arr.push({
-              name: comp.name,
-              value: comp.compId
-            });
-          }
-        });
-        this.configData.searchCompArr = arr;
+        this.changeSearchCompArr();
         // console.log(arr);
       }
+    },
+    changeSearchCompArr() {
+      const arr = [];
+      const idsArr = [];
+      this.featureArr.children.forEach((comp) => {
+        // console.log(comp.showTreeText, this.isTree);
+        if (
+          comp.compType &&
+          comp.dataSource.columnName !== 'id' &&
+          !idsArr.includes(comp.compId) &&
+          comp.canShow
+        ) {
+          // 树的进行显示的过滤
+          if (this.isTree) {
+            if (!comp.showTreeText) {
+              return;
+            }
+          }
+          idsArr.push(comp.compId);
+          arr.push({
+            name: comp.name,
+            value: comp.compId
+          });
+        }
+      });
+      this.configData.searchCompArr = arr;
     },
     // 找到对应的组件
     getComp(compId) {
@@ -375,7 +379,8 @@ export default {
         lambda: 'in',
         name: '',
         value: '',
-        compId: ''
+        compId: '',
+        userComp: 2
       };
       // 转化label
       comp = JSON.parse(JSON.stringify(comp));
@@ -399,6 +404,10 @@ export default {
         } else {
           comp.compType = 6;
         }
+      }
+      if (comp.compType === 28) {
+        comp.compType = 7;
+        column.userComp = 1;
       }
       // 一般处理赋值
       if (flag === 2) {
@@ -429,7 +438,7 @@ export default {
       }
 
       // lambda的处理
-      if (flag === 2) {
+      if (flag === 2 && column.userComp !== 1) {
         column.lambda = this.form[`${comp.compId}_lambda`];
         column.lambdaLable = this.form[`${comp.compId}_lambdaLabel`];
       }
@@ -707,9 +716,11 @@ export default {
       // 在最外层的数据上才销毁
       if (!this.getFatherPanel()) {
         this.$bus.$off('clearSearch', this.clearSearch);
+        this.$bus.$off('changeShowType', this.changeSearchCompArr);
       }
     } else {
       this.$bus.$off('clearSearch', this.clearSearch);
+      this.$bus.$off('changeShowType', this.changeSearchCompArr);
     }
   },
   watch: {

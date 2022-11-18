@@ -8,7 +8,7 @@
     :prop="configData.dataSource.columnName"
   >
     <template slot="header">
-      <span class="columnHeader__box" slot="label">
+      <span class="columnHeader__box">
         <span
           :class="[
             {
@@ -38,13 +38,19 @@
         :curData="scope.row"
         :getIdCompId="getIdCompId"
         :multiEntityArr="multiEntityArr"
+        v-if="
+          !(
+            areaData.lineEditable &&
+            showCell === `${scope.column.id}_${scope.row.unique}`
+          )
+        "
         v-on="$listeners"
         v-bind="$attrs"
       ></SelectBox>
       <div
         class="column__notEditable"
         :class="[{ hasMenu: showMenuColor }, { textDec: shouldOpenPanel }]"
-        @click="labelClick"
+        @click="labelClick(scope.row)"
         v-if="configData.labelShowStyle !== 2"
       >
         <div
@@ -77,10 +83,15 @@
             :class="`iconfont ${getDictInfo(item, 'icon').icon} m-r-2`"
             :style="`color:${getDictInfo(item, 'icon').color}`"
           ></i>
-          <span :style="getStyle">{{ getDictInfo(item, 'name') || item }}</span>
+          <span :style="getStyle">{{
+            getDictInfo(item, 'name') || (+item === 0 ? '' : item)
+          }}</span>
+          <span v-if="i !== getContentArr(scope.row).length - 1">{{
+            configData.enableCascade ? '/' : ','
+          }}</span>
         </span>
       </div>
-      <div class="column__notEditable" @click="labelClick" v-else>
+      <div class="column__notEditable" @click="labelClick(scope.row)" v-else>
         <el-tooltip
           :content="`${configData.name}:${scope.row[configData.compId]}`"
           placement="top"
@@ -142,7 +153,7 @@ export default {
               }
             });
             if (arr.length) {
-              return arr.join('/');
+              return arr;
             }
           }
         }
@@ -155,7 +166,10 @@ export default {
           // 数据单选框
           content = data[`${this.configData.compId}_`];
         }
-        if (this.configData.enableMultiColumn && content) {
+        if (
+          (this.configData.enableMultiColumn && content) ||
+          (this.configData.enableDict && content.toString().indexOf(',') !== -1)
+        ) {
           return content.split(',');
         }
         if (content !== '') {
@@ -206,7 +220,10 @@ export default {
       return obj;
     },
     getDictKey() {
-      return this.configData.dataSource.dictObj.dictKey;
+      if (this.configData.dataSource.dictObj) {
+        return this.configData.dataSource.dictObj.dictKey;
+      }
+      return '';
     },
     getDictArr() {
       let tempData = [];
@@ -403,7 +420,8 @@ export default {
       }
       return null;
     },
-    labelClick() {
+    labelClick(rowData) {
+      this.$bus.$emit('selectTableLine', this.grandFather.compId, rowData);
       const { relateType } = this.configData;
       if (!relateType || relateType === 1) {
         this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);

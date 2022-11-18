@@ -234,7 +234,7 @@ export const definedIconGroupID = [1, 2, 3];
 
 // 生成唯一值
 export function createUnique() {
-  const str = 'abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM0123456789';
+  const str = 'abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM';
   const { length } = str;
   const arr = [];
   const newArr = [];
@@ -242,7 +242,7 @@ export function createUnique() {
     const newIndex = Math.round(Math.random() * length);
     let char = str.charAt(newIndex);
     if (!char) {
-      char = Math.round(Math.random() * 10);
+      char = str.charAt(newIndex - 1);
     }
     arr.push(char);
   }
@@ -250,10 +250,6 @@ export function createUnique() {
     const newIndex = Math.round(Math.random() * 6);
     newArr.splice(newIndex, 0, item);
   });
-  // console.log(newArr.join(''));
-  // const unique = +new Date();
-  // const random = Math.floor(Math.random() * 100);
-  // return `${unique}${random}`;
   return newArr.join('');
 }
 

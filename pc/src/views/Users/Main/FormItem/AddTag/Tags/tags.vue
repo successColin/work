@@ -162,9 +162,9 @@ export default {
     async init() {
       this.loading = true;
       try {
-        const res = await getUsersState({ dictKeys: 'DICT-00373' });
-        this.rolesList = res['DICT-00373'] || [];
-        this.realList = res['DICT-00373'] || [];
+        const res = await getUsersState({ dictKeys: 'USER_LABEL_TAGS' });
+        this.rolesList = res.USER_LABEL_TAGS || [];
+        this.realList = res.USER_LABEL_TAGS || [];
         this.loading = false;
       } catch (e) {
         this.loading = false;

@@ -7,34 +7,21 @@
 -->
 <template>
   <section class="usersAll">
-    <user-card
-      v-for="(user, index) in users"
-      :key="index"
-      :value="user"
-    ></user-card>
+    <users-list ref="usersList"></users-list>
   </section>
 </template>
 
 <script>
-import UserCard from '../UserCard';
+import UsersList from '../UsersList';
 
 export default {
   name: 'usersAll',
 
-  inject: ['GetSelectUsers'],
-
   components: {
-    UserCard
+    UsersList
   },
 
-  props: {
-    users: {
-      type: Array,
-      default() {
-        return [];
-      }
-    }
-  },
+  props: {},
 
   data() {
     return {};
@@ -42,13 +29,23 @@ export default {
 
   computed: {},
 
-  methods: {},
+  methods: {
+    listenOp(params) {
+      const { type } = params;
+      if (type === 'onPullDownRefresh') this.$refs.usersList.loadUsersList();
+      else if (type === 'userSearch') this.$refs.usersList.getUserList();
+      else this.$refs.usersList.loadNextUsersList();
+    }
+  },
 
-  mounted() {},
+  mounted() {
+    this.$bus.$on('SelectUser_ALL', this.listenOp);
+  },
 
-  created() {}
+  created() {},
+
+  beforeDestroy() {
+    this.$bus.$off('SelectUser_ALL');
+  }
 };
 </script>
-
-<style lang='scss' scoped>
-</style>

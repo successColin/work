@@ -2,7 +2,7 @@
     "name" : "V10",
     "appid" : "__UNI__C408ADE",
     "description" : "",
-    "versionName" : "1.0.2.009",
+    "versionName" : "1.0.2.001",
     "versionCode" : 100,
     "transformPx" : false,
     "debug" : true,
@@ -31,7 +31,9 @@
             "Maps" : {},
             "VideoPlayer" : {},
             "OAuth" : {},
-            "Webview-x5" : {}
+            "Webview-x5" : {},
+            "Push" : {},
+            "Share" : {}
         },
         /* 模块配置 */
         "distribute" : {
@@ -50,6 +52,7 @@
                     "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
                     "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
                     "<uses-permission android:name=\"android.permission.NFC\"/>",
                     "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
@@ -91,15 +94,19 @@
                     }
                 },
                 "oauth" : {
-                    "univerify" : {}
+                    "univerify" : {},
+                    "apple" : {}
                 },
                 "share" : {
                     "weixin" : {
-                        "appid" : "",
+                        "appid" : "1111",
                         "UniversalLinks" : ""
                     }
                 },
-                "geolocation" : {}
+                "geolocation" : {},
+                "push" : {
+                    "unipush" : {}
+                }
             },
             "splashscreen" : {
                 "android" : {

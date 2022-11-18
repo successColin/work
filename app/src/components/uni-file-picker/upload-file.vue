@@ -18,31 +18,7 @@
             class="uni-file-picker__item--content"
             @click.stop="prviewImage(item, index)"
           >
-            <view class="files__image 1111">
-              <!-- #ifdef H5 -->
-              <!-- <video
-                v-if="fileType(item, ['.mp4', '.webm', '.ogg'])"
-                :src="item.url"
-                :controls="false"
-                :show-center-play-btn="false"
-                object-fit="cover"
-              ></video> -->
-              <!-- #endif -->
-              <!-- #ifdef APP-PLUS -->
-              <!-- <video
-                v-if="fileType(item, ['.mp4', '.webm', '.ogg'])"
-                :src="item.url"
-                :show-center-play-btn="false"
-                object-fit="cover"
-                :poster="item.url"
-              ></video> -->
-              <!-- #endif -->
-              <!-- <i
-                :class="[
-                  'appIcon',
-                  $apiot.preview.previewFile(item.name || item.url),
-                ]"
-              ></i> -->
+            <view class="files__image">
               <image
                 v-if="isImage(item.name || item.url)"
                 :src="$apiot.getComUrlByToken(item.url)"
@@ -157,10 +133,7 @@ export default {
     },
     // 是否需要加水印
     isWatermark() {
-      const { WATER_MASK } = this.$store.state.base.globalConfig;
-      const waterMask = WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') || {};
-      if (!waterMask.attributeValue) return false;
-      return waterMask.attributeValue === '1';
+      return this.$store.getters.getWatermark;
     },
     fileType() {
       return function (imag, typeArry) {
@@ -265,7 +238,7 @@ export default {
       const type = name.substring(name.lastIndexOf('.'), name.length).toLocaleLowerCase();
       return type;
     },
-    async prviewImage(img) {
+    async prviewImage(img, index) {
       const { name, url } = img;
       const suffix = this.$apiot.preview.getFileSuffix(url);
       const fileType = this.$apiot.preview.getFileType(suffix);
@@ -282,7 +255,8 @@ export default {
           isWatermark: this.isWatermark,
           fileParamUrl: 'url',
           fileParamName: 'name',
-          current: img
+          current: img,
+          currentIndex: index
         });
       }
     }

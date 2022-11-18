@@ -278,15 +278,15 @@ export function returnChartPosition(legendPosition) {
 // 判断url是否正确
 export function IsURL(str_url = '') {
   const strRegex = '^((https|http|ftp|rtsp|mms)?://)'
-      + '?(([0-9a-z_!~*\'().&=+$%-]+: )?[0-9a-z_!~*\'().&=+$%-]+@)?' // ftp的user@
-      + '(([0-9]{1,3}.){3}[0-9]{1,3}' // IP形式的URL- 199.194.52.184
-      + '|' // 允许IP和DOMAIN（域名）
-      + '([0-9a-z_!~*\'()-]+.)*' // 域名- www.
-      + '([0-9a-z][0-9a-z-]{0,61})?[0-9a-z].' // 二级域名
-      + '[a-z]{2,6})' // first level domain- .com or .museum
-      + '(:[0-9]{1,4})?' // 端口- :80
-      + '((/?)|' // a slash isn't required if there is no file name
-      + '(/[0-9a-zA-Z_!~*\'().;?:@&=+$,%#-]+)+/?)$';
+    + '?(([0-9a-z_!~*\'().&=+$%-]+: )?[0-9a-z_!~*\'().&=+$%-]+@)?' // ftp的user@
+    + '(([0-9]{1,3}.){3}[0-9]{1,3}' // IP形式的URL- 199.194.52.184
+    + '|' // 允许IP和DOMAIN（域名）
+    + '([0-9a-z_!~*\'()-]+.)*' // 域名- www.
+    + '([0-9a-z][0-9a-z-]{0,61})?[0-9a-z].' // 二级域名
+    + '[a-z]{2,6})' // first level domain- .com or .museum
+    + '(:[0-9]{1,4})?' // 端口- :80
+    + '((/?)|' // a slash isn't required if there is no file name
+    + '(/[0-9a-zA-Z_!~*\'().;?:@&=+$,%#-]+)+/?)$';
   const re = new RegExp(strRegex);
   return re.test(str_url);
 }
@@ -306,6 +306,7 @@ export function getXAxisByKey(arr = [], key) {
   });
   return axis;
 }
+
 /**
  * 验证是否匹配触发条件
  * @param {object} triggerObj 触发器详情
@@ -313,7 +314,11 @@ export function getXAxisByKey(arr = [], key) {
  * @param {string} matchVal 匹配值
  */
 export const validTriggerMatch = (triggerObj) => {
-  const { compare, realValue, targetValue } = triggerObj;
+  const {
+    compare,
+    realValue,
+    targetValue
+  } = triggerObj;
   // 如果字段和值都没有则不满足条件
   if (!realValue && !targetValue) return false;
   const NUMBER_COMPARE_TYPE = [2, 3, 4, 5]; // >、 <、>=、<=四种属于数值类型比较
@@ -339,12 +344,19 @@ export const validTriggerMatch = (triggerObj) => {
 };
 
 export const checkLevelDetials = (config, data) => {
-  const { list = [], status } = config;
+  const {
+    list = [],
+    status
+  } = config;
   const arr = [];
   const n = list.length;
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < n; i++) {
-    const { compare, field, value } = list[i];
+    const {
+      compare,
+      field,
+      value
+    } = list[i];
     const conditionObj = {
       compare,
       realValue: data[field] || '', // 列表中的真实数据
@@ -366,7 +378,10 @@ export const checkLevelDetials = (config, data) => {
 };
 
 export const checkDetials = (config, data) => {
-  const { list = [], status } = config;
+  const {
+    list = [],
+    status
+  } = config;
   const n = list.length;
   const arr = [];
   // eslint-disable-next-line no-plusplus
@@ -414,4 +429,129 @@ export const validConditions = (conDitionsArr = [], data, key) => {
     }
   }
   return color;
+};
+
+/**
+ * 获取水球图的配置
+ * @param config
+ * @param data
+ * @param echarts
+ */
+export const getLiquidfillOption = (params = {}) => {
+  const { config, data, echarts } = params;
+  const {
+    stylesObj: {
+      colorArr,
+      radius,
+      shape,
+      waveNum,
+      animationDuration,
+      waveLength,
+      amplitude,
+      waveAnimation,
+      outlineShow,
+      borderDistance,
+      borderColor,
+      borderWidth,
+      shadowColor, // 阴影颜色
+      shadowBlur, // 阴影距离
+      bgColor, // 内部背景颜色
+      bgBorderColor, // 内部背景边框颜色
+      bgBorderWidth, // 内部背景边框宽度
+      bgShadowColor, // 背景阴影颜色
+      bgShadowBlur, // 背景阴影距离
+      labelPosition, // 文字位置inside， left， right， top，bottom
+      labelFontSize, // 文字大小
+      labelFontWeight, // 文字
+      labelColor, // 文字颜色
+      labelShow // 是否显示文字
+    },
+    dataType,
+    dataConfig: { staticValue },
+    SqlDataConfig,
+  } = config;
+  let lastData = {};
+  const seriesData = [];
+  const cn = colorArr.length; // 颜色长度
+  if (Object.prototype.hasOwnProperty.call(params, 'data')) {
+    if (dataType === 1) {
+      lastData = JSON.parse(staticValue);
+    }
+    if (dataType === 2 || dataType === 3) {
+      lastData = data;
+    }
+  } else {
+    if (dataType === 1) {
+      lastData = JSON.parse(staticValue);
+    }
+    if (dataType === 3) {
+      const { SQLFilterResponse = '[]' } = SqlDataConfig;
+      lastData = JSON.parse(SQLFilterResponse);
+    }
+  }
+  const supplementaryColorArr = supplementaryColor(waveNum, cn);
+  const per1 = lastData.value || 0;
+  const colorList = [...colorArr, ...supplementaryColorArr];
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < waveNum; i++) {
+    seriesData.push(
+      {
+        value: per1,
+        itemStyle: {
+          normal: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+              offset: 0, // 0%时的颜色 从上往下看 最上面是0%
+              color: colorList[i].c1 || colorList[i].c2 || '#fff'
+            }, {
+              offset: 1, // 100%时的颜色 从上往下看 最上面是0%
+              color: colorList[i].c2 || colorList[i].c1 || '#fff'
+            }])
+          }
+        }
+      }
+    );
+  }
+  return {
+    series: [
+      {
+        type: 'liquidFill',
+        name: '',
+        radius: `${radius}%`,
+        shape,
+        waveLength,
+        amplitude,
+        waveAnimation,
+        direction: animationDuration,
+        data: seriesData,
+        outline: {
+          show: outlineShow,
+          borderDistance,
+          itemStyle: {
+            borderWidth,
+            borderColor,
+            shadowBlur,
+            shadowColor
+          }
+        },
+        backgroundStyle: {
+          color: bgColor,
+          borderColor: bgBorderColor,
+          borderWidth: bgBorderWidth,
+          shadowColor: bgShadowColor,
+          shadowBlur: bgShadowBlur
+        },
+        label: {
+          normal: {
+            formatter: () => `${(lastData.value || 0) * 100}%`,
+            show: labelShow,
+            // color: labelColor,
+            insideColor: labelColor,
+            fontSize: labelFontSize,
+            fontWeight: labelFontWeight,
+            position: labelPosition
+          }
+        }
+      }
+    ]
+  };
 };

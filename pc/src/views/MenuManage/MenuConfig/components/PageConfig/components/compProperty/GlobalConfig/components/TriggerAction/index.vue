@@ -31,7 +31,7 @@
             :selectArr="$store.state.dictManage.TRIGGER_EVENT"
             :selectValue.sync="triggerEvent"
             @getList="listDesignTriggers"
-            v-model="keyWord"
+            v-model.trim="keyWord"
           ></condition-input>
         </header>
         <section class="action__main">

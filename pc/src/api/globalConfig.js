@@ -89,3 +89,27 @@ export function updateImages(data) {
     },
   });
 }
+
+// 删除云存储服务验证
+export function deleteFileStorageVerify(data) {
+  return FetchData.request({
+    url: 'system/global/delFileStorageVerify',
+    data,
+    method: 'post',
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  });
+}
+
+// 删除云存储服务验证
+export function updateFileStorageServers(data) {
+  return FetchData.request({
+    url: 'system/global/updateFileStorageServers',
+    data,
+    method: 'post',
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  });
+}

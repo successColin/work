@@ -38,10 +38,17 @@
               })
             }}
           </apiot-button>
-          <search-input
+          <!-- <search-input
             @getList="searchDict"
             v-model="dictKeywords"
-          ></search-input>
+          ></search-input> -->
+          <conditionInput
+            @getList="searchDict"
+            v-model.trim="dictKeywords"
+            :selectArr="selectArr"
+            :selectValue.sync="selectValue"
+            class="m-l-10 m-t-6"
+          ></conditionInput>
         </header>
         <section class="dictionary__main dictionary__main--haspadding">
           <apiot-table
@@ -61,7 +68,7 @@
               :width="item.width"
               :type="item.type"
               :align="item.align"
-              :buttonArr="getButtonArr(item)"
+              :buttonArr="getButtonArr"
               :fixed="item.fixed"
               @deleteDict="deleteDict"
               @editDict="editDict"
@@ -102,7 +109,7 @@ const groupList = [
     color: '#A853F2',
     value: 1,
     id: 1,
-    name: '系统分组',
+    name: '系统分组'
   },
   {
     sno: 0,
@@ -111,7 +118,7 @@ const groupList = [
     color: '#34C7BE',
     value: 6,
     id: 6,
-    name: '系统动态分组',
+    name: '系统动态分组'
   },
   {
     sno: 1,
@@ -120,7 +127,7 @@ const groupList = [
     color: '#FAB71C',
     value: 2,
     id: 2,
-    name: '类型分组',
+    name: '类型分组'
   },
   {
     sno: 2,
@@ -129,7 +136,7 @@ const groupList = [
     color: '#EE5E5E',
     value: 3,
     id: 3,
-    name: '状态分组',
+    name: '状态分组'
   },
   {
     sno: 3,
@@ -138,7 +145,7 @@ const groupList = [
     color: '#5A80ED',
     value: 4,
     id: 4,
-    name: '优先级分组',
+    name: '优先级分组'
   },
   {
     sno: 4,
@@ -147,8 +154,8 @@ const groupList = [
     color: '#34C7BE',
     value: 5,
     id: 5,
-    name: '其他分组',
-  },
+    name: '其他分组'
+  }
 ];
 export default {
   name: 'dictionary',
@@ -202,7 +209,9 @@ export default {
           fixed: 'right',
           compName: 'OperateColumn'
         }
-      ]
+      ],
+      selectArr: [{ name: '本模块', value: 1 }],
+      selectValue: 1
     };
   },
 
@@ -212,27 +221,22 @@ export default {
     },
     getGropSide() {
       return this.$refs.sidebar;
-    },
-    // 系统分组，只有查看按钮，没有新增、编辑、删除按钮
-    getButtonArr() {
-      return function (column) {
-        if (column.compName === 'OperateColumn') {
-          if (this.dictGroupNodeSelected.curIndex === 0) {
-            return [{ name: 'common.look1', funcName: 'lookDict' }];
-          }
-          if (this.dictGroupNodeSelected.curIndex === 1) {
-            return [{ name: 'common.edit1', funcName: 'editDict' }];
-          }
-          return [
-            { name: 'common.edit1', funcName: 'editDict' },
-            { name: 'common.delete1', funcName: 'deleteDict' }
-          ];
-        }
-        return [];
-      };
     }
   },
   methods: {
+    // 系统分组，只有查看按钮，没有新增、编辑、删除按钮
+    getButtonArr(column) {
+      if (column.dictType === 1) {
+        return [{ name: 'common.look1', funcName: 'lookDict' }];
+      }
+      if (column.dictType === 6) {
+        return [{ name: 'common.edit1', funcName: 'editDict' }];
+      }
+      return [
+        { name: 'common.edit1', funcName: 'editDict' },
+        { name: 'common.delete1', funcName: 'deleteDict' }
+      ];
+    },
     // 新增字典项
     addDict() {
       this.$refs.dictDetail.initFormData({
@@ -300,7 +304,10 @@ export default {
     // 根据分组类型获取字典项列表
     async getDictListByType() {
       this.contentLoading = true;
-      const { value: dictType } = this.dictGroupNodeSelected.node;
+      let dictType = '';
+      if (+this.selectValue === 1) {
+        dictType = this.dictGroupNodeSelected.node.value;
+      }
       const { current, size, dictKeywords } = this;
       const dictResult = await listDictByType({
         dictType,
@@ -329,6 +336,7 @@ export default {
       this.dictGroupNodeSelected.node = node;
       this.current = 1;
       this.total = 0;
+      this.selectValue = 1;
       this.getDictListByType();
     },
     // 添加编辑字典项，成功需要属性列表

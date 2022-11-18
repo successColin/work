@@ -366,7 +366,7 @@ export default {
         });
       }
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     // 处理值去设置
@@ -408,6 +408,9 @@ export default {
         if ([3].includes(comp.compType)) {
           v = +v;
         }
+        if ([10].includes(comp.compType)) {
+          v = `${v}`;
+        }
       }
       if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
         v = this.resolveRes(v);
@@ -426,7 +429,7 @@ export default {
     getCurMenu(params) {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }

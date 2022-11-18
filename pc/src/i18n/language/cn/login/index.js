@@ -102,7 +102,7 @@ export default {
     informationProtectionInYourAubmissionIsAssured:
       '信息保护中，请放心您提交的基本信息',
     // 注册 申请忘记密码
-    welcomeToRegisterForAPIoT: '欢迎注册APIoT',
+    welcomeToRegisterForAPIoT: '欢迎注册',
     registered: '注册',
     applyForRegistration: '申请注册',
     perfectInformation: '完善信息',

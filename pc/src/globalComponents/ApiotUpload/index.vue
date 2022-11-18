@@ -13,7 +13,11 @@
         <div>上传背景图片</div>
       </div>
       <div slot="file" slot-scope="{ file }">
-        <img class="el-upload-list__item-thumbnail" :src="$parseImgUrl(file.url)" alt="" />
+        <img
+          class="el-upload-list__item-thumbnail"
+          :src="$parseImgUrl(file.url)"
+          alt=""
+        />
         <span class="el-upload-list__item-actions">
           <span
             class="el-upload-list__item-preview"
@@ -103,7 +107,7 @@ export default {
       const { file } = param;
       const formData = new FormData();
       formData.append('files', file);
-      const menuId = this.$route.params.id;
+      const menuId = this.$route.params.id || this.$route.query.menuId;
       formData.append('menuId', menuId);
       const res = await batchUpload(formData);
       console.log(res);

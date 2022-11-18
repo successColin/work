@@ -24,7 +24,10 @@
     <el-form-item
       :prop="`${configData.compId}`"
       v-else-if="!isTable"
-      :class="[{ onelineCalss__form: isQueryEle }]"
+      :class="[
+        { onelineCalss__form: isQueryEle },
+        { 'is-required': isConfig && configData.shouldRequired },
+      ]"
     >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
@@ -39,7 +42,7 @@
 
       <EvaluationShow
         :dividingType="configData.dividingType"
-        :showContent="configData.configData"
+        :showContent="configData.showContent"
         :maxScore="configData.maxScore"
         :curValue="parent.form[configData.compId]"
         @selectScore="selectScore"

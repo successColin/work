@@ -22,29 +22,24 @@
     <!-- ----------- -->
     <link rel="stylesheet" href="/static/css/reset.css" />
     <!-- v10 PC端 -->
-    <!-- 本地 -->
-    <!-- <link rel="stylesheet" href="/static/iconfont/iconfont.css" /> -->
-    <!-- 线上 -->
     <link
       rel="stylesheet"
-      href="//at.alicdn.com/t/c/font_2455147_gj5ro4oc4zj.css"
+      href="//at.alicdn.com/t/c/font_2455147_b7raxa17i39.css"
     />
-
     <!-- V10 PC端 图标管理 无色-->
     <link
       rel="stylesheet"
       href="//at.alicdn.com/t/c/font_3589589_lwag9mymt1.css"
     />
     <!-- V10 PC端 图标管理 彩色-->
-    <!-- <link
-      rel="stylesheet"
-      href="//at.alicdn.com/t/c/font_3582418_t24meq8vm3r.css"
-    /> -->
     <link
       rel="stylesheet"
       href="//at.alicdn.com/t/c/font_3589590_oiiwz06t3.css"
     />
-    <link rel="stylesheet" href="//at.alicdn.com/t/c/font_2455147_fd7cs6ew5w6.css">
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_3741784_1ymeu613j1hj.css"
+    />
   </head>
   <body>
     <noscript>
@@ -61,29 +56,42 @@
   <script src="/static/js/uni-webview.js" defer></script>
   <script type="text/javascript">
     var userAgent = navigator.userAgent;
-    // if (userAgent.indexOf('AlipayClient') > -1) {
     if (userAgent.indexOf('DingTalk') > -1) {
       // 支付宝小程序的 JS-SDK 防止 404 需要动态加载，如果不需要兼容支付宝小程序，则无需引用此 JS 文件。
-      document.writeln('<script src="/static/js/appx-web-view.js"' + '>' + '<' + '/' + 'script>');
+      document.writeln(
+        '<script src="https://appx/web-view.min.js"' +
+          '>' +
+          '<' +
+          '/' +
+          'script>',
+      );
     } else if (/QQ/i.test(userAgent) && /miniProgram/i.test(userAgent)) {
       // QQ 小程序
       document.write(
-        '<script type="text/javascript" src="https://qqq.gtimg.cn/miniprogram/webview_jssdk/qqjssdk-1.0.0.js"><\/script>'
+        '<script type="text/javascript" src="https://qqq.gtimg.cn/miniprogram/webview_jssdk/qqjssdk-1.0.0.js"><\/script>',
       );
-    } else if (/miniProgram/i.test(userAgent) && /micromessenger/i.test(userAgent)) {
+    } else if (
+      /miniProgram/i.test(userAgent) &&
+      /micromessenger/i.test(userAgent)
+    ) {
       // 微信小程序 JS-SDK 如果不需要兼容微信小程序，则无需引用此 JS 文件。
-      document.write('<script type="text/javascript" src="/static/js/jweixin.js"><\/script>');
+      document.write(
+        '<script type="text/javascript" src="/static/js/jweixin.js"><\/script>',
+      );
     } else if (/toutiaomicroapp/i.test(userAgent)) {
       // 头条小程序 JS-SDK 如果不需要兼容头条小程序，则无需引用此 JS 文件。
       document.write(
-        '<script type="text/javascript" src="https://s3.pstatp.com/toutiao/tmajssdk/jssdk-1.0.1.js"><\/script>');
+        '<script type="text/javascript" src="https://s3.pstatp.com/toutiao/tmajssdk/jssdk-1.0.1.js"><\/script>',
+      );
     } else if (/swan/i.test(userAgent)) {
       // 百度小程序 JS-SDK 如果不需要兼容百度小程序，则无需引用此 JS 文件。
       document.write(
-        '<script type="text/javascript" src="https://b.bdstatic.com/searchbox/icms/searchbox/js/swan-2.0.18.js"><\/script>'
+        '<script type="text/javascript" src="https://b.bdstatic.com/searchbox/icms/searchbox/js/swan-2.0.18.js"><\/script>',
       );
     } else {
-      document.writeln('<script src="/static/js/gdtjsapi.js"' + '>' + '<' + '/' + 'script>');
+      document.writeln(
+        '<script src="/static/js/gdtjsapi.js"' + '>' + '<' + '/' + 'script>',
+      );
     }
   </script>
 </html>

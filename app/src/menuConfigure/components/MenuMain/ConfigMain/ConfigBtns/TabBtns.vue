@@ -244,6 +244,7 @@ export default {
   methods: {
     // 选择人员后返回
     async sure(users) {
+      console.log('clickBtn==================');
       const { compId } = this.btnInfo;
       if (users.length === 0) return;
       if (compId === 'static_jiaqian') {
@@ -272,14 +273,19 @@ export default {
     processClick() {
       const { compId, name } = this.btnInfo;
       if (compId === 'static_jiaqian' || compId === 'static_zhuanshen') {
-        let isMultiple = 0;
-        if (compId === 'static_jiaqian') isMultiple = 1;
+        let isMultiple = false;
+        if (compId === 'static_jiaqian') isMultiple = true;
         if (!this.watchFlag) {
           this.watchFlag = `selectUser_${this._uid}`;
           this.$bus.$on(this.watchFlag, this.sure);
         }
+        const params = {
+          title: name,
+          flag: this.watchFlag,
+          isMultiple
+        };
         uni.navigateTo({
-          url: `/PagesSelectUser/index?flag=${this.watchFlag}&title=${name}&isMultiple=${isMultiple}`
+          url: `/PagesSelectUser/index?config=${JSON.stringify(params)}`
         });
         return;
       }

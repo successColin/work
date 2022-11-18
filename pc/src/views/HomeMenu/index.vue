@@ -80,6 +80,9 @@ const RealTime = () => import('./Components/RealTime/index');
 const HorizontalProgressBar = () => import('./Components/HorizontalProgressBar/index');
 const RadarChart = () => import('./Components/RadarChart/index');
 const Notice = () => import('./Components/Notice/index');
+const RoseChart = () => import('./Components/RoseChart/index');
+const Liquidfill = () => import('./Components/Liquidfill/index');
+const FunnelChart = () => import('./Components/FunnelChart/index');
 
 // const TabComponent = () => import('./Components/TabComponent/index');
 // const TimeFiltering = () => import('./Components/TimeFiltering/index');
@@ -131,6 +134,9 @@ export default {
   components: {
     // FullScreenBtn,
     // PopCloseButton,
+    FunnelChart,
+    Liquidfill,
+    RoseChart,
     HorizontalProgressBar,
     SingleLineTextHome,
     BackgroundBox,
@@ -362,9 +368,7 @@ export default {
 
     setDrawContent() {
       //  计算画布大小
-      console.log(111111);
       const dom = document.querySelector('.contentWrap');
-      console.log(dom, 'dom');
       if (!dom) return;
       const { width: availWidth, height: availHeight } = dom.getBoundingClientRect();
       const { showType, width: dWidth, height: dHeight } = this.bgConfig;

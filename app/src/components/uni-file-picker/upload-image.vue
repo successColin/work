@@ -155,10 +155,7 @@ export default {
     },
     // 是否需要加水印
     isWatermark() {
-      const { WATER_MASK } = this.$store.state.base.globalConfig;
-      const waterMask = WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') || {};
-      if (!waterMask.attributeValue) return false;
-      return waterMask.attributeValue === '1';
+      return this.$store.getters.getWatermark;
     },
     fileType() {
       return function (imag, typeArry) {
@@ -178,7 +175,6 @@ export default {
     },
     boxStyle() {
       const { width = 'auto', height = 'auto' } = this.styles;
-      console.log(width);
       const obj = {};
       if (height === 'auto') {
         if (width !== 'auto') {
@@ -244,7 +240,7 @@ export default {
     delFile(index) {
       this.$emit('delFile', index);
     },
-    async prviewImage(img) {
+    async prviewImage(img, index) {
       const { name, url } = img;
       const suffix = this.$apiot.preview.getFileSuffix(url);
       const fileType = this.$apiot.preview.getFileType(suffix);
@@ -261,7 +257,8 @@ export default {
           isWatermark: this.isWatermark,
           fileParamUrl: 'url',
           fileParamName: 'name',
-          current: img
+          current: img,
+          currentIndex: index
         });
       }
     },
@@ -286,14 +283,18 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.fileIconName {
+  width: 100%;
+  height: 100%;
+}
 .uni-file-picker__container {
   /* #ifndef APP-NVUE */
   display: flex;
   box-sizing: border-box;
   /* #endif */
   flex-wrap: wrap;
-  margin: -5px;
+  margin: -10rpx;
 }
 
 .file-picker__box {

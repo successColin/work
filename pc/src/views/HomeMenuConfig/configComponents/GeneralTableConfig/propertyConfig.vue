@@ -39,7 +39,7 @@
               <el-input-number
                   controls-position="right"
                   :max="50"
-                  :min="5"
+                  :min="1"
                   v-model="getComponentInfo.stylesObj.rows"
                   @change="(value) => changeStyles(Number(value), 'rows')"/>
             </div>

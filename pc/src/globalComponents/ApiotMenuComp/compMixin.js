@@ -71,6 +71,13 @@ export default {
       type: String,
       default: '',
     },
+    // 卡片区数据
+    cardData: {
+      type: Object,
+      default() {
+        return null;
+      },
+    },
   },
   inject: ['isConfig', 'resolveFormula', 'getFatherPanel'],
   data() {
@@ -278,11 +285,15 @@ export default {
       if (this.isConfig) {
         return true;
       }
+      // 如果当前页面是自定义页面，同时不是流程的界面，按钮都有权限
+      if (this.$route.name === 'homePage' && JSON.stringify(this.showType) === '{}' && this.configData.compName === 'FormButton') {
+        return true;
+      }
       if (
         this.configData.compName === 'FormButton' &&
         JSON.stringify(this.showType) === '{}'
       ) {
-        let menuId = this.$route.params.id;
+        let menuId = this.$route.params.id || this.$route.query.menuId;
         // 分享页面 分享面板
         if (+this.$route.params.flag === 2 && this.getFatherPanel()) {
           menuId = this.getFatherPanel().menuId;
@@ -295,9 +306,14 @@ export default {
           return false;
         }
       }
-      if (this.configData.canShow) {
+      if (this.isTableBtn) {
+        if (this.canShow) {
+          return true;
+        }
+      } else if (this.configData.canShow) {
         return true;
       }
+
       return false;
     },
     isQueryEle() {

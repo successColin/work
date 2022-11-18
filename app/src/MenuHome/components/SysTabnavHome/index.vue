@@ -26,7 +26,6 @@
       <apiot-notice :list="announceList" :config="configData.notice">
       </apiot-notice>
     </view>
-
     <view v-for="(item, index) in funcGroup" :key="`funcGroup_${index}`">
       <modemenu-four
         v-if="item.rowNum === 4 || item.rowNum === 5"
@@ -56,6 +55,46 @@
         :hornMarkNums="hornMarkNums"
         @clickMenu="clickMenu"
       ></modemenu-one>
+
+      <!-- 资讯 -->
+      <view class="tabnavHome__infor" v-else>
+        <view class="tabnavHome__infor--box">
+          <view class="tabnavHome__infor--title">
+            {{ item.name || '文章资讯' }}
+          </view>
+          <navigator
+            url="/MoreInfor/index"
+            hover-class="none"
+            class="tabnavHome__infor--more"
+          >
+            更多
+            <i class="appIcon appIcon-a-shujuxuanzejinru"></i>
+          </navigator>
+        </view>
+        <view v-for="(item, index) in articleArr" :key="index">
+          <navigator
+            :url="jumpUrl(item.id)"
+            hover-class="none"
+            class="tabnavHome__infor--more"
+          >
+            <!-- 风格一 -->
+            <info-Stylea
+              :valObj="item"
+              v-if="item.articleType === 1"
+            ></info-Stylea>
+            <!-- 风格二 -->
+            <info-Styleb
+              :valObj="item"
+              v-else-if="item.articleType === 2"
+            ></info-Styleb>
+            <!-- 风格三 -->
+            <info-Stylec
+              :valObj="item"
+              v-else-if="item.articleType === 3"
+            ></info-Stylec>
+          </navigator>
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -67,9 +106,22 @@ import ModemenuTwo from '../Menus/ModemenuTwo';
 import ModemenuThree from '../Menus/ModemenuThree';
 import ModemenuFour from '../Menus/ModemenuFour';
 import ModemenuOne from '../Menus/ModemenuOne';
+import InfoStylea from './components/InfoStylea';
+import InfoStyleb from './components/InfoStyleb';
+import InfoStylec from './components/InfoStylec';
+import { getListArticle } from '@/api/moreInfor';
+import { Encrypt } from '@/utils';
 
 export default {
-  components: { ModemenuFour, ModemenuThree, ModemenuTwo, ModemenuOne },
+  components: {
+    ModemenuFour,
+    ModemenuThree,
+    ModemenuTwo,
+    ModemenuOne,
+    InfoStylea,
+    InfoStyleb,
+    InfoStylec
+  },
 
   props: {
     // 是否为超级用户
@@ -135,7 +187,9 @@ export default {
   },
 
   data() {
-    return {};
+    return {
+      articleArr: []
+    };
   },
 
   computed: {
@@ -162,6 +216,16 @@ export default {
         }
       });
       return list;
+    },
+    // 行业资讯
+    industryInformation() {
+      const { info = {} } = this.configData;
+      return info;
+    },
+    jumpUrl() {
+      return function(id) {
+        return `/MoreInfor/components/InforDetails/index?id=${Encrypt(String(id))}`;
+      };
     }
   },
 
@@ -173,7 +237,25 @@ export default {
     }
   },
 
-  mounted() {},
+  watch: {
+    // 获取文章
+    async funcGroup(v) {
+      let obj = {};
+      v.forEach((item) => {
+        if (!item.rowNum && String(item.groupId)) {
+          obj = item;
+        }
+      });
+      if (JSON.stringify(obj) !== '{}') {
+        const res = await getListArticle({
+          count: obj.count,
+          groupId: obj.groupId === 0 ? '' : obj.groupId,
+          type: obj.term
+        });
+        this.articleArr = res;
+      }
+    }
+  },
 
   created() {
     this.$bus.$off('clickMenu');
@@ -186,9 +268,31 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+@import '../Menus/ModemenuTwo/index.scss';
+
+$--name: 'tabnavHome__infor';
+$--gridColumns: 4;
+$--gridSize: 1fr;
+$--gridRowGap: 18rpx;
+$--gridColumnGap: 18rpx;
+@include setMenuStyle(
+  $--name,
+  $--gridColumns,
+  $--gridSize,
+  $--gridRowGap,
+  $--gridColumnGap
+);
+
 .tabnavHome {
   &__swiper {
     margin-top: 26rpx;
+  }
+  &__infor {
+    &--box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 }
 </style>

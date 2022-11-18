@@ -2,7 +2,7 @@
  * @Author: sss
  * @Date: 2021-06-17 14:46:02
  * @Last Modified by: ytx
- * @Last Modified time: 2022-11-04 17:21:58
+ * @Last Modified time: 2022-11-15 16:27:27
  */
 import axios from 'axios';
 import axiosAdapterUniapp from 'axios-adapter-uniapp';
@@ -193,9 +193,6 @@ class FetchData {
         if (config.isNonstandard) {
           return res.data;
         }
-        if (res.data instanceof Blob) {
-          return res.data;
-        }
         if (codeNumber === '00000') {
           return res.data.data;
         }
@@ -208,7 +205,13 @@ class FetchData {
         console.error(`===================ERROR${error}`);
         let code = null;
         if (error && error.response) code = error.response.status;
-        if (code === 401) {
+
+        const pages = getCurrentPages();
+        const { route } = pages[0];
+        const openMenu = ['MoreInfor/components/InforDetails/index'];
+
+        if (code === 401 && !openMenu.includes(route)) {
+          console.log('进来');
           uni.reLaunch({
             url: '/pages/index/index',
           });

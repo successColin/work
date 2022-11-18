@@ -466,7 +466,10 @@
       </el-form-item>
       <el-form-item
         label=""
-        v-show="[8].includes(activeObj.buttonType) && isShowNeedField"
+        v-show="
+          [8].includes(activeObj.buttonType) &&
+          [1, 2].includes(activeObj.exportSetting)
+        "
       >
         <p class="switchBox">
           导出数据库表字段
@@ -539,7 +542,7 @@
         label="导出设置"
         v-show="[8].includes(activeObj.buttonType)"
       >
-        <el-radio-group v-model="activeObj.exportSetting" @change="handleRadio">
+        <el-radio-group v-model="activeObj.exportSetting">
           <el-radio
             :label="item.value"
             :key="item.value"
@@ -648,7 +651,6 @@ export default {
   },
   data() {
     return {
-      isShowNeedField: true,
       levelVisible: false,
       // 表字段
       filesOption: [],
@@ -974,7 +976,7 @@ export default {
       const arr = [];
       if (this.activeObj.isTabBtn) {
         this.relateObj.children.forEach((area) => {
-          if (area.areaType === 1) {
+          if (area.areaType === 1 && area.children) {
             area.children.forEach((child) => {
               child.children.forEach((comp) => {
                 if (comp.areaType === 1) {
@@ -986,7 +988,7 @@ export default {
         });
       } else {
         this.relateObj.children.forEach((area) => {
-          if (area.areaType === 1) {
+          if (area.areaType === 1 && area.children) {
             area.children.forEach((child) => {
               arr.push(child);
             });
@@ -1136,13 +1138,6 @@ export default {
   },
 
   methods: {
-    handleRadio(v) {
-      if (v === 3 || v === 4) {
-        this.isShowNeedField = false;
-      } else {
-        this.isShowNeedField = true;
-      }
-    },
     // 选择关联打印模板
     async selectDict(dict) {
       if (this.activeObj.printTemp && dict.id === this.activeObj.printTemp.id) {

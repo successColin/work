@@ -6,12 +6,12 @@
  * @Desc: 消息liebiao
 -->
 <template>
-  <div class="messageItem">
-    <div class="messageItem__left" :class="{isRead: message.hasRead}">
-      <i v-if="type === 'WORK_FLOW'" class="iconfont icon-gongzuoliucheng"></i>
-      <i v-if="type === 'SYSTEM'" class="iconfont icon-xiaoxitongzhi1"></i>
+  <div class="messageItem" :class="{isRead: message.hasRead}">
+    <div class="messageItem__left">
+      <i v-if="message.innerMailCategory === 2" class="iconfont icon-gongzuoliucheng"></i>
+      <i v-if="message.innerMailCategory === 3" class="iconfont icon-xiaoxitongzhi1"></i>
     </div>
-    <div class="messageItem__right" v-if="type === 'WORK_FLOW'">
+    <div class="messageItem__right" v-if="message.innerMailCategory === 2">
       <div>
         <span class="sponsor" v-if="item.sponsorName">
           <user-avatar :userItem="item.info"></user-avatar>
@@ -28,7 +28,7 @@
         <span>{{message.sendTime}}</span>
       </div>
     </div>
-    <div class="messageItem__right" v-if="type === 'SYSTEM'">
+    <div class="messageItem__right" v-if="message.innerMailCategory === 3">
       <div>
         <span>{{message.subject}}</span>
         <span v-if="message.jumpLink || message.skipMenuConfig"

@@ -26,7 +26,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[3, 5, 15]"
+      :btnTypesArr="[2, 3, 4, 5, 15]"
     ></BtnsArea>
     <section
       v-if="configData.children.length !== 0"
@@ -89,7 +89,7 @@
               :getBtnsArr="child"
               :getFeatureArr="getFeatureArr"
               :moreOperateArr="[]"
-              :btnTypesArr="[2, 3, 5, 15]"
+              :btnTypesArr="[2, 3, 4, 5, 15]"
               :isSidebar="isSidebar"
               :isMulTree="true"
             ></component> </transition-group
@@ -175,8 +175,8 @@
 </template>
 
 <script>
-import { throttle } from '@/utils/utils';
 import { listMultiTree, pageMultiTree, selectList } from '@/api/menuConfig';
+import { throttle } from '@/utils/utils';
 import initAreaMixin from '../initAreaMixin';
 import SingleTree from './SingleTree';
 
@@ -589,7 +589,7 @@ export default {
       }
       // console.log(obj);
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     makeFlowParams(params) {
@@ -620,7 +620,7 @@ export default {
     getCurMenu(params) {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }
@@ -680,6 +680,7 @@ export default {
           this.needSearch = false;
         }
         const searchObj = {};
+        console.log(searchInfo);
         searchInfo.columnsInfo.forEach((item) => {
           const arr = item.name.split('.');
           const alias = arr[0];
@@ -1042,6 +1043,10 @@ export default {
           node.loaded = false;
           node.isLeaf = false;
         }
+        const parentNode = this.$refs.tree.getTree().getNode(this.selectKey);
+        if (parentNode) {
+          parentNode.data.childCount += 1;
+        }
       } else {
         const { tableName, nameAlias } =
           this.configData.multiDataSource[form.dataType - 1].tableInfo;
@@ -1062,12 +1067,17 @@ export default {
     treeDelete() {
       const form = this.$refs.tree.getTree().getCurrentNode();
       const node = this.$refs.tree.getTree().getNode(this.selectKey);
+      const parentKey = `${node.parent.data[this.getIdCompId]}${node.parent.data.dataType}`;
       if (form && `${form[this.getIdCompId]}${form.dataType}` === this.selectKey) {
-        this.$refs.tree.getTree().setCurrentKey(node.parent.data[this.getIdCompId]);
+        this.$refs.tree.getTree().setCurrentKey(parentKey);
         const curForm = this.$refs.tree.getTree().getCurrentNode();
         this.selectItem(curForm);
       }
       this.$refs.tree.getTree().remove(node);
+      const parentNode = this.$refs.tree.getTree().getNode(parentKey);
+      if (parentNode) {
+        parentNode.data.childCount -= 1;
+      }
     }
   },
 

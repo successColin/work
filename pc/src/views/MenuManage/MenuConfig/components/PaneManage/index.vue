@@ -37,7 +37,7 @@
         <condition-input
           class="m-t-10"
           @getList="getColumnList"
-          v-model="keyWord"
+          v-model.trim="keyWord"
           :selectValue.sync="selectValue"
           :selectArr="$store.state.dictManage.PANEL_TYPE"
         ></condition-input>

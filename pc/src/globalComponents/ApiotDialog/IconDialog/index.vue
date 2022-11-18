@@ -130,15 +130,15 @@
     </el-tabs>
     <search-input
       @getList="getList"
-      v-model="keywords"
+      v-model.trim="keywords"
       class="icon__search"
     ></search-input>
   </apiot-dialog>
 </template>
 
 <script>
-import { selectColorArr } from '@/config';
 import { getIconList } from '@/api/iconManage';
+import { selectColorArr } from '@/config';
 
 import { iconSet } from './icon.json';
 

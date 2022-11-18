@@ -17,8 +17,8 @@
 </template>
 
 <script>
-import { getBlob, saveAs, Decrypt, Encrypt } from '@/utils/utils';
 import query from '@/api/query';
+import { Decrypt, Encrypt, getBlob, saveAs } from '@/utils/utils';
 
 export default {
   name: '',
@@ -44,6 +44,12 @@ export default {
   components: {},
   methods: {
     async sureClick() {
+      if (this.memo.length === 0 && this.columns.length === 0) {
+        return this.$message({
+          type: 'warning',
+          message: '请选择列名称'
+        });
+      }
       const {
         getAllFormObj,
         dictMap,
@@ -56,7 +62,8 @@ export default {
         getPanelObj,
         tableInfo,
         getAllForm,
-        configData
+        configData,
+        getFatherPanel
       } = this.paramsObj;
       let whereOptions = '';
       let filterTermType = '';
@@ -68,7 +75,7 @@ export default {
         filterTermStr = tableInfo.filterTermStr;
         filterTermSql = tableInfo.filterTermSql;
       } else {
-        const panelFilter = this.getFatherPanel() && this.getFatherPanel().panelFilter[0];
+        const panelFilter = getFatherPanel && getFatherPanel.panelFilter[0];
         if (panelFilter) {
           filterTermType = panelFilter.filterTermType;
           filterTermStr = panelFilter.filterTermStr;
@@ -117,14 +124,16 @@ export default {
         ','
       )}&columns=${encodeURI(this.columns.join(','))}&foreignJson=${encodeURI(
         JSON.stringify(collectionArr)
-      )}&memo=${this.memo.join(',')}&menuId=${this.$route.params.id}&userId=${
+      )}&memo=${this.memo.join(',')}&menuId=${
+        this.$route.params.id || this.$route.query.menuId
+      }&userId=${
         this.$store.state.userCenter.userInfo.id
       }&whereOptions=${whereOptions}&compMap=${encodeURI(JSON.stringify(getAllForm))}`;
       if (configData.enableLog) {
         const { userInfo } = this.$store.state.userCenter;
         const logContent = `${userInfo.username}(${userInfo.account})导出界面(${this.$route.query.title})数据,表名:${mainTable}`;
         url += `&logData.content=${Encrypt(logContent)}&logData.clientType=PC&logData.curMenuId=${
-          this.$route.params.id
+          this.$route.params.id || this.$route.query.menuId
         }`;
       }
       getBlob(
@@ -140,6 +149,7 @@ export default {
       );
     },
     handleSelectionChange(section) {
+      console.log(section);
       this.memo = [];
       this.columns = [];
       section.forEach((v) => {
@@ -154,6 +164,11 @@ export default {
         this.memo = [];
         this.columns = [];
         this.$refs.table.clearSelection();
+      } else {
+        this.$nextTick(() => {
+          this.$broadcast('changeHeight');
+          this.$refs.table.defaultSelection();
+        });
       }
     }
   }

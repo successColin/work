@@ -12,7 +12,7 @@ Vue.directive('forbid', {
     const targetEl = el.getElementsByTagName('input')[0];
     function special(e) {
       e.target.value = e.target.value.replace(
-        /[`#%^&<>?"{}|;·#￥%……&{}|《》？“”【】，。、；‘、]/g,
+        /[`#%^&<>?"{}|·#￥%……&{}|《》？“”【】‘]/g,
         '',
       );
       targetEl.dispatchEvent(new Event('input'));

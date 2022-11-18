@@ -30,10 +30,17 @@
           <!-- <apiot-button @click="testClick">
             <i class="iconfont icon-shanchu m-r-4"></i>测试按钮
           </apiot-button> -->
-          <search-input
+          <!-- <search-input
             @getList="getListSysEntityTables"
-            v-model="keyWord"
-          ></search-input>
+            v-model.trim="keyWord"
+          ></search-input> -->
+          <conditionInput
+            @getList="getListSysEntityTables"
+            v-model.trim="keyWord"
+            :selectArr="selectArr"
+            :selectValue.sync="selectValue"
+            class="m-l-10 m-t-6"
+          ></conditionInput>
         </header>
         <section class="entity__main">
           <apiot-table
@@ -146,7 +153,9 @@ export default {
       currentRowkey: '', // 当前行的key
       showTabs: false, // 是否展示字段，索引，管理弹窗
       groupId: 1, // 所属组的id
-      multiEntityArr: [] // 多选的arr
+      multiEntityArr: [], // 多选的arr
+      selectArr: [{ name: '本模块', value: 1 }],
+      selectValue: 1
     };
   },
 
@@ -299,14 +308,19 @@ export default {
       }
     },
     changeGroup(item) {
+      this.selectValue = 1;
       this.groupId = item.id;
       this.$refs.addEntity.initFormData({ groupId: this.groupId });
       this.getListSysEntityTables();
     },
     // 获取实体表列表
     async getListSysEntityTables() {
+      let groupId = '';
+      if (+this.selectValue === 1) {
+        groupId = this.groupId;
+      }
       const params = {
-        groupId: this.groupId,
+        groupId,
         keywords: this.keyWord
       };
       this.contentLoading = true;

@@ -21,10 +21,10 @@
         </apiot-button>
       </div>
       <div class="post-content__option__search">
-        <search-input @getList="search" v-model="keywords"></search-input>
+        <search-input @getList="search" v-model.trim="keywords"></search-input>
         <!-- <apiot-input
           :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="keywords"
+          v-model.trim="keywords"
           @change="search"
           @blur="isActive = false"
           @focus="isActive = true"

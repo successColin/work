@@ -204,7 +204,8 @@ class FetchData {
         if (
           config.url !== 'login' ||
           config.url !== 'zwdingtalkScanLogin' ||
-          config.url !== 'zwdingtalkLogin'
+          config.url !== 'zwdingtalkLogin' ||
+          config.url !== 'exchangeTokenLogin'
         ) {
           const { hasOwnProperty } = Object.prototype;
           if (
@@ -216,10 +217,17 @@ class FetchData {
             config.headers.token = Decrypt(localStorage.getItem('token') || '');
           }
         }
+
         if (localStorage.apiotLanguage) {
           const language = localStorage.apiotLanguage.split('');
           language.splice(2, 0, '-');
           config.headers['Accept-Language'] = language.join('');
+        }
+        // 有菜单id加入头里面
+        const menuId =
+          window.vue.$route.params.id || window.vue.$route.query.menuId;
+        if (menuId) {
+          config.headers.menuId = menuId;
         }
         return config;
       },
@@ -231,7 +239,8 @@ class FetchData {
         if (
           res.config.url === 'login' ||
           res.config.url === 'zwdingtalkScanLogin' ||
-          res.config.url === 'zwdingtalkLogin'
+          res.config.url === 'zwdingtalkLogin' ||
+          res.config.url === 'exchangeTokenLogin'
         ) {
           const token = res.headers.token || '';
           localStorage.setItem('token', Encrypt(token));

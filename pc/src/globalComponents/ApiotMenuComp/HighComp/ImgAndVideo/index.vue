@@ -263,8 +263,8 @@
 
 <script>
 import axios from 'axios';
-import { batchUpload, getFileList } from '@/api/menuConfig';
 import { downloadSingle } from '@/api/knowledge';
+import { batchUpload, getFileList } from '@/api/menuConfig';
 import { saveAs } from '@/utils/utils';
 import compMixin from '../../compMixin';
 import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
@@ -319,7 +319,8 @@ export default {
     isVedio() {
       return (name) => {
         if (name) {
-          const ext = name.split('.')[1];
+          const arr = name.split('.');
+          const ext = arr[arr.length - 1];
           // const imageFile= ['png', 'jpg', 'jpeg', 'gif'],
           const vedio = ['mp4', 'avi', 'mov'];
           if (vedio.includes(ext.toLowerCase())) {
@@ -340,6 +341,7 @@ export default {
   },
   mounted() {
     this.unwatch = this.$watch(`parent.form.${this.configData.compId}`, (v) => {
+      console.log(v);
       if (v && this.flag) {
         this.getFileList();
       }
@@ -351,7 +353,9 @@ export default {
 
   methods: {
     getCurIconName(name) {
-      const ext = name.split('.')[1];
+      const arr = name.split('.');
+      const ext = arr[arr.length - 1];
+      console.log(ext);
       const obj = {
         XLS: ['xls', 'xlsx'],
         zipFile: ['zip', 'rar'],
@@ -464,9 +468,11 @@ export default {
 
       const formData = new FormData();
       formData.append('files', file);
-      console.log(this.showType.menuId);
       // eslint-disable-next-line max-len
-      const menuId = this.showType && this.showType.type === 'flow' ? 0 : this.$route.params.id;
+      const menuId =
+        this.showType && this.showType.type === 'flow'
+          ? 0
+          : this.$route.params.id || this.$route.query.menuId;
       formData.append('menuId', menuId);
       const res = await batchUpload(
         formData,
@@ -576,6 +582,7 @@ export default {
     }
   },
   beforeDestroy() {
+    console.log(1111);
     if (this.unwatch) {
       this.unwatch();
     }

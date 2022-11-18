@@ -46,7 +46,7 @@
         {{ $t('login.scanCodeLogin') }}
       </div>
     </section>
-    <sign-up :isScan="true" :configs="configs"></sign-up>
+    <sign-up :configs="configs"></sign-up>
   </div>
 </template>
 

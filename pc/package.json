@@ -48,6 +48,7 @@
     "crypto-js": "^4.0.0",
     "dom7": "^4.0.4",
     "echarts": "5.1.2",
+    "echarts-liquidfill": "^3.1.0",
     "element-ui": "^2.15.7",
     "gdt-jsapi": "^1.9.35",
     "hot-formula-parser": "^4.0.0",

@@ -790,12 +790,10 @@ export default {
   computed: {
     getComponentInfo() { // 获取控件详情信息
       const { componentId } = this.activeComponent;
-      console.log(this.list, componentId);
       if (!componentId) {
         return {};
       }
       const Obj = this.list.find((item) => item.componentId === componentId) || {};
-      console.log(Obj);
       return Obj;
     },
     getList() {

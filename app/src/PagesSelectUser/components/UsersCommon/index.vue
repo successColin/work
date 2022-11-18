@@ -3,30 +3,28 @@
  * @Date: 2022-06-10 11:32:21
  * @Last Modified by: sss
  * @Last Modified time: 2022-06-10 11:32:21
- * @Desc: 所有用户
+ * @Desc: 常用用户
 -->
 <template>
-  <section class="usersAll">
-    <user-card
-      v-for="(user, index) in users"
-      :key="index"
-      :value="user"
-    ></user-card>
+  <section class="usersCommon">
+    <users-list mode="data" :list="users"></users-list>
   </section>
 </template>
 
 <script>
-import UserCard from '../UserCard';
+import UsersList from '../UsersList';
 
 export default {
-  name: 'usersAll',
+  name: 'usersCommon',
+
+  inject: ['GetGlobalParam'],
 
   components: {
-    UserCard
+    UsersList
   },
 
   props: {
-    users: {
+    list: {
       type: Array,
       default() {
         return [];
@@ -35,18 +33,42 @@ export default {
   },
 
   data() {
-    return {};
+    return {
+      users: []
+    };
   },
 
   computed: {},
 
-  methods: {},
+  watch: {
+    list: {
+      handler(V) {
+        this.doSearch();
+      },
+      immediate: true
+    }
+  },
+
+  methods: {
+    doSearch() {
+      const globalParam = this.GetGlobalParam();
+      const { keywords } = globalParam;
+      if (!keywords) this.users = this.list;
+      else {
+        this.users = this.list.filter((user) => {
+          const { username = '', telephone = '', email = '' } = user;
+          return (
+            username.indexOf(keywords) !== -1 ||
+            `${telephone}`.indexOf(keywords) !== -1 ||
+            email.indexOf(keywords) !== -1
+          );
+        });
+      }
+    }
+  },
 
   mounted() {},
 
   created() {}
 };
 </script>
-
-<style lang='scss' scoped>
-</style>

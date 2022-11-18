@@ -9,7 +9,10 @@
     ]"
     v-if="showInput"
   >
-    <el-form-item :prop="`${configData.compId}`">
+    <el-form-item
+      :prop="`${configData.compId}`"
+      :class="[{ 'is-required': isConfig && configData.shouldRequired }]"
+    >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
         <el-tooltip
@@ -146,7 +149,7 @@ export default {
             customUpload: async (file, insertFn) => {
               const formData = new FormData();
               formData.append('files', file);
-              formData.append('menuId', this.$route.params.id);
+              formData.append('menuId', this.$route.params.id || this.$route.query.menuId);
               const res = await batchUpload(formData);
               res.forEach(async (item) => {
                 const url = `/api/v1//system/waterMark/addWaterMark?url=${item.url}`;
@@ -159,7 +162,7 @@ export default {
             customUpload: async (file, insertFn) => {
               const formData = new FormData();
               formData.append('files', file);
-              formData.append('menuId', this.$route.params.id);
+              formData.append('menuId', this.$route.params.id || this.$route.query.menuId);
               const res = await batchUpload(formData);
               res.forEach((item) => {
                 insertFn(this.$parseImgUrl(item.url), item.name, this.$parseImgUrl(item.url));

@@ -9,15 +9,14 @@
   <u-transition mode="fade" :show="show" :duration="300">
     <view class="transition">
       <view class="listCard" @click.stop="clickCard">
-        <view v-if="hasCardIcon" class="listCard__left">
-          <label-icon
-            v-if="getCardIcon && getCardIcon.icon"
-            :name="getCardIcon.icon"
-            :color="getCardIcon.color"
-            customPrefix="iconfont"
-            :size="31"
-          ></label-icon>
-        </view>
+        <template v-if="hasCardIcon">
+          <list-item-imgs
+            :imgType="carConfig.cardType"
+            :source="CarIconSource"
+            :iconValue="CarIconValue"
+            :imgHeight="carConfig.heightMul"
+          ></list-item-imgs>
+        </template>
         <view class="listCard__right">
           <view
             v-for="(el, index) in elementsShow"
@@ -39,6 +38,11 @@
               :element="el"
               :value="value[el.compId]"
             ></list-item-progress-bar>
+            <list-item-user
+              v-else-if="el.compType === 28"
+              :element="el"
+              :value="value[el.compId]"
+            ></list-item-user>
           </view>
         </view>
         <i
@@ -60,14 +64,21 @@
 </template>
 
 <script>
-import LabelIcon from '../../../LabelIcon';
 import CardBtn from '../CardBtn';
 import ListItemLabel from './ListItem/ListItemLabel';
+import ListItemUser from './ListItem/ListItemUser';
+import ListItemImgs from './ListItem/ListItemImgs';
 import ListItemProgressBar from './ListItem/ListItemProgressBar';
 
 export default {
   inject: ['selectDataConfig', 'getTriggers', 'initCardStart'],
-  components: { LabelIcon, CardBtn, ListItemLabel, ListItemProgressBar },
+  components: {
+    CardBtn,
+    ListItemLabel,
+    ListItemUser,
+    ListItemImgs,
+    ListItemProgressBar
+  },
 
   props: {
     // 值
@@ -113,10 +124,12 @@ export default {
       type: Boolean,
       default: true
     },
-    // 是否启用卡片图标
-    hasCardIcon: {
-      type: Boolean,
-      default: false
+    // 卡片配置
+    carConfig: {
+      type: Object,
+      default() {
+        return {};
+      }
     },
     // 图标来源控件id
     icon: {
@@ -286,6 +299,40 @@ export default {
       }
       return false;
     },
+    // 是否开启图片区
+    hasCardIcon() {
+      return this.carConfig.hasCardIcon;
+    },
+    // 图片来源 1=来源字典；2=来源字段
+    CarIconSource() {
+      return this.carConfig.iconFrom || 2;
+    },
+    // 图标值
+    CarIconValue() {
+      const { hasCardIcon } = this;
+      if (!hasCardIcon) return;
+      const { carConfig, CarIconSource, elements, value } = this;
+      const iconCompId = carConfig.iconId;
+      const colorCompId = carConfig.iconColorId || iconCompId; // 如果没有颜色控件，默认取图标控件
+
+      if (CarIconSource === 1 && !iconCompId) return;
+      // 如果取字段
+      if (CarIconSource === 1) {
+        const iconEl = elements.find((el) => el.compId === iconCompId) || '';
+        const colorEl = elements.find((el) => el.compId === colorCompId) || '';
+        if (iconEl) {
+          const { dictKey: iconDictKey } = iconEl.dataSource.dictObj;
+          const { dictKey: colorDictKey } = colorEl.dataSource.dictObj;
+          const iconValue = value[iconEl.compId] || '';
+          const colorValue = value[colorEl.compId] || '';
+          return { iconDictKey, colorDictKey, iconValue, colorValue };
+        }
+      }
+      // 取字段
+      const { iconColumn } = carConfig;
+      const { compId } = iconColumn;
+      return value[compId] || '';
+    },
     getCardIcon() {
       if (this.showSkeleton) return;
       const { hasCardIcon, icon = {}, elements, value } = this;
@@ -323,7 +370,6 @@ export default {
       // 获取触发器
       const { elementTrigers, value, functionArea, elementsObj } = this;
       const { compId: formId } = functionArea;
-      // const triggerMap = this.getTriggers();
       const { initTrigger } = elementTrigers;
       const { valueChangeTrigger } = elementTrigers;
       const triggers = { ...initTrigger, ...valueChangeTrigger };
@@ -385,11 +431,8 @@ export default {
 }
 .listCard {
   position: relative;
-  // background: #ffffff;
-
   padding: 30rpx 20rpx;
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
 
   &__checkbox {
@@ -398,6 +441,8 @@ export default {
     right: 0;
     padding: 30rpx;
     font-size: 16px;
+    border-radius: 12rpx;
+    background-color: #fff;
     &.nochecked {
       &::after {
         content: '';

@@ -16,7 +16,10 @@
           $t('common.delete', { name: $t('passwordValid.userPasswordValid') })
         }}
       </apiot-button>
-      <search-input @getList="getColumnList" v-model="keyWord"></search-input>
+      <search-input
+        @getList="getColumnList"
+        v-model.trim="keyWord"
+      ></search-input>
     </header>
     <section class="field__main">
       <apiot-table
@@ -72,7 +75,7 @@
 </template>
 
 <script>
-import { listSysUserValid, deleteSysUserValid } from '@/api/passwordValid.js';
+import { deleteSysUserValid, listSysUserValid } from '@/api/passwordValid.js';
 import bus from '@/utils/bus';
 import AddPasswordValid from './AddPasswordValid';
 

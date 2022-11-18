@@ -18,14 +18,14 @@
   >
     <header>
       <!-- <search-input
-        v-model="keywords"
+        v-model.trim="keywords"
         class="historyPassword__search"
         @getList="getList"
       ></search-input> -->
       <div class="historyPassword__search">
         <el-date-picker
           align="right"
-          v-model="keywords"
+          v-model.trim="keywords"
           type="date"
           :placeholder="$t('common.selectDate')"
           value-format="yyyy-MM-dd"

@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2022-08-04 10:47:00
+ * @Last Modified time: 2022-10-17 10:02:33
  */
 export default {
   globalConfig: {
@@ -97,5 +97,8 @@ export default {
     waterMaskFont: 'Water Mask Font',
     waterMaskColor: 'Water Mask Color',
     waterMaskTransparency: 'Water Mask Transparency',
+    welcomeLoginName: 'Welcome Login Name',
+    isEnableAppDownload: 'Enable App Download',
+    accountLoginMode: 'Account Login Mode',
   },
 };

@@ -6,7 +6,7 @@ const ERR_MSG_FAIL = 'chooseAndUploadFile:fail';
 function chooseImage(opts) {
   const {
     count,
-    sizeType = ['original', 'compressed'],
+    sizeType = ['compressed'],
     sourceType = ['album', 'camera'],
     extension,
   } = opts;

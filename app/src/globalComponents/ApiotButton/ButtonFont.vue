@@ -6,9 +6,17 @@
  * @Desc: 字体图标
 -->
 <template>
-  <section class="apiotButtonFont" v-if="iconName" @click.stop="clickBtn">
+  <section class="apiotButtonFont" @click.stop="clickBtn">
     <span class="apiotButtonFont__icon" :class="fontClass">
-      <i :class="[suffixName, icon]"></i>
+      <template v-if="iconName">
+        <i
+          :class="[suffixName, icon]"
+          :style="[{ fontSize: `${size}rpx` }]"
+        ></i>
+      </template>
+      <template v-else>
+        <slot></slot>
+      </template>
     </span>
   </section>
 </template>
@@ -31,6 +39,10 @@ export default {
     isTheme: {
       type: Boolean,
       default: false
+    },
+    size: {
+      type: Number,
+      default: 44
     }
   },
 
@@ -68,11 +80,8 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.apiotButtonFont {
-  &__icon {
-    i {
-      font-size: 44rpx;
-    }
-  }
+.apiotButtonFont__icon {
+  display: flex;
+  align-items: center;
 }
 </style>

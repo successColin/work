@@ -25,6 +25,7 @@
       <slot></slot>
     </section>
     <section class="drawer__footer" v-if="hasFooter">
+      <slot name="otherBtn"></slot>
       <apiot-button @click="cancleClick"
         >{{ $t('common.cancle') }}
       </apiot-button>

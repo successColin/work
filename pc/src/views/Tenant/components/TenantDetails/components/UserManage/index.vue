@@ -128,6 +128,7 @@ export default {
     init() {
       this.$store.dispatch('getCurrentDict', 'TENANT_USER_STATE,TENANT_USER_TYPE');
       this.getUserList();
+      this.$broadcast('changeHeight');
     },
     async getUserList() {
       this.params.tenantId = (this.lineData && this.lineData.id) || '';

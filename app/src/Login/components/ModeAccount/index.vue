@@ -112,13 +112,6 @@ export default {
     },
     globalLogin() {
       return this.$store.state.base.globalLogin;
-    },
-    // 是否需要加水印
-    isWatermark() {
-      const { WATER_MASK } = this.$store.state.base.globalConfig;
-      const waterMask = WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') || {};
-      if (!waterMask.attributeValue) return false;
-      return waterMask.attributeValue === '1';
     }
   },
 

@@ -44,9 +44,9 @@ export default {
     async initUrl() {
       const panelObj = JSON.parse(JSON.stringify(this.panelObj));
       delete panelObj.pageConfig;
-      const shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/sharePage/2/${
-        this.panelObj.id
-      }?panelObj=${JSON.stringify(panelObj)}`;
+      const shareUrl = `${
+        this.$store.state.globalConfig.ureportConfig.shareUrl
+      }/sharePage/2?panelObj=${JSON.stringify(panelObj)}&menuId=${this.panelObj.id}`;
       const data = await shortLink({
         originalUrl: encodeURI(shareUrl)
       });

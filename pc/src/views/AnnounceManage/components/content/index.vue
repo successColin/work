@@ -21,7 +21,7 @@
         </apiot-button>
       </div>
       <div class="announce-content__option__search">
-        <search-input @getList="search" v-model="keywords"></search-input>
+        <search-input @getList="search" v-model.trim="keywords"></search-input>
       </div>
     </div>
 
@@ -34,13 +34,15 @@
         @selection-change="selectTable"
         ref="announceTable"
       >
-        <el-table-column
-          prop="title"
-          :label="$t('announce.announcementTitle')"
-        >
+        <el-table-column prop="title" :label="$t('announce.announcementTitle')">
           <template slot-scope="scope">
-            <el-tooltip class="item" effect="dark" :content="scope.row.title" placement="top">
-              <div class="txt">{{scope.row.title}}</div>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="scope.row.title"
+              placement="top"
+            >
+              <div class="txt">{{ scope.row.title }}</div>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -59,8 +61,7 @@
             ></apiot-switch>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('announce.issuer')"
-          :width="150">
+        <el-table-column :label="$t('announce.issuer')" :width="150">
           <template slot-scope="scope">
             <user-avatar :userItem="scope.row.userInfo"></user-avatar>
           </template>
@@ -71,7 +72,9 @@
           :width="100"
         >
           <template slot-scope="scope">
-            <span>{{scope.row.startTime ? scope.row.startTime.substring(0, 10) : ''}}</span>
+            <span>{{
+              scope.row.startTime ? scope.row.startTime.substring(0, 10) : ''
+            }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -80,38 +83,49 @@
           :width="100"
         >
           <template slot-scope="scope">
-            <span>{{scope.row.endTime ? scope.row.endTime.substring(0, 10) : ''}}</span>
+            <span>{{
+              scope.row.endTime ? scope.row.endTime.substring(0, 10) : ''
+            }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="txt"
-          :label="$t('importTemplate.content')"
-        >
+        <el-table-column prop="txt" :label="$t('importTemplate.content')">
           <template slot-scope="scope">
-            <el-tooltip class="item" effect="dark" :content="scope.row.txt" placement="top">
-              <div class="txt">{{scope.row.txt}}</div>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="scope.row.txt"
+              placement="top"
+            >
+              <div class="txt">{{ scope.row.txt }}</div>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="memo"
-          :label="$t('importTemplate.remark')"
-        >
+        <el-table-column prop="memo" :label="$t('importTemplate.remark')">
           <template slot-scope="scope">
-            <el-tooltip class="item" effect="dark" :content="scope.row.memo" placement="top">
-              <div class="txt">{{scope.row.memo}}</div>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="scope.row.memo"
+              placement="top"
+            >
+              <div class="txt">{{ scope.row.memo }}</div>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('common.operate')"
-          :width="160"
-        >
+        <el-table-column :label="$t('common.operate')" :width="160">
           <template slot-scope="scope">
-            <span class="edit" @click="openDrawer(scope.row, 'edit')" @click.stop>
+            <span
+              class="edit"
+              @click="openDrawer(scope.row, 'edit')"
+              @click.stop
+            >
               {{ $t('common.edit', { name: '' }) }}
             </span>
-            <span class="edit" @click="openAccessRecords(scope.row)" @click.stop>
+            <span
+              class="edit"
+              @click="openAccessRecords(scope.row)"
+              @click.stop
+            >
               {{ $t('announce.accessRecords') }}
             </span>
           </template>
@@ -154,14 +168,15 @@
     <access-records
       v-if="accessVisible"
       :visible.sync="accessVisible"
-      :currentTableObj.sync="editData"></access-records>
+      :currentTableObj.sync="editData"
+    ></access-records>
   </div>
 </template>
 <script>
-import { deleteAnnounce, modifyAnnounce, getAnnounceList } from '@/api/announceManage.js';
+import { deleteAnnounce, getAnnounceList, modifyAnnounce } from '@/api/announceManage.js';
 import userAvatar from '@/views/orgManage/components/userAvatar/index';
-import EditDrawer from '../EditDrawer/index';
 import accessRecords from '../accessRecords/index';
+import EditDrawer from '../EditDrawer/index';
 
 export default {
   name: 'announceManage',
@@ -208,7 +223,7 @@ export default {
           this.getListData();
         }
       }
-    },
+    }
   },
 
   mounted() {
@@ -231,7 +246,7 @@ export default {
         groupId: this.group.id,
         current: this.current,
         size: this.size,
-        searchKey: this.keywords,
+        searchKey: this.keywords
       };
       const res = await getAnnounceList(param);
       this.tableData = res.records.map((item, index) => {
@@ -241,7 +256,7 @@ export default {
             username: item.userName,
             image: item.imageUrl,
             id: index + 1
-          },
+          }
         };
         const leaderIds = item.childIds ? item.childIds.split(',') : [];
         const leaderNames = item.childNames ? item.childNames.split(',') : [];

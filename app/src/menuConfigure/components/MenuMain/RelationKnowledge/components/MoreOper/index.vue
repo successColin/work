@@ -17,8 +17,6 @@
 </template>
 
 <script>
-import { PREVIEW_DOWNLOAD_FILE } from '@/utils/preview.js';
-
 export default {
   props: {
     isShowMoreOper: {
@@ -50,7 +48,12 @@ export default {
     }
   },
   components: {},
-  computed: {},
+  computed: {
+    // 是否需要加水印
+    isWatermark() {
+      return this.$store.getters.getWatermark;
+    }
+  },
   methods: {
     handleClose() {
       this.$emit('update:isShowMoreOper', false);
@@ -65,10 +68,10 @@ export default {
       uni.showModal({
         title: '提示',
         content: '是否下载',
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
-            const { id, name, url } = this.currentObj;
-            PREVIEW_DOWNLOAD_FILE({ id, name, url }, this);
+            const file = this.currentObj;
+            this.$apiot.preview.fileDownLoad({ file, isWatermark: this.isWatermark });
           }
         }
       });

@@ -79,11 +79,11 @@ export default {
       // const { box } = this.$refs;
 
       // 鼠标按下事件
-      resize.onmousedown = function(event) {
+      resize.onmousedown = function (event) {
         const startX = event.clientX;
         resize.left = resize.offsetLeft;
         // 鼠标拖动事件
-        document.onmousemove = function(e) {
+        document.onmousemove = function (e) {
           const endX = e.clientX;
           // （endx-startx）=移动的距离。resize[i].left+移动的距离=左边区域最后的宽度
           let moveLen = resize.left + (endX - startX);
@@ -97,7 +97,7 @@ export default {
           mid.style.flex = '1';
         };
         // 鼠标松开事件
-        document.onmouseup = function() {
+        document.onmouseup = function () {
           document.onmousemove = null;
           document.onmouseup = null;
           // 当你不在需要继续获得鼠标消息就要应该调用ReleaseCapture()释放掉

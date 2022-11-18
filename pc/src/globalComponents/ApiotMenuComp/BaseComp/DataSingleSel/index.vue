@@ -16,7 +16,10 @@
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isQueryEle }]"
+      :class="[
+        { onelineCalss__form: isQueryEle },
+        { 'is-required': isConfig && configData.shouldRequired },
+      ]"
     >
       <span class="span-box" slot="label">
         <span style="white-space: nowrap"> {{ configData.name }} </span>
@@ -110,7 +113,8 @@ export default {
       showTextPanel: false,
       curData: [],
       unwatch: null,
-      showDelete: false
+      showDelete: false,
+      timer: null
     };
   },
   mixins: [compMixin],
@@ -199,6 +203,7 @@ export default {
         async (v) => {
           // console.log(this.configData);
           if (v && !this.parent.form[`${this.configData.compId}_`]) {
+            // 模拟触发change事件
             let tempId = 'id';
             let selectWhere = `${this.configData.dataSource.tableName}.${tempId}=${v}`;
             if (this.grandFather && this.grandFather.relateTableArr) {
@@ -296,6 +301,9 @@ export default {
       return null;
     },
     showPanelDialog() {
+      if (this.configData.canReadonly) {
+        return;
+      }
       this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);
       if (this.panelObj && this.panelObj.panelName) {
         this.$refs.panelDialog.initSelData(
@@ -306,6 +314,9 @@ export default {
       }
     },
     jumpMenu() {
+      if (this.configData.canReadonly) {
+        return;
+      }
       if (this.$route.name === 'sharePage') {
         return this.$message({
           type: 'warning',
@@ -366,7 +377,6 @@ export default {
             panelArr.push(this.getPanel()[panelId]);
           }
         });
-        console.log(panelArr);
         const obj = panelArr.find((panel) => {
           if (!panel.jumpTerm) {
             return true;

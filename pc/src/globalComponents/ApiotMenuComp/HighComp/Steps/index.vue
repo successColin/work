@@ -102,7 +102,7 @@ export default {
           this.parent.form[this.configData.compId] = list[0].recordValue;
         }
       });
-      console.log(this.stepsArr, this.stepValue);
+      // console.log(this.stepsArr, this.stepValue);
     }
   },
 

@@ -36,7 +36,7 @@ pipeline {
                 )
             }
         }
-        stage("更新依赖") {
+        stage("更新依赖打包") {
             agent {
                     docker { 
                         image 'node:14.16.0-alpine3.13' 
@@ -44,19 +44,10 @@ pipeline {
                     }
                 }
             steps {
-                sh "npm install "
-            }
-        }
-
-        stage("打包") {
-            agent {
-                docker { 
-                    image 'node:14.16.0-alpine3.13' 
-                    args "-v ${env.WORKSPACE}@2:/usr/src/app"
-                }
-            }
-            steps {
-                sh "npm run build"
+                sh "npm config set registry https://registry.npm.taobao.org "
+                sh "npm install -g npm "
+                sh "npm install --legacy-peer-deps"
+                sh "npm run build "
             }
         }
         

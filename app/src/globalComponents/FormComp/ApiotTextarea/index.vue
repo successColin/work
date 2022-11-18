@@ -9,7 +9,7 @@
   <view class="apiotTextarea" :class="[disabled ? 'disabled' : '']">
     <textarea
       :value="value"
-      placeholder-style="color:#C1C1C1"
+      :placeholder-style="`color:${formElPlaceholderColor}`"
       :placeholder="placeholder"
       :maxlength="maxlength"
       :disabled="disabled || readonly"
@@ -48,6 +48,7 @@ export default {
 
   data() {
     return {
+      formElPlaceholderColor: '#C1C1C1',
       textValue: ''
     };
   },
@@ -89,6 +90,10 @@ export default {
   border: 1px solid #e9e9e9;
   border-radius: 12rpx;
   box-sizing: border-box;
+  color: $form-el-valueColor;
+  &.disabled {
+    color: $form-el-disabled-valueColor;
+  }
   &__num {
     display: block;
     text-align: right;

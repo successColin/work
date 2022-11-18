@@ -224,7 +224,7 @@ export default {
       const funcAreaFunc = [];
 
       groupArr.forEach((group) => {
-        funcAreaFunc.push(...group.menuArr);
+        if (group.menuArr) funcAreaFunc.push(...group.menuArr);
       });
 
       // 首页、我的右上角菜单

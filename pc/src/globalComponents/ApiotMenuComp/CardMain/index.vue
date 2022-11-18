@@ -53,9 +53,10 @@
     >
       <div
         class="menuMain__card"
+        ref="menuMainCard"
         :class="[{ active: isItemActive(item) }]"
         v-for="(item, index) in isConfig ? [{}] : sidebarData"
-        :key="index"
+        :key="item[getIdCompId]"
         @click="selectItem(item, index)"
       >
         <div
@@ -63,9 +64,19 @@
           v-if="!isConfig && configData.hasCardIcon"
         >
           <i
+            v-if="configData.iconFrom === 1"
             :class="`iconfont ${getCurDict(item, 1)}`"
             :style="`color:${getCurDict(item, 2)}`"
           ></i>
+          <ColumnIcon
+            v-if="configData.iconFrom === 2"
+            :item="item"
+            :configData="configData"
+            @showPreview="preview"
+            :style="`height:${
+              menuMainCardHeight === 0 ? 'auto' : menuMainCardHeight
+            }px`"
+          ></ColumnIcon>
         </div>
         <div
           class="menuMain__cardRight"
@@ -130,6 +141,7 @@
               :fileDeleteIds="fileDeleteIds"
               :showType="showType"
               :isCard="true"
+              :cardData="item"
               :labelValue="
                 item ? item[`${child.compId}_`] || item[`${child.compId}`] : ''
               "
@@ -153,6 +165,14 @@
       :total="total"
       :rowNum="configData.rowNum"
     ></SmallPagination>
+    <image-zoom
+      v-if="previewVisible"
+      :previewObj="previewObj"
+      :picList="picList"
+      v-on:hideImgPreview="hideImgPreview"
+      :isShowDelBtn="false"
+      :isShowShareBtn="false"
+    ></image-zoom>
     <section
       v-if="configData.children.length === 0"
       class="menuMain__wz"
@@ -169,9 +189,11 @@
 </template>
 
 <script>
-import { createUnique } from '@/utils/utils';
+import { downloadSingle } from '@/api/knowledge';
 import { getSidebarList, getSidebarPage } from '@/api/menuConfig';
+import { createUnique } from '@/utils/utils';
 import initAreaMixin from '../initAreaMixin';
+import imageZoom from '../RelatedData/RelateApply/ImageZoom';
 
 export default {
   props: {
@@ -203,11 +225,17 @@ export default {
       current: 1,
       total: 0,
       currentIndex: 0,
-      currentScroll: 0
+      currentScroll: 0,
+      menuMainCardHeight: 0, // 卡片高度
+      previewVisible: false, // 是否预览
+      previewObj: {},
+      picList: [] // 预览文件数组
     };
   },
 
-  components: {},
+  components: {
+    imageZoom
+  },
 
   inject: [
     'isConfig',
@@ -324,6 +352,31 @@ export default {
   },
 
   methods: {
+    // 预览
+    async preview(file) {
+      [this.previewObj.sysKlTree] = file;
+      this.picList = [];
+      file.forEach((liObj) => {
+        this.picList.push({
+          sysKlTree: liObj
+        });
+      });
+      console.log(file, this.picList);
+      if (this.$store.state.globalConfig.waterConfig.enableWaterMask === '1') {
+        const index = this.picList.findIndex((item) => item.sysKlTree.id === file.id);
+        if (index !== -1) {
+          this.loading = true;
+          const data = await downloadSingle({ url: this.picList[index].sysKlTree.url });
+          this.loading = false;
+          this.picList[index].sysKlTree.blob = data;
+        }
+      }
+      this.previewVisible = true;
+    },
+    hideImgPreview() {
+      // 关闭预览
+      this.previewVisible = false;
+    },
     // 更新该区域
     reloadArea(areaArr, onlyFlag, compId) {
       // 按钮全部刷新
@@ -379,7 +432,7 @@ export default {
       }
       // console.log(obj);
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     makeFlowParams(params) {
@@ -406,7 +459,7 @@ export default {
     getCurMenu(params) {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }
@@ -486,6 +539,12 @@ export default {
         data = await getSidebarList(params);
       }
       this.sidebarData = data;
+      this.$nextTick(() => {
+        if (this.$refs.menuMainCard && this.menuMainCardHeight === 0) {
+          this.menuMainCardHeight = this.$refs.menuMainCard[0].offsetHeight - 24;
+        }
+      });
+
       this.loading = false;
       this.$emit('showRight', this.sidebarData ? this.sidebarData.length !== 0 : false);
       if (data && data.length) {

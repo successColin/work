@@ -47,7 +47,6 @@
 </template>
 
 <script>
-// import { PREVIEW_FILE } from '@/utils/preview.js';
 import nodata from '@/menuConfigure/components/MenuMain/Nodata';
 
 export default {
@@ -81,10 +80,7 @@ export default {
   computed: {
     // 是否需要加水印
     isWatermark() {
-      const { WATER_MASK } = this.$store.state.base.globalConfig;
-      const waterMask = WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') || {};
-      if (!waterMask.attributeValue) return false;
-      return waterMask.attributeValue === '1';
+      return this.$store.getters.getWatermark;
     },
     imgUrl() {
       return function(name) {
@@ -124,6 +120,7 @@ export default {
         this.visitRecordFun(v);
         // 预览
         const { name, url } = v.sysKlTree;
+        console.log(v.sysKlTree);
         this.$apiot.preview.previewFile({
           file: [v.sysKlTree],
           isWatermark: this.isWatermark,
@@ -133,7 +130,7 @@ export default {
         const suffix = this.$apiot.preview.getFileSuffix(name);
         const type = this.$apiot.preview.getFileType(suffix);
         if (type === 'video') {
-          this.$emit('update:videoPreviewUrl', url);
+          this.$emit('update:videoPreviewUrl', this.$apiot.getComUrlByToken(url));
         }
       }
     }

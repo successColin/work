@@ -7,9 +7,13 @@
 -->
 <template>
   <view class="usersRole">
-    <section class="usersRole__roleList">
+    <section class="usersRole__roleList" :class="{ hasOverflow: show }">
       <div class="roles__item" v-for="(item, index) in listData" :key="index">
-        <roles :group="item" @click="clickRole"></roles>
+        <roles
+          :group="item"
+          :groupLoading="groupLoading"
+          @click="clickRole"
+        ></roles>
       </div>
     </section>
     <roles-user-modal
@@ -28,22 +32,15 @@ import RolesUserModal from './components/RolesUserModal';
 export default {
   components: { Roles, RolesUserModal },
 
-  inject: ['SetOtherParam'],
-
-  props: {
-    users: {
-      type: Array,
-      default() {
-        return [];
-      }
-    }
-  },
+  props: {},
 
   data() {
     return {
       listData: [],
       show: false,
-      role: {}
+      groupLoading: false,
+      role: {},
+      users: []
     };
   },
 
@@ -59,24 +56,43 @@ export default {
         console.error(error);
       }
     },
-    clickRole(role) {
+    clickRole(param) {
       this.$nextTick(() => {
         uni.pageScrollTo({
           scrollTop: 0,
           duration: 10
         });
-        this.SetOtherParam({ searchType: 2, roleGroupId: role.id });
-        this.role = role;
+        const { id } = param.role;
+        this.role = param.role;
+        this.users = param.users[id];
         this.show = true;
       });
+    },
+    async listenOp(params) {
+      const { type } = params;
+      if (type === 'onPullDownRefresh' && !this.show) {
+        this.groupLoading = true;
+        await this.getRoleGroup();
+        this.groupLoading = false;
+      }
+      uni.stopPullDownRefresh();
     }
   },
 
   mounted() {
     this.getRoleGroup();
+    this.$bus.$on('SelectUser_ROLE', this.listenOp);
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('SelectUser_ROLE');
   }
 };
 </script>
 
 <style lang='scss' scoped>
+.hasOverflow {
+  height: 100px;
+  overflow: hidden;
+}
 </style>

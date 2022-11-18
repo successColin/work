@@ -382,6 +382,7 @@ export default {
       const ruleArr = this.fatherObj.rules[this.activeObj.compId];
       const ruleObj = {
         flag: 'requiredRule',
+        type: 'string',
         required: true,
         message: `${this.activeObj.name}不能为空`,
         trigger: 'change'

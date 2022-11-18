@@ -6,7 +6,7 @@
  * @Desc: 用户头像
 -->
 <template>
-  <section class="user" key="user">
+  <section class="user" key="user" :class="[!isClear ? 'noClear' : '']">
     <u-image
       v-if="headImg && userInfo[headImg] && userInfo[headImg].imageUrl"
       :src="$apiot.getComUrlByToken(userInfo[headImg].imageUrl)"
@@ -109,15 +109,15 @@ export default {
 <style lang='scss' scoped>
 .user {
   margin: auto 0;
-  padding-right: 6px;
-  line-height: 24px;
-  font-size: 14px;
+  padding-right: 12rpx;
+  line-height: 48rpx;
+  font-size: 28rpx;
   width: max-content;
-  border-radius: 4px;
+  border-radius: 8rpx;
   display: flex;
   align-items: center;
   background: #f1f3f6;
-  border-radius: 12px;
+  border-radius: 24rpx;
   color: #333333;
   .headImg {
     width: 100%;
@@ -129,17 +129,18 @@ export default {
     border-radius: 50%;
     text-align: center;
     background: #5a80ed;
-    font-size: 10px;
+    font-size: 20rpx;
     color: #ffffff;
   }
   &__name {
-    margin: 0 6px 0 4px;
+    margin: 0 8rpx;
   }
   &__font--color {
     background: #333333 !important;
   }
   &__clear {
-    font-size: 12px;
+    padding-left: 8rpx;
+    font-size: 24rpx;
     cursor: pointer;
     color: #bbc3cd;
     &:hover {

@@ -84,10 +84,11 @@ export default {
       return function (name, obj) {
         if (
           obj &&
+          name &&
           ((obj.treeType && obj.treeType !== 1) ||
             (obj.sysKlTree && obj.sysKlTree.treeType && obj.sysKlTree.treeType !== 1))
         ) {
-          const realNameArr = name.split('.');
+          const realNameArr = name.toString().split('.');
           // const len = realNameArr.length;
           if (realNameArr[0].length > 12) {
             realNameArr[0] = `${realNameArr[0].slice(0, 6)}...${realNameArr[0].slice(
@@ -141,7 +142,7 @@ export default {
       let submitValue = this.editFileName;
       const { name, treeType } = obj.sysKlTree;
       if (treeType !== 1) {
-        const realNameArr = name.split('.');
+        const realNameArr = name.toString().split('.');
         const len = realNameArr.length;
         const newRealName = realNameArr[len - 1];
         submitValue += `.${newRealName}`;
@@ -160,7 +161,7 @@ export default {
           const obj = this.selectKeys[0];
           const { name, treeType } = obj.sysKlTree;
           if (treeType !== 1) {
-            const realNameArr = name.split('.');
+            const realNameArr = name.toString().split('.');
             const len = realNameArr.length;
             const newRealName = realNameArr.slice(0, len - 1);
             this.editFileName = newRealName.join('.');

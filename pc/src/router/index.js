@@ -4,15 +4,15 @@ import { baseUrl, themeColor, whitePathName } from '../config';
 import store from '../store';
 import { changeThemeColor, initThemeColor } from '../utils/themeColorClient';
 import routes from './Routes';
-// import { stringifyQuery, parseQuery } from './routerUtils/query';
+import { stringifyQuery, parseQuery } from './routerUtils/query';
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes,
   base: baseUrl,
-  // stringifyQuery, // 序列化query参数
-  // parseQuery, // 反序列化query参数
+  stringifyQuery, // 序列化query参数
+  parseQuery, // 反序列化query参数
   mode: 'history',
 });
 

@@ -46,6 +46,28 @@
                 {{ changeBtnName(statement.isClickErrorCount) }}
               </apiot-button>
             </div>
+            <!-- 账号登录方式 -->
+            <div v-if="i === 16" class="common">
+              <div v-if="!statement.isLoginModePc">
+                {{
+                  showValueName(loginModepcArr, loginModePc, item.attributeKey)
+                }}
+              </div>
+              <apiot-select
+                :style="selectWidth"
+                v-else
+                v-model="loginModePc"
+                :options="loginModepcArr"
+                @change="handleChangeSelectVal('onlineTime', $event)"
+              ></apiot-select>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isLoginModePc', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isLoginModePc) }}
+              </apiot-button>
+            </div>
             <!-- 备案号 -->
             <div v-if="i === 1" class="common">
               <div v-if="!statement.isRecord">
@@ -63,6 +85,25 @@
                 @click="handleChangeCount('isRecord', item.attributeKey)"
               >
                 {{ changeBtnName(statement.isRecord) }}
+              </apiot-button>
+            </div>
+            <!-- 欢迎登录名称 -->
+            <div v-if="i === 14" class="common">
+              <div v-if="!statement.isWelcomeTitle">
+                {{ welcomeTitle }}
+              </div>
+              <apiot-input
+                :style="selectWidth"
+                v-else
+                v-model="welcomeTitle"
+                @change="handleChangeSelectVal('onlineTime', $event)"
+              ></apiot-input>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isWelcomeTitle', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isWelcomeTitle) }}
               </apiot-button>
             </div>
             <!-- 登录页风格 -->
@@ -100,7 +141,7 @@
             </div>
             <!-- 是否启用注册   是否支持APP扫码登录   是否启用忘记密码 -->
             <div
-              v-if="[2, 4, 5, 9].includes(i)"
+              v-if="[2, 4, 5, 9, 15].includes(i)"
               style="flex: none"
               class="common"
             >
@@ -366,13 +407,17 @@ export default {
         isLoginStyle: false, // 登陆风格
         isBackgroundImage: false, // 背景图
         isScanType: false, // app类型
-        isSsoTypePc: false // 单点登录方式
+        isSsoTypePc: false, // 单点登录方式
+        isWelcomeTitle: false, // 欢迎登录名称
+        isLoginModePc: false // 账号登录方式
       },
       loginObj: {}, // login url
       loginWidth: 20, // logo宽度
       record: '备案号', // 备案号
+      welcomeTitle: '欢迎登录APIoT平台！', // 欢迎登录名称
       sysTitle: 'V10', // 系统标题
       errorCount: 1, // 错误次数
+      loginModePc: 3, // 账号登录方式
       onlineTimeOptionsArr: [
         {
           name: '一直显示',
@@ -399,14 +444,13 @@ export default {
       scanType: 1,
       scanTypeArr: [], // 扫码类型
       ssoTypePcArr: [], // 单点登录类型
+      loginModepcArr: [], // 账号登录方式
       zzdConfig: {},
       zzdConfigObj: {}
     };
   },
   components: { ImageAndChange, ZhezhengdingConfig },
-  created() {
-    // this.setSocket(`${this.expertSysid}/${this.consultationSysid}`);
-  },
+  created() {},
   mounted() {
     this.initColor();
     this.init();
@@ -440,86 +484,127 @@ export default {
     },
     // 左侧配置
     configArr() {
+      // 登录页风格
+      let colStyleVal = 12;
+      console.log(this.loginStyle);
+      if (this.loginStyle === 1) {
+        colStyleVal = 24;
+      } else {
+        colStyleVal = 12;
+      }
       return [
+        // 0
         {
           name: [this.$t('globalConfig.passwordError'), this.$t('globalConfig.passwordErrorShow')],
           col: 12,
           attributeKey: 'sliderErrorsCount'
         },
+        // 1
         {
           name: this.$t('globalConfig.recordName'),
           col: 12,
           attributeKey: 'record'
         },
+        // 2
         {
           name: this.$t('globalConfig.enableRegistration'),
           col: 12,
           key: 'enableRegistration',
           attributeKey: 'enableRegistration'
         },
+        // 3
         {
           name: 'App 扫码类型',
           col: 12,
           key: 'scanType',
           attributeKey: 'scanType'
         },
+        // 4
         {
           name: this.$t('globalConfig.forgetPassword'),
           col: 12,
           key: 'enableForgetPassword',
           attributeKey: 'enableForgetPassword'
         },
+        // 5
         {
           name: this.$t('globalConfig.enableMultilingual'),
           col: 12,
           key: 'enableMultilingual',
           attributeKey: 'enableMultilingual'
         },
+        // 6
         {
           name: '单点登录方式',
           col: 12,
           key: 'ssoTypePc',
           attributeKey: 'ssoTypePc'
         },
-        // 登录页风格
+        // 登录页风格 7
         {
           name: this.$t('globalConfig.style'),
           col: 12,
           key: 'style',
           attributeKey: 'style'
         },
+        // 8
         {
           name: this.$t('globalConfig.styleBackgroundImage'),
           col: 12,
           key: 'backgroundImage',
           attributeKey: 'backgroundImage'
         },
+        // 9
         {
           name: this.$t('globalConfig.enableLoginFirst'),
-          col: 12,
+          col: colStyleVal,
           key: 'enableLoginFirstPc',
           attributeKey: 'enableLoginFirstPc'
         },
+        // 10
         {
           name: this.$t('globalConfig.themeColor'),
           col: 24,
           key: 'themeColor',
           attributeKey: 'themeColor'
         },
+        // 11
         {
           name: this.$t('globalConfig.loginpagelogo'),
           col: 24,
           attributeKey: 'loginLogoWidth'
         },
+        // 12
         {
           name: this.$t('globalConfig.loginCarousel'),
-          col: 24,
+          col: 12,
           attributeKey: 'loginLoopMaps'
         },
+        // 13
         {
           name: this.$t('globalConfig.loginTitle'),
-          col: 24,
+          col: 12,
           attributeKey: 'systemTitle'
+        },
+        // 欢迎登录名称 14
+        {
+          name: this.$t('globalConfig.welcomeLoginName'),
+          col: 12,
+          attributeKey: 'welcomeTitle'
+        },
+        // 是否启用下载app 15
+        {
+          name: this.$t('globalConfig.isEnableAppDownload'),
+          col: 12,
+          key: 'enableAPPDownload',
+          attributeKey: 'enableAPPDownload'
+        },
+        // 登录账号方式 16
+        {
+          name: this.$t('globalConfig.accountLoginMode'),
+          col: 24,
+          key: 'loginModePc',
+          attributeKey: 'loginModePc'
         }
       ];
     },
@@ -604,16 +689,21 @@ export default {
     },
     async init() {
       this.loading = true;
-      await this.$store.dispatch('getCurrentDict', 'SCAN_TYPE,SSO_TYPE_PC');
+      await this.$store.dispatch('getCurrentDict', 'SCAN_TYPE,SSO_TYPE_PC,LOGIN_BOOT_MODE');
       this.$store.dispatch('getLoginConfigFun');
       this.scanTypeArr = this.$store.getters.getCurDict('SCAN_TYPE'); // 扫码类型
       this.ssoTypePcArr = this.$store.getters.getCurDict('SSO_TYPE_PC'); // 单点登录类型
+      this.loginModepcArr = this.$store.getters.getCurDict('LOGIN_BOOT_MODE'); // 单点登录类型
       const res = await getListByKey({ parameterKey: 'LOGIN' });
       this.loading = false;
       this.response = res;
       const errorObj =
         this.response.find((item) => item.attributeKey === 'sliderErrorsCount') || {};
+      const loginModepcObj =
+        this.response.find((item) => item.attributeKey === 'loginModePc') || {};
       const recordObj = this.response.find((item) => item.attributeKey === 'record') || {};
+      const welcomeTitleObj =
+        this.response.find((item) => item.attributeKey === 'welcomeTitle') || {};
       const sysObj = this.response.find((item) => item.attributeKey === 'systemTitle') || {};
       const enableRegistrationObj =
         this.response.find((item) => item.attributeKey === 'enableRegistration') || {};
@@ -632,6 +722,8 @@ export default {
         this.response.find((item) => item.attributeKey === 'backgroundImage') || {};
       const enableLoginFirstPc =
         this.response.find((item) => item.attributeKey === 'enableLoginFirstPc') || {};
+      const enableAPPDownload =
+        this.response.find((item) => item.attributeKey === 'enableAPPDownload') || {};
       const logoObjWidth =
         this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
       const zzdConfig = this.response.find((item) => item.attributeKey === 'zzdConfig') || {};
@@ -649,15 +741,18 @@ export default {
         enableRegistration: enableRegistrationObj.attributeValue,
         enableForgetPassword: enableForgetPasswordObj.attributeValue,
         enableMultilingual: enableMultilingual.attributeValue,
-        enableLoginFirstPc: enableLoginFirstPc.attributeValue
+        enableLoginFirstPc: enableLoginFirstPc.attributeValue,
+        enableAPPDownload: enableAPPDownload.attributeValue
       };
       this.errorCount = Number(errorObj.attributeValue);
+      this.loginModePc = Number(loginModepcObj.attributeValue);
       this.loginStyle = Number(styleObj.attributeValue);
       this.ssoTypePc = Number(ssoTypePcObj.attributeValue);
       this.scanType = Number(scanType.attributeValue);
       this.stylePercentage = Number(stylePercentage.attributeValue);
       this.themeColor = Number(themeColorObj.attributeValue);
       this.record = recordObj.attributeValue;
+      this.welcomeTitle = welcomeTitleObj.attributeValue;
       this.sysTitle = sysObj.attributeValue;
       this.loginObj = logoObj;
       this.backgroundImageObj = backgroundObj;
@@ -752,6 +847,7 @@ export default {
       if (this.statement[key]) {
         this.loading = true;
         const currentObj = this.response.find((item) => item.attributeKey === attr);
+        console.log(this.response, attr, currentObj);
         let params = {};
         if (key === 'isLoopPics') {
           await this.saveLoopMap(key, attr);
@@ -765,10 +861,22 @@ export default {
             attributeValue: this.errorCount
           };
         }
+        if (key === 'isLoginModePc') {
+          params = {
+            ...currentObj,
+            attributeValue: this.loginModePc
+          };
+        }
         if (key === 'isRecord') {
           params = {
             ...currentObj,
             attributeValue: this.record
+          };
+        }
+        if (key === 'isWelcomeTitle') {
+          params = {
+            ...currentObj,
+            attributeValue: this.welcomeTitle
           };
         }
         if (key === 'isSysTitle') {

@@ -185,6 +185,21 @@
           </transition-group>
         </draggable>
       </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow"
+        v-if="!isSelect && +getCurPageType === 2"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用个性化配置
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.personalConfig"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
       <div class="contentConfig__box contentConfig__areaShow" v-if="!isSelect">
         <h2>验证</h2>
         <h2 class="contentConfig__hasTab--switchBox">
@@ -284,12 +299,12 @@
               @click="getCurrentTab.operateWidth = '0.15'"
               >15%</el-button
             >
-            <!-- <el-button
+            <el-button
               :class="[{ active: getCurrentTab.operateWidth === '0.2' }]"
               @click="getCurrentTab.operateWidth = '0.2'"
               >20%</el-button
             >
-            <el-button
+            <!-- <el-button
               :class="[{ active: getCurrentTab.operateWidth === '0.25' }]"
               @click="getCurrentTab.operateWidth = '0.25'"
               >25%</el-button
@@ -771,6 +786,9 @@ export default {
     },
     // 更改当前活跃的tab
     changeActive(index) {
+      if (index !== 1) {
+        this.activeObj.personalConfig = false;
+      }
       // 判断是否打开tab
       if (this.activeObj.children.length) {
         this.changeChilren(this.activeObj, index);
@@ -1007,6 +1025,10 @@ export default {
         shouldRequired: false,
         submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
       };
+      if (this.$route.query.isApp === '1') {
+        label.width = '100%';
+      }
+      console.log(this.activeObj);
       this.activeObj.children[1].form[idCompId] = '';
       this.activeObj.children[1].children.push(label);
     }

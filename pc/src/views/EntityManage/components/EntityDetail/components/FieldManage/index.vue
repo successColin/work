@@ -10,7 +10,10 @@
         <i class="iconfont icon-shanchu m-r-4"></i
         >{{ $t('common.delete', { name: $t('entity.column') }) }}
       </apiot-button>
-      <search-input @getList="getColumnList" v-model="keyWord"></search-input>
+      <search-input
+        @getList="getColumnList"
+        v-model.trim="keyWord"
+      ></search-input>
     </header>
     <section class="field__main">
       <apiot-table

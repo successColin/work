@@ -54,14 +54,17 @@
         v-for="(item, i) in getContentArr"
         :key="i"
         :style="getItemStyle(item)"
-        :title="getDictInfo(item, 'name') || item"
+        :title="getDictInfo(item, 'name') || (+item === 0 ? '' : item)"
       >
         <i
           v-if="configData.enableDictIcon && getDictInfo(item, 'icon')"
           :class="`iconfont ${getDictInfo(item, 'icon').icon} m-r-2`"
           :style="`color:${getDictInfo(item, 'icon').color}`"
         ></i>
-        <span>{{ getDictInfo(item, 'name') || item }}</span>
+        <span>{{
+          getDictInfo(item, 'name') || (+item === 0 ? '' : item)
+        }}</span>
+        <span v-if="i !== getContentArr.length - 1">,</span>
       </span>
       <el-tooltip
         :content="configData.helpInfo"
@@ -251,7 +254,10 @@ export default {
     },
     // 获取内容数组
     getContentArr() {
-      if (this.configData.enableMultiColumn && this.getContent) {
+      if (
+        (this.configData.enableMultiColumn && this.getContent) ||
+        (this.configData.enableDict && this.getContent.toString().indexOf(',') !== -1)
+      ) {
         return this.getContent.toString().split(',');
       }
       if (this.getContent !== '') {

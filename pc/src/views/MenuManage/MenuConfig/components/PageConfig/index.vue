@@ -150,6 +150,7 @@ import TreeMainConfig from './components/compProperty/TreeMainConfig';
 import WebviewConfig from './components/compProperty/WebviewConfig';
 import CarouselConfig from './components/compProperty/CarouselConfig';
 import StepsConfig from './components/compProperty/StepsConfig';
+import UserCompConfig from './components/compProperty/UserCompConfig';
 import ConfigSidebar from './components/ConfigSidebar';
 import selData from './selData';
 
@@ -241,7 +242,8 @@ export default {
     EvaluationConfig,
     CascadeConfig,
     CarouselConfig,
-    StepsConfig
+    StepsConfig,
+    UserCompConfig
   },
   provide() {
     return {
@@ -263,6 +265,7 @@ export default {
       getNotInitArr: '', // 真实页面使用的方法，定义空，占位防报错
       clickTrigger: '', // 真实页面使用的方法，定义空，占位防报错
       initStart: '', // 真实页面使用的方法，定义空，占位防报错
+      getDesignPersonal: '', // 真实页面使用的方法，定义空，占位防报错
       isPanel: this.isPanel,
       isSelect: this.isSelect,
       sysMenuDesignId: this.sysMenuDesignId
@@ -454,13 +457,13 @@ export default {
           });
           this.configData = data.designOverallLayout;
         }
-        // console.log(selData);
         this.$nextTick(() => {
           [, this.activeObj] = this.configData[0].children[0].children[0].children;
           this.activeObj.areaType = 1;
           if (this.curDrawerType === 1) {
             this.activeObj.compId = createUnique();
           }
+
           setTimeout(() => {
             // 防止刚开始渲染的时候触发多次
             this.$bus.$on('changeCurActiveObj', (obj) => {
@@ -697,6 +700,7 @@ export default {
           case 22:
           case 23:
           case 24:
+          case 28:
             // if (tempObj.canQuery && !tempObj.fieldName) {
             //   checkObj.flag = false;
             //   checkObj.msg = `${tempObj.name} 未填写字段`;

@@ -13,7 +13,7 @@
     <view class="swiper">
       <apiot-swiper
         keyName="imgUrl"
-        :list="element.imgArr"
+        :list="list"
         :height="itemHeight"
         :radius="element.borderType === 2 ? 8 : 0"
         :showType="element.showType === 2 ? 'card' : ''"
@@ -48,6 +48,14 @@ export default {
 
       const height = heightMul * 110;
       return height;
+    },
+    list() {
+      const { imgArr } = this.element;
+      if (imgArr.length === 0) return [];
+      return imgArr.map((item) => {
+        if (item.imgUrl) item.imgUrl = this.$apiot.getComUrlByToken(item.imgUrl);
+        return item;
+      });
     }
   },
 
@@ -55,10 +63,7 @@ export default {
 
   mounted() {},
 
-  created() {
-    console.log('swiper==================================');
-    console.log(this.element);
-  }
+  created() {}
 };
 </script>
 

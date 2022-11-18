@@ -122,6 +122,7 @@
         @selectTreeNode="selectTreeNode"
         :showType="showType"
         :nodeConfig="nodeConfig"
+        :tableShowColumn="tableShowColumn"
       ></component>
     </ul>
     <div class="btnMask" v-if="isSelect && isTabBtn" @click.stop></div>
@@ -236,6 +237,11 @@ export default {
     isQuery: {
       type: Boolean,
       default: false
+    },
+    // 当前展示的表格列
+    tableShowColumn: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

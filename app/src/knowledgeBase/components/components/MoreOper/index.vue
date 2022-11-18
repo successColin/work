@@ -45,7 +45,6 @@
 import SelectPeople from './components/SelectPeople';
 import RenameList from './components/RenameList';
 import MoveFile from './components/MoveFile';
-import { PREVIEW_DOWNLOAD_FILE } from '@/utils/preview.js';
 // 接口
 import { collectFile, updateFolder, deleteFile, cancelCollect } from '@/api/knowledgeBase';
 
@@ -100,6 +99,10 @@ export default {
         name: (sysKlTree && sysKlTree.name) || '',
         type: (sysKlTree && sysKlTree.treeType) || ''
       };
+    },
+    // 是否需要加水印
+    isWatermark() {
+      return this.$store.getters.getWatermark;
     }
   },
   watch: {
@@ -214,16 +217,14 @@ export default {
     },
     // 下载
     handleDownload() {
-      console.log('下载');
       // app文件下载
       uni.showModal({
         title: '提示',
         content: '是否下载',
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
-            console.log(this.currentObj, res);
-            const { id, name, url } = this.currentObj && this.currentObj.sysKlTree;
-            PREVIEW_DOWNLOAD_FILE({ id, name, url }, this);
+            const file = this.currentObj && this.currentObj.sysKlTree;
+            this.$apiot.preview.fileDownLoad({ file, isWatermark: this.isWatermark });
           }
         }
       });

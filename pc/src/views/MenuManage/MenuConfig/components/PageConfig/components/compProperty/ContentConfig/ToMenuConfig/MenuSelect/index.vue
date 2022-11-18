@@ -6,7 +6,10 @@
     title="选择菜单"
   >
     <div class="search m-b-10">
-      <search-input @getList="sysMenuPage" v-model="keyWord"></search-input>
+      <search-input
+        @getList="sysMenuPage"
+        v-model.trim="keyWord"
+      ></search-input>
     </div>
     <apiot-table
       ref="table"
@@ -55,10 +58,11 @@ export default {
       type: Number,
       default: null
     },
-    clientType: { // 终端类型 1、pc 2、app, 默认0, 用在自定义页面
+    clientType: {
+      // 终端类型 1、pc 2、app, 默认0, 用在自定义页面
       type: Number,
       default: 0
-    },
+    }
   },
   data() {
     return {

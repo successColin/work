@@ -14,12 +14,33 @@
               </div>
             </div>
             <!-- 是否启用水印功能 是否启用人员变量 是否启用日期时间变量-->
-            <div v-if="[0].includes(i)" style="flex: none" class="common">
-              <ApiotSwitch
+            <div v-if="[0].includes(i)" class="common">
+              <!-- <ApiotSwitch
                 v-model="$store.state.globalConfig.waterConfig[item.attr]"
                 @change="(value) => changeRadio(value, item.attr)"
                 inactivevalue="0"
-              ></ApiotSwitch>
+              ></ApiotSwitch> -->
+              <div v-if="!statement.enableWaterMask">
+                {{
+                  showValueName(
+                    waterMaskTypeOptions,
+                    $store.state.globalConfig.waterConfig[item.attr]
+                  )
+                }}
+              </div>
+              <apiot-select
+                style="width: 224px"
+                v-else
+                v-model="$store.state.globalConfig.waterConfig[item.attr]"
+                :options="waterMaskTypeOptions"
+              ></apiot-select>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('enableWaterMask')"
+              >
+                {{ changeBtnName(statement.enableWaterMask) }}
+              </apiot-button>
             </div>
             <!-- 水印使用范围 水印大小 水印类型 字体-->
             <div v-else-if="i === 1" class="common">
@@ -154,6 +175,7 @@ export default {
     return {
       loading: false,
       statement: {
+        enableWaterMask: false,
         waterMaskScope: false,
         waterMaskLocation: false,
         waterMaskSize: false,
@@ -177,6 +199,20 @@ export default {
         {
           name: 'doc，docx',
           value: '3'
+        }
+      ],
+      waterMaskTypeOptions: [
+        {
+          name: '关闭',
+          value: '0'
+        },
+        {
+          name: '下载',
+          value: '1'
+        },
+        {
+          name: '上传',
+          value: '2'
         }
       ],
       optionsObj: {
@@ -429,7 +465,7 @@ export default {
     // 登录在线时长/登录账号的密码有效期名称
     showValueName() {
       return function (options, val) {
-        console.log(val);
+        // console.log(val);
         const valArr = val.split(',');
         if (valArr.length > 1) {
           const arr = [];
@@ -481,6 +517,7 @@ export default {
       }
       if (
         [
+          'enableWaterMask',
           'waterMaskLocation',
           'waterMaskSize',
           'text',

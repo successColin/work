@@ -35,79 +35,6 @@
           ></el-checkbox>
         </template>
       </el-table-column>
-      <!-- <RelateName
-        v-on="$listeners"
-        :fileUrl="fileUrl"
-        :edit="edit"
-        :selectKeys="selectKeys"
-      ></RelateName> -->
-      <!-- <el-table-column
-        show-overflow-tooltip
-        prop="name"
-        :label="$t('knowledge.file_name')"
-      >
-        <template slot-scope="scope">
-          <div @click="preView(scope.row)" class="inputWrap">
-            <img class="listWrap__img" :src="getFileUrl(scope.row)" />
-            <span v-if="!isEdit(scope.row)">
-              {{
-                renderFileName(
-                  scope.row.name || scope.row.sysKlTree.name,
-                  scope.row
-                )
-              }}
-            </span>
-            <apiot-input
-              style="width: calc(100% - 38px)"
-              v-model="editFileName"
-              @blur="handleSubmitFileName"
-              @keyup.enter.native="enterInput"
-              @keydown.native="keyDown"
-              @click.native.stop.prevent
-              ref="input1"
-              v-if="isEdit(scope.row)"
-            >
-            </apiot-input>
-          </div>
-        </template>
-      </el-table-column> -->
-      <!-- <RelateSize></RelateSize> -->
-      <!-- <el-table-column prop="size" :label="$t('knowledge.bus_size')">
-        <template slot-scope="scope">
-          <span>{{ calculateSize(scope.row) }}</span>
-        </template>
-      </el-table-column> -->
-      <!-- <RelateUserName></RelateUserName> -->
-      <!-- <el-table-column
-        prop="uploadUserName"
-        :label="$t('knowledge.bus_create')"
-      >
-        <template slot-scope="scope">
-          <span>
-            {{
-              scope.row.uploadUserName ||
-              (scope.row.sysKlTree && scope.row.sysKlTree.uploadUserName)
-            }}
-          </span>
-        </template>
-      </el-table-column> -->
-      <!-- <RelateCreateTime></RelateCreateTime> -->
-      <!-- <el-table-column prop="createTime" :label="$t('knowledge.bus_time')">
-        <template slot-scope="scope">
-          <span>
-            {{ scope.row.createTime || scope.row.sysKlTree.createTime }}</span
-          >
-        </template>
-      </el-table-column> -->
-      <!-- <RelateModifyTime></RelateModifyTime> -->
-      <!-- <el-table-column prop="uploadTime" :label="$t('knowledge.update_time')">
-        <template slot-scope="scope">
-          <span>
-            {{ scope.row.modifyTime || scope.row.sysKlTree.modifyTime }}</span
-          >
-        </template>
-      </el-table-column> -->
-      <!-- <RelateType></RelateType> -->
       <component
         v-for="item in columnArr"
         :key="item.column"
@@ -175,10 +102,11 @@ export default {
       return function (name, obj) {
         if (
           obj &&
+          name &&
           ((obj.treeType && obj.treeType !== 1) ||
             (obj.sysKlTree && obj.sysKlTree.treeType && obj.sysKlTree.treeType !== 1))
         ) {
-          const realNameArr = name.split('.');
+          const realNameArr = name.toString().split('.');
           const len = realNameArr.length;
           const newRealName = realNameArr.slice(0, len - 1);
           return newRealName.join('.');
@@ -321,15 +249,15 @@ export default {
       cursor: pointer;
     }
   }
-  ::v-deep{
-    .el-table--border .el-table__cell{
+  ::v-deep {
+    .el-table--border .el-table__cell {
       border-right: none;
     }
-    .el-table__row>td:first-child{
-      border-right: 1px solid #EBEEF5;
+    .el-table__row > td:first-child {
+      border-right: 1px solid #ebeef5;
     }
     .el-table__header .el-table_1_column_1 {
-      border-right: 1px solid #EBEEF5;
+      border-right: 1px solid #ebeef5;
     }
   }
 }

@@ -38,6 +38,12 @@
         :curData="scope.row"
         :getIdCompId="getIdCompId"
         :multiEntityArr="multiEntityArr"
+        v-if="
+          !(
+            areaData.lineEditable &&
+            showCell === `${scope.column.id}_${scope.row.unique}`
+          )
+        "
         v-on="$listeners"
         v-bind="$attrs"
       ></SelectBox>
@@ -108,6 +114,7 @@
         <div
           v-for="(item, index) in getDictRes(scope.row[configData.compId])"
           :key="index"
+          class="noWrap"
         >
           <div class="option" v-if="configData.dropDownStyle === 2">
             <span class="option__bg" :style="getStyle(item)">{{
@@ -133,6 +140,11 @@
           </div>
           <div class="option" v-else>
             {{ item.name }}
+          </div>
+          <div
+            v-if="index !== getDictRes(scope.row[configData.compId]).length - 1"
+          >
+            ,
           </div>
         </div>
       </div>
@@ -297,6 +309,9 @@ export default {
       overflow: hidden;
     }
   }
+}
+.noWrap {
+  display: flex;
 }
 </style>
 <style lang='scss'>

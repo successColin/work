@@ -1,7 +1,7 @@
 <template>
   <div class="menuTra">
     <div class="menuTra__search">
-      <my-search v-model="keywords"></my-search>
+      <my-search v-model.trim="keywords"></my-search>
     </div>
     <div class="menuTra__noScroll">
       <el-menu
@@ -45,8 +45,8 @@
 </template>
 
 <script>
-import bus from '@/utils/bus';
 import { postChangeCollect } from '@/api/menuManage';
+import bus from '@/utils/bus';
 import MySearch from '../HeaderMenu/components/MySearch';
 import MenuItem from './MenuItem';
 

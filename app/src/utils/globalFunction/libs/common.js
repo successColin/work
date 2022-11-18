@@ -40,7 +40,7 @@ export function getComServeUrl() {
 }
 
 // 给图片带上token
-const formatUrl = (url) => {
+const formatUrl = (url, params = {}, isToken = true) => {
   let paramUrl = '';
   if (url.indexOf('http://') !== -1 || url.indexOf('https://') !== -1) {
     paramUrl = url;
@@ -58,7 +58,21 @@ const formatUrl = (url) => {
     let token = uni.getStorageSync('token') || '';
     if (token) token = Decrypt(token);
 
-    paramUrl = `${baseURL}${url}?token=${token}`;
+    paramUrl = `${baseURL}${url}?`;
+    console.log(isToken);
+    if (isToken) {
+      paramUrl += `token=${token}`;
+      Object.keys(params).forEach((key) => {
+        paramUrl += `&${key}=${params[key]}`;
+      });
+    } else {
+      Object.keys(params).forEach((key, index) => {
+        if (index !== 0) {
+          paramUrl += '&';
+        }
+        paramUrl += `${key}=${params[key]}`;
+      });
+    }
   }
   return paramUrl;
 };
@@ -78,6 +92,6 @@ export function getComIconUrl(icon = {}, canSplitIcon) {
   return iconUrl;
 }
 
-export function getComUrlByToken(url) {
-  return formatUrl(url);
+export function getComUrlByToken(url, params, isToken) {
+  return formatUrl(url, params, isToken);
 }

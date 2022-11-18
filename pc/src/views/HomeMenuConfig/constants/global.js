@@ -38,20 +38,39 @@ export const menuAppProperties = { // 菜单属性
   shadowColor: 'rgba(0,0,0,.16)', // 阴影颜色
 };
 
-export const predefineColors = ['#ff4500',
-  '#ff8c00',
-  '#ffd700',
-  '#90ee90',
-  '#00ced1',
-  '#1e90ff',
-  '#c71585',
-  'rgba(255, 69, 0, 0.68)',
-  'rgb(255, 120, 0)',
-  'hsv(51, 100, 98)',
-  'hsva(120, 40, 94, 0.5)',
-  'hsl(181, 100%, 37%)',
-  'hsla(209, 100%, 56%, 0.73)',
-  '#c7158577'
+export const predefineColors = [
+  '#EE5E5E',
+  '#FC8256',
+  '#FAB71C',
+  '#10B98A',
+  '#0EBEC4',
+  '#5A80ED',
+  '#8A5AED',
+  '#ED437B',
+  '#708DB7',
+  '#ACB4BE',
+
+  '#FFEAEB',
+  '#FFECE5',
+  '#FFF5DB',
+  '#E3FBF5',
+  '#E3FDFD',
+  '#E5F0FF',
+  '#F7EEFF',
+  '#FEE9F0',
+  '#EEF4FC',
+  '#F2F4F8',
+
+  '#333333',
+  '#666666',
+  '#808080',
+  '#AAAAAA',
+  '#C0C0C0',
+  '#CACACA',
+  '#D7D7D7',
+  '#E3E3E3',
+  '#EDEDED',
+  '#F5F5F5',
 ];
 
 export const requestOptions = [{ // 请求方法类型设置

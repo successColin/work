@@ -15,7 +15,10 @@
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isQueryEle }]"
+      :class="[
+        { onelineCalss__form: isQueryEle },
+        { 'is-required': isConfig && configData.shouldRequired },
+      ]"
     >
       <span class="span-box" slot="label">
         <span style="white-space: nowrap"> {{ configData.name }} </span>

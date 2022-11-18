@@ -20,6 +20,11 @@ export default {
     operationFailed: 'operation failed',
     announceContent: 'Announcement contents',
     accessRecords: 'access records',
-    receiver: 'receiver'
+    receiver: 'receiver',
+    article: 'Article',
+    articleTitle: 'Article Title',
+    isShare: 'Is Share',
+    isComment: 'Is Comment',
+    articleCover: 'Article Cover',
   },
 };

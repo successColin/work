@@ -17,7 +17,7 @@
           :style="{ width: '100%' }"
         >
           <form-item-input
-            v-if="el.compType === 1 || el.compType === 10"
+            v-if="el.compType === 1 || el.compType === 10 || el.compType === 28"
             :value="configForm[el.compId]"
             :element="el"
             @change="fromDataChange"
@@ -194,8 +194,13 @@ export default {
             el.labelShowStyle = 3;
           }
         }
+        if (el.compType === 28) {
+          console.log('================================111111111111111');
+          el.compType = 1;
+        }
         elements.push(el);
       });
+      console.log(elements);
       return elements;
     },
     funcConfig() {

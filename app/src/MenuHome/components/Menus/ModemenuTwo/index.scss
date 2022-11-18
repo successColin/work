@@ -18,6 +18,10 @@
       @include fontBlob(500);
       color: #333333;
     }
+    &--more {
+      font-size: 26rpx;
+      color: #AAAAAA;
+    }
     &--content {
       padding-top: 20rpx;
       display: grid;

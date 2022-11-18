@@ -90,7 +90,10 @@
       </el-tab-pane>
     </el-tabs>
     <header class="compTree__header">
-      <search-input @getList="getTreeData" v-model="keyWord"></search-input>
+      <search-input
+        @getList="getTreeData"
+        v-model.trim="keyWord"
+      ></search-input>
     </header>
   </apiot-dialog>
 </template>

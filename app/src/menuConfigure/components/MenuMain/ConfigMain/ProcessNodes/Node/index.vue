@@ -85,7 +85,7 @@ export default {
 
     .spot {
       position: absolute;
-      top: 0;
+      top: 6rpx;
       left: -10rpx;
 
       display: inline-block;

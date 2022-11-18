@@ -59,6 +59,9 @@ const AuxiliaryLine = () => import('../../components/Line/index');
 const HorizontalProgressBar = () => import('../../components/HorizontalProgressBar/index');
 const RadarChart = () => import('../../components/RadarChart/index');
 const Notice = () => import('../../components/Notice/index');
+const RoseChart = () => import('../../components/RoseChart/index');
+const Liquidfill = () => import('../../components/Liquidfill/index');
+const FunnelChart = () => import('../../components/FunnelChart/index');
 
 export default {
   props: {
@@ -96,6 +99,9 @@ export default {
 
   components: {
     // VueDragResize,
+    FunnelChart,
+    RoseChart,
+    Liquidfill,
     ImageBox,
     RealTime,
     BasicPieChart,

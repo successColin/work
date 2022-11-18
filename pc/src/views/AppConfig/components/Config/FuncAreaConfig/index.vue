@@ -44,6 +44,13 @@
         <i class="iconfont icon-xinzeng m-r-4"></i
         >{{ $t('common.add', { name: '分组' }) }}
       </apiot-button>
+      <apiot-button
+        @click="addArticleGroup"
+        class="funcArea__addGroup config__body--btn"
+      >
+        <i class="iconfont icon-xinzeng m-r-4"></i
+        >{{ $t('common.add', { name: '文章分组' }) }}
+      </apiot-button>
     </div>
   </section>
 </template>
@@ -82,6 +89,18 @@ export default {
         heightPix: 1 // 高度
       };
       groupObj.name = `分组(${groupObj.compId})`;
+      this.activeObj.groupArr.push(groupObj);
+    },
+    addArticleGroup() {
+      const groupObj = {
+        compId: createUnique(),
+        compName: 'AppInfo',
+        configCompName: 'AppInfoConfig',
+        name: '',
+        term: 1,
+        time: 1
+      };
+      groupObj.name = `文章分组(${groupObj.compId})`;
       this.activeObj.groupArr.push(groupObj);
     },
     // 删除

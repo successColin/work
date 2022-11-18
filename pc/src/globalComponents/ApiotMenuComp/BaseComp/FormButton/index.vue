@@ -169,6 +169,11 @@ export default {
     moreBtn: {
       type: Boolean,
       default: false
+    },
+    // 当前展示的表格列
+    tableShowColumn: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -369,6 +374,10 @@ export default {
     },
     async btnClick() {
       // console.log('点击');
+      // 表格里面的按钮点击触发行的点击
+      if (this.isTableBtn) {
+        this.$bus.$emit('selectTableLine', this.tableInfo.compId, this.rowData);
+      }
       this.isLoading = true;
       try {
         // // console.log(this.menuMain);
@@ -380,6 +389,7 @@ export default {
         }
         const index = this.configData.ruleArr.findIndex((rule) => {
           const res = this.resolveFormula(true, rule.content);
+          console.log(res);
           if (res) {
             return true;
           }
@@ -493,24 +503,27 @@ export default {
           this.$bus.$emit('reloadArea', 'all', this.onlyFlag());
         } else if (this.configData.refreshType === 8) {
           const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
+          console.log(isAdd, this.curSaveRes);
           // 为true的时候，对当前第一个表单
           if (isAdd && this.curSaveRes) {
             this.curSaveRes.batchInfo.forEach((info) => {
-              const obj = info.saveInfo.listInfo[0].find((item) => {
-                if (item.columnName === 'id' && item.columnValue !== 'null') {
-                  return true;
+              if (info.saveInfo && info.saveInfo.listInfo) {
+                const obj = info.saveInfo.listInfo[0].find((item) => {
+                  if (item.columnName === 'id' && item.columnValue !== 'null') {
+                    return true;
+                  }
+                  return false;
+                });
+                console.log(obj);
+                if (obj) {
+                  this.$bus.$emit(
+                    'reloadArea',
+                    'setId',
+                    this.onlyFlag(),
+                    info.compId,
+                    obj.columnValue
+                  );
                 }
-                return false;
-              });
-              console.log(obj);
-              if (obj) {
-                this.$bus.$emit(
-                  'reloadArea',
-                  'setId',
-                  this.onlyFlag(),
-                  info.compId,
-                  obj.columnValue
-                );
               }
             });
           }
@@ -521,20 +534,22 @@ export default {
           // 为true的时候，对当前第一个表单
           if (isAdd && this.curSaveRes) {
             this.curSaveRes.batchInfo.forEach((info) => {
-              const obj = info.saveInfo.listInfo[0].find((item) => {
-                if (item.columnName === 'id' && item.columnValue !== 'null') {
-                  return true;
+              if (info.saveInfo && info.saveInfo.listInfo) {
+                const obj = info.saveInfo.listInfo[0].find((item) => {
+                  if (item.columnName === 'id' && item.columnValue !== 'null') {
+                    return true;
+                  }
+                  return false;
+                });
+                if (obj) {
+                  this.$bus.$emit(
+                    'reloadArea',
+                    'setId',
+                    this.onlyFlag(),
+                    info.compId,
+                    obj.columnValue
+                  );
                 }
-                return false;
-              });
-              if (obj) {
-                this.$bus.$emit(
-                  'reloadArea',
-                  'setId',
-                  this.onlyFlag(),
-                  info.compId,
-                  obj.columnValue
-                );
               }
             });
           }
@@ -665,6 +680,7 @@ export default {
       const columnArr = [];
       const formInfo = [];
       formInfo.str = '';
+
       featureArr.children.forEach((comp) => {
         // 处理步骤条
         if (comp.compType === 27) {
@@ -800,12 +816,12 @@ export default {
         removeFileIds: this.fileDeleteIds.join(),
         tableName: this.tableInfo.tableInfo.tableName,
         compMap: JSON.stringify(this.getAllForm()),
-        menuId: this.$route.params.id,
+        menuId: this.$route.params.id || this.$route.query.menuId,
         flowType: this.configData.flowType,
         logData: {
           content: '',
           clientType: 'PC',
-          curMenuId: this.$route.params.id
+          curMenuId: this.$route.params.id || this.$route.query.menuId
         }
       };
       params.formInfo = this.resolveSaveData(this.featureArr, this.tableInfo);
@@ -861,16 +877,19 @@ export default {
         logStr: []
       };
       const feature = area.pageType === 2 ? area.children[1] : area.children[0];
-      area.tableData.forEach((data) => {
-        if (!data.notChange) {
-          const listInfo = this.resolveSaveData(feature, area, data);
-          if (listInfo.str) {
-            params.logStr.push(listInfo.str.slice(0, -1));
+      console.log(area);
+      if (area.tableData) {
+        area.tableData.forEach((data) => {
+          if (!data.notChange) {
+            const listInfo = this.resolveSaveData(feature, area, data);
+            if (listInfo.str) {
+              params.logStr.push(listInfo.str.slice(0, -1));
+            }
+            delete listInfo.str;
+            params.listInfo.push(listInfo);
           }
-          delete listInfo.str;
-          params.listInfo.push(listInfo);
-        }
-      });
+        });
+      }
       // console.log(params);
       return params;
     },
@@ -898,12 +917,12 @@ export default {
       const params = {
         batchInfo: [],
         compMap: JSON.stringify(this.getAllForm()),
-        menuId: this.$route.params.id,
+        menuId: this.$route.params.id || this.$route.query.menuId,
         flowType: this.configData.flowType,
         logData: {
           content: '',
           clientType: 'PC',
-          curMenuId: this.$route.params.id
+          curMenuId: this.$route.params.id || this.$route.query.menuId
         }
       };
       areaArr.forEach((area) => {
@@ -1075,7 +1094,7 @@ export default {
 
       if (this.isTabBtn) {
         // console.log(this.featureArr);
-        // console.log('tab按钮区的保存');
+        console.log('tab按钮区的保存', this.getResArr);
         const params = this.resolveBatchParams(this.getResArr);
         if (
           this.showType &&
@@ -1111,13 +1130,13 @@ export default {
         tableName: this.tableInfo.tableInfo.tableName,
         userId: this.$store.state.userCenter.userInfo.id,
         compMap: JSON.stringify(this.getAllForm()),
-        menuId: this.$route.params.id,
+        menuId: this.$route.params.id || this.$route.query.menuId,
         batchInfo: [],
         flowType: this.configData.flowType,
         logData: {
           content: '',
           clientType: 'PC',
-          curMenuId: this.$route.params.id
+          curMenuId: this.$route.params.id || this.$route.query.menuId
         }
       };
       const area = this.tableInfo;
@@ -1190,13 +1209,13 @@ export default {
         tableName: area.tableInfo.tableName,
         userId: this.$store.state.userCenter.userInfo.id,
         compMap: JSON.stringify(this.getAllForm()),
-        menuId: this.$route.params.id,
+        menuId: this.$route.params.id || this.$route.query.menuId,
         batchInfo: [],
         flowType: this.configData.flowType,
         logData: {
           content: '',
           clientType: 'PC',
-          curMenuId: this.$route.params.id
+          curMenuId: this.$route.params.id || this.$route.query.menuId
         }
       };
       // 表单区删除
@@ -1353,7 +1372,7 @@ export default {
           ) {
             if (this.tableInfo.compName !== 'MultiTree') {
               params.isTree = 1;
-              const idArr = params.ids.split(',');
+              const idArr = params.ids.toString().split(',');
               if (idArr.includes(1) || idArr.includes('1')) {
                 this.$message({
                   type: 'warning',
@@ -1411,7 +1430,7 @@ export default {
         logData: {
           content: '',
           clientType: 'PC',
-          curMenuId: this.$route.params.id
+          curMenuId: this.$route.params.id || this.$route.query.menuId
         }
       };
       const { userInfo } = this.$store.state.userCenter;
@@ -1436,7 +1455,6 @@ export default {
     },
     // 处理过滤条件变量为真实值
     resolveFilterVar(panelObj) {
-      console.log(panelObj);
       if (panelObj && panelObj.panelName) {
         panelObj.panelVarObj = {};
 
@@ -1513,7 +1531,6 @@ export default {
         panelObj.panelCompId = this.configData.compId;
         panelObj.relationMenuDesignId = this.sysMenuDesignId();
         panelObj.onlyFlag = this.onlyFlag();
-        console.log(this.tableInfo);
         if (this.tableInfo.isTree && this.tableInfo.compName !== 'MultiTree') {
           panelObj.isTree = true;
         }
@@ -1694,7 +1711,7 @@ export default {
     // 导入
     handlerImportFun() {
       this.importVisible = true;
-      console.log(this.configData);
+      // console.log(this.configData);
     },
     importRefresh() {
       if (this.configData.refreshType === 1) {
@@ -1705,19 +1722,17 @@ export default {
     },
     // 导出
     async handleExport() {
-      console.log(this.configData, this.multiEntityArr, this.menuMain, this.tableInfo);
+      // console.log(this.configData, this.multiEntityArr, this.menuMain, this.tableInfo);
       const { exportSetting, needField, templateInfo } = this.configData;
       // const { dropColumnData } = this.menuMain;
-      const tableComp = this.menuMain.getFeatureArr.children;
 
       const { templateName } = templateInfo; // templateId 模板ID
       const isHeader = needField ? 1 : 0; // 是否携带表字段（1是 0否）
       const chooseArr = []; // 选中的数组
 
       const { tableName: mainTable } = this.tableInfo.tableInfo; // 查询主表名 chooseIds
-      const columns = []; // 查询字段 按顺序排列并带上表名
       const collectionArr = []; // 关联表集合
-      const memo = []; // 字段中文名
+      this.tableData = [];
 
       const tempArr = []; // 选中转换
 
@@ -1725,7 +1740,7 @@ export default {
 
       const { relateTableArr } = this.tableInfo; // 关联关系
       console.log(relateTableArr);
-      let num = 0;
+      let num = 1;
       // const alias = [
       //   {
       //     name: mainTable,
@@ -1755,7 +1770,7 @@ export default {
                     : '';
             let alias12 =
               mainTable === table2
-                ? 't0'
+                ? 't1'
                 : tableObjC.alias11
                   ? tableObjC.alias11
                   : tableObjD.alias12
@@ -1772,7 +1787,7 @@ export default {
               num += 1;
               alias12 = `t${num}`;
             }
-            console.log(v, table2, key2);
+            // console.log(v, table2, key2);
             collectionArr.push({
               table1,
               key1,
@@ -1786,6 +1801,8 @@ export default {
         });
       });
 
+      const tableComp = this.menuMain.getFeatureArr.children;
+      // console.log(this.multiEntityArr, tableComp, this.tableShowColumn);
       this.multiEntityArr.forEach((data) => {
         const obj = {};
         tableComp.forEach((comp) => {
@@ -1794,14 +1811,17 @@ export default {
         tempArr.push(obj);
       });
 
-      console.log(tableComp);
       const dictMap = {};
-      tableComp.forEach((comp, i) => {
-        if (i !== 0) {
+      this.tableShowColumn.forEach((comp) => {
+        if (comp.canShow && !comp.children) {
+          // console.log(comp);
+          const obj = {
+            title: comp.name
+            // isChecked: true
+          };
           const currentObj = collectionArr.find(
             (c) => `${c.name}(${c.key1})` === comp.dataSource.relateName
           );
-          console.log(collectionArr, currentObj);
           let tableName = '';
           const tabletitle = comp.dataSource.tableName;
           if (tabletitle === mainTable) {
@@ -1822,15 +1842,12 @@ export default {
             if (comp.compType === 9) {
               field = `DATE_FORMAT(${tableName}.${comp.dataSource.columnName}, '%Y-%m-%d %H:%i:%s')`;
             }
-            if (comp.singleStatus !== 4) {
-              columns.push(`${field} ${comp.compId}`);
-            }
+            obj.columns = `${field} ${comp.compId}`;
           }
-          if (comp.singleStatus !== 4) {
-            memo.push(comp.name);
-          }
+          this.tableData.push(obj);
         }
-        if (comp.compType === 2) {
+        // comp.compType === 2
+        if (comp.dataSource && comp.dataSource.dictObj && comp.dataSource.dictObj.id) {
           dictMap[comp.compId] =
             comp.dataSource && comp.dataSource.dictObj && comp.dataSource.dictObj.id;
         }
@@ -1844,7 +1861,7 @@ export default {
       if (exportSetting === 1 || exportSetting === 2) {
         let url = `${query.DO_Export_Template}?chooseIds=${chooseArr.join(',')}&id=${
           this.templateId
-        }&isHeader=${isHeader}&menuId=${this.$route.params.id}&userId=${
+        }&isHeader=${isHeader}&menuId=${this.$route.params.id || this.$route.query.menuId}&userId=${
           this.$store.state.userCenter.userInfo.id
         }`;
         if (this.configData.enableLog) {
@@ -1855,7 +1872,7 @@ export default {
               : `多表[${this.tableArr.join()}]`;
           const logContent = `${userInfo.username}(${userInfo.account})导出${b},模板id:${this.templateId},模板名称:${templateName}`;
           url += `&logData.content=${Encrypt(logContent)}&logData.clientType=PC&logData.curMenuId=${
-            this.$route.params.id
+            this.$route.params.id || this.$route.query.menuId
           }`;
         }
         if (chooseArr.length === 0 && exportSetting === 2) {
@@ -1880,26 +1897,9 @@ export default {
       }
 
       const getAllFormObj = this.getAllForm();
-      // console.log(11111111, this.$store.state.userCenter.userInfo.id, this.$route.params.id);
       // 按界面导出
       if (exportSetting === 3 || exportSetting === 4) {
         const getPanelObj = this.getPanel();
-        if (this.menuMain.configData.canOperate) {
-          memo.pop();
-        }
-        const tableData = [];
-        memo.forEach((b, i) => {
-          columns.forEach((c, index) => {
-            if (i === index) {
-              tableData.push({
-                title: b,
-                columns: c
-              });
-            }
-          });
-        });
-        console.log(tableData);
-        this.tableData = tableData;
         this.paramsObj = {
           getAllFormObj,
           dictMap,
@@ -1912,7 +1912,8 @@ export default {
           getPanelObj,
           tableInfo: this.tableInfo,
           getAllForm: this.getAllForm(),
-          configData: this.configData
+          configData: this.configData,
+          getFatherPanel: this.getFatherPanel()
         };
         if (chooseArr.length === 0 && exportSetting === 4) {
           this.isLoading = false;
@@ -2058,6 +2059,19 @@ export default {
         if (v[this.getIdCompId] !== this.unique) {
           return;
         }
+        // 树节点id为1，即parent_id为0的时候不能删除 有子节点无法删除
+        if (this.tableInfo.isTree && this.configData.buttonType === 2) {
+          if (+v.parent_id === 0 && v.dataType === '1') {
+            this.canShow = false;
+            return;
+          }
+          if (v && +v.childCount !== 0) {
+            this.canShow = false;
+            return;
+          }
+          this.canShow = true;
+          return;
+        }
         const keys = Object.keys(this.getInitComp());
         if (keys.length === 0) {
           return;
@@ -2096,22 +2110,16 @@ export default {
             }
           });
         });
-        // 树节点id为1，即parent_id为0的时候不能删除 有子节点无法删除
-        if (this.tableInfo.isTree && this.configData.buttonType === 2) {
-          if (v.parent_id === 0 || (v && v.childCount !== 0)) {
-            this.canShow = false;
-          }
-        }
       },
       deep: true,
       immediate: true
     },
-    'configData.canShow': function (v) {
-      this.canShow = v;
-    },
-    'configData.canReadonly': function (v) {
-      console.log(v);
-    },
+    // 'configData.canShow': function (v) {
+    //   this.canShow = v;
+    // },
+    // 'configData.canReadonly': function (v) {
+    //   console.log(v);
+    // },
     exportVisible(v) {
       if (!v) {
         this.isLoading = false;

@@ -110,6 +110,14 @@ module.exports = {
       label: '流程',
       routeName: 'sysProcess',
     },
+    {
+      label: '用户登录管理',
+      routeName: 'userloginManage',
+    },
+    {
+      label: '文章',
+      routeName: 'article',
+    },
   ],
   approvalType: [
     // 审批类型，用于流程

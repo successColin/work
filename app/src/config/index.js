@@ -28,13 +28,13 @@ module.exports = {
   // #endif
   // #ifndef H5
   // baseUrl: 'http://192.168.0.20:8080', // cl
-  baseUrl: 'http://47.118.76.70:8080', // ios审核环境环境
+  baseUrl: 'https://v10.mingcloud.top', // ios审核环境环境
   // baseUrl: 'http://47.99.87.62:93', // 商务演示
   // baseUrl: 'http://120.26.220.36',
   // baseUrl: 'http://192.168.0.23:8080',
   // baseUrl: 'http://120.26.220.36',
   // baseUrl: 'http://192.168.0.28:8080',
-  // baseUrl: 'https://smrz.ywsoft.vip',
+  // baseUrl: 'http://112.124.55.3',
   // #endif
   PREFIX: '/api', // 前缀
   VERSION: 'v1', // 版本号，默认为1，后续有其他接口版本号是其他值

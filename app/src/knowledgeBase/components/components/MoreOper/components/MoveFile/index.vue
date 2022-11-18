@@ -218,8 +218,9 @@ export default {
     display: flex;
     margin: 0 100rpx;
     justify-content: center;
-    &__flex {
+    .header__flex {
       flex: 1;
+      max-width: fit-content;
     }
   }
   &__box {

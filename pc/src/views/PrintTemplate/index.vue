@@ -289,7 +289,9 @@ export default {
     handleBack() {
       window.luckysheet.exitEditMode();
       this.$router.replace(
-        `/menuConfig/${this.$route.params.id}?menuName=${this.menuName}&id=${this.menuId}&compName=ParamsConfig`
+        `/menuConfig/${this.$route.params.id || this.$route.query.menuId}?menuName=${
+          this.menuName
+        }&id=${this.menuId}&compName=ParamsConfig`
       );
     },
     // 预览

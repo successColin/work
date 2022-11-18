@@ -9,9 +9,10 @@
   <section class="helpCenterShow">
     <header>
       <div class="helpCenterShow__header">
-        <img src="@/assets/img/pcLoginLog1.svg" alt="" />
+        <!-- <img src="@/assets/img/pcLoginLog1.svg" alt="" /> -->
         <div class="helpCenterShow__header--title">
-          {{ $t('helpCenter.aPIOTHelpCenter') }}
+          <!-- {{ $t('helpCenter.aPIOTHelpCenter') }} -->
+          {{ active }}
         </div>
       </div>
     </header>
@@ -46,30 +47,54 @@ import UpdateLog from './UpdateLog';
 export default {
   data() {
     return {
+      active: null,
       activeName: 'HelpDoc',
-      tabsArr: [
+      tabsOption: [
         {
           label: 'helpCenter.helpDocument',
-          compName: 'HelpDoc'
+          compName: 'HelpDoc',
+          key: 1
         },
         {
           label: 'helpCenter.videoTutorial',
-          compName: 'VideoTutorial'
+          compName: 'VideoTutorial',
+          key: 2
         },
         {
           label: 'helpCenter.qA',
-          compName: 'CommonProblem'
+          compName: 'CommonProblem',
+          key: 3
         },
         {
           label: 'helpCenter.updateLog',
-          compName: 'UpdateLog'
+          compName: 'UpdateLog',
+          key: 4
         }
       ]
     };
   },
-  computed: {},
-  mounted() {
+  computed: {
+    enableHelpCenter() {
+      return (
+        this.$store.state.globalConfig.themeConfig.helpCenterMenu &&
+        this.$store.state.globalConfig.themeConfig.helpCenterMenu.split(',').sort()
+      );
+    },
+    tabsArr() {
+      const arr = [];
+      this.enableHelpCenter.forEach((v) => {
+        const obj = this.tabsOption.find((val) => val.key === +v);
+        if (obj) {
+          arr.push(obj);
+        }
+      });
+      return arr;
+    }
+  },
+  async mounted() {
+    await this.$store.dispatch('fetchThemeConfig', 'THEME_AND_LOGO');
     this.activeName = this.$route.query.id || this.activeName;
+    this.active = this.$route.query.name;
   },
   components: {
     HelpDoc, // 帮助文档
@@ -79,6 +104,7 @@ export default {
   },
   methods: {
     tabClick(tab) {
+      this.active = tab.label;
       this.activeName = tab.name;
       this.$nextTick(() => {
         tab.$children[0].init();
@@ -108,7 +134,7 @@ $headerHeight: 64px;
       border-right: 1px solid #e9e9e9;
     }
     &--title {
-      padding-left: 20px;
+      padding-left: 30px;
       font-size: 22px;
       color: #333333;
     }

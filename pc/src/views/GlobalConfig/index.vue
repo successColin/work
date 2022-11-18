@@ -88,13 +88,13 @@ export default {
           url: 'reportConfig',
           type: ''
         },
-        // {
-        //   name: 'globalConfig.fileServerOptions',
-        //   icon: 'icon-wenjianfuwuqixuanxiang',
-        //   color: '#FAB71C',
-        //   url: 'fileserverConfig',
-        //   type: ''
-        // },
+        {
+          name: 'globalConfig.fileServerOptions',
+          icon: 'icon-wenjianfuwuqixuanxiang',
+          color: '#FAB71C',
+          url: 'fileserverConfig',
+          type: ''
+        },
         {
           name: 'globalConfig.watermarkOptions',
           icon: 'icon-shuiyinxiangguanxuanxiang',

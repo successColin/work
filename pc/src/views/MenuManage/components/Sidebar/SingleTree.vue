@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { menuList } from '@/api/menuManage';
+import { menuList, switchLocation } from '@/api/menuManage';
 import TreeNode from './TreeNode.vue';
 
 export default {
@@ -102,8 +102,21 @@ export default {
       }
       this.$emit('node-click', data, node);
     },
-    handleDrop(draggingNode, dropNode, type) {
+    async handleDrop(draggingNode, dropNode, type) {
       console.log(draggingNode, dropNode, type);
+      const params = {
+        id: draggingNode.data.id,
+        sno: draggingNode.data.sno,
+        switchSno: dropNode.data.sno,
+        logData: {
+          operateType: 4,
+          name: this.$t('menu.menuModule'),
+          switchName: draggingNode.data.menuName
+        }
+      };
+      await switchLocation(params);
+      // 弹出复制成功信息
+      this.$message.success('移动成功');
     },
     allowDrop(draggingNode, dropNode, type) {
       if (draggingNode.level === dropNode.level && type !== 'inner') {

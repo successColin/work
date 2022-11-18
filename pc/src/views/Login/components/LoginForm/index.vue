@@ -121,7 +121,7 @@
   </el-form>
 </template>
 <script>
-import { postLoginForm } from '@/api/login.js';
+import { postLoginForm, exchangeTokenLogin } from '@/api/login.js';
 import { Encrypt, Decrypt } from '@/utils/utils';
 import SliderValidation from '../SliderValidation';
 import AccountSecurity from '../../../UserCenter/components/UserCenterTabs/components/AccountSecurity';
@@ -140,6 +140,7 @@ export default {
   },
   data() {
     return {
+      params: {},
       errorCount: 0, // 登录失败次数
       // 是否显示验证码
       isShowValidation: false,
@@ -287,60 +288,75 @@ export default {
         });
       });
     },
+    async successFun(res) {
+      await this.$store.dispatch('getRoute');
+      await this.$store.dispatch('getHomeRoute');
+      localStorage.setItem('deploymentMode', res.deploymentMode);
+      if (this.ruleForm.rememberMe) {
+        localStorage.setItem('checked', 1);
+        localStorage.setItem('username', Encrypt(this.ruleForm.username));
+        localStorage.setItem('password', this.params.password);
+      } else {
+        localStorage.setItem('checked', 0);
+        localStorage.removeItem('username');
+        localStorage.removeItem('password');
+      }
+      await this.$store.dispatch(
+        'fetchConfigFuns',
+        'THEME_AND_LOGO,THIRD_LINKS,MESSAGE_CONFIG,UREPORT_URL,FILE_SERVER,WATER_MASK'
+      );
+      // 登录成功
+      this.$nextTick(async () => {
+        this.loadingButton = false;
+
+        sessionStorage.removeItem('navTabArr');
+        sessionStorage.removeItem('delTabArr');
+        const { homeArr } = this.$store.state.base;
+        if (sessionStorage.shareUrl) {
+          this.$router.push(sessionStorage.shareUrl);
+          sessionStorage.shareUrl = '';
+        } else if (homeArr.length) {
+          const current = homeArr[0];
+          this.$router.push(`/homePage/${current.homePageId}`);
+        } else {
+          this.$router.push('/home');
+        }
+      });
+    },
     async postLoginFormFun() {
       this.valiState.validation = false;
       try {
         this.loadingButton = true;
         // 登录接口
-        const params = {
+        this.params = {};
+        this.params = {
           ...this.ruleForm,
           password: Encrypt(this.ruleForm.password),
           enableLoginFirstPc: this.$store.state.base.loginConfig.enableLoginFirstPc
         };
         if (this.isAssociated) {
           const code = localStorage.getItem('zhezhengdingCode');
-          params.zwddBindCode = code;
+          this.params.zwddBindCode = code;
         }
-        const res = await postLoginForm(params);
-        await this.$store.dispatch('getRoute');
-        await this.$store.dispatch('getHomeRoute');
-        localStorage.setItem('deploymentMode', res.deploymentMode);
-        if (this.ruleForm.rememberMe) {
-          localStorage.setItem('checked', 1);
-          localStorage.setItem('username', Encrypt(this.ruleForm.username));
-          localStorage.setItem('password', params.password);
-        } else {
-          localStorage.setItem('checked', 0);
-          localStorage.removeItem('username');
-          localStorage.removeItem('password');
-        }
-        await this.$store.dispatch(
-          'fetchConfigFuns',
-          'THEME_AND_LOGO,THIRD_LINKS,MESSAGE_CONFIG,UREPORT_URL,FILE_SERVER,WATER_MASK'
-        );
-        // 登录成功
-        this.$nextTick(async () => {
-          this.loadingButton = false;
-
-          sessionStorage.removeItem('navTabArr');
-          sessionStorage.removeItem('delTabArr');
-          const { homeArr } = this.$store.state.base;
-          if (sessionStorage.shareUrl) {
-            this.$router.push(sessionStorage.shareUrl);
-            sessionStorage.shareUrl = '';
-          } else if (homeArr.length) {
-            const current = homeArr[0];
-            this.$router.push(`/homePage/${current.homePageId}`);
-          } else {
-            this.$router.push('/home');
-          }
-        });
+        const res = await postLoginForm(this.params);
+        this.successFun(res);
       } catch (err) {
         this.loadingButton = false;
-        const { data } = err;
+        const { data, code, message } = err;
 
-        console.log(data);
-        if (!data) {
+        console.log(data, err);
+        if (code === 'SS002') {
+          await this.$confirm(`${message}`, '账户登录提示', {
+            dangerouslyUseHTMLString: true,
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }).then(async (v) => {
+            console.log(v);
+            const res = await exchangeTokenLogin({ exchangeToken: data });
+            this.successFun(res);
+          });
+        } else if (!data) {
           this.$message.error(err.message);
           this.isBtnDisabled = true;
           this.loadingButton = false;

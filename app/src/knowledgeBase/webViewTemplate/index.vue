@@ -48,7 +48,11 @@ export default {
     //     options.url
     //   }&token=${this.$apiot.common.getComToken()}`;
     // } else
-    this.webViewURL = `/hybrid/html/web/viewer.html?isToken=true&interface=${options.url}&token=${options.token}`;
+    console.log(options);
+    this.webViewURL = `/hybrid/html/web/viewer.html?isToken=true&interface=${
+      options.url
+    }&token=${this.$apiot.getComToken()}`;
+    console.log(this.webViewURL);
     this.barTitle = options.fileName;
   },
   mounted() {}

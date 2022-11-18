@@ -33,7 +33,14 @@
 export default {
   computed: {
     titleName() {
+      if (this.$route.meta.isProjectName) {
+        return this.$t(this.$route.matched[0].meta.title) + this.configs.systemTitle;
+      }
       return this.$t(this.$route.matched[0].meta.title);
+    },
+    configs() {
+      const { loginConfig } = this.$store.state.base;
+      return loginConfig;
     }
   },
   methods: {

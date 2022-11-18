@@ -107,4 +107,8 @@ export default {
     compType: 27,
     imgUrl: 'highComp/Image.svg',
   },
+  28: {
+    compType: 28,
+    imgUrl: 'highComp/Image.svg',
+  },
 };

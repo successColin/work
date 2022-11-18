@@ -314,7 +314,8 @@
                   range-separator="-"
                   :start-placeholder="$t('importTemplate.startDate')"
                   :end-placeholder="$t('importTemplate.endDate')"
-                  value-format="yyyy/MM/dd"
+                  value-format="yyyy-MM-dd"
+                  format="yyyy-MM-dd"
                 >
                 </el-date-picker>
               </check-type>
@@ -869,7 +870,7 @@ export default {
         this.checkTwo = arrCheck[b];
       } else if (checkOne && this.ruleForm.coloumnType === 3) {
         this.$nextTick(() => {
-          this.checkOne = checkOne && checkOne.split('-');
+          this.checkOne = [checkOne.slice(0, 10), checkOne.slice(11)];
         });
       } else {
         this.checkOne = '';

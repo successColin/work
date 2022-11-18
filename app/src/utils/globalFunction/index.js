@@ -5,6 +5,7 @@ import { addUnit, px2rpx, rpx2px } from './libs/addUnit';
 import bus from './libs/bus';
 import * as common from './libs/common';
 import dateFormat from './libs/dateFormat';
+import downloadFile from './libs/downloadFile';
 import fomatFloat from './libs/fomatFloat';
 import guid from './libs/guid';
 import moment from './libs/moment';
@@ -87,6 +88,7 @@ const $apiot = {
   $uGetRect,
   ...common,
   preview,
+  downloadFile,
 };
 
 Vue.prototype.$apiot = $apiot;

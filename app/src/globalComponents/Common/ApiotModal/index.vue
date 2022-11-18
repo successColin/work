@@ -341,4 +341,7 @@ export default {
     }
   }
 }
+.prompt__wrap--content--title {
+  word-break: break-all;
+}
 </style>

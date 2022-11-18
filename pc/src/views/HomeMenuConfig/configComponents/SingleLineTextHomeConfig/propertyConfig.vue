@@ -691,6 +691,9 @@ export default {
     .panelBtn {
       width: 100%;
     }
+    .icon-shezhi {
+      color: #4689f5;
+    }
   }
 
   .ellipsisWrap {

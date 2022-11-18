@@ -36,6 +36,7 @@ export default [
         component: () => import('_v/Register/RegisterForm'),
         meta: {
           notChangeTheme: true,
+          isProjectName: true,
         },
       },
       {
@@ -44,6 +45,7 @@ export default [
         component: () => import('_v/Register/RegisterInfo'),
         meta: {
           notChangeTheme: true,
+          isProjectName: true,
         },
       },
     ],
@@ -110,7 +112,7 @@ export default [
   },
   // 分享页面
   {
-    path: '/sharePage/:flag/:id',
+    path: '/sharePage/:flag',
     name: 'sharePage',
     component: () => import('_v/ApiotMenu'),
     meta: {},
@@ -369,6 +371,16 @@ export default [
           childrenPage: true,
         },
       },
+      // 公告管理
+      {
+        path: 'articleManage',
+        name: 'articleManage',
+        component: () => import('_v/ArticleManage'),
+        meta: {
+          title: '文章管理',
+          childrenPage: true,
+        },
+      },
       // 授权管理
       {
         path: 'licenseManage',
@@ -376,6 +388,16 @@ export default [
         component: () => import('_v/LicenseManage'),
         meta: {
           title: '授权管理',
+          childrenPage: true,
+        },
+      },
+      // 用户登录管理
+      {
+        path: 'userLoginManage',
+        name: 'userLoginManage',
+        component: () => import('_v/UserLoginManage'),
+        meta: {
+          title: '用户登录管理',
           childrenPage: true,
         },
       },

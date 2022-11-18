@@ -20,6 +20,11 @@ export default {
     operationFailed: '操作失败',
     announceContent: '公告内容',
     accessRecords: '查阅记录',
-    receiver: '接收人员'
+    receiver: '接收人员',
+    article: '文章',
+    articleTitle: '文章标题',
+    isShare: '是否启用分享',
+    isComment: '是否启用评论',
+    articleCover: '文章封面',
   },
 };

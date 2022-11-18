@@ -16,6 +16,9 @@
           @click="changeLayout(index)"
         >
           <img
+            :class="[
+              { isRotate: layout.compName === 'LeftAndRightNoSiderbar' },
+            ]"
             :src="
               require(`@/assets/img/menu_images/pageLayout/${layout.imgUrl}`)
             "
@@ -26,7 +29,11 @@
         </li>
       </ul>
       <el-form label-position="top" :model="activeObj">
-        <el-form-item label="宽度占比" v-if="activeObj.leftWidth">
+        <el-form-item
+          label="宽度占比"
+          v-if="activeObj.leftWidth"
+          v-show="activeObj.compName !== 'LeftAndRightNoSiderbar'"
+        >
           <el-select
             v-model="activeObj.leftWidth"
             placeholder="请选择宽度"
@@ -43,6 +50,7 @@
         <el-form-item
           label="宽度占比"
           v-if="activeObj.rightWidth && activeObj.compName !== 'ThreeRegional'"
+          v-show="activeObj.compName !== 'LeftAndRightNoSiderbar'"
         >
           <el-select
             v-model="activeObj.rightWidth"
@@ -55,6 +63,48 @@
             <el-option label="78%" :value="78"></el-option>
             <el-option label="76%" :value="76"></el-option>
             <el-option label="74%" :value="74"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="宽度占比"
+          v-if="activeObj.leftWidth"
+          v-show="activeObj.compName === 'LeftAndRightNoSiderbar'"
+        >
+          <el-select
+            v-model="activeObj.leftWidth"
+            placeholder="请选择宽度"
+            @change="activeObj.rightWidth = 100 - activeObj.leftWidth"
+          >
+            <el-option label="10%" :value="10"></el-option>
+            <el-option label="20%" :value="20"></el-option>
+            <el-option label="30%" :value="30"></el-option>
+            <el-option label="40%" :value="40"></el-option>
+            <el-option label="50%" :value="50"></el-option>
+            <el-option label="60%" :value="60"></el-option>
+            <el-option label="70%" :value="70"></el-option>
+            <el-option label="80%" :value="80"></el-option>
+            <el-option label="90%" :value="90"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="宽度占比"
+          v-if="activeObj.rightWidth && activeObj.compName !== 'ThreeRegional'"
+          v-show="activeObj.compName === 'LeftAndRightNoSiderbar'"
+        >
+          <el-select
+            v-model="activeObj.rightWidth"
+            placeholder="请选择宽度"
+            @change="activeObj.leftWidth = 100 - activeObj.rightWidth"
+          >
+            <el-option label="10%" :value="10"></el-option>
+            <el-option label="20%" :value="20"></el-option>
+            <el-option label="30%" :value="30"></el-option>
+            <el-option label="40%" :value="40"></el-option>
+            <el-option label="50%" :value="50"></el-option>
+            <el-option label="60%" :value="60"></el-option>
+            <el-option label="70%" :value="70"></el-option>
+            <el-option label="80%" :value="80"></el-option>
+            <el-option label="90%" :value="90"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="高度占比" v-if="activeObj.topHeight">
@@ -176,7 +226,7 @@ export default {
               ]
             },
             {
-              name: '左右布局',
+              name: '侧边布局',
               compId: createUnique(),
               compName: 'LeftAndRight',
               leftWidth: 20,
@@ -251,6 +301,43 @@ export default {
                 },
                 {
                   name: '区域3',
+                  showTab: false,
+                  compId: createUnique(),
+                  shouldTab: false,
+                  curCompId: 0,
+                  firstShowTabId: 0,
+                  children: [],
+                  propertyCompName: 'ContentConfig',
+                  isSidebar: false
+                }
+              ]
+            },
+            {
+              name: '左右布局',
+              compId: createUnique(),
+              compName: 'LeftAndRightNoSiderbar',
+              leftWidth: 50,
+              rightWidth: 50,
+              propertyCompName: 'PageLayout',
+              imgUrl: 'TopAndBottom.svg',
+              dictArr: [],
+              paneObj: {},
+              menuObj: {}, // 跳转菜单相关
+              codeRuleList: [],
+              children: [
+                {
+                  name: '区域1',
+                  showTab: false,
+                  compId: createUnique(),
+                  shouldTab: false,
+                  curCompId: 0,
+                  firstShowTabId: 0,
+                  children: [],
+                  propertyCompName: 'ContentConfig',
+                  isSidebar: false
+                },
+                {
+                  name: '区域2',
                   showTab: false,
                   compId: createUnique(),
                   shouldTab: false,
@@ -391,6 +478,9 @@ export default {
       img {
         display: block;
         margin: 30px auto 0;
+        &.isRotate {
+          transform: rotate(-90deg);
+        }
       }
       p {
         margin-top: 26px;

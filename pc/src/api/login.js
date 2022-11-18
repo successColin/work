@@ -117,3 +117,12 @@ export function ssoLogin(params) {
     params,
   });
 }
+
+// 踢登确认
+export function exchangeTokenLogin(data) {
+  return FetchData.request({
+    url: 'exchangeTokenLogin',
+    method: 'post',
+    data,
+  });
+}

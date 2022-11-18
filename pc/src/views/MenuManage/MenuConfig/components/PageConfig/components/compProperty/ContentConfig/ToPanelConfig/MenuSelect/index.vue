@@ -6,7 +6,10 @@
     title="选择面板"
   >
     <div class="search m-b-10">
-      <search-input @getList="sysMenuPage" v-model="keyWord"></search-input>
+      <search-input
+        @getList="sysMenuPage"
+        v-model.trim="keyWord"
+      ></search-input>
     </div>
     <apiot-table
       ref="table"

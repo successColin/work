@@ -1,8 +1,8 @@
 @font-face {
   font-family: "appIcon"; /* Project id 2808920 */
-  src: url('@/assets/iconfont/iconfont.woff2?t=1660121337563') format('woff2'),
-       url('@/assets/iconfont/iconfont.woff?t=1660121337563') format('woff'),
-       url('@/assets/iconfont/iconfont.ttf?t=1660121337563') format('truetype');
+  src: url('@/assets/iconfont/iconfont.woff2?t=1668758880985') format('woff2'),
+       url('@/assets/iconfont/iconfont.woff?t=1668758880985') format('woff'),
+       url('@/assets/iconfont/iconfont.ttf?t=1668758880985') format('truetype');
 }
 
 .appIcon {
@@ -11,6 +11,42 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.appIcon-shangchuantubiao:before {
+  content: "\eb65";
+}
+
+.appIcon-fenxiang2:before {
+  content: "\eb62";
+}
+
+.appIcon-yidianzan:before {
+  content: "\eb63";
+}
+
+.appIcon-dianzan:before {
+  content: "\eb64";
+}
+
+.appIcon-gonggao:before {
+  content: "\eb5e";
+}
+
+.appIcon-piliangcaozuo:before {
+  content: "\eb4c";
+}
+
+.appIcon-lianjie:before {
+  content: "\eb4a";
+}
+
+.appIcon-fenxiang1:before {
+  content: "\eb4b";
+}
+
+.appIcon-xuanzhong:before {
+  content: "\eb49";
 }
 
 .appIcon-duoyuyan:before {
@@ -297,6 +333,3 @@
   content: "\ea7d";
 }
 
-.appIcon-yuyan:before {
-  content: "\eb2f";
-}

@@ -10,7 +10,11 @@
     ]"
     v-if="showInput"
   >
-    <el-form-item :prop="`${configData.compId}`" v-if="!isTable">
+    <el-form-item
+      :prop="`${configData.compId}`"
+      v-if="!isTable"
+      :class="[{ 'is-required': isConfig && configData.shouldRequired }]"
+    >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
         <el-tooltip
@@ -43,6 +47,36 @@
           >{{ configData.decorateContent }}</template
         >
       </el-input>
+      <div class="numberBox__box" v-if="false">
+        <span
+          class="numberBox__box--left"
+          v-if="configData.decorateContent && configData.decorateType === 1"
+        >
+          {{ configData.decorateContent }}</span
+        >
+        <el-input-number
+          class="numberBox__box--num"
+          :class="[
+            { showLeft: configData.decorateType === 1 },
+            { showRight: configData.decorateType === 2 },
+          ]"
+          :placeholder="configData.placeholder"
+          v-model="parent.form[configData.compId]"
+          :precision="
+            configData.numberType === 2 ? configData.decimalPlaces : 0
+          "
+          :disabled="configData.canReadonly"
+          :controls="false"
+          ref="valueInput"
+          @blur="valueBlur"
+        ></el-input-number>
+        <span
+          class="numberBox__box--right"
+          v-if="configData.decorateContent && configData.decorateType === 2"
+          >{{ configData.decorateContent }}</span
+        >
+      </div>
+
       <el-input
         v-if="configData.thousandSign && canShowRes"
         :placeholder="configData.placeholder"
@@ -93,7 +127,7 @@ export default {
 
   computed: {
     showRes() {
-      let inputValue = this.parent.form[this.configData.compId];
+      let inputValue = this.parent.form[this.configData.compId].toString();
       const index = inputValue.indexOf('.');
       if (index !== -1) {
         const intNum = inputValue.substring(0, index).replace(/\B(?=(?:\d{3})+$)/g, ',');
@@ -199,6 +233,52 @@ export default {
       font-size: 13px;
       font-weight: normal;
       cursor: pointer;
+    }
+  }
+  &__box {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    &--num {
+      flex: 1;
+      line-height: 30px;
+      &.showLeft {
+        ::v-deep {
+          .el-input__inner {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+          }
+        }
+      }
+      &.showRight {
+        ::v-deep {
+          .el-input__inner {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+          }
+        }
+      }
+      ::v-deep {
+        .el-input__inner {
+          text-align: left;
+        }
+      }
+    }
+    &--left,
+    &--right {
+      height: 32px;
+      box-sizing: border-box;
+      color: #333;
+      padding: 0 10px;
+      background-color: #fff;
+      color: #666666;
+      border: 1px solid #e9e9e9;
+    }
+    &--left {
+      border-right: 0 none;
+    }
+    &--right {
+      border-left: 0px none;
     }
   }
   ::v-deep {

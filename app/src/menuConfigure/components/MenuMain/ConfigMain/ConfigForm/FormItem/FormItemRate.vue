@@ -14,7 +14,10 @@
         <slot name="elTilte"></slot>
       </view>
       <view class="elementContent">
-        <apiot-rate :showType="showType"></apiot-rate>
+        <apiot-rate
+          :showType="showType"
+          :showLevel="element.showContent"
+        ></apiot-rate>
       </view>
     </view>
   </u-form-item>

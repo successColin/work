@@ -34,7 +34,7 @@
         </template>
         <search-input
           @getList="searchDict"
-          v-model="keywords"
+          v-model.trim="keywords"
           :isForbid="false"
         ></search-input>
       </header>

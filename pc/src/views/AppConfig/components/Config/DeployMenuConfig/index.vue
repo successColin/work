@@ -137,14 +137,14 @@
       </apiot-button>
       <h2
         class="config__body--head"
-        v-if="activeObj.type === 2 && !activeObj.isFooter"
+        v-if="activeObj.type === 2 && !activeObj.isMine && !activeObj.isSy"
       >
         固定菜单
       </h2>
       <el-select
         class="config__body--select"
         v-model="activeObj.routeName"
-        v-if="activeObj.type === 2 && !activeObj.isFooter"
+        v-if="activeObj.type === 2 && !activeObj.isMine && !activeObj.isSy"
       >
         <el-option
           :value="item.routeName"
@@ -250,7 +250,7 @@
 </template>
 
 <script>
-import { appRouteArr, selectColorArr } from '@/config';
+import { appRouteArr } from '@/config';
 import { saveAppMenu } from '@/api/appConfig';
 import { listSysDesignMenu } from '@/api/menuConfig';
 import { getFunctionList } from '@/api/homePage';
@@ -349,7 +349,7 @@ export default {
     this.appRouteArr = appRouteArr;
     this.getOldIndex();
     this.initIcon();
-    this.selectColorArr = selectColorArr;
+    // this.selectColorArr = selectColorArr;
     this.listSysDesignMenu();
     if (this.activeObj.type === 4) {
       if (this.activeObj.customId) {
@@ -525,6 +525,7 @@ export default {
     selectHornMark(obj) {
       this.activeObj.panelHornMark = obj;
       this.activeObj.panelHornMarkId = obj[0].compId;
+      this.activeObj.hornMarkNeedPermissions = obj[0].needPermissions || false;
       console.log(this.activeObj, 'this.activeObj');
     }
   }

@@ -262,6 +262,7 @@ export default {
               needPermissions: true,
               reloadArea: [], // 要刷新的区域
               isTree: false, // 是否是树区
+              personalConfig: false, // 是否启用个性化配置
               required: false, // 是否必填
               showNum: true, // 是否显示序号
               selectType: 1, // 多选类型 0 无 1 是多选 2是单选
@@ -314,8 +315,16 @@ export default {
               dialogName: 'PanelDialog', // 弹窗风格
               dialogTitle: '', // 弹窗名称
               hasCardIcon: false, // 是否有卡片图标
+              iconFrom: 1, // 图标来源
               iconId: '', // 卡片图标来源的组件id
-              iconColorId: '' // 卡片图标颜色来源的组件id
+              iconColorId: '', // 卡片图标颜色来源的组件id,
+              iconColumn: {
+                columnName: '',
+                id: '',
+                columnTypeDict: 0,
+                compId: ''
+              }, // 字段图标来源
+              heightMul: 1 // 高度倍数
             },
             {
               name: '配置树',
@@ -1353,11 +1362,67 @@ export default {
               canQuery: true
             }
           ]
+        },
+        {
+          name: '业务组件',
+          isClose: false,
+          children: [
+            {
+              name: '用户组件',
+              dragCard: true,
+              dragTable: true,
+              showLabelTitle: true, // 是否显示分割线的标题
+              areaType: 1,
+              imgUrl: 'highComp/Webview.svg',
+              compType: 28,
+              compId: createUnique(),
+              compName: 'UserComp',
+              tableCompName: 'TableUserCompCol',
+              propertyCompName: 'UserCompConfig',
+              placeholder: '请输入用户',
+              helpInfo: '',
+              width: '100%',
+              tableWidth: '0.1',
+              singleStatus: 1,
+              dropDownType: 2,
+              dataSource: {
+                relateName: '主表', // 关系名称
+                tableName: '', //  表名
+                columnName: '', // 字段名称
+                columnTypeDict: 0, // 字段类型
+                id: 0, // 字段id
+                alias: '', // 别名
+                dictObj: null // 字典表数据
+              },
+              multiTable: {
+                table: {
+                  tableName: 'sys_user',
+                  alias: '',
+                  id: ''
+                },
+                column: {
+                  columnName: 'username',
+                  id: '',
+                  columnTypeDict: 2
+                }
+              }, // 多选字段来源
+              enableTableSearch: false,
+              shouldSearch: true, // 是否搜索
+              shouldFav: true, // 是否启用收藏
+              shouldInRole: true, // 是否启用按角色选择
+              shouldInOrg: true, // 是否启用按组织选择
+              shouldInPost: true, // 是否启用按职位选择
+              canShow: true,
+              canReadonly: false,
+              shouldRequired: false,
+              submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
+            }
+          ]
         }
       ],
       busiArr: [
         {
-          name: '业务组件',
+          name: '业务区域组件',
           isClose: false,
           children: [
             {

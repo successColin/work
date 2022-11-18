@@ -39,7 +39,7 @@
             <div class="contentBox">
               <!-- 三角形 -->
               <div class="commonProblem__triangle"></div>
-              <div v-html="item.html"></div>
+              <div v-html="item.html" class="apiotWangeditor"></div>
             </div>
           </div>
         </div>

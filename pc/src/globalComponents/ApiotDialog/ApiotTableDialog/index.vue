@@ -15,7 +15,10 @@
   >
     <!-- 搜索框 -->
     <header>
-      <search-input @getList="searchTable" v-model="keywords"></search-input>
+      <search-input
+        @getList="searchTable"
+        v-model.trim="keywords"
+      ></search-input>
     </header>
     <!-- 表格 -->
     <apiot-table

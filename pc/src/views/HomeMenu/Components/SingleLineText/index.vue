@@ -322,7 +322,6 @@ export default {
         const isFlag = this.formulaConversion(item.jumpTerm);
         return isFlag;
       });
-      console.log(skipMenuConfig, 'skipMenuConfig');
       const commonReduce = (config) => {
         config.menuVarObj = {};
         config.menuFilter.forEach((item, index) => {
@@ -360,13 +359,7 @@ export default {
         }
         if (CSMIsWebview === '4') {
           // eslint-disable-next-line no-undef
-          // alert(jWeixin.miniProgram);
-          // eslint-disable-next-line no-undef
           uni.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
-          // eslint-disable-next-line no-undef
-          // jWeixin.miniProgram.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
-          // eslint-disable-next-line no-undef
-          // jWeixin.miniProgram.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
           // eslint-disable-next-line no-undef
           uni.postMessage({ data: newMenuConfig });
         }
@@ -386,6 +379,9 @@ export default {
           newJumpMenuObj[menuConfig.id] = newMenuConfig;
           sessionStorage.jumpMenuObj = JSON.stringify(newJumpMenuObj);
           this.$bus.$emit('changeMenuTab', curMenu);
+          this.$nextTick(() => {
+            this.$bus.$emit('refresh');
+          });
         } else {
           this.$message({
             type: 'warning',
@@ -476,6 +472,18 @@ export default {
           if (CSMIsWebview === '3') {
             // eslint-disable-next-line no-undef
             dd.postMessage({ data: curPaneObj });
+          }
+          if (CSMIsWebview === '4') {
+            // eslint-disable-next-line no-undef
+            // alert(jWeixin.miniProgram);
+            // eslint-disable-next-line no-undef
+            uni.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
+            // eslint-disable-next-line no-undef
+            // jWeixin.miniProgram.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
+            // eslint-disable-next-line no-undef
+            // jWeixin.miniProgram.navigateTo({ url: `/PagesWX/cusetomPage?CSMUuid=${CSMUuid}` });
+            // eslint-disable-next-line no-undef
+            uni.postMessage({ data: newMenuConfig });
           }
           return;
         }

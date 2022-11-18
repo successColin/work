@@ -23,7 +23,7 @@
       ></el-radio>
       <div class="treeNode__treeIcon">
         <i
-          v-if="getCurDict(data, 1)"
+          v-if="getCurDict(data, 1) && configData.hasCardIcon"
           :class="`iconfont ${getCurDict(data, 1)} ${
             getCurDict(data, 1) && 'm-r-4'
           }`"

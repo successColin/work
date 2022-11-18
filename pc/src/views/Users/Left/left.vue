@@ -2,16 +2,16 @@
 <template>
   <div class="leftWrap" v-loading="loading">
     <div class="leftWrap__switch">
-      <div class="switch__push" @click="linkTo">
-        <el-tooltip
-          class="item"
-          effect="dark"
-          :content="getDefaultLeftTypeName()"
-          placement="top-start"
-        >
-          <i class="iconfont icon-tiaozhuan"></i>
-        </el-tooltip>
-      </div>
+<!--      <div class="switch__push" @click="linkTo">-->
+<!--        <el-tooltip-->
+<!--          class="item"-->
+<!--          effect="dark"-->
+<!--          :content="getDefaultLeftTypeName()"-->
+<!--          placement="top-start"-->
+<!--        >-->
+<!--          <i class="iconfont icon-tiaozhuan"></i>-->
+<!--        </el-tooltip>-->
+<!--      </div>-->
       <div class="switch__title">{{ getDefaultLeftTypeName() }}</div>
       <div class="switch__select">
         <el-dropdown
@@ -21,30 +21,40 @@
         >
           <i class="iconfont icon-gengduocaozuo"></i>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="org">{{$t('user.org')}}</el-dropdown-item>
-            <el-dropdown-item command="role">{{$t('user.roles')}}</el-dropdown-item>
-            <el-dropdown-item command="position">{{$t('user.pos')}}</el-dropdown-item>
+            <el-dropdown-item command="org">{{
+              $t('user.org')
+            }}</el-dropdown-item>
+            <el-dropdown-item command="role">{{
+              $t('user.roles')
+            }}</el-dropdown-item>
+            <el-dropdown-item command="position">{{
+              $t('user.pos')
+            }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
     </div>
     <div class="left__search">
-<!--      <apiot-input-->
-<!--        :placeholder="getInputPlaceholder()"-->
-<!--        v-model="keyWord"-->
-<!--        ref="search"-->
-<!--        @keyup.enter.native="doSearch"-->
-<!--        @input="reset"-->
-<!--      ></apiot-input>-->
-<!--      <i class="iconfont icon-sousuo" @click="doSearch"></i>-->
+      <!--      <apiot-input-->
+      <!--        :placeholder="getInputPlaceholder()"-->
+      <!--        v-model.trim="keyWord"-->
+      <!--        ref="search"-->
+      <!--        @keyup.enter.native="doSearch"-->
+      <!--        @input="reset"-->
+      <!--      ></apiot-input>-->
+      <!--      <i class="iconfont icon-sousuo" @click="doSearch"></i>-->
       <search-input
-          :placeholder="getInputPlaceholder()"
-          @getList="doSearch"
-          v-model="keyWord"
+        :placeholder="getInputPlaceholder()"
+        @getList="doSearch"
+        v-model.trim="keyWord"
       ></search-input>
     </div>
     <div class="leftWrap_ul_listWrap">
-      <OrgTree v-if="defaultLeftType === 'org'" ref="org" isolationSign="user"></OrgTree>
+      <OrgTree
+        v-if="defaultLeftType === 'org'"
+        ref="org"
+        isolationSign="user"
+      ></OrgTree>
       <RoleTree
         v-if="defaultLeftType === 'role'"
         ref="role"
@@ -93,7 +103,7 @@ export default {
       return function () {
         return this.inputPlaceholder || this.$t('user.placeholder_org');
       };
-    },
+    }
   },
 
   mounted() {
@@ -109,21 +119,21 @@ export default {
         item = {
           path: '/role',
           routeName: 'role',
-          menuName: this.$t('user.roles'),
+          menuName: this.$t('user.roles')
         };
       }
       if (this.defaultLeftType === 'org') {
         item = {
           path: '/orgManage',
           routeName: 'orgManage',
-          menuName: this.$t('user.org'),
+          menuName: this.$t('user.org')
         };
       }
       if (this.defaultLeftType === 'position') {
         item = {
           path: '/postManage',
           routeName: 'postManage',
-          menuName: this.$t('user.pos'),
+          menuName: this.$t('user.pos')
         };
       }
       this.$bus.$emit('changeMenuTab', item);

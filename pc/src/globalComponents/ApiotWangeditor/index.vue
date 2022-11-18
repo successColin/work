@@ -181,19 +181,14 @@ export default {
 .apiotWangeditor {
   display: flex;
   flex-direction: column;
+  border: 1px solid #e9e9e9;
   ::v-deep {
     &.w-e-full-screen-container {
       z-index: 2000;
     }
-    p,
-    ol,
-    ul,
-    blockquote {
-      line-height: 1.15;
-    }
     .w-e-text-placeholder {
       position: absolute;
-      top: 7px;
+      top: 15px;
     }
   }
 }

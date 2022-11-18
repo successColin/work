@@ -49,7 +49,7 @@
               <i
                 class="iconfont icon-qiehuan"
                 @click="moveMenu"
-                v-if="item.menuType !== 1 && groupId !== 16"
+                v-if="item.menuType !== 1 && item.menuType !== 4"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -61,7 +61,7 @@
               <i
                 class="iconfont icon-fuzhi"
                 @click.stop="copyMenu"
-                v-if="item.menuType !== 1 && groupId !== 16"
+                v-if="item.menuType !== 1 && item.menuType !== 4"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -73,7 +73,7 @@
               <i
                 class="iconfont icon-shanchu"
                 @click="deleteMenu"
-                v-if="item.menuType !== 1 && groupId !== 16"
+                v-if="item.menuType !== 1 && item.menuType !== 4"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -85,7 +85,7 @@
               <i
                 class="iconfont icon-jiechuguanlian"
                 @click="deleteMenu"
-                v-if="groupId === 16"
+                v-if="item.menuType === 4"
               ></i>
             </el-tooltip>
             <el-tooltip
@@ -108,7 +108,7 @@
         </transition>
         <i
           class="iconfont icon-caidansheji"
-          v-if="item.menuType !== 1 && groupId !== 16"
+          v-if="item.menuType !== 1 && item.menuType !== 4"
           @click="enterMenuRole"
         ></i>
       </div>

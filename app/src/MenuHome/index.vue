@@ -120,7 +120,7 @@ export default {
     // 主体色
     enableNotice() {
       return this.functionInterface.enableNotice;
-    },
+    }
   },
 
   methods: {
@@ -151,7 +151,6 @@ export default {
       try {
         const result = await getMenuConfig();
         this.$store.commit('changMenus', result);
-        this.getSubscriptFun();
         this.websocketFun();
         this.getSubscriptMenu();
         // if (this.fixedMenuMark.sysNotification) {
@@ -260,13 +259,6 @@ export default {
         fail(data) {
           console.log(data, '连接失败');
         }
-      });
-      socketTask.onOpen((res) => {
-        console.log('WebSocket 打开中.....');
-        // 注：只有连接正常打开中 ，才能正常收到消息
-        socketTask.onMessage((v) => {
-          console.log(`收到服务器内容：${v}`);
-        });
       });
       uni.onSocketMessage(async (res) => {
         const e = JSON.parse(res.data);

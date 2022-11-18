@@ -124,10 +124,13 @@ export default {
     getPageInnerMailList() {
       try {
         const param = {
-          innerMailCategory: this.type,
           current: this.page,
           size: this.size,
           orders: [
+            {
+              asc: true,
+              column: 'hasRead'
+            },
             {
               asc: false,
               column: 'sendTime'
@@ -193,7 +196,7 @@ export default {
       return result;
     },
     markAllRead() {
-      markMailAllRead({ innerMailCategory: this.type }).then(() => {
+      markMailAllRead().then(() => {
         const arr = this.messageArr.map((item) => {
           const obj = {
             ...item,

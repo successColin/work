@@ -14,21 +14,13 @@
     show-overflow-tooltip
   >
     <template slot-scope="scope">
-      <apiot-color-select
-        v-if="scope.$index === editIndex"
-        :color.sync="scope.row[prop]"
-        placement="bottom-start"
-        width="170"
-        trigger="click"
-        :colorArr="colorArr"
-        @selectColor="selectColor(scope)"
-      ></apiot-color-select>
-      <div v-else class="color__div">
-        <span
-          class="color__span"
-          :style="`backgroundColor:${scope.row[prop]}`"
-        ></span>
-        {{ scope.row[prop] }}
+      <div class="color__div">
+        <apiot-color-picker
+          v-model="scope.row[prop]"
+          initColor="#ffffff"
+          @change="selectColor(scope)"
+        >
+        </apiot-color-picker>
       </div>
     </template>
   </el-table-column>
@@ -89,10 +81,14 @@ export default {
   display: flex;
   align-items: center;
 }
-.color__span {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
+::v-deep {
+  .el-color-picker {
+    height: 30px;
+  }
+  .el-color-picker__trigger {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+  }
 }
 </style>

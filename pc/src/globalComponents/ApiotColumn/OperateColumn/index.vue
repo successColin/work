@@ -17,7 +17,7 @@
     <template slot-scope="scope">
       <apiot-button
         @click="buttonClick(scope, item)"
-        v-for="(item, index) in buttonArr"
+        v-for="(item, index) in getButtonArr(scope.row)"
         :key="index"
         :type="item.type || 'text'"
         :plain="item.plain"
@@ -35,7 +35,7 @@ export default {
   props: {
     label: String,
     buttonArr: {
-      type: Array,
+      type: [Array, Function],
       default() {
         return [{ name: 'entity.entityTable.operateBtn1', funcName: 'edit' }];
       }
@@ -53,6 +53,14 @@ export default {
   computed: {
     opeLable() {
       return this.label || 'common.operate';
+    },
+    getButtonArr() {
+      return (row) => {
+        if (Array.isArray(this.buttonArr)) {
+          return this.buttonArr;
+        }
+        return this.buttonArr(row);
+      };
     }
   },
 

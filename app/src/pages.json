@@ -157,6 +157,25 @@
       ]
     },
     {
+      "root": "MoreInfor",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "components/InforDetails/index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
       "root": "knowledgeBase",
       "pages": [
         {
@@ -242,7 +261,11 @@
       "root": "PagesSelectUser",
       "pages": [
         {
-          "path": "index"
+          "path": "index",
+					"style": {
+						"enablePullDownRefresh": true,
+						"onReachBottomDistance": 120
+					}
         }
       ]
     },
@@ -266,7 +289,8 @@
         "MenuHome",
         "menuConfigure",
         "knowledgeBase",
-        "PagesProcess"
+        "PagesProcess",
+        "MoreInfor"
       ]
     },
     "menuConfigure/index": {

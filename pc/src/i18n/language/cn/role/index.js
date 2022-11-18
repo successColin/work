@@ -172,9 +172,9 @@ export default {
     account1: '登录帐号',
     telephone: '手机号',
     user_state_dict: '状态',
-    orgName: '组织架构',
+    orgName: '所属组织',
     userPostName: '职位',
-    roleNames: '关联角色',
+    roleNames: '所属角色',
     roleTags: '关联标签', // related role
     userLabel: '标签',
     userEmail: '常用邮箱',

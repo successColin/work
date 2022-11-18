@@ -20,20 +20,20 @@ export function getPageInnerMail(params) {
 }
 
 // 设置我的站内信已读
-export function markMailRead(params) {
+export function markMailRead(data) {
   return FetchData.request({
     url: query.MARK_MAIL_READ,
-    method: 'get',
-    params,
+    method: 'post',
+    data,
   });
 }
 
 // 设置我的站内信已读
-export function markMailAllRead(params) {
+export function markMailAllRead(data) {
   return FetchData.request({
     url: query.MARK_MAIL_ALL_READ,
-    method: 'get',
-    params,
+    method: 'post',
+    data,
   });
 }
 

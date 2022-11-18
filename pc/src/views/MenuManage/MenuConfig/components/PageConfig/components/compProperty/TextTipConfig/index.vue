@@ -125,6 +125,8 @@
           <el-option label="14" :value="14"></el-option>
           <el-option label="15" :value="15"></el-option>
           <el-option label="16" :value="16"></el-option>
+          <el-option label="17" :value="17"></el-option>
+          <el-option label="18" :value="18"></el-option>
         </el-select>
         <el-select v-model="activeObj.titleFont.style">
           <el-option label="常规字体" :value="1"></el-option>
@@ -144,6 +146,8 @@
           <el-option label="14" :value="14"></el-option>
           <el-option label="15" :value="15"></el-option>
           <el-option label="16" :value="16"></el-option>
+          <el-option label="17" :value="17"></el-option>
+          <el-option label="18" :value="18"></el-option>
         </el-select>
         <el-select v-model="activeObj.font.style">
           <el-option label="常规字体" :value="1"></el-option>

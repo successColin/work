@@ -241,6 +241,9 @@ export default {
             }
           }
         };
+        if (params.id) {
+          delete params.id;
+        }
         const data = await addSysEntityTables(params);
         this.$emit('update:visible', false);
         this.$emit('addOrEditClick', data);

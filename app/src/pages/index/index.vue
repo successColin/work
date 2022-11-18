@@ -8,6 +8,7 @@
 
 <template>
   <view class="content">
+    <!-- <view v-if="canRequestConfig === 2">获取配置失败,请检查网络(开发中)</view> -->
     <!-- 密码过期确认弹窗 -->
     <apiot-modal ref="apiotModal"></apiot-modal
   ></view>
@@ -32,6 +33,7 @@ export default {
       show: false,
       mode: 'date',
       title: 'Hello',
+      canRequestConfig: 0, // 为了兼容没有网络的问题 0=原生状态，1=请求成功；2=请求失败
       configs: {},
       source: null,
       pageConfig: {
@@ -41,6 +43,21 @@ export default {
       }
     };
   },
+  watch: {
+    canRequestConfig(status) {
+      if (status === 1) {
+        // #ifdef H5
+        // 单点登录
+        this.ssoLogin();
+        // #endif
+        // #ifndef H5
+        this.login();
+        // #endif
+        const res = verifyToken();
+        console.log(res);
+      }
+    }
+  },
   onLoad(option = {}) {
     if (option.source) {
       this.source = option.source;
@@ -49,15 +66,33 @@ export default {
     this.$store.commit('setMenuHomePageConfig', this.pageConfig);
     this.getConfig();
   },
-  async mounted() {
-    const res = await verifyToken();
-    console.log(res);
-  },
+  mounted() {},
   methods: {
+    // 单点登录逻辑
+    async ssoLogin() {
+      // ssoType:1=正常 2=需要钉钉登录 3=标准单点登录
+      if (+this.configs.ssoType === 3) {
+        const path = window.location.href;
+        const rsaToken = path.split('?uid=')[1];
+        if (rsaToken) {
+          try {
+            const token = await ssoLogin({ rsaToken });
+            uni.setStorageSync('token', Encrypt(token));
+            this.$store.dispatch('jumpHomePage', { setConfig: true, config: this.pageConfig });
+          } catch (error) {
+            this.login();
+          }
+        } else {
+          this.login();
+        }
+      } else if (+this.configs.ssoType === 2) this.ddLogin();
+      else this.login();
+    },
     async getConfig() {
       try {
         // 获取登录配置
         const res = await getGlobalAppLogin();
+
         const obj = {};
         res.forEach((item) => {
           const { attributeKey, attributeValue } = item;
@@ -68,35 +103,9 @@ export default {
         uni.setStorageSync('globalLogin', obj);
 
         // 开始进行登录逻辑
-
-        // #ifdef H5
-        // 单点登录
-        console.log(this.configs.ssoType);
-        if (+this.configs.ssoType === 3) {
-          const path = window.location.href;
-          const rsaToken = path.split('?uid=')[1];
-          if (rsaToken) {
-            try {
-              const token = await ssoLogin({ rsaToken });
-              uni.setStorageSync('token', Encrypt(token));
-              this.$store.dispatch('jumpHomePage', { setConfig: true, config: this.pageConfig });
-            } catch (error) {
-              this.login();
-            }
-          } else {
-            this.login();
-          }
-          // 如果时h5，需要判断是否进行钉钉登录 ssoType:1=正常 2=需要钉钉登录
-        } else if (+this.configs.ssoType === 2) this.ddLogin();
-        else this.login();
-        // #endif
-
-        // #ifndef H5
-        // 如果不是h5的不考虑钉钉登录问题
-        this.login();
-        // #endif
+        this.canRequestConfig = 1;
       } catch (error) {
-        this.login();
+        this.canRequestConfig = 2;
       }
     },
     // 钉钉登录

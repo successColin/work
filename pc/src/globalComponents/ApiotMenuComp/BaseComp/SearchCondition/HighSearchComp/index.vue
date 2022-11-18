@@ -37,7 +37,7 @@
         </el-dropdown>
       </div>
       <apiot-input
-        v-if="type === 1"
+        v-if="type === 1 || type === 6"
         class="searchComp__left--fw"
         v-model="form[configData.compId]"
         :placeholder="configData.placeholder"
@@ -153,7 +153,8 @@ export default {
           { label: '<', value: '<' },
           { label: '>=', value: '>=' },
           { label: '<=', value: '<=' }
-        ]
+        ],
+        6: [{ label: '包含', value: 'IN' }]
       },
       type: -1,
       panelObj: null, // 面板相关信息
@@ -274,6 +275,14 @@ export default {
       // 数字
       if ([10].includes(this.configData.compType)) {
         this.type = 5;
+      }
+      // 人员
+      if ([28].includes(this.configData.compType)) {
+        this.type = 6;
+      }
+      if (this.type === -1) {
+        this.type = 1;
+        console.log(this.type);
       }
       if (this.lambdaArr[this.type]) {
         this.form[`${this.configData.compId}_lambda`] = this.lambdaArr[this.type][0].value;

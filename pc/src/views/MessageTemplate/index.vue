@@ -18,7 +18,7 @@
           }}
         </apiot-button>
 
-        <search-input @getList="getList" v-model="keywords"></search-input>
+        <search-input @getList="getList" v-model.trim="keywords"></search-input>
       </header>
       <section class="message__main">
         <apiot-table
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import { getList, disableTemplate, enableTemplate, delTemp } from '@/api/messageTemplate';
+import { delTemp, disableTemplate, enableTemplate, getList } from '@/api/messageTemplate';
 import TemplateDetail from './components/TemplateDetail';
 
 export default {
@@ -89,27 +89,32 @@ export default {
   components: { TemplateDetail },
 
   props: {
-    isMute: { // 是否多选
+    isMute: {
+      // 是否多选
       type: Boolean,
-      default: true,
+      default: true
     },
-    showRadio: { // 是否显示单选框
+    showRadio: {
+      // 是否显示单选框
       type: Boolean,
-      default: false,
+      default: false
     },
-    showSelection: { // 是否显示多选框
+    showSelection: {
+      // 是否显示多选框
       type: Boolean,
-      default: true,
+      default: true
     },
-    selectName: { // 单选选中根据哪个字段进行判断
+    selectName: {
+      // 单选选中根据哪个字段进行判断
       type: String,
-      default: 'id',
+      default: 'id'
     },
-    currentRadioObj: { // 单选框选中的对象
+    currentRadioObj: {
+      // 单选框选中的对象
       type: Object,
       default() {
         return {};
-      },
+      }
     }
   },
 
@@ -164,7 +169,7 @@ export default {
           ]
         }
       ],
-      selectKeys: {}, // 单选的值
+      selectKeys: {} // 单选的值
     };
   },
 

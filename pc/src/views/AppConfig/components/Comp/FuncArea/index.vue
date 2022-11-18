@@ -16,7 +16,12 @@
         <h2 class="funcArea__li--title" v-if="!config.isFooter">
           {{ item.name }}
         </h2>
-        <func-group :config="item" :activeObj="activeObj"></func-group>
+        <func-group
+          :config="item"
+          :activeObj="activeObj"
+          v-if="item.compName === 'FuncGroup'"
+        ></func-group>
+        <app-info v-else :config="item" :activeObj="activeObj"></app-info>
       </li>
     </ul>
     <p v-else>功能区</p>
@@ -26,6 +31,7 @@
 <script>
 import compMixin from '../comp';
 import FuncGroup from '../FuncGroup';
+import AppInfo from '../AppInfo';
 
 export default {
   mixins: [compMixin],
@@ -34,7 +40,8 @@ export default {
   },
 
   components: {
-    FuncGroup
+    FuncGroup,
+    AppInfo
   },
 
   computed: {},

@@ -3,7 +3,7 @@
  * @Author: ytx
  * @Date: 2021-05-14 14:38:10
  * @Last Modified by: ytx
- * @Last Modified time: 2022-08-04 10:46:22
+ * @Last Modified time: 2022-10-26 11:46:25
  */
 export default {
   globalConfig: {
@@ -31,7 +31,7 @@ export default {
     passwordError: '账号密码输入错误验',
     passwordErrorShow: '证滑块显示',
     recordName: '备案号',
-    enableRegistration: '是否启用注册',
+    enableRegistration: '是否启用注册账号',
     supportAppCode: '是否支持APP扫码登录',
     forgetPassword: '是否启用忘记密码',
     enableMultilingual: '是否启用多语言',
@@ -97,5 +97,8 @@ export default {
     waterMaskFont: '字体',
     waterMaskColor: '文字颜色',
     waterMaskTransparency: '字体透明度',
+    welcomeLoginName: '欢迎登录名称',
+    isEnableAppDownload: '是否启用下载app',
+    accountLoginMode: '账号登录模式',
   },
 };

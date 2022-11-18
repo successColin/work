@@ -17,6 +17,7 @@
         <apiot-input
           :value="value"
           :type="type"
+          :thousandth="element.thousandSign"
           border="none"
           :placeholder="element.placeholder"
           :prefixText="prefixText"

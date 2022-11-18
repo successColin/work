@@ -8,41 +8,12 @@
 <template>
   <div class="messageShow"
     :class="{openedApprove: approveVisible}">
-    <page-tabs
+    <message-list
       v-on="$listeners"
       v-bind="$attrs"
-      v-model="activeName"
-      :tabsArr="tabsArr"
-      :showTabs="true"
-      :hasUnRead="hasUnRead"
-      @tab-click="tabClick"
-    >
-      <template v-slot:Workflow>
-        <message-list
-            v-on="$listeners"
-            v-bind="$attrs"
-            @fetchNodeInfo="fetchNodeInfo"
-            @doMessageClick="doMessageClick"
-            type="WORK_FLOW"
-            ref="Workflow"/>
-      </template>
-      <template v-slot:SystemMessage>
-        <message-list
-            v-bind="$attrs"
-            v-on="$listeners"
-            @fetchNodeInfo="fetchNodeInfo"
-            @doMessageClick="doMessageClick"
-            type="SYSTEM"
-            ref="SystemMessage"/>
-      </template>
-      <template v-slot:Communication>
-        <message-list
-            v-on="$listeners"
-            v-bind="$attrs"
-            type="P2P"
-            ref="Communication"/>
-      </template>
-    </page-tabs>
+      @fetchNodeInfo="fetchNodeInfo"
+      @doMessageClick="doMessageClick"
+      ref="Workflow"/>
     <Approve
       :showTabs.sync="approveVisible"
       :com="com"

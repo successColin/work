@@ -70,13 +70,13 @@
                   class="m-b-10"
                 ></func-area>
                 <!-- 公告 -->
-                <app-info
+                <!-- <app-info
                   v-show="configData.enableInfo"
                   v-if="configData.type !== 3"
                   :config="configData.info"
                   :activeObj="activeObj"
                   class="m-b-10 m-l-10 m-r-10"
-                ></app-info>
+                ></app-info> -->
               </div>
             </div>
             <div
@@ -142,7 +142,7 @@ export default {
         // 其否启用公告栏
         enableNotice: 1,
         // 是否启用资讯
-        enableInfo: 0,
+        // enableInfo: 0,
         // 是否启用底部
         enableFooter: 1,
         // 是否启用我的
@@ -200,7 +200,9 @@ export default {
           configCompName: 'AppInfoConfig',
           name: '行业资讯',
           term: 1,
-          time: 1
+          time: 1,
+          groupId: 0,
+          count: 3
         },
         // 底部
         footerArea: {
@@ -225,6 +227,7 @@ export default {
                   compName: 'AppMenu',
                   configCompName: 'DeployMenuConfig',
                   menuName: '首页',
+                  id: 100,
                   routeName: '',
                   icon: {
                     icon: '',
@@ -307,7 +310,7 @@ export default {
           // 是否启用轮播
           enableRotation: 1,
           // 是否启用资讯
-          enableInfo: 0,
+          // enableInfo: 0,
           // 右上角按钮
           rightFunc: [
             {

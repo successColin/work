@@ -144,6 +144,7 @@
               :currentRadioObj.sync="currentRadioObj"
               @cell-mouse-enter="cellMouseEnter"
               @cell-mouse-leave="cellMouseLeave"
+              @row-click="rowClick"
               :dropClass="`.${dropClass}`"
               :isNeedColumnDrop="false"
               lazy
@@ -467,6 +468,7 @@ export default {
       this.$bus.$on('getSelMultiArr', this.getSelMultiArr);
       this.$bus.$on('getAllTableData', this.getAllTableData);
       this.$bus.$on('getTableArr', this.getTableArr);
+      this.$bus.$on('selectTableLine', this.selectTableLine);
     }
   },
 
@@ -926,7 +928,7 @@ export default {
     },
     // 树表保存后的处理
     async treeSave(isAdd, isTableBtn) {
-      console.log(this.getFeatureArr.form);
+      // console.log(this.getFeatureArr.form);
       let { unique } = this.getFeatureArr.form;
       if (!isAdd) {
         if (isTableBtn) {
@@ -937,14 +939,17 @@ export default {
           unique = this.multiEntityArr[0].fatherUnique;
         }
       }
+      if (!this.loadNodeMap.has(unique)) {
+        unique = this.getFeatureArr.form.fatherUnique;
+      }
       if (unique === 0 || this.configData.searchInfo) {
         this.getSidebarList();
         return;
       }
+
       if (this.loadNodeMap.has(unique)) {
         const { treeData, resolve } = this.loadNodeMap.get(unique);
         const data = await this.getCurDataList(treeData);
-        console.log(data);
         resolve(this.resolveData(data, treeData.unique));
       }
     },
@@ -998,7 +1003,7 @@ export default {
         });
       }
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     makeFlowParams(params) {
@@ -1026,7 +1031,7 @@ export default {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       // console.log(jumpMenuObj, 'jumpMenuObj');
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }
@@ -1217,7 +1222,11 @@ export default {
         sessionStorage.notInitMul = '';
         this.selectTableRow();
       }
-      this.selectItem();
+      if (data && data.length) {
+        this.selectItem(this.tableData[0]);
+      } else {
+        this.$bus.$emit('changeShowSkeleton');
+      }
     },
     // 列表排序  ASC ascending升序  DESC descending降序
     sortChange(column) {
@@ -1274,6 +1283,9 @@ export default {
           }
           if ([3].includes(comp.compType)) {
             v = +v;
+          }
+          if ([10].includes(comp.compType)) {
+            v = `${v}`;
           }
         }
         if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
@@ -1388,13 +1400,13 @@ export default {
     //   }
     // },
     // 选择当前item
-    selectItem() {
+    selectItem(item) {
       if (this.isConfig) {
         return;
       }
-      // this.getFeatureArr.form = {
-      //   ...item
-      // };
+      if (item) {
+        this.getFeatureArr.form = item;
+      }
       // 触发其他区域数据的加载
       if (this.configData.reloadArea.length) {
         this.$bus.$emit(this.getEventName, this.configData.reloadArea, this.onlyFlag());
@@ -1405,11 +1417,11 @@ export default {
     // 鼠标移入某个区域
     cellMouseEnter(row, column) {
       // 给表格区form赋值
-      this.changeNotValueChange(true);
-      this.getFeatureArr.form = this.allDataMap.get(row.unique);
-      this.$nextTick(() => {
-        this.changeNotValueChange(false);
-      });
+      // this.changeNotValueChange(true);
+      // this.getFeatureArr.form = this.allDataMap.get(row.unique);
+      // this.$nextTick(() => {
+      //   this.changeNotValueChange(false);
+      // });
 
       if (this.showVisible) {
         this.showVisible = false;
@@ -1420,6 +1432,20 @@ export default {
     cellMouseLeave() {
       if (!this.showVisible) {
         this.showCell = '';
+      }
+    },
+    // 是否触发行点击
+    selectTableLine(compId, row) {
+      if (compId === this.configData.compId) {
+        this.rowClick(row);
+      }
+    },
+    // 点击行
+    rowClick(row) {
+      const tempData = this.allDataMap.get(row.unique);
+      if (this.getFeatureArr.form.unique !== tempData.unique) {
+        this.getFeatureArr.form = tempData;
+        this.selectItem();
       }
     },
     // 点击收起下拉
@@ -1547,6 +1573,7 @@ export default {
         this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
         this.$bus.$off('getSelMultiArr');
         this.$bus.$off('getAllTableData');
+        this.$bus.$off('selectTableLine', this.selectTableLine);
       }
     } else {
       // this.$bus.$off(this.getEventName);
@@ -1554,6 +1581,7 @@ export default {
       this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
       this.$bus.$off('getSelMultiArr');
       this.$bus.$off('getAllTableData');
+      this.$bus.$off('selectTableLine', this.selectTableLine);
     }
     this.$bus.$off('getTableArr');
   },

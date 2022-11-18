@@ -203,7 +203,7 @@ export default {
         return [this.$store.state.dictManage.TRIGGER_EVENT.find((item) => item.value === 1)];
       }
       if (this.getCompType === 5) {
-        return this.$store.state.dictManage.TRIGGER_EVENT.filter((item) => item.value !== 2);
+        return this.$store.state.dictManage.TRIGGER_EVENT.filter((item) => item.value === 3);
       }
       return this.$store.state.dictManage.TRIGGER_EVENT.filter((item) => item.value !== 3);
     },

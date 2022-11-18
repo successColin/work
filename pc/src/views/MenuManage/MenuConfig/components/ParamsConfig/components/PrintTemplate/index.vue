@@ -134,9 +134,9 @@ export default {
     },
     jumpFun(v) {
       this.$router.push(
-        `/printTemplate/${this.$route.params.id}?menuName=${this.$route.query.menuName}&id=${
-          this.$route.query.id
-        }${v || ''}`
+        `/printTemplate/${this.$route.params.id || this.$route.query.menuId}?menuName=${
+          this.$route.query.menuName
+        }&id=${this.$route.query.id}${v || ''}`
       );
     },
     // 添加消息模板

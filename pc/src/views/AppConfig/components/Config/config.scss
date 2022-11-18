@@ -82,6 +82,14 @@
     &--select {
       width: 100%;
     }
+    &--number {
+      width: 100%;
+      ::v-deep {
+        .el-input__inner{
+          text-align: left;
+        }
+      }
+    }
     &--btn {
       width: 100%;
       height: 30px;

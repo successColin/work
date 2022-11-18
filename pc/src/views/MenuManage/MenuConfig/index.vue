@@ -3,7 +3,7 @@
     <apiot-button class="tabs__return" @click="returnMenuRole">
       <i class="iconfont icon-fanhui"></i>{{ $t('common.return') }}
     </apiot-button>
-    <el-tabs v-model="activeName">
+    <el-tabs v-model="activeName" class="topTabs">
       <el-tab-pane
         :label="item.label"
         :name="item.key"
@@ -29,10 +29,10 @@
 </template>
 
 <script>
-import PageConfig from './components/PageConfig';
 import FlowConfig from './components/FlowConfig/Process/index';
-import ParamsConfig from './components/ParamsConfig';
+import PageConfig from './components/PageConfig';
 import PaneManage from './components/PaneManage';
+import ParamsConfig from './components/ParamsConfig';
 
 export default {
   name: 'MenuConfig',
@@ -94,9 +94,10 @@ export default {
   methods: {
     returnMenuRole() {
       /*
-      let str = `/menuRole/${this.$route.params.id}?menuName=${this.$route.query.menuName}`;
+      let str = `/menuRole/${this.$route.params.id ||
+        this.$route.query.menuId}?menuName=${this.$route.query.menuName}`;
       if (this.$route.query.isApp) {
-        str = `/menuRole/${this.$route.params.id}?menuName=$
+        str = `/menuRole/${this.$route.params.id || this.$route.query.menuId}?menuName=$
         {this.$route.query.menuName}&isApp=${this.$route.query.isApp}`;
       }
       this.$router.push(str);
@@ -153,7 +154,7 @@ export default {
   }
 
   & > ::v-deep {
-    .el-tabs {
+    .el-tabs.topTabs {
       height: 100%;
       & > .el-tabs__header {
         margin: 0;
@@ -173,29 +174,29 @@ export default {
             justify-content: center;
           }
         }
-      }
 
-      .el-tabs__item {
-        color: #333333;
-        font-size: 16px;
-        font-weight: 400;
-        .zhanwei {
-          color: #e0e0e0;
-        }
-        &.is-active {
-          color: $--color-primary;
-          font-family: PingFangSC-Medium;
-          font-weight: 600;
-          .iconfont {
-            color: $--color-primary;
+        .el-tabs__item {
+          color: #333333;
+          font-size: 16px;
+          font-weight: 400;
+          .zhanwei {
+            color: #e0e0e0;
           }
-        }
-        .iconfont {
-          font-weight: normal;
-          font-size: 20px;
-          margin-right: 2px;
-          color: #bbc3cd;
-          vertical-align: -1px;
+          &.is-active {
+            color: $--color-primary;
+            font-family: PingFangSC-Medium;
+            font-weight: 600;
+            .iconfont {
+              color: $--color-primary;
+            }
+          }
+          .iconfont {
+            font-weight: normal;
+            font-size: 20px;
+            margin-right: 2px;
+            color: #bbc3cd;
+            vertical-align: -1px;
+          }
         }
       }
 

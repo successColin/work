@@ -148,7 +148,8 @@ export default {
       specialParent: true,
       moreBtnsArrObj: null,
       tabsArr: [],
-      loadedTabs: []
+      loadedTabs: [],
+      showTabId: ''
     };
   },
 
@@ -174,13 +175,13 @@ export default {
     },
     getCurTab: {
       get() {
-        return this.isConfig ? this.configData.curCompId : this.configData.firstShowTabId;
+        return this.isConfig ? this.configData.curCompId : this.showTabId;
       },
       set(v) {
         if (this.isConfig) {
           this.configData.curCompId = v;
         } else {
-          this.configData.firstShowTabId = v;
+          this.showTabId = v;
         }
       }
     },
@@ -193,7 +194,7 @@ export default {
       };
     }
   },
-
+  created() {},
   mounted() {
     // console.log(this.configData);
     if (!this.isConfig) {
@@ -202,8 +203,8 @@ export default {
         this.$bus.$on('tabHidden', this.tabHidden);
       } else {
         this.tabsArr = this.configData.children;
-        this.configData.firstShowTabId = this.tabsArr[0].compId;
-        this.loadedTabs = [this.configData.firstShowTabId];
+        this.showTabId = this.configData.firstShowTabId;
+        this.loadedTabs = [this.showTabId];
       }
       this.$bus.$on('returnFirst', this.returnFirst);
     }
@@ -219,7 +220,7 @@ export default {
     // 回到第一个
     returnFirst(onlyFlag) {
       if (this.onlyFlag() === onlyFlag && this.tabsArr[0]) {
-        this.configData.firstShowTabId = this.tabsArr[0].compId;
+        this.showTabId = this.tabsArr[0].compId;
         this.$nextTick(() => {
           this.$broadcast('changeHeight');
         });
@@ -257,10 +258,12 @@ export default {
         }
       });
 
-      if (!tempShow.includes(this.configData.firstShowTabId)) {
-        [this.configData.firstShowTabId] = tempShow;
+      if (tempShow.includes(this.configData.firstShowTabId)) {
+        this.showTabId = this.configData.firstShowTabId;
+      } else {
+        [this.showTabId] = tempShow;
       }
-      this.loadedTabs = [this.configData.firstShowTabId];
+      this.loadedTabs = [this.showTabId];
     },
     changeCurActiveObj(e) {
       if (!this.isConfig) {

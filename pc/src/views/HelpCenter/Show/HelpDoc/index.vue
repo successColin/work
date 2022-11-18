@@ -30,7 +30,7 @@
           <div class="middle__content">
             <div
               v-html="currentObj.html"
-              class="helpDoc__dec item-box ShowIndex"
+              class="helpDoc__dec item-box ShowIndex apiotWangeditor"
             ></div>
           </div>
         </div>

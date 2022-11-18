@@ -40,7 +40,7 @@
               ></scan-login>
             </div>
             <!-- info -->
-            <div class="vessel__info">{{ $t('login.welcomeToAPIoT') }}</div>
+            <div class="vessel__info">{{ configs.welcomeTitle }}</div>
             <!-- 账号密码form 和 扫码登录 -->
             <login-form
               class="vessel__loginForm"

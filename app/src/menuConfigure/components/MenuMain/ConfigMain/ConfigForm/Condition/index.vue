@@ -96,7 +96,7 @@ export default {
       // 单行文本，多行文本
       if ([1, 11].includes(compType)) mode = 1;
       // 下拉，单选，多选
-      else if ([2, 3, 4].includes(compType)) mode = 2;
+      else if ([2, 3, 4, 28].includes(compType)) mode = 2;
       // 数据单选，多选
       else if ([6, 7].includes(compType)) mode = 3;
       // 时间

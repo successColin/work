@@ -160,6 +160,7 @@ export default {
   border: 2rpx solid #e9e9e9;
   &__header {
     display: inline-flex;
+    align-items: center;
     div {
       display: inline-block;
     }
@@ -168,10 +169,6 @@ export default {
       font-size: 32rpx;
       font-family: $--font-family;
       color: #333333;
-      span {
-        display: inline-block;
-        vertical-align: -10rpx;
-      }
     }
 
     &__endorsement {
@@ -181,7 +178,7 @@ export default {
       flex-wrap: wrap;
       font-size: 32rpx;
       .endorsement {
-        margin: 0 0 10rpx 10rpx;
+        margin-left: 10rpx;
         &:last-child {
           margin-right: 10rpx;
         }

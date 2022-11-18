@@ -98,7 +98,7 @@
                 </el-select>
                 <span
                   class="ToMenuConfig__li--delete"
-                  @click="deleteArea(item, index)"
+                  @click="deleteArea(item, i)"
                   ><i class="iconfont icon-shanchu"></i>删除</span
                 >
               </h1>
@@ -349,7 +349,11 @@ export default {
     },
     // 新增区域
     handleCommand({ area, item }) {
-      // console.log(area);
+      // console.log(area, item);
+      if (!area.tableInfo) {
+        this.$message.error(`请将该【${item.name}】菜单配置完整再配置跳转菜单功能!`);
+        return;
+      }
       item.menuFilter.push({
         compId: area.compId,
         name: area.name,
@@ -362,7 +366,9 @@ export default {
     },
     // 删除区域
     deleteArea(item, index) {
+      console.log(item, index);
       item.menuFilter.splice(index, 1);
+      console.log(item);
     },
     // 删除菜单
     deleteMenu(index) {

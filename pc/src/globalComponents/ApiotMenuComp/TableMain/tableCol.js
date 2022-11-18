@@ -69,19 +69,6 @@ export default {
   },
   mounted() {},
   methods: {
-    // 生效字典数组
-    effectArr() {
-      if (this.configData.effectDict && this.configData.effectDict.length) {
-        const arr = this.getDictArr.filter((item) => {
-          if (this.configData.effectDict.includes(item.value)) {
-            return true;
-          }
-          return false;
-        });
-        return arr;
-      }
-      return this.getDictArr;
-    },
     visibleChange(v) {
       this.$emit('update:showVisible', v);
       if (!v) {
@@ -115,6 +102,26 @@ export default {
         return true;
       }
       return false;
+    },
+    // 生效字典数组
+    effectArr() {
+      if (
+        this.configData.effectDict &&
+        this.configData.effectDict.length &&
+        this.getDictArr
+      ) {
+        const arr = this.getDictArr.filter((item) => {
+          if (this.configData.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      if (this.getDictArr) {
+        return this.getDictArr;
+      }
+      return [];
     },
   },
 

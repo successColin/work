@@ -7,7 +7,10 @@
 -->
 <template>
   <view class="rolesUserModal" :style="showStyle">
-    <u-sticky :customNavHeight="customBar">
+    <view class="rolesUserModal__header">
+      <!-- #ifndef MP-ALIPAY -->
+      <view class="statusBar" :style="{ height: statusHeight }"></view>
+      <!-- #endif -->
       <section class="rolesUserModal__top">
         <span class="backBtn" @click.stop="back"
           ><i class="appIcon appIcon-fanhuijiantou"></i>按角色</span
@@ -17,25 +20,27 @@
       </section>
       <section class="rolesUserModal__search">
         <apiot-input-search
+          ref="pagesSelectUserSearch"
           searchFlag="pagesSelectUserSearch"
+          @search="doSearch"
         ></apiot-input-search>
       </section>
-    </u-sticky>
+    </view>
+    <!-- #ifndef MP-ALIPAY -->
+    <view class="statusBar" :style="{ height: statusHeight }"></view>
+    <!-- #endif -->
+    <view class="nav--placeholder" :style="headerStyle"></view>
     <section class="roles__users">
-      <user-card
-        v-for="(user, index) in users"
-        :key="index"
-        :value="user"
-      ></user-card>
+      <users-list mode="data" :list="list"></users-list>
     </section>
   </view>
 </template>
 
 <script>
-import UserCard from '../../../UserCard';
+import UsersList from '../../../UsersList';
 
 export default {
-  components: { UserCard },
+  components: { UsersList },
 
   inject: ['GetSelectUsers'],
 
@@ -54,20 +59,22 @@ export default {
   },
 
   data() {
-    return {};
+    return {
+      list: []
+    };
   },
 
   computed: {
     systemInfo() {
       return this.$store.state.base.systemInfo;
     },
-    // 顶部固定高度
-    customBar() {
-      let height = this.systemInfo.statusBar;
-      // #ifdef MP-ALIPAY
-      height = 0;
-      // #endif
-      return height;
+    statusHeight() {
+      return `${this.systemInfo.statusBar}px`;
+    },
+    headerStyle() {
+      const top = this.$apiot.rpx2px(80);
+      const topHeight = top + 44; // top、tab、搜索栏
+      return { height: `${topHeight}px` };
     },
     // 选中的人员
     checkList() {
@@ -79,9 +86,35 @@ export default {
     }
   },
 
+  watch: {
+    users: {
+      handler(V) {
+        this.doSearch();
+      },
+      immediate: true
+    }
+  },
+
   methods: {
     back() {
       this.$emit('update:show', false);
+      this.list = this.users;
+      this.$refs.pagesSelectUserSearch.searchParams = {};
+    },
+    // 搜索
+    doSearch(param = {}) {
+      const { keyword } = param;
+      if (!keyword) this.list = this.users;
+      else {
+        this.list = this.users.filter((user) => {
+          const { username = '', telephone = '', email = '' } = user;
+          return (
+            username.indexOf(keyword) !== -1 ||
+            `${telephone}`.indexOf(keyword) !== -1 ||
+            email.indexOf(keyword) !== -1
+          );
+        });
+      }
     }
   },
 
@@ -98,6 +131,13 @@ export default {
   right: 0;
   z-index: 1000;
   background: #fff;
+  &__header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+  }
   &__top {
     padding: 0 30rpx;
     height: 80rpx;

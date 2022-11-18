@@ -108,6 +108,11 @@
             @input="dataVaildFormChange"
             @change="fromDataChange"
           ></form-item-input>
+          <form-item-divider
+            v-else-if="el.compType === 18"
+            :element="el"
+            :layout="funcConfig.layoutStyle !== 2 ? 'column' : 'row'"
+          ></form-item-divider>
           <form-item-iframe
             v-else-if="el.compType === 19"
             :element="el"
@@ -135,12 +140,13 @@
             v-else-if="el.compType === 26"
             :element="el"
           ></form-item-swiper>
-          <view
-            class="grap"
-            :class="{ grapTitle: !!el.showLabelTitle }"
-            v-else-if="el.compType === 18"
-            ><template v-if="el.showLabelTitle">{{ el.name }}</template></view
-          >
+          <form-item-users
+            v-else-if="el.compType === 28"
+            :value="configForm[el.compId]"
+            :element="el"
+            @change="fromDataChange"
+          ></form-item-users>
+
           <form-item-step-bar
             v-else-if="el.compType === 27"
             :element="el"
@@ -166,6 +172,7 @@ import { batchUpload, getSidebarSingle } from '@/api/menuConfig';
 import ConfigBtns from '../ConfigBtns';
 
 import FormHead from './FormHead';
+import FormItemDivider from './FormItem/FormItemDivider';
 import FormItemLabel from './FormItem/FormItemLabel';
 import FormItemSelect from './FormItem/FormItemSelect';
 import FormItemSelectData from './FormItem/FormItemSelectData';
@@ -182,6 +189,7 @@ import FormItemCascade from './FormItem/FormItemCascade';
 import FormItemSwiper from './FormItem/FormItemSwiper';
 import FormItemCheckbox from './FormItem/FormItemCheckbox';
 import FormItemStepBar from './FormItem/FormItemStepBar';
+import FormItemUsers from './FormItem/FormItemUsers';
 
 import compMixin from '../compMixin';
 import mpMixin from '@/mixin/mpMixin';
@@ -189,6 +197,7 @@ import mpMixin from '@/mixin/mpMixin';
 export default {
   components: {
     FormHead,
+    FormItemDivider,
     ConfigBtns,
     FormItemInput,
     FormItemLabel,
@@ -205,7 +214,8 @@ export default {
     FormItemCascade,
     FormItemSwiper,
     FormItemCheckbox,
-    FormItemStepBar
+    FormItemStepBar,
+    FormItemUsers
   },
 
   mixins: [compMixin, mpMixin],
@@ -407,6 +417,8 @@ export default {
           if (defaultValueType === 2 && formulaContent) {
             curentData[key] = this.resolveFormula(true, el.formulaContent);
           } else if ([8, 9].indexOf(compType) !== -1) {
+            console.log('时间========================');
+            console.log(form[key]);
             if (defaultType === 1) {
               // 默认当前时间
               curentData[key] = this.$apiot.dateFormat('', compType === 9 ? '' : 'yyyy-MM-dd');

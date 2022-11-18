@@ -14,7 +14,8 @@
     >
       <u-list-item v-for="(item, index) in dataArr" :key="index">
         <section class="listData" @click="handleJumpIn(item)">
-          <image class="listData__img" :src="imgUrl(item)" alt="" />
+          <!-- <image class="listData__img" :src="imgUrl(item)" alt="" /> -->
+          <i class="listData__img appIcon" :class="[imgUrl(item)]"></i>
           <div class="listData__dec">
             <div class="listData__dec--right">
               <!-- 文件名 -->
@@ -68,7 +69,6 @@
 </template>
 
 <script>
-import { PREVIEW_FILE } from '@/utils/preview.js';
 import { visitRecord } from '@/api/knowledgeBase';
 
 import nodata from '../../../Nodata';
@@ -105,8 +105,12 @@ export default {
   },
   components: { nodata },
   computed: {
+    // 是否需要加水印
+    isWatermark() {
+      return this.$store.getters.getWatermark;
+    },
     imgUrl() {
-      return function (v) {
+      return function(v) {
         return this.fileTypeImg(v);
       };
     },
@@ -114,7 +118,7 @@ export default {
       return '100%';
     },
     typeVal() {
-      return function (item) {
+      return function(item) {
         return (
           item.materialType ||
           (this.pathArr.length &&
@@ -128,7 +132,7 @@ export default {
       return this.$store.state.userCenter.userInfo.id;
     },
     isShowEle() {
-      return function (v) {
+      return function(v) {
         const obj =
           this.funcConfig &&
           this.funcConfig.tableColumn &&
@@ -150,7 +154,6 @@ export default {
     },
     // 跳转子目录 和 预览
     handleJumpIn(v) {
-      console.log(v);
       if (v.treeType === 1) {
         const arr = [...this.pathArr];
         arr.push({
@@ -172,20 +175,18 @@ export default {
         }
       } else if (this.funcConfig.showPreview) {
         // 预览
-        const { id, name, url } = v;
-        const video = PREVIEW_FILE(
-          {
-            id,
-            name,
-            // fileLength,
-            url,
-            apiUrl: `${this.baseUrl || this.defaultUrl}file/fileDownload`,
-            token: uni.getStorageSync('token')
-          },
-          this
-        );
-        if (video.type === 'video') {
-          this.$emit('update:videoPreviewUrl', video.url);
+        this.visitRecordFun(v);
+        const { name, url } = v;
+        this.$apiot.preview.previewFile({
+          file: [v],
+          isWatermark: this.isWatermark,
+          fileParamUrl: 'url',
+          fileParamName: 'name'
+        });
+        const suffix = this.$apiot.preview.getFileSuffix(name);
+        const type = this.$apiot.preview.getFileType(suffix);
+        if (type === 'video') {
+          this.$emit('update:videoPreviewUrl', this.$apiot.getComUrlByToken(url));
         }
       }
     },
@@ -200,45 +201,45 @@ export default {
     // 节点类型（1目录 2文档 3图片 4视频 5 音频 6 其他）
     fileTypeImg(obj) {
       const { treeType, url } = obj;
-      let fileName = 'OTHER.svg';
+      let fileName = 'appIcon-qitawenjian';
       if (treeType === 1) {
-        fileName = 'FILE.svg';
+        fileName = 'appIcon-wenjianjia';
       }
       if (treeType === 3) {
-        fileName = 'IMAG.svg';
+        fileName = 'appIcon-tupianwenjian';
       }
       if (treeType === 4) {
-        fileName = 'MP4.svg';
+        fileName = 'appIcon-shipinwenjian';
       }
       if (treeType === 5) {
-        fileName = 'MP3.svg';
+        fileName = 'appIcon-yuyinwenjian';
       }
       if (treeType === 6) {
-        fileName = 'OTHER.svg';
+        fileName = 'appIcon-qitawenjian';
       }
       if (treeType === 2) {
         const suffixArr = url.split('.');
         const suffix = suffixArr[suffixArr.length - 1];
         if ('txt'.indexOf(suffix) !== -1) {
-          fileName = 'TXT.svg';
+          fileName = 'appIcon-TXT';
         }
         if (['xls', 'xlsx'].indexOf(suffix) !== -1) {
-          fileName = 'XLS.svg';
+          fileName = 'appIcon-XLS';
         }
         if (['ppt', 'pptx'].indexOf(suffix) !== -1) {
-          fileName = 'PPT.svg';
+          fileName = 'appIcon-PPT';
         }
         if ('pdf'.indexOf(suffix) !== -1) {
-          fileName = 'PDF.svg';
+          fileName = 'appIcon-PDF';
         }
         if (['doc', 'docx'].indexOf(suffix) !== -1) {
-          fileName = 'DOC.svg';
+          fileName = 'appIcon-DOC';
         }
         if (['zip', 'rar'].indexOf(suffix) !== -1) {
-          fileName = 'ZIP.svg';
+          fileName = 'appIcon-yasuobao';
         }
       }
-      return '';
+      return fileName;
     }
   }
 };

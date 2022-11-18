@@ -16,7 +16,7 @@
     <div
       class="menuMain__title"
       v-if="configData.showTitle"
-      @click="hiddenContent"
+      @click.stop="hiddenContent"
     >
       {{ configData.name }}
       <i
@@ -246,6 +246,18 @@ export default {
     if (!this.isConfig) {
       this.$nextTick(() => {
         this.resetForm();
+        this.initFixData();
+        if (this.configData.shouldInit) {
+          if (!this.getNotInitArr().includes(this.configData.compId)) {
+            if (this.getFatherPanel()) {
+              if (!this.getFatherPanel().isAdd || this.setIdTerm) {
+                this.getSidebarSingle();
+              }
+            } else {
+              this.getSidebarSingle();
+            }
+          }
+        }
       });
 
       // 转换正则
@@ -263,18 +275,7 @@ export default {
       });
       // console.log(this.getFeatureArr.rules);
       this.getMoreOperate();
-      this.initFixData();
-      if (this.configData.shouldInit) {
-        if (!this.getNotInitArr().includes(this.configData.compId)) {
-          if (this.getFatherPanel()) {
-            if (!this.getFatherPanel().isAdd || this.setIdTerm) {
-              this.getSidebarSingle();
-            }
-          } else {
-            this.getSidebarSingle();
-          }
-        }
-      }
+
       this.$bus.$on(this.getEventName, this.reloadArea);
       this.$bus.$on(`loadSomeArea_${this.parent.compId}`, this.loadArea);
     }
@@ -405,7 +406,7 @@ export default {
         });
       }
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     // 处理值去设置
@@ -447,6 +448,9 @@ export default {
         if ([3].includes(comp.compType)) {
           v = +v;
         }
+        if ([10].includes(comp.compType)) {
+          v = `${v}`;
+        }
       }
       if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
         v = this.resolveRes(v);
@@ -465,7 +469,7 @@ export default {
     getCurMenu(params) {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }
@@ -680,6 +684,7 @@ export default {
     &.isHidden {
       height: 0;
       opacity: 0;
+      display: none !important;
     }
   }
   &.showTitle {

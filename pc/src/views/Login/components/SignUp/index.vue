@@ -8,7 +8,7 @@
 <template>
   <div class="signUp">
     <!-- app 下载弹出框 -->
-    <div class="signUp__download" v-if="isScan">
+    <div class="signUp__download" v-if="+configs.enableAPPDownload === 1">
       <div class="signUp__downTitle">
         {{ $t('login.downloadAPP') }}
       </div>
@@ -42,10 +42,6 @@ import iosCode from '@/assets/img/iosCode.png';
 
 export default {
   props: {
-    isScan: {
-      type: Boolean,
-      default: false
-    },
     configs: {
       type: Object,
       default: () => {}

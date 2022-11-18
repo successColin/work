@@ -264,7 +264,7 @@ export default {
       }
       const params = {
         designName: designName.slice(0, -1),
-        menuId: this.$route.params.id,
+        menuId: this.$route.params.id || this.$route.query.menuId,
         id: this.curSysMenu.id,
         releaseStatus: 2,
         roleIds: roleIds.slice(0, -1)
@@ -303,15 +303,21 @@ export default {
         sessionStorage.enableWorkflow = this.configArr[0].enableWorkflow;
         sessionStorage.configData = JSON.stringify(item.designOverallLayout);
       }
-      let str = `/menuConfig/${this.$route.params.id}?menuName=${this.$route.query.menuName}&id=${item.id}`;
+      let str = `/menuConfig/${this.$route.params.id || this.$route.query.menuId}?menuName=${
+        this.$route.query.menuName
+      }&id=${item.id}`;
       if (this.$route.query.isApp) {
-        str = `/menuConfig/${this.$route.params.id}?menuName=${this.$route.query.menuName}&id=${item.id}&isApp=${this.$route.query.isApp}`;
+        str = `/menuConfig/${this.$route.params.id || this.$route.query.menuId}?menuName=${
+          this.$route.query.menuName
+        }&id=${item.id}&isApp=${this.$route.query.isApp}`;
       }
       this.$router.push(str);
     },
 
     async listSysDesignMenu() {
-      const data = await listSysDesignMenu({ menuId: this.$route.params.id });
+      const data = await listSysDesignMenu({
+        menuId: this.$route.params.id || this.$route.query.menuId
+      });
       this.configArr = data;
     },
     // 删除配置

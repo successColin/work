@@ -7,53 +7,25 @@
 -->
 <template>
   <view class="pagesSelectUser">
-    <u-sticky :customNavHeight="customBar">
-      <section class="pagesSelectUser__top">
-        <span>{{ menuConfig.title }}</span>
-        <span>{{ `已选择(${selectUsers.length})` }}</span>
-      </section>
-      <section class="pagesSelectUser__search">
-        <apiot-input-search
-          ref="pagesSelectUserSearch"
-          searchFlag="pagesSelectUserSearch"
-          @search="userSearch"
-        ></apiot-input-search>
-      </section>
-      <section class="pagesSelectUser__tab">
-        <p
-          v-for="(item, index) in tabArry"
-          :key="index"
-          @click="changeTab(index)"
-        >
-          <span
-            :class="[
-              index === currentIndex
-                ? `themeColor__bg-font-${getThemeIndex}`
-                : '',
-            ]"
-            >{{ item.name }}</span
-          >
-        </p>
-      </section>
-    </u-sticky>
+    <page-header
+      ref="pageHeader"
+      :config="menuConfig"
+      :title="menuConfig.title"
+      :selectUsers="selectUsers"
+      @search="userSearch"
+      @changeTab="changeTab"
+    ></page-header>
     <div class="pagesSelectUser__content">
-      <users-all v-if="currentTab.type === 'ALL'" :users="listData"></users-all>
+      <users-all v-if="currentTab.type === 'ALL'"></users-all>
       <users-common
+        ref="userCommon"
         v-else-if="currentTab.type === 'COMMON'"
-        :users="collectionUsers"
+        mode="data"
+        :list="collectionUsers"
       ></users-common>
-      <users-role
-        v-else-if="currentTab.type === 'ROLE'"
-        :users="listData"
-      ></users-role>
-      <users-org
-        v-else-if="currentTab.type === 'ORG'"
-        :users="listData"
-      ></users-org>
-      <users-post
-        v-else-if="currentTab.type === 'POST'"
-        :users="listData"
-      ></users-post>
+      <users-role v-else-if="currentTab.type === 'ROLE'"></users-role>
+      <users-org v-else-if="currentTab.type === 'ORG'"></users-org>
+      <users-post v-else-if="currentTab.type === 'POST'"></users-post>
     </div>
 
     <footer class="pagesSelectUser__footer">
@@ -66,8 +38,9 @@
 </template>
 
 <script>
-import { getUserList, getUserCollection } from '@/api/pagesSelectUser.js';
+import { getUserCollection } from '@/api/pagesSelectUser.js';
 
+import PageHeader from './components/PageHeader';
 import UsersAll from './components/UsersAll';
 import UsersCommon from './components/UsersCommon';
 import UsersRole from './components/UsersRole';
@@ -75,15 +48,16 @@ import UsersOrg from './components/UsersOrg';
 import UsersPost from './components/UsersPost';
 
 export default {
-  components: { UsersAll, UsersCommon, UsersRole, UsersOrg, UsersPost },
+  components: { PageHeader, UsersAll, UsersCommon, UsersRole, UsersOrg, UsersPost },
 
   provide() {
     return {
       CollectionUsers: this.getProvideCollectionUsers,
       RefreshCollectionUsers: this.getProvideRefreshCollectionUsers,
-      SetOtherParam: this.setProvideOtherParam,
       GetSelectUsers: this.getProvideSelectUsers,
-      cancelOrAddSelectUsers: this.cancelOrAddSelectUsers
+      cancelOrAddSelectUsers: this.cancelOrAddSelectUsers,
+      GetGlobalParam: this.getGlobalParam,
+      changeSelectUsers: this.changeSelectUsers
     };
   },
 
@@ -94,78 +68,50 @@ export default {
       rootPath: [{ nodeName: '首页' }],
       // 菜单界面基础配置
       menuConfig: {
-        title: '人员' // 名称
+        title: '人员', // 名称
+        isMultiple: true, // 是否多选
+        shouldFav: true, // 是否启用常用收藏
+        shouldInOrg: true, // 是否启用按组织选择
+        shouldInPost: true, // 是否启用按职位选择
+        shouldInRole: true // 是否启用按角色选择
       },
       selectUsers: [],
-      tabArry: [
-        {
-          name: '全部',
-          type: 'ALL'
-        },
-        {
-          name: '常用',
-          type: 'COMMON'
-        },
-        {
-          name: '按角色',
-          type: 'ROLE'
-        },
-        {
-          name: '按组织',
-          type: 'ORG'
-        },
-        {
-          name: '按职位',
-          type: 'POST'
-        }
-      ],
-      currentIndex: 0,
-      current: 1,
-      size: 20,
-      listData: [],
-      otherParam: {},
+      globalParam: {},
       collectionUsers: [], // 收藏的用户列表
-      isMultiple: false // 是否多选
+      currentTab: {
+        name: '全部',
+        type: 'ALL'
+      }
     };
   },
 
   computed: {
-    currentTab() {
-      return this.tabArry[this.currentIndex] || {};
-    },
     systemInfo() {
       return this.$store.state.base.systemInfo;
-    },
-    // 顶部固定高度
-    customBar() {
-      let height = this.systemInfo.statusBar;
-      // #ifdef MP-ALIPAY
-      height = 0;
-      // #endif
-      return height;
-    },
-    getThemeIndex() {
-      return this.$store.getters.getThemeIndex;
     }
   },
 
-  watch: {
-    currentTab: {
-      handler() {
-        if (this.$refs.pagesSelectUserSearch) this.$refs.pagesSelectUserSearch.searchParams = {};
-        this.otherParam = {};
-        this.getUserList();
-      },
-      immediate: true,
-      deep: true
-    }
-  },
+  watch: {},
 
   methods: {
+    getGlobalParam() {
+      return this.globalParam;
+    },
     userSearch(param) {
-      this.otherParam.keywords = param.keyword;
-      this.getUserList();
-      console.log(param);
+      this.globalParam.keywords = param.keyword;
+      const { type } = this.currentTab;
+      if (type === 'ROLE') {
+        this.$refs.pageHeader.currentIndex = 0;
+        this.changeTab(
+          {
+            name: '全部',
+            type: 'ALL'
+          },
+          type
+        );
+      } else {
+        this.publishListen({ type: 'userSearch' });
+      }
     },
     // 获取选中的人员
     getProvideSelectUsers() {
@@ -173,8 +119,8 @@ export default {
     },
     // 取消或者选中人员
     cancelOrAddSelectUsers(user, isCancel) {
-      const { selectUsers, isMultiple } = this;
-      console.log('cancelOrAddSelectUsers');
+      const { selectUsers, menuConfig } = this;
+      const { isMultiple } = menuConfig;
       if (isCancel) {
         const index = selectUsers.findIndex((item) => item.id === user.id);
         if (index !== -1) this.selectUsers.splice(index, 1);
@@ -182,6 +128,10 @@ export default {
         if (isMultiple) this.selectUsers.push(user);
         else this.selectUsers = [user];
       }
+    },
+    // 设置选中的人员
+    changeSelectUsers(users) {
+      this.selectUsers = [...users];
     },
     // 刷新收藏列表
     getProvideRefreshCollectionUsers() {
@@ -191,124 +141,81 @@ export default {
     getProvideCollectionUsers() {
       return this.collectionUsers;
     },
-    // 设置搜索条件
-    setProvideOtherParam(param) {
-      console.log('setProvideOtherParam====');
-      this.otherParam = { ...param };
-      this.getUserList();
-    },
     // 点击不同类型
-    changeTab(index) {
-      this.currentIndex = index;
+    changeTab(tab, type) {
+      if (type !== 'ROLE') {
+        if (this.$refs.pageHeader) this.$refs.pageHeader.clear();
+        this.globalParam = {};
+      }
+
+      this.currentTab = { ...tab };
     },
     // 获取收藏的用户
     async getUserCollection() {
       try {
         const result = await getUserCollection();
         this.collectionUsers = result;
+        uni.stopPullDownRefresh();
       } catch (error) {
         console.error(error);
       }
     },
-    async getUserList(loadType = '') {
-      try {
-        let page = this.current;
-        let pageSize = this.size;
-        if (loadType === 'loadnext') {
-          this.current += 1;
-          page = this.current;
-        } else if (loadType === 'reload') {
-          page = 1;
-          pageSize *= page;
-        } else {
-          this.current = 1;
-          page = 1;
-        }
-        const params = {
-          current: page,
-          size: pageSize,
-          orders: [{ asc: true, column: '' }],
-          ...this.otherParam
-        };
-        const result = await getUserList(params);
-        let list = null;
-        if (loadType === 'loadnext') {
-          list = this.listData.concat(result.records);
-        } else {
-          this.totalPage = Math.ceil(result.total / pageSize);
-          list = result.records;
-        }
-
-        this.listData = [...list];
-        this.isLoading = false;
-        console.log(result);
-      } catch (error) {
-        console.log(error);
-      }
+    // 收藏列表操作
+    collectionUsersOp(params) {
+      const { type } = params;
+      if (type === 'onPullDownRefresh') this.getUserCollection();
+      else if (type === 'userSearch') this.$refs.userCommon.doSearch();
     },
     // 取消
     cancel() {
       uni.navigateBack();
     },
     sure() {
+      console.log('=============111111');
       this.$bus.$emit(this.menuConfig.flag, this.selectUsers);
       uni.navigateBack();
+    },
+    // 触发操作监听
+    publishListen(param) {
+      const { type } = this.currentTab;
+      if (type === 'COMMON') this.collectionUsersOp(param);
+      else {
+        const name = `SelectUser_${type}`;
+        this.$bus.$emit(name, param);
+      }
     }
   },
 
   onLoad(option) {
-    if (option.isMultiple === '1') this.isMultiple = true;
-    else this.isMultiple = false;
+    let { config } = option;
+    if (config) {
+      config = JSON.parse(config);
+      this.menuConfig = { ...this.menuConfig, ...config };
+    }
 
     // 已经选中的用户
-    if (option.flag) {
-      this.selectUsers = this.$store.state.selectUser.checkUsers[option.flag] || [];
+    console.log('selectUser==================');
+    console.log(option);
+    if (this.menuConfig.flag) {
+      console.log('selectUser==================');
+      this.selectUsers = this.$store.state.selectUser.checkUsers[this.menuConfig.flag] || [];
     }
-    this.menuConfig = { ...this.menuConfig, ...option };
     this.getUserCollection();
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.publishListen({ type: 'onPullDownRefresh' });
+  },
+  // 下拉加载更多
+  onReachBottom() {
+    this.publishListen({ type: 'onReachBottom' });
   }
 };
 </script>
 
 <style lang='scss' scoped>
 .pagesSelectUser {
-  &__top {
-    padding: 0 30rpx;
-    height: 80rpx;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #ffffff;
-    font-size: 32rpx;
-    @include fontBlob(500);
-    color: #333333;
-    box-shadow: inset 0 -1rpx 0 0 #e9e9e9;
-  }
-  &__tab {
-    padding: 0 30rpx;
-    background: #fff;
-    height: 88rpx;
-    line-height: 88rpx;
-
-    p {
-      margin-right: 23rpx;
-      display: inline-block;
-      font-size: 28rpx;
-      font-family: $--font-family;
-      line-height: 36rpx;
-      &::after {
-        margin-right: 0;
-      }
-      span {
-        display: inline-block;
-        padding: 7rpx 20rpx;
-        background: #f6f6f8;
-        color: #333333;
-        border-radius: 33rpx;
-      }
-    }
-  }
-
   &__footer {
     height: 88rpx;
     &--btns {

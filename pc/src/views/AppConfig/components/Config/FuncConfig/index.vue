@@ -50,7 +50,7 @@
         >
         </el-switch>
       </p>
-      <p class="config__body--switch">
+      <!-- <p class="config__body--switch">
         是否启用资讯区
         <el-switch
           class="switch"
@@ -61,7 +61,7 @@
           v-model="configData.enableInfo"
         >
         </el-switch>
-      </p>
+      </p> -->
       <p class="config__body--switch" v-if="configData.type !== 3">
         是否启用底部功能区
         <el-switch
@@ -145,6 +145,7 @@ export default {
           isFooter: true,
           compName: 'AppMenu',
           configCompName: 'DeployMenuConfig',
+          id: 101,
           menuName: '我的',
           routeName: '',
           icon: {

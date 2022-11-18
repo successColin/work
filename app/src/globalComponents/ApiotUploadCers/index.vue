@@ -3,11 +3,14 @@
  * @Date: 2022-03-05 10:28:16
  * @Last Modified by: sss
  * @Last Modified time: 2022-03-05 10:28:16
- * @Desc: 证件图片上传
+ * @Desc: 证件图片上传1
 -->
 <template>
   <view class="apiotUploadCers">
-    <div class="apiotUploadCers__content">
+    <div
+      class="apiotUploadCers__content"
+      :class="[`pic${count}`, count !== 2 ? 'hasBottom' : '']"
+    >
       <div v-for="i in count" :key="i" class="apiotUploadCers__content--item">
         <uni-file-picker
           :auto-upload="false"
@@ -21,7 +24,10 @@
           @select="select"
           @delete="deleteImage"
         >
-          <section class="apiotUploadCers__add">{{ placeholder }}</section>
+          <section class="apiotUploadCers__add">
+            <i class="appIcon appIcon-shangchuantubiao"></i>
+            {{ placeholder }}
+          </section>
         </uni-file-picker>
       </div>
     </div>
@@ -91,11 +97,23 @@ export default {
 <style lang='scss' scoped>
 .apiotUploadCers {
   &__content {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 18rpx 18rpx;
-    margin-bottom: 30rpx;
-    &--item {
+    &.pic2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 18rpx 18rpx;
+    }
+    &.hasBottom &--item {
+      &:not(:last-child) {
+        margin-bottom: 20rpx;
+      }
+    }
+  }
+  &__add {
+    text-align: center;
+    color: #666666;
+    .appIcon {
+      font-size: 50rpx;
+      display: block;
     }
   }
 }

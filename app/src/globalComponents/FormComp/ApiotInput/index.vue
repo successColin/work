@@ -17,36 +17,39 @@
       ]"
       :prefixIconStyle="prefixIconStyle"
     ></i>
-    <u-input
-      ref="input"
-      :value="defaultValue"
-      :type="type"
-      class="apiotInput__input"
-      disabledColor="#F6F6F8"
-      :password-icon="false"
-      :clearable="clearable"
-      :placeholder="placeholder || ''"
-      placeholderClass="apiotInput__placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :maxlength="maxlength"
-      :focus="focus"
-      :trim="trim"
-      :border="borderStyle"
-      :password="password"
-      @input="handleInput"
-      @confirm="handleConfirm"
-      @blur="handleBlur"
-      @focus="handleFocus"
-      @change="change"
-    >
-      <span v-if="prefixText" slot="prefix" class="fixName">{{
-        prefixText
-      }}</span>
-      <span v-if="suffixText" slot="suffix" class="fixName">{{
-        suffixText
-      }}</span>
-    </u-input>
+    <span v-if="prefixText" class="fixName">{{ prefixText }}</span>
+    <template v-if="showThousandth">
+      <div class="apiotInput__showValue" @click="gotoWrite">
+        {{ showValue }}
+      </div>
+    </template>
+    <template v-else>
+      <u-input
+        ref="input"
+        :value="defaultValue"
+        :type="type"
+        class="apiotInput__input"
+        disabledColor="#F6F6F8"
+        :password-icon="false"
+        :clearable="clearable"
+        :placeholder="placeholder || ''"
+        placeholderClass="apiotInput__placeholder"
+        :disabled="disabled"
+        :readonly="readonly"
+        :maxlength="maxlength"
+        :focus="focus || isFocus"
+        :trim="trim"
+        :border="borderStyle"
+        :password="password"
+        @input="handleInput"
+        @confirm="handleConfirm"
+        @blur="handleBlur"
+        @focus="handleFocus"
+        @change="change"
+      >
+      </u-input>
+    </template>
+    <span v-if="suffixText" class="fixName">{{ suffixText }}</span>
     <i
       v-if="suffixIcon"
       class="appIcon u-input__icon u-input__icon--suffix"
@@ -80,7 +83,7 @@ export default {
       type: String,
       default: 'surround'
     },
-    // 类型
+    // 类型 text,integer=数字,digit=小数
     type: {
       type: String,
       default: 'text'
@@ -125,7 +128,7 @@ export default {
       type: Number,
       default: 140
     },
-    // 是否自动聚焦
+    // 是否自动聚焦1
     focus: {
       type: Boolean,
       default: false
@@ -136,7 +139,12 @@ export default {
       default: true
     },
     // 只有type为digit生效
-    digitNumber: Number
+    digitNumber: Number,
+    // 是否显示千分位
+    thousandth: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data() {
@@ -148,6 +156,25 @@ export default {
   },
 
   computed: {
+    // 是否显示千分位，只有是数字才能显示千分位
+    showThousandth() {
+      const { type, thousandth, isFocus, value } = this;
+      return ['integer', 'digit'].indexOf(type) !== -1 && thousandth && !isFocus && value;
+    },
+    showValue() {
+      const { showThousandth, defaultValue } = this;
+      if (showThousandth) {
+        let V = defaultValue;
+        V = this.$apiot.fomatFloat.getThousandth(V);
+        return V;
+      }
+      return defaultValue;
+    },
+    valueType() {
+      const { type, showThousandth } = this;
+      if (showThousandth) return 'text';
+      return type;
+    },
     borderStyle() {
       let { border } = this;
       const { prefixIcon, suffixIcon } = this;
@@ -160,22 +187,25 @@ export default {
   },
 
   watch: {
-    value(newValue) {
-      this.defaultValue = newValue;
+    value: {
+      handler(newValue) {
+        if (this.type === 'digit' && this.digitNumber && newValue) this.defaultValue = this.$apiot.fomatFloat.polishNum(newValue, this.digitNumber);
+        else this.defaultValue = newValue;
+      },
+      immediate: true
     }
   },
 
   methods: {
-    formatter(e) {
-      console.log(this, 'this.type123');
-      if (this.type === 'digit' && this.digitNumber && e) return this.$apiot.fomatFloat(e, this.digitNumber);
-      return e;
+    gotoWrite() {
+      this.isFocus = true;
     },
     suffixIconClick() {
       this.$emit('suffixClick');
     },
     handleInput(value) {
       // 判断是否去除空格
+      if (this.type === 'digit' && this.digitNumber && value) value = this.$apiot.fomatFloat.polishNum(value, this.digitNumber);
       this.defaultValue = value;
       this.$emit('input', value);
       if (!value) {
@@ -197,11 +227,6 @@ export default {
     change(e) {
       this.$emit('change', e);
     }
-  },
-
-  mounted() {
-    this.defaultValue = this.value;
-    this.$refs.input.setFormatter(this.formatter);
   }
 };
 </script>
@@ -213,10 +238,12 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 10rpx 0;
+
   &.hasBorder {
     border-bottom: 1px solid #e9e9e9;
   }
   .fixName {
+    font-size: $form-el-fontSize;
     color: #c1c1c1;
   }
   &__placeholder {
@@ -225,14 +252,26 @@ export default {
     color: $form-el-placeholderColor !important;
     text-align: left;
   }
+  &.disabled &__showValue {
+    color: $form-el-disabled-valueColor;
+  }
+  &__showValue {
+    width: 100%;
+    height: $form-el-height !important;
+    line-height: $form-el-height !important;
+    font-size: $form-el-fontSize;
+    color: $form-el-valueColor;
+    text-align: left;
+    overflow: hidden;
+  }
   ::v-deep {
     .u-input__content__field-wrapper__field {
-      height: 34px !important;
+      height: $form-el-height !important;
       line-height: 36px !important;
       padding: 0 !important;
     }
     input {
-      height: 34px !important;
+      height: $form-el-height !important;
       line-height: 36px !important;
       padding: 0 !important;
       font-size: $form-el-fontSize !important;
@@ -245,7 +284,7 @@ export default {
 .disabled {
   ::v-deep {
     .u-input {
-      padding: 0 10rpx !important;
+      padding: $form-el-disabled-padding !important;
     }
   }
 }

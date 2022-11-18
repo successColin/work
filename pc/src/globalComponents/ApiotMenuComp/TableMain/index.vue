@@ -9,7 +9,6 @@
     ]"
     :style="tableStyle"
     @click="changeCurActiveObj(1, $event)"
-    :tip="configData.name"
     :title="isConfig ? configData.name : ''"
   >
     <div
@@ -26,8 +25,10 @@
     <div class="menuMain__content" :class="[{ isHidden: isHidden }]">
       <BtnsArea
         :style="`${!isConfig ? 'margin-bottom: 0' : ''}`"
+        :class="[{ hasConfig: !isConfig && configData.personalConfig }]"
         v-if="configData.children.length !== 0"
         :configData="configData"
+        :tableShowColumn="dropColumnData"
         :activeObj="activeObj"
         :hasTriggerComp="hasTriggerComp"
         :isSidebar="isSidebar"
@@ -46,6 +47,27 @@
         @addTableRow="addTableRow"
         @tableAreaDelete="tableAreaDelete"
       ></BtnsArea>
+      <el-popover
+        placement="bottom"
+        trigger="click"
+        v-model="showPersonal"
+        popper-class="personalPopover"
+      >
+        <PersonalConfig
+          :dropColumnData="getFeatureArr.children"
+          :showPersonal.sync="showPersonal"
+          :configData="configData"
+          @changeTableColumn="changeTableColumn"
+        ></PersonalConfig>
+        <apiot-button
+          v-if="!isConfig && configData.personalConfig"
+          slot="reference"
+          class="menuMain__config"
+        >
+          <i class="iconfont icon-shezhi"></i>
+        </apiot-button>
+      </el-popover>
+
       <section
         v-if="configData.children.length !== 0"
         class="menuMain__feature"
@@ -149,6 +171,7 @@
               @sort-change="sortChange"
               @cell-mouse-enter="cellMouseEnter"
               @cell-mouse-leave="cellMouseLeave"
+              @row-click="rowClick"
               :dropClass="`.${dropClass}`"
               ref="tableMain"
             >
@@ -263,6 +286,7 @@ export default {
       isMenuMain: true,
       tableData: [],
       current: 1,
+      backCurrent: 1,
       total: 0,
       dropColumnData: [], // 表格列
       numAndSel: {
@@ -290,7 +314,8 @@ export default {
       showPagi: true, // 显示分页器
       notTouch: false,
       isHidden: false,
-      timer: null
+      timer: null,
+      showPersonal: false // 是否显示个性化弹窗
     };
   },
 
@@ -307,7 +332,8 @@ export default {
     'initSelData',
     'changeNotValueChange',
     'getNotInitArr',
-    'isSelect'
+    'isSelect',
+    'getDesignPersonal'
   ],
 
   computed: {
@@ -454,7 +480,14 @@ export default {
       if (this.getFeatureArr.form) {
         this.defaultForm = JSON.parse(JSON.stringify(this.getFeatureArr.form));
       }
-      this.initDropColumnData();
+      // this.changeTableColumn()
+      if (this.getDesignPersonal()[this.configData.compId]) {
+        this.changeTableColumn(
+          this.getDesignPersonal()[this.configData.compId].designOverallLayout
+        );
+      } else {
+        this.initDropColumnData();
+      }
       this.getMoreOperate();
       this.initFixData();
       this.$nextTick(() => {
@@ -470,6 +503,7 @@ export default {
       this.$bus.$on('getSelMultiArr', this.getSelMultiArr);
       this.$bus.$on('getAllTableData', this.getAllTableData);
       this.$bus.$on('getTableArr', this.getTableArr);
+      this.$bus.$on('selectTableLine', this.selectTableLine);
     }
   },
 
@@ -577,7 +611,7 @@ export default {
           this.$emit('getTableMaxHeight', this.parent, this.configData.compId, (v) => {
             tableMaxHeight = v;
           });
-          console.log(tableMaxHeight, num);
+          // console.log(tableMaxHeight, num);
           if (tableMaxHeight > num) {
             const dis = tableMaxHeight - num;
             const line = Math.floor(dis / 37);
@@ -589,6 +623,7 @@ export default {
             this.configData.rowNum = this.configData.showLine + line;
             this.$nextTick(() => {
               this.showPagi = true;
+              this.current = 1;
             });
             num += 37 * line;
 
@@ -709,7 +744,9 @@ export default {
         }
         if (item.tableCompName === 'OperateCol') {
           item.showTip = false;
-          item.canShow = true;
+          if (item.canShow !== false) {
+            item.canShow = true;
+          }
           if (this.configData.operateWidth) {
             item.minWidth = width * this.configData.operateWidth;
           } else {
@@ -722,12 +759,12 @@ export default {
         if (item.compType === 7) {
           item.showTip = false;
         }
-        if (item.singleStatus === 1 || item.singleStatus === 2) {
-          item.canShow = true;
-        }
-        if (item.singleStatus === 4) {
-          item.canShow = false;
-        }
+        // if (item.singleStatus === 1 || item.singleStatus === 2) {
+        //   item.canShow = true;
+        // }
+        // if (item.singleStatus === 4) {
+        //   item.canShow = false;
+        // }
         return item.canShow;
       });
       // 初始化序号以及多选
@@ -787,6 +824,48 @@ export default {
       }
       // 初始化列成功显示
       this.initSuccess = true;
+    },
+    // 个性化更改
+    changeTableColumn(tempArr, isFirst = true) {
+      const arr = [];
+      this.dropColumnData = [];
+      this.getFeatureArr.children.forEach((item) => {
+        const obj = tempArr.find((v) => item.compId === v.compId);
+        if (!obj) {
+          if (item.canShow && !isFirst) {
+            this.dropColumnData.push(item);
+          }
+          arr.push(item);
+        } else {
+          item.canShow = obj.canShow;
+          if (item.canShow && !isFirst) {
+            this.dropColumnData.push(item);
+          }
+          arr.push(item);
+        }
+      });
+      this.getFeatureArr.children = arr;
+      if (isFirst) {
+        this.initDropColumnData();
+      } else {
+        // 初始化固定列
+        if (this.configData.fixedLeft) {
+          for (let i = 0; i < this.configData.fixedLeft; i += 1) {
+            if (this.dropColumnData[i]) {
+              this.dropColumnData[i].fixed = 'left';
+            }
+          }
+        }
+        if (this.configData.fixedRight) {
+          const len = this.dropColumnData.length;
+          for (let i = 0; i < this.configData.fixedRight; i += 1) {
+            if (this.dropColumnData[len - i - 1]) {
+              this.dropColumnData[len - i - 1].fixed = 'right';
+            }
+          }
+        }
+      }
+      //
     },
     // 表格改变分页大小
     sizeChange() {
@@ -945,6 +1024,7 @@ export default {
         return;
       }
       if (areaArr.includes(this.configData.compId) && onlyFlag === this.onlyFlag()) {
+        this.current = 1;
         this.currentRadioObj = null;
         this.multiEntityArr = [];
         this.$refs.tableMain.clearSelection();
@@ -982,7 +1062,7 @@ export default {
         });
       }
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     makeFlowParams(params) {
@@ -1010,7 +1090,7 @@ export default {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       // console.log(jumpMenuObj, 'jumpMenuObj');
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }
@@ -1066,7 +1146,6 @@ export default {
             }
           }
         }
-        console.log(this.configData.searchInfo);
         if (this.configData.searchInfo) {
           params.searchInfo = this.configData.searchInfo;
         }
@@ -1160,7 +1239,11 @@ export default {
         sessionStorage.notInitMul = '';
         this.selectTableRow();
       }
-      this.selectItem();
+      if (data && data.length) {
+        this.selectItem(data[0]);
+      } else {
+        this.$bus.$emit('changeShowSkeleton');
+      }
     },
     // 列表排序  ASC ascending升序  DESC descending降序
     sortChange(column) {
@@ -1218,6 +1301,9 @@ export default {
           if ([3].includes(comp.compType)) {
             v = +v;
           }
+          if ([10].includes(comp.compType)) {
+            v = `${v}`;
+          }
         }
         if ([4, 25].includes(comp.compType) || (comp.compType === 2 && comp.dropDownType !== 1)) {
           v = this.resolveRes(v);
@@ -1234,8 +1320,9 @@ export default {
       });
       obj.unique = createUnique();
       obj.notChange = false;
+      console.log(obj);
       this.tableData.push(obj);
-
+      this.configData.tableData = this.tableData;
       this.selectTableRow();
 
       // 新增数据 定位在最底部
@@ -1257,6 +1344,7 @@ export default {
     deleteTableRow(i) {
       // console.log(this.tableData);
       this.tableData.splice(i, 1);
+      this.configData.tableData = this.tableData;
     },
 
     // 表格区按钮区删除
@@ -1331,13 +1419,13 @@ export default {
     //   }
     // },
     // 选择当前item
-    selectItem() {
+    selectItem(item) {
       if (this.isConfig) {
         return;
       }
-      // this.getFeatureArr.form = {
-      //   ...item
-      // };
+      if (item) {
+        this.getFeatureArr.form = item;
+      }
       // 触发其他区域数据的加载
       if (this.configData.reloadArea.length) {
         this.$bus.$emit(this.getEventName, this.configData.reloadArea, this.onlyFlag());
@@ -1349,13 +1437,6 @@ export default {
     // 鼠标移入某个区域
     cellMouseEnter(row, column) {
       // // console.log(row, column);
-      // 给表格区form赋值
-      this.changeNotValueChange(true);
-      const index = this.tableData.findIndex((data) => data.unique === row.unique);
-      this.getFeatureArr.form = this.tableData[index];
-      this.$nextTick(() => {
-        this.changeNotValueChange(false);
-      });
 
       if (this.showVisible) {
         this.showVisible = false;
@@ -1366,6 +1447,20 @@ export default {
     cellMouseLeave() {
       if (!this.showVisible) {
         this.showCell = '';
+      }
+    },
+    // 是否触发行点击
+    selectTableLine(compId, row) {
+      if (compId === this.configData.compId) {
+        this.rowClick(row);
+      }
+    },
+    // 点击行
+    rowClick(row) {
+      const index = this.tableData.findIndex((data) => data.unique === row.unique);
+      if (index !== -1 && this.getFeatureArr.form.unique !== this.tableData[index].unique) {
+        this.getFeatureArr.form = this.tableData[index];
+        this.selectItem();
       }
     },
     // 点击收起下拉
@@ -1496,6 +1591,7 @@ export default {
         this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
         this.$bus.$off('getSelMultiArr');
         this.$bus.$off('getAllTableData');
+        this.$bus.$off('selectTableLine', this.selectTableLine);
       }
     } else {
       // this.$bus.$off(this.getEventName);
@@ -1503,16 +1599,26 @@ export default {
       this.$bus.$off(`loadSomeArea_${this.parent.compId}`);
       this.$bus.$off('getSelMultiArr');
       this.$bus.$off('getAllTableData');
+      this.$bus.$off('selectTableLine', this.selectTableLine);
     }
     this.$bus.$off('getTableArr');
+    if (this.defaultForm) {
+      this.getFeatureArr.form = JSON.parse(JSON.stringify(this.defaultForm));
+    }
   },
 
   watch: {
     fileDeleteIds(v) {
       console.log(v);
     },
-    current() {
-      this.getSidebarList();
+    current(v) {
+      if (!v) {
+        this.backCurrent = 1;
+      }
+      if (this.backCurrent !== v && v) {
+        this.backCurrent = v;
+        this.getSidebarList();
+      }
     },
     'configData.canOperate': function (v) {
       if (v) {
@@ -1595,7 +1701,7 @@ export default {
   }
   &.showTitle {
     font-size: 15px;
-    padding-top: 40px;
+    padding-top: 40px !important;
     position: relative;
     &::before {
       content: attr(tip);
@@ -1608,11 +1714,21 @@ export default {
       line-height: 40px;
     }
   }
+  .hasConfig {
+    width: calc(100% - 52px);
+  }
   &.flexReserve {
     .menuMain__content {
       display: flex;
       flex-direction: column-reverse;
     }
+  }
+  &__config {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    cursor: pointer;
+    color: $--color-primary;
   }
   &__title {
     position: absolute;
@@ -1648,6 +1764,7 @@ export default {
     &.isHidden {
       height: 0;
       opacity: 0;
+      display: none !important;
     }
   }
   &__feature {
@@ -1801,12 +1918,21 @@ export default {
     .el-table th {
       padding: 6px 6px 6px 6px !important;
       &.hasFilter {
-        padding-right: 22px !important;
+        padding-right: 18px !important;
       }
       .cell {
         overflow: visible !important;
       }
     }
   }
+}
+</style>
+<style lang="scss">
+.personalPopover {
+  padding: 0 !important;
+  background: #ffffff !important;
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.18) !important;
+  border-radius: 8px !important;
+  width: 260px;
 }
 </style>

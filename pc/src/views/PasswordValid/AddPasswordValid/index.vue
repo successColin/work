@@ -91,7 +91,6 @@
             :leaders="formData.leaders"
             :title="$t('org.addManage')"
             @updateUser="updateUser"
-            v-on="$listeners"
             v-bind="$attrs"
           >
           </user-dialog>

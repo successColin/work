@@ -548,7 +548,9 @@ export default {
               item.isLeaf = false;
             }
             item.type = 'module';
-            arr.push(item);
+            if (item.menuType !== 1) {
+              arr.push(item);
+            }
           });
           console.log(arr);
           this.$refs.tree.getTree().updateKeyChildren(this.selectKey, arr);

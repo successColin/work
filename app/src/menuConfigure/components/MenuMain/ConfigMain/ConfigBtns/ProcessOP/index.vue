@@ -50,13 +50,11 @@
               :placeholder="`请填写${placeholder}…`"
             ></apiot-textarea>
           </u-form-item>
-          <u-form-item
-            class="form--item"
-            prop="ccUserIds"
-            label="抄送人"
-            formItemClass="formItemClass"
-          >
-            <apiot-choose-user v-model="ccUserIds"></apiot-choose-user>
+          <u-form-item class="form--item" prop="ccUserIds" label="抄送人">
+            <apiot-choose-user
+              v-model="ccUserIds"
+              title="选择抄送人"
+            ></apiot-choose-user>
           </u-form-item>
         </u-form>
       </div>
@@ -261,12 +259,6 @@ export default {
   ::v-deep {
     .u-form-item__body__left__content__required {
       position: static;
-    }
-    .formItemClass {
-      .u-form-item__body__right,
-      .u-form-item__body__right__content__slot {
-        overflow: inherit;
-      }
     }
   }
 }

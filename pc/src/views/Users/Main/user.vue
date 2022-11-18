@@ -28,6 +28,13 @@
           :updateData="updateData"
           :fetchUserList="fetchUserList"
         ></FormItem>
+        <template slot="otherBtn" v-if="formData.id">
+          <apiot-button
+              type="primary"
+              @click="resetPassword($t('user.sureReset'), 'pass')"
+          >{{ $t('user.resetPassword') }}
+          </apiot-button>
+        </template>
       </apiot-drawer>
       <div class="wrap_saerchWrap_search">
 <!--        <apiot-input-->
@@ -144,17 +151,12 @@
 </template>
 
 <script>
-// import cnchar from 'cnchar';
 import { errorMessageProcessing } from '@/utils/utils';
-// import animateList from '_u/animateList';
 import { getRoleLiistById } from '@/api/role';
-import { addUser, batchDel, doUpdateUserDataAuth, getUsersList, updateUser } from '@/api/user';
+import { addUser, batchDel, doUpdateUserDataAuth, getUsersList, updateUser, resetPassword } from '@/api/user';
 import NormalColumn from './NormalColumn';
-// import OrgAndRole from './OrgAndRole';
-// import RoleColumn from './RoleColumn';
 import StateColumn from './StateColumn';
 import TagColumn from './TagColumn';
-// import UserColumn from './UserColumn';
 
 const Design = () => import('@/views/Role/RoleContent/AuthorityDesign/authorDesign');
 const Organization = () =>
@@ -230,7 +232,7 @@ export default {
           prop: 'username',
           label: 'user.username',
           showTooltip: false,
-          minWidth: 150,
+          minWidth: 200,
           component: 'UserColumn',
           sortable: 'custom'
         },
@@ -252,31 +254,31 @@ export default {
         },
         {
           prop: 'user_state_dict',
-          label: 'user.user_state_dict',
+          // label: 'user.user_state_dict',
+          label: 'user.accountState',
           showTooltip: false,
           component: 'StateColumn',
-          sortable: 'custom'
         },
         {
           prop: 'orgName',
           label: 'user.orgName',
-          minWidth: 150,
+          minWidth: 200,
           showTooltip: false,
           component: 'OrgAndRole',
           type: 'org'
         },
-        {
-          prop: 'userPostName',
-          label: 'user.userPostName',
-          minWidth: 150,
-          showTooltip: false,
-          component: 'OrgAndRole',
-          type: 'pos'
-        },
+        // {
+        //   prop: 'userPostName',
+        //   label: 'user.userPostName',
+        //   minWidth: 150,
+        //   showTooltip: false,
+        //   component: 'OrgAndRole',
+        //   type: 'pos'
+        // },
         {
           prop: 'roleNames',
           label: 'user.roleNames',
-          minWidth: 150,
+          minWidth: 200,
           showTooltip: true,
           component: 'RoleColumn',
           nameValue: 'roleArr',
@@ -437,6 +439,30 @@ export default {
   },
 
   methods: {
+    async resetPassword(message, type) {
+      try {
+        await this.$confirm(message, '提示');
+        await this.doReset(type);
+      } catch (e) {
+        // console.log(e);
+      }
+    },
+    async doReset() {
+      try {
+        // const api = type === 'pass' ? resetPassword : updateUserState;
+        const api = resetPassword;
+        // console.log(api);
+        await api({ userId: this.formData.id });
+        this.$message({
+          type: 'success',
+          message: '操作成功！'
+        });
+        this.toggele();
+        await this.fetchUserList();
+      } catch (e) {
+        // console.log(e);
+      }
+    },
     blurSearch() {
       this.isActive = false;
       this.doSearch();

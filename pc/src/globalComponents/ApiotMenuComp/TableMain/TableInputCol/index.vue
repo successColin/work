@@ -38,6 +38,12 @@
         :curData="scope.row"
         :getIdCompId="getIdCompId"
         :multiEntityArr="multiEntityArr"
+        v-if="
+          !(
+            areaData.lineEditable &&
+            showCell === `${scope.column.id}_${scope.row.unique}`
+          )
+        "
         v-on="$listeners"
         v-bind="$attrs"
       ></SelectBox>

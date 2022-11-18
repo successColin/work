@@ -2,57 +2,57 @@
   <section class="configSidebar">
     <el-button-group class="configSidebar__tab">
       <apiot-button
-        class="configSidebar__tab--item"
-        :class="[{ active: curType === 1 }]"
-        @click="curType = 1"
-        >组件库
+          class="configSidebar__tab--item"
+          :class="[{ active: curType === 1 }]"
+          @click="curType = 1"
+      >组件库
       </apiot-button>
       <apiot-button
-        class="configSidebar__tab--item"
-        :class="[{ active: curType === 2 }]"
-        @click="curType = 2"
-        >图层
+          class="configSidebar__tab--item"
+          :class="[{ active: curType === 2 }]"
+          @click="curType = 2"
+      >图层
       </apiot-button>
     </el-button-group>
     <div class="configSidebar__wrapper">
       <div class="configSidebar__tabArea" v-show="curType === 1">
         <ul
-          class="configSidebar__comp"
-          v-for="(group, index) in areaArr"
-          :key="index + 1000"
+            class="configSidebar__comp"
+            v-for="(group, index) in areaArr"
+            :key="index + 1000"
         >
           <li class="configSidebar__comp--group">
             <h1
-              class="triangle"
-              :class="`${group.isClose ? '' : 'open'}`"
-              @click="group.isClose = !group.isClose"
+                class="triangle"
+                :class="`${group.isClose ? '' : 'open'}`"
+                @click="group.isClose = !group.isClose"
             >
               {{ group.name }}
             </h1>
             <draggable
-              v-show="!group.isClose"
-              v-model="group.children"
-              v-bind="{
+                v-show="!group.isClose"
+                v-model="group.children"
+                v-bind="{
                 group: { name: 'area', pull: 'clone' },
                 sort: false,
               }"
-              animation="300"
-              @end="dragAreaEnd($event, index, areaArr)"
+                animation="300"
+                @end="dragAreaEnd($event, index, areaArr)"
             >
               <transition-group class="configSidebar__comp--compList" tag="ul">
-                <li
-                    class="configSidebar__comp--compItem"
-                    v-for="(comp, index) in getAreaArr(group.children)"
-                    :key="index + 3232"
-                >
-                  <img
-                    v-if="comp.imgUrl"
-                    :src="require(`@/assets/img/${comp.imgUrl}`)"
-                  />
-                  <p>{{ comp.name }}</p>
-                </li>
-              </transition-group>
-            </draggable>
+          <li
+              class="configSidebar__comp--compItem"
+              v-for="(comp, index) in getAreaArr(group.children)"
+              :key="index + 3232"
+          >
+            <img
+                v-if="comp.imgUrl"
+                :src="require(`@/assets/img/${comp.imgUrl}`)"
+            />
+            <p>{{ comp.name }}</p>
+          </li>
+          </transition-group>
+          </draggable>
           </li>
         </ul>
         <ul
@@ -62,22 +62,22 @@
         >
           <li class="configSidebar__comp--group">
             <h1
-              class="triangle"
-              :class="`${group.isClose ? '' : 'open'}`"
-              @click="group.isClose = !group.isClose"
+                class="triangle"
+                :class="`${group.isClose ? '' : 'open'}`"
+                @click="group.isClose = !group.isClose"
             >
               {{ group.name }}
             </h1>
             <draggable
-              v-show="!group.isClose"
-              v-model="group.children"
-              v-bind="{
+                v-show="!group.isClose"
+                v-model="group.children"
+                v-bind="{
                 group: { name: 'comp', pull: 'clone' },
                 sort: false,
               }"
-              dragType="comp"
-              animation="300"
-              @end="dragAreaEnd($event, index, compArr)"
+                dragType="comp"
+                animation="300"
+                @end="dragAreaEnd($event, index, compArr)"
             >
               <transition-group class="configSidebar__comp--compList" tag="ul">
           <li
@@ -97,43 +97,43 @@
           </li>
         </ul>
         <ul
-          class="configSidebar__comp"
-          v-for="(group, index) in busArr"
-          :key="index + 2000"
+            class="configSidebar__comp"
+            v-for="(group, index) in busArr"
+            :key="index + 2000"
         >
           <li class="configSidebar__comp--group">
             <h1
-              class="triangle"
-              :class="`${group.isClose ? '' : 'open'}`"
-              @click="group.isClose = !group.isClose"
+                class="triangle"
+                :class="`${group.isClose ? '' : 'open'}`"
+                @click="group.isClose = !group.isClose"
             >
               {{ group.name }}
             </h1>
             <draggable
-              v-show="!group.isClose"
-              v-model="group.children"
-              v-bind="{
+                v-show="!group.isClose"
+                v-model="group.children"
+                v-bind="{
                 group: { name: 'area', pull: 'clone' },
                 sort: false,
               }"
-              animation="300"
-              @end="dragAreaEnd($event, index, busArr)"
+                animation="300"
+                @end="dragAreaEnd($event, index, busArr)"
             >
               <transition-group class="configSidebar__comp--compList" tag="ul">
-                <li
-                  class="configSidebar__comp--compItem"
-                  :class="[{ btnBox: comp.areaType === 2 }]"
-                  v-for="comp in getAreaArr(group.children)"
-                  :key="comp.componentName"
-                >
-                  <img
-                    v-if="comp.imgUrl"
-                    :src="require(`@/assets/img/${comp.imgUrl}`)"
-                  />
-                  <p>{{ comp.name }}</p>
-                </li>
-              </transition-group>
-            </draggable>
+          <li
+              class="configSidebar__comp--compItem"
+              :class="[{ btnBox: comp.areaType === 2 }]"
+              v-for="comp in getAreaArr(group.children)"
+              :key="comp.componentName"
+          >
+            <img
+                v-if="comp.imgUrl"
+                :src="require(`@/assets/img/${comp.imgUrl}`)"
+            />
+            <p>{{ comp.name }}</p>
+          </li>
+          </transition-group>
+          </draggable>
           </li>
         </ul>
       </div>
@@ -531,14 +531,23 @@ export default {
                 outerCircle: 70, // 外圆半径
                 InnerCircle: 0, // 内圆半径
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }
                 ] // 扇形区域颜色
               },
               dataConfig: {
                 staticValue:
-                  '[{"value":1048,"name":"类型一"},{"value":735,"name":"类型二"},{"value":580,"name":"类型三"}]' // 静态值
+                    '[{"value":1048,"name":"类型一"},{"value":735,"name":"类型二"},{"value":580,"name":"类型三"}]' // 静态值
               },
               SqlDataConfig: {
                 ...SqlDataConfig
@@ -624,9 +633,18 @@ export default {
                 YTickLabelFontSize: 12, // x轴文字大小
                 YTickLabelColor: '#808080', // x轴字体颜色
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }
                 ] // 区域颜色
               },
               dataConfig: {
@@ -715,9 +733,18 @@ export default {
                 YTickLabelFontSize: 12, // x轴文字大小
                 YTickLabelColor: '#808080', // x轴字体颜色
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }], // 区域颜色
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }], // 区域颜色
               },
               dataConfig: {
                 staticValue: '[{"x":"周一","y":98,"s":"系列一"},{"x":"周二","y":86,"s":"系列一"},{"x":"周三","y":90,"s":"系列一"},{"x":"周四","y":48,"s":"系列一"},{"x":"周五","y":78,"s":"系列一"},{"x":"周一","y":91,"s":"系列二"},{"x":"周二","y":97,"s":"系列二"},{"x":"周三","y":95,"s":"系列二"},{"x":"周四","y":67,"s":"系列二"},{"x":"周五","y":69,"s":"系列二"}]' // 静态值
@@ -771,9 +798,18 @@ export default {
                 barColor: '#24CBFF', // 进度条颜色
                 barBgColor: 'rgba(255,255,255,0.1)', // 进度条背景色
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }
                 ] // 扇形区域颜色
               },
               dataConfig: {
@@ -853,9 +889,18 @@ export default {
                 YTickLabelFontSize: 12, // x轴文字大小
                 YTickLabelColor: '#808080', // x轴字体颜色
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }
                 ] // 区域颜色
               },
               dataConfig: {
@@ -900,9 +945,18 @@ export default {
                 legendFontSize: 12, // 图例文字大小
                 legendColor: '#808080', // 图例字体颜色
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }
                 ], // 区域颜色
                 XLineColor: '#808080', // x轴轴颜色
                 XDataType: 'category', // 轴类型
@@ -1016,7 +1070,10 @@ export default {
                 splitNumber: 5, // 刻度分割段数
                 roundCap: true, // 两端启用圆角
                 axisLineWidth: 10, // 轴线宽度
-                axisLineColorConfig: [{ name: 1, value: '#E6EBF8' }], // 轴线颜色
+                axisLineColorConfig: [{
+                  name: 1,
+                  value: '#E6EBF8'
+                }], // 轴线颜色
                 progressRoundCap: true, // 进度条
                 progressWidth: 10, // 进度条宽度
                 progressColor: '#58D9F9', // 进度条颜色
@@ -1098,9 +1155,18 @@ export default {
                 labelPosition: 'insideRight', // 标注位置，顶部， 内部，底部
                 labelOffset: 20, // 文字偏移
                 colorArr: [
-                  { c1: '#7381F8', c2: '#7381F8' },
-                  { c1: '#4689F5', c2: '#4689F5' },
-                  { c1: '#43DBFF', c2: '#43DBFF' }
+                  {
+                    c1: '#7381F8',
+                    c2: '#7381F8'
+                  },
+                  {
+                    c1: '#4689F5',
+                    c2: '#4689F5'
+                  },
+                  {
+                    c1: '#43DBFF',
+                    c2: '#43DBFF'
+                  }
                 ], // 区域颜色
               },
               dataConfig: {
@@ -1174,41 +1240,243 @@ export default {
               },
               customStyle: [], // 自定义样式
               indicator: [
-                { name: '数学', max: 100, enable: true, fieldValue: 1 },
-                { name: '语文', max: 100, enable: true, fieldValue: 2 },
-                { name: '英语', max: 100, enable: true, fieldValue: 3 },
-                { name: '物理', max: 100, enable: true, fieldValue: 4 },
-                { name: '化学', max: 100, enable: true, fieldValue: 5 },
-                { name: '其他', max: 100, enable: true, fieldValue: 6 }
+                {
+                  name: '数学',
+                  max: 100,
+                  enable: true,
+                  fieldValue: 1
+                },
+                {
+                  name: '语文',
+                  max: 100,
+                  enable: true,
+                  fieldValue: 2
+                },
+                {
+                  name: '英语',
+                  max: 100,
+                  enable: true,
+                  fieldValue: 3
+                },
+                {
+                  name: '物理',
+                  max: 100,
+                  enable: true,
+                  fieldValue: 4
+                },
+                {
+                  name: '化学',
+                  max: 100,
+                  enable: true,
+                  fieldValue: 5
+                },
+                {
+                  name: '其他',
+                  max: 100,
+                  enable: true,
+                  fieldValue: 6
+                }
               ], // 维度配置
               dataConfig: {
                 staticValue: '[\n' +
-        '  { "x": "小明", "value":  98, "type": 1},\n' +
-        '  { "x": "小明", "value":  68, "type": 2},\n' +
-        '  { "x": "小明", "value":  76, "type": 3},\n' +
-        '  { "x": "小明", "value":  88, "type": 4},\n' +
-        '  { "x": "小明", "value":  92, "type": 5},\n' +
-        '  { "x": "小明", "value":  99, "type": 6},\n' +
-        '  { "x": "小张", "value":  97, "type": 1},\n' +
-        '  { "x": "小张", "value":  88, "type": 2},\n' +
-        '  { "x": "小张", "value":  86, "type": 3},\n' +
-        '  { "x": "小张", "value":  89, "type": 4},\n' +
-        '  { "x": "小张", "value":  95, "type": 5},\n' +
-        '  { "x": "小张", "value":  79, "type": 6}\n' +
-        ']' // 静态值
+                    '  { "x": "小明", "value":  98, "type": 1},\n' +
+                    '  { "x": "小明", "value":  68, "type": 2},\n' +
+                    '  { "x": "小明", "value":  76, "type": 3},\n' +
+                    '  { "x": "小明", "value":  88, "type": 4},\n' +
+                    '  { "x": "小明", "value":  92, "type": 5},\n' +
+                    '  { "x": "小明", "value":  99, "type": 6},\n' +
+                    '  { "x": "小张", "value":  97, "type": 1},\n' +
+                    '  { "x": "小张", "value":  88, "type": 2},\n' +
+                    '  { "x": "小张", "value":  86, "type": 3},\n' +
+                    '  { "x": "小张", "value":  89, "type": 4},\n' +
+                    '  { "x": "小张", "value":  95, "type": 5},\n' +
+                    '  { "x": "小张", "value":  79, "type": 6}\n' +
+                    ']' // 静态值
               },
               SqlDataConfig: {
                 ...SqlDataConfig
               }
             },
+            {
+              componentName: 'RoseChart',
+              imgUrl: 'homePage/HorizontalProgressBar.svg',
+              name: '玫瑰图',
+              width: 500,
+              height: 300,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              enableLegend: true, // 是否启用图例
+              stylesObj: {
+                zIndex: 1,
+                legendPosition: 'lt', // 图例位置
+                legendFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
+                legendFontWeight: 'normal', // 图例文字粗细
+                legendFontSize: 12, // 图例文字大小
+                legendColor: '#FFF', // 图例字体颜色
+                legendOrient: 'horizontal', // 图例布局， 默认水平，选项水平， 垂直
+                labelPosition: 'inside', // 标注位置，内部外部
+                labelColor: 'rgba(255, 255, 255, 0.7)', // 标注字体颜色
+                labelShowType: 'type', // 标注显示值
+                labelValueType: 1, // 标注值类型
+                labelFontSize: 12, // 图例文字大小
+                labelFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
+                labelFontWeight: 'normal', // 图例文字粗细
+                outerCircle: 0, // 外圆半径
+                InnerCircle: 100, // 内圆半径
+                pieHorizontal: 50, // 水平位置
+                pieVertical: 50, // 竖向位置
+                borderRadius: 18, // 扇形倒角
+                roseType: 'radius',
+                colorArr: [{
+                  c1: '#7381F8',
+                  c2: '#7381F8'
+                }, {
+                  c1: '#4689F5',
+                  c2: '#4689F5'
+                }, {
+                  c1: '#43DBFF',
+                  c2: '#43DBFF'
+                }] // 扇形区域颜色
+              },
+              dataConfig: {
+                staticValue: '[{"value":1048,"name":"类型一"},{"value":735,"name":"类型二"},{"value":580,"name":"类型三"}]' // 静态值
+              },
+              SqlDataConfig: {
+                ...SqlDataConfig
+              }
+            },
+            {
+              componentName: 'Liquidfill',
+              imgUrl: 'homePage/radarChart.svg',
+              name: '水球图',
+              width: 500,
+              height: 300,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              stylesObj: {
+                zIndex: 1,
+                animationDuration: 'right', // 动画方向left, right
 
+                waveNum: 2, // 波浪个数
+                waveLength: 300, // 波浪宽度
+                amplitude: 15, // 波浪整幅
+                radius: 50, // 图表大小
+                shape: 'circle', // 形状 circle， rect，roundRect，triangle， diamond，pin， arrow
+                waveAnimation: true, // 动画
+                outlineShow: false, // 显示外边框
+                borderDistance: 2, // Distance between border and inner circle.
+                borderColor: '#156ACF', // 边框颜色
+                borderWidth: 5, // 边框宽度
+                shadowColor: 'rgba(255, 0, 0, 1)', // 阴影颜色
+                shadowBlur: 20, // 阴影距离
+
+                bgColor: 'rgba(245, 245, 245, 1)', // 内部背景颜色
+                bgBorderColor: '#fff', // 内部背景边框颜色
+                bgBorderWidth: 5, // 内部背景边框宽度
+                bgShadowColor: '', // 背景阴影颜色
+                bgShadowBlur: 0, // 背景阴影距离
+
+                labelPosition: 'inside', // 文字位置inside， left， right， top，bottom
+                labelFontSize: 30, // 文字大小
+                labelFontWeight: 'normal', // 文字
+                labelColor: '#fff', // 文字颜色
+                labelShow: true, // 是否显示文字
+
+                colorArr: [{
+                  c1: '#7381F8',
+                  c2: '#7381F8'
+                }, {
+                  c1: '#4689F5',
+                  c2: '#4689F5'
+                }, {
+                  c1: '#43DBFF',
+                  c2: '#43DBFF'
+                }] // 扇形区域颜色
+              },
+              dataConfig: {
+                staticValue: '{"value":0.6}' // 静态值
+              },
+              SqlDataConfig: {
+                ...SqlDataConfig
+              }
+            },
+            {
+              componentName: 'FunnelChart',
+              imgUrl: 'homePage/radarChart.svg',
+              name: '漏斗图',
+              width: 500,
+              height: 280,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              enableLegend: true, // 是否启用图例
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              stylesObj: {
+                zIndex: 1,
+                legendPosition: 'lt', // 图例位置
+                legendFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
+                legendFontWeight: 'normal', // 图例文字粗细
+                legendFontSize: 12, // 图例文字大小
+                legendColor: 'rgba(102, 102, 102, 1)', // 图例字体颜色
+                legendOrient: 'horizontal', // 图例布局， 默认水平，选项水平， 垂直
+                colorArr: [{ c1: '#7381F8' }, { c1: '#4689F5' }, { c1: '#43DBFF' }] // 区域颜色
+              },
+              dataConfig: {
+                staticValue: '[{"value":60,"name":"访问","title":"网站用户行为统计"},{"value":40,"name":"咨询","title":"网站用户行为统计"},{"value":20,"name":"订单","title":"网站用户行为统计"},{"value":80,"name":"点击","title":"网站用户行为统计"},{"value":100,"name":"展现","title":"网站用户行为统计"}]' // 静态值
+              },
+              SqlDataConfig: {
+                ...SqlDataConfig
+              },
+              funnelsConfig: [
+                {
+                  width: 50, // 宽
+                  height: 80, // 高
+                  top: 10, // 上边距
+                  left: 25, // 左边距
+                  sort: 'descending', // 排序
+                  orient: 'vertical', // 漏斗图朝向
+                  funnelAlign: 'center',
+                  gap: 0, // 图形间距
+                  fieldName: '配置1',
+                  isShowLabel: true, // 是否显示文本标签
+                  isShowTooltip: true, // 是否显示悬浮
+                  labelFontFamily: '微软雅黑',
+                  labelFontWeight: 'normal',
+                  labelFontSize: 16,
+                  labelColor: '#fff',
+                  labelTextAlign: 'center',
+                  labelPosition: 'inside', // 标签位置
+
+                  itemBorderColor: '#000', // 图形的描边颜色
+                  itemBorderWidth: 0, // 图形的描边宽度
+                  itemBorderType: 'solid', // 描边类型
+                  itemShadowBlur: 0, // 图形阴影的模糊大小
+                  itemShadowColor: '', // 阴影颜色
+                  itemShadowOffsetX: 0, // 阴影水平方向上的偏移距离
+                  itemShadowOffsetY: 0, // 阴影垂直方向上的偏移距离
+                  opacity: 1 // 透明的
+                }
+              ] // 漏斗图配置
+            },
           ]
         },
         {
           name: '高级组件',
           isClose: false,
-          children: [
-          ]
+          children: []
         }
       ]
     };
@@ -1226,15 +1494,24 @@ export default {
     }
   },
 
-  mounted() {},
+  mounted() {
+  },
 
   methods: {
     dragAreaEnd(e, index, arr) {
       const el = document.querySelector('.homePageContent__main--content');
       const boundingRect = el.getBoundingClientRect();
       const { originalEvent } = e;
-      const { pageX, pageY } = originalEvent;
-      const { left: designLeft, right, top: designTop, bottom } = boundingRect;
+      const {
+        pageX,
+        pageY
+      } = originalEvent;
+      const {
+        left: designLeft,
+        right,
+        top: designTop,
+        bottom
+      } = boundingRect;
       if (pageX < designLeft) {
         return;
       }
@@ -1254,7 +1531,10 @@ export default {
       const baseInfo = JSON.parse(JSON.stringify(data[index].children[oldIndex]));
       const componentId = createUnique();
       baseInfo.componentId = componentId;
-      this.$emit('dragObject', { componentInfo: baseInfo, e: originalEvent });
+      this.$emit('dragObject', {
+        componentInfo: baseInfo,
+        e: originalEvent
+      });
     }
   },
 
@@ -1387,6 +1667,7 @@ export default {
     width: 100%;
     //padding-right: 20px;
   }
+
   &__tabArea::-webkit-scrollbar {
     width: 0 !important
   }

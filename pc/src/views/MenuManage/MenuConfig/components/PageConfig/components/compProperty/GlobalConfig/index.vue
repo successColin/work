@@ -51,8 +51,9 @@
 </template>
 
 <script>
-import TriggerAction from './components/TriggerAction';
+import { shortLink } from '@/api/menuManage';
 import RelateGird from './components/RelateGird';
+import TriggerAction from './components/TriggerAction';
 
 export default {
   props: {
@@ -101,12 +102,21 @@ export default {
       await this.$parent.saveLayout();
       this.showGird = true;
     },
-    createShareUrl() {
+    async createShareUrl() {
+      let shareUrl = '';
       if (this.$route.query.isApp === '1') {
-        this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}?isLink=1&flag=1&id=${this.$route.params.id}`;
+        shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}?isLink=1&flag=1&id=${
+          this.$route.params.id || this.$route.query.menuId
+        }`;
       } else {
-        this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/sharePage/1/${this.$route.params.id}`;
+        shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/sharePage/1?menuId=${
+          this.$route.params.id || this.$route.query.menuId
+        }`;
       }
+      const data = await shortLink({
+        originalUrl: encodeURI(shareUrl)
+      });
+      this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/share/${data}`;
     },
     copyShareUrl() {
       // 创建输入框元素

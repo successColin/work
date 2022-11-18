@@ -92,8 +92,8 @@
 
 <script>
 import { downloadSingle } from '@/api/knowledge';
-import { saveAs } from '@/utils/utils';
 import { batchUpload, getFileList } from '@/api/menuConfig';
+import { saveAs } from '@/utils/utils';
 import compMixin from '../../compMixin';
 import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
 
@@ -222,7 +222,9 @@ export default {
       const formData = new FormData();
       // eslint-disable-next-line max-len
       const menuId =
-        this.showType && this.showType.menuId ? this.showType.menuId : this.$route.params.id;
+        this.showType && this.showType.menuId
+          ? this.showType.menuId
+          : this.$route.params.id || this.$route.query.menuId;
       formData.append('files', file);
       formData.append('menuId', menuId);
       this.notChangeIndex = true;

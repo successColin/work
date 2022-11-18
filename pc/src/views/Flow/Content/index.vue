@@ -9,53 +9,52 @@
 <template>
   <div class="wrap" v-loading="loading">
     <div class="searchWrap">
-      <apiot-button type="primary" @click="visible=true">
+      <apiot-button type="primary" @click="visible = true">
         <i class="icon-xinzeng iconfont m-r-4"></i>
         新增流程
       </apiot-button>
-      <search-input @getList="getList" v-model="keywords"></search-input>
+      <search-input @getList="getList" v-model.trim="keywords"></search-input>
     </div>
     <div class="listWrap">
       <div class="listContentWrap">
         <apiot-nodata v-if="!list.length"></apiot-nodata>
-        <div
-           class="listItemWrap"
-           v-for="(item, index) in list"
-          :key="item.id"
-        >
-          <div class="iconfont icon-liucheng" :style="getColor(index)">
-          </div>
+        <div class="listItemWrap" v-for="(item, index) in list" :key="item.id">
+          <div class="iconfont icon-liucheng" :style="getColor(index)"></div>
           <div class="itemContent">
             <div class="contentBlock p-l-18">
-              <div class="name">{{item.workflowCode}}-{{item.workflowName}}</div>
-              <div class="des">
-                创建时间：{{item.createTime}}
+              <div class="name">
+                {{ item.workflowCode }}-{{ item.workflowName }}
               </div>
+              <div class="des">创建时间：{{ item.createTime }}</div>
             </div>
             <div class="contentBlock p-l-18">
               <div class="des">
-                <div style="float: left;line-height: 24px;margin-right: 10px;">创建人</div>
+                <div style="float: left; line-height: 24px; margin-right: 10px">
+                  创建人
+                </div>
                 <Users
-                    :row="item"
-                    :key="item.createUserId"
-                    userid="createUserId"
-                    prop="createUser"
+                  :row="item"
+                  :key="item.createUserId"
+                  userid="createUserId"
+                  prop="createUser"
                 />
               </div>
-              <div class="des">
-                更新时间：{{item.modifyTime}}
-              </div>
+              <div class="des">更新时间：{{ item.modifyTime }}</div>
             </div>
             <div class="contentBlock p-r-30">
               <div class="des tr">
                 <div v-if="item.activeVersion" class="userWrap">
                   当前使用：
-                  <span class="tag">v{{item.activeVersion}}</span>
+                  <span class="tag">v{{ item.activeVersion }}</span>
                 </div>
               </div>
               <div class="tr">
-                <apiot-button type="text" @click="doEdit(item)">编辑</apiot-button>
-                <apiot-button type="text" @click="doDel(item)">删除</apiot-button>
+                <apiot-button type="text" @click="doEdit(item)"
+                  >编辑</apiot-button
+                >
+                <apiot-button type="text" @click="doDel(item)"
+                  >删除</apiot-button
+                >
                 <apiot-button type="primary" size="mini" @click="design(item)">
                   <i class="icon-caidansheji iconfont m-r-4"></i>
                   设计
@@ -67,48 +66,42 @@
       </div>
     </div>
     <apiot-dialog
-        :visible.sync="visible"
-        custom-class="editOrAdd"
-        :title="flowObj.id ? '编辑流程':'新增流程'"
-        :destroy-on-close="true"
-        :modal-append-to-body="false"
-        v-on:sure-click="handleOk"
-        :loading="btnLoading"
+      :visible.sync="visible"
+      custom-class="editOrAdd"
+      :title="flowObj.id ? '编辑流程' : '新增流程'"
+      :destroy-on-close="true"
+      :modal-append-to-body="false"
+      v-on:sure-click="handleOk"
+      :loading="btnLoading"
     >
       <div>
         <el-form
-            @submit.native.prevent
-            ref="dynamicValidateForm"
-            label-width="80px"
-            label-position="top"
-            :model="flowObj"
-            :rules="rules"
+          @submit.native.prevent
+          ref="dynamicValidateForm"
+          label-width="80px"
+          label-position="top"
+          :model="flowObj"
+          :rules="rules"
         >
-          <el-form-item
-              prop="workflowCode"
-              label="流程编码"
-          >
+          <el-form-item prop="workflowCode" label="流程编码">
             <apiot-input v-model="flowObj.workflowCode"></apiot-input>
           </el-form-item>
-          <el-form-item
-              prop="workflowName"
-              label="流程名称"
-          >
+          <el-form-item prop="workflowName" label="流程名称">
             <apiot-input v-model="flowObj.workflowName"></apiot-input>
           </el-form-item>
         </el-form>
       </div>
     </apiot-dialog>
     <FlowDesign
-        v-if="flowVisible"
-        @doBack="doBack"
-        :activeFlow="designObj"
+      v-if="flowVisible"
+      @doBack="doBack"
+      :activeFlow="designObj"
     ></FlowDesign>
   </div>
 </template>
 
 <script>
-import { getFlowList, addFlow, delFlow, editFlow } from '@/api/flow';
+import { addFlow, delFlow, editFlow, getFlowList } from '@/api/flow';
 import { userColorArr } from '@/config';
 import Users from '@/views/Users/Main/UserColumn/Users/index';
 import FlowDesign from './Process/index';
@@ -125,11 +118,9 @@ export default {
       visible: false,
       flowObj: {},
       rules: {
-        workflowName: [
-          { required: true, message: '请输入流程名称', trigger: 'change' },
-        ]
+        workflowName: [{ required: true, message: '请输入流程名称', trigger: 'change' }]
       },
-      designObj: {}, // 设计对象
+      designObj: {} // 设计对象
     };
   },
 
@@ -140,7 +131,7 @@ export default {
 
   computed: {
     getColor() {
-      return function(index) {
+      return function (index) {
         const i = index % 5;
         return `color: ${userColorArr[i]}`;
       };
@@ -154,11 +145,10 @@ export default {
     }
   },
   mounted() {
-    this.$bus.$off('FlowGroup')
-      .$on('FlowGroup', (item) => {
-        this.selectKey = item;
-        this.getList();
-      });
+    this.$bus.$off('FlowGroup').$on('FlowGroup', (item) => {
+      this.selectKey = item;
+      this.getList();
+    });
     this.$bus.$off('flowDesign_back').$on('flowDesign_back', () => {
       this.doBack();
     });
@@ -235,7 +225,7 @@ export default {
       }
     }
   },
-  name: 'index',
+  name: 'index'
 };
 </script>
 
@@ -272,10 +262,10 @@ export default {
         align-items: center;
         height: 97px;
         margin-bottom: 10px;
-        background: #FFFFFF;
+        background: #ffffff;
         box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
-        border: 1px solid #F1F1F1;
+        border: 1px solid #f1f1f1;
 
         .icon-liucheng {
           margin-left: 26px;
@@ -314,9 +304,9 @@ export default {
                 display: inline-block;
                 height: 24px;
                 padding: 0 10px;
-                color: #4689F5;
+                color: #4689f5;
                 line-height: 24px;
-                background: #E5F0FF;
+                background: #e5f0ff;
                 border-radius: 4px;
               }
             }
@@ -335,13 +325,13 @@ export default {
           }
         }
       }
-      .listItemWrap:hover{
+      .listItemWrap:hover {
         box-shadow: 0px 2px 10px 0px rgb(0 0 0 / 14%);
       }
     }
   }
-  ::v-deep{
-    .editOrAdd .el-dialog__body{
+  ::v-deep {
+    .editOrAdd .el-dialog__body {
       height: 170px;
       padding: 20px;
     }

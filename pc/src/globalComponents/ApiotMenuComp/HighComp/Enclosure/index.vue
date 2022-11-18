@@ -164,8 +164,8 @@
 
 <script>
 import axios from 'axios';
-import { batchUpload, getFileList } from '@/api/menuConfig';
 import { downloadSingle } from '@/api/knowledge';
+import { batchUpload, getFileList } from '@/api/menuConfig';
 import { saveAs } from '@/utils/utils';
 import compMixin from '../../compMixin';
 import imageZoom from '../../RelatedData/RelateApply/ImageZoom';
@@ -239,7 +239,8 @@ export default {
       }
     },
     getCurIconName(name) {
-      const ext = name.split('.')[1];
+      const arr = name.split('.');
+      const ext = arr[arr.length - 1];
       const obj = {
         XLS: ['xls', 'xlsx'],
         zipFile: ['zip', 'rar'],
@@ -336,7 +337,9 @@ export default {
       formData.append('files', file);
       // eslint-disable-next-line max-len
       const menuId =
-        this.showType && this.showType.menuId ? this.showType.menuId : this.$route.params.id;
+        this.showType && this.showType.menuId
+          ? this.showType.menuId
+          : this.$route.params.id || this.$route.query.menuId;
       formData.append('menuId', menuId);
       const res = await batchUpload(
         formData,

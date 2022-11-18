@@ -193,7 +193,7 @@ export default {
         const qrResult = await this.$apiot.scanCode();
         result = qrResult.result;
         // 如果是服务器默认地址二维码1
-        if (result.indexOf('APIoT_STATIC_SERVERURL') !== -1) {
+        if (result && result.indexOf('APIoT_STATIC_SERVERURL') !== -1) {
           const serveUrl = result.match(/APIoT_STATIC_SERVERURL(\S*)SERVERURL_END/);
           if (serveUrl.length > 1) {
             const str = serveUrl[1];

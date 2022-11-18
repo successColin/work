@@ -1,67 +1,76 @@
 <template>
-  <el-popover
-    placement="bottom"
-    width="260"
-    trigger="click"
-    v-model="visible"
-    @show="show"
-    popper-class="filter"
-  >
-    <div class="filter__content">
-      <apiot-input
-        v-if="type === 1"
-        v-model="startValue"
-        placeholder="请输入关键字搜索"
-      ></apiot-input>
-      <el-checkbox-group
-        v-model="startValue"
-        v-if="type === 2"
-        class="filter__all filter__check"
-      >
-        <el-checkbox
-          v-for="item in effectArr"
-          :key="item.value"
-          :label="item.name"
-        ></el-checkbox>
-      </el-checkbox-group>
-      <el-date-picker
-        v-if="type === 4"
-        class="filter__all"
-        v-model="startValue"
-        type="daterange"
-        value-format="yyyy-MM-dd HH:mm:ss"
-        :picker-options="pickerOptions"
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-        align="right"
-      >
-      </el-date-picker>
-      <el-input
-        v-if="type === 5"
-        class="filter__all"
-        v-model="startValue"
-        :placeholder="configData.placeholder"
-        v-onlyNumber="2"
-      >
-      </el-input>
-    </div>
-    <div class="filter__btns">
-      <apiot-button @click="visible = false"> 取消 </apiot-button>
-      <apiot-button type="primary" @click.stop="sureClick"> 确定 </apiot-button>
-    </div>
+  <div class="filterBox" :class="[{ hasBg: getState }]">
     <i
-      slot="reference"
-      class="filter__btn iconfont icon-shujiantouzhankai"
-      :class="[
-        { rotate: visible },
-        {
-          active: getState || visible,
-        },
-      ]"
-      @click.stop
+      class="iconfont icon-quanshan"
+      @click.stop="clearSearch"
+      @touchstart="clearSearch"
     ></i>
-  </el-popover>
+    <el-popover
+      placement="bottom"
+      width="260"
+      trigger="click"
+      v-model="visible"
+      @show="show"
+      popper-class="filter"
+    >
+      <div class="filter__content">
+        <apiot-input
+          v-if="type === 1"
+          v-model="startValue"
+          placeholder="请输入关键字搜索"
+        ></apiot-input>
+        <el-checkbox-group
+          v-model="startValue"
+          v-if="type === 2"
+          class="filter__all filter__check"
+        >
+          <el-checkbox
+            v-for="item in effectArr"
+            :key="item.value"
+            :label="item.name"
+          ></el-checkbox>
+        </el-checkbox-group>
+        <el-date-picker
+          v-if="type === 4"
+          class="filter__all"
+          v-model="startValue"
+          type="daterange"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          :picker-options="pickerOptions"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          align="right"
+        >
+        </el-date-picker>
+        <el-input
+          v-if="type === 5"
+          class="filter__all"
+          v-model="startValue"
+          :placeholder="configData.placeholder"
+          v-onlyNumber="2"
+        >
+        </el-input>
+      </div>
+      <div class="filter__btns">
+        <apiot-button @click="visible = false"> 取消 </apiot-button>
+        <apiot-button type="primary" @click.stop="sureClick">
+          确定
+        </apiot-button>
+      </div>
+      <i
+        slot="reference"
+        class="filter__btn iconfont icon-biaotoushaixuan"
+        :class="[
+          {
+            active: getState || visible,
+          },
+        ]"
+        @click.stop
+        @touchstart="visible = true"
+      ></i>
+    </el-popover>
+  </div>
 </template>
 
 <script>
@@ -213,6 +222,9 @@ export default {
           comp.compType = 6;
         }
       }
+      if (comp.compType === 28) {
+        comp.compType = 7;
+      }
       column.value = value;
       // 如果是label 但是他的字典没开启
       if (comp.compType === 15 && !comp.enableDict) {
@@ -312,18 +324,60 @@ export default {
         compId: this.configData.compId,
         arr
       });
+    },
+    // 清空 并搜索
+    clearSearch() {
+      this.startValue = '';
+      if (this.type === 2) {
+        this.startValue = [];
+      }
+      this.sureClick();
     }
   }
 };
 </script>
 
 <style lang='scss' scoped>
+.filterBox {
+  position: absolute;
+  z-index: 1;
+  right: -28px;
+  width: 46px;
+  height: 20px;
+  padding-left: 5px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  &.hasBg {
+    background: #e9ebf3;
+    right: -17px;
+    .icon-quanshan {
+      display: inline-block;
+    }
+  }
+  .icon-quanshan {
+    display: none;
+    font-size: 14px;
+    width: 20px;
+    color: rgba(0, 0, 0, 0.16);
+    &:hover {
+      color: rgba(0, 0, 0, 0.4);
+    }
+  }
+  .icon-biaotoushaixuan {
+    font-size: 14px;
+    color: #bbc3cd;
+  }
+}
 .filter {
   &__btn {
-    position: absolute;
-    right: -16px;
-    top: -4px;
     transition: all 0.5s;
+    display: inline-block;
+    height: 36px;
+    width: 20px;
+
     &:hover {
       color: $--color-primary;
     }

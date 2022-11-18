@@ -42,7 +42,7 @@
 <script>
 import { getDesignMenu, operationTriggers, selectList } from '@/api/menuConfig';
 import parser from '@/utils/formula';
-import { isExistInObj, createUnique, formatDate } from '@/utils/utils';
+import { createUnique, formatDate, isExistInObj } from '@/utils/utils';
 import PrintCom from '@/views/ApiotMenu/PrintCom';
 
 let getAllPaneBack = null;
@@ -111,6 +111,7 @@ export default {
       getNotInitArr: this.getNotInitArr,
       clickTrigger: this.clickTrigger,
       initStart: this.initStart,
+      getDesignPersonal: this.getDesignPersonal,
       isSelect: false
     };
   },
@@ -195,7 +196,7 @@ export default {
         }
       });
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       obj.CUR_SELECTED_IDS = sessionStorage.__current__mulArr__id || '';
       return obj;
     },
@@ -212,11 +213,24 @@ export default {
         });
       }
       return arr;
+    },
+    // 个性化数组转对象
+    getDesignPersonalObj() {
+      const obj = {};
+      if (this.configDataArr && this.configDataArr[0].designPersonal) {
+        this.configDataArr[0].designPersonal.forEach((item) => {
+          obj[item.compId] = {
+            id: item.id,
+            designOverallLayout: JSON.parse(item.designOverallLayout)
+          };
+        });
+      }
+      return obj;
     }
   },
 
   mounted() {
-    this.getDesignMenu(this.$route.params.id);
+    this.getDesignMenu(this.$route.params.id || this.$route.query.menuId);
     this.initFunc();
     // 生成唯一标识
     this.onlyFlag = createUnique();
@@ -290,6 +304,7 @@ export default {
           return '';
         }
         const comp = getAllPaneBack.compObj[params[0]];
+        console.log(comp, 'ofVqXm', params[0]);
         if (comp && comp.selData) {
           if (comp.compType === 6 || comp.compType === 7) {
             if (params.length === 4 || params.length === 5) {
@@ -771,12 +786,15 @@ export default {
       panelKey.forEach((key) => {
         this.configData.paneObj[key].pageConfig = [obj[this.configData.paneObj[key].id]];
         // 面板是否可以分享
-        this.configData.paneObj[key].enableshare = obj[this.configData.paneObj[key].id].enableshare;
+        if (obj[this.configData.paneObj[key].id]) {
+          this.configData.paneObj[key].enableshare =
+            obj[this.configData.paneObj[key].id].enableshare;
+        }
         // 记下权限项id
         if (+this.$route.params.flag === 2 && this.panelObj) {
           this.configData.paneObj[key].menuId = this.panelObj.menuId;
         } else {
-          this.configData.paneObj[key].menuId = this.$route.params.id;
+          this.configData.paneObj[key].menuId = this.$route.params.id || this.$route.query.menuId;
         }
       });
       if (dictArr.length !== 0) {
@@ -1080,6 +1098,7 @@ export default {
       getAllPaneBack = this.getAllPane;
       // // console.log(formulaStr);
       let formulaRes = formulaStr
+        .replace(' ', '')
         .replace(/\[|\]/g, '')
         .replace(/!==/g, '<>')
         .replace(/!=/g, '<>')
@@ -1249,6 +1268,9 @@ export default {
                   if ([3].includes(comp.compType)) {
                     v = +v;
                   }
+                  if ([10].includes(comp.compType)) {
+                    v = `${v}`;
+                  }
                   if ([4, 25].includes(comp.compType)) {
                     v = this.resolveRes(v);
                   }
@@ -1261,6 +1283,7 @@ export default {
                 // console.log(tab);
                 if (tab) {
                   let v = this.resolveFormula(true, item.normalValue);
+                  // console.log(v);
                   if (typeof v === 'object' && v.error) {
                     return;
                   }
@@ -1288,6 +1311,9 @@ export default {
                     if (v !== '') {
                       v = +v;
                     }
+                  }
+                  if ([10].includes(comp.compType)) {
+                    v = `${v}`;
                   }
                   if ([4, 25].includes(comp.compType)) {
                     v = this.resolveRes(v);
@@ -1595,6 +1621,11 @@ export default {
 
         area.isTree = true;
       }
+      this.$bus.$emit('changeShowType');
+    },
+    // 获取个性化
+    getDesignPersonal() {
+      return this.getDesignPersonalObj;
     }
   },
 

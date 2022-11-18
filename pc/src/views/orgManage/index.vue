@@ -25,7 +25,7 @@
           @FETCH_NEW_LIST="fetchList"
           :templateId="103"
         ></apiot-sys-import> -->
-        <search-input @getList="search" v-model="keywords"></search-input>
+        <search-input @getList="search" v-model.trim="keywords"></search-input>
       </div>
     </div>
     <tree-table

@@ -134,16 +134,16 @@ export default {
 // #endif
 // #ifndef MP
 @import url('https://at.alicdn.com/t/c/font_2808920_i99j8z3ezj8.css'); // app独有
-// @import url('http://at.alicdn.com/t/c/font_3589590_oiiwz06t3.css'); // 彩色
-@import url('http://at.alicdn.com/t/c/font_3589589_lwag9mymt1.css'); //纯色
+@import url('http://at.alicdn.com/t/c/font_3736860_ttujc1jb0lo.css'); // 彩色
+@import url('http://at.alicdn.com/t/c/font_2808920_vdnc4h16qa.css'); //纯色
 // #endif
 // #ifdef MP
 @import '@/assets/css/iconfont/appIconfont.css'; // app独有
-// @import '@/assets/css/iconfont/commonColour.css'; // 彩色
 @import '@/assets/css/iconfont/commonSolid.css'; //纯色
 //#endif
 @import '@/assets/css/iconfont/commonColour.css'; // 彩色
 @import '@/assets/css/iconfont/appIconColour.css'; // app独有彩色
+@import '@/assets/iconfont/iconfont.css'; // 纯色
 @import '@/assets/css/elementTheme.scss';
 // #endif
 </style>

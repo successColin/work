@@ -172,6 +172,7 @@
         </apiot-button>
       </el-form-item>
       <el-form-item
+        label="数据选择类型"
         style="margin-bottom: 0"
         v-if="
           $route.query.isApp === '1' &&
@@ -181,7 +182,7 @@
           configData[0].paneObj[activeObj.compId].sysMenuDesignId
         "
       >
-        <p class="switchBox">
+        <!-- <p class="switchBox">
           是否启用扫描功能
           <el-switch
             v-model="activeObj.enableScan"
@@ -190,10 +191,18 @@
             inactive-text="否"
           >
           </el-switch>
-        </p>
+        </p> -->
+        <el-select
+          v-model="activeObj.labelShowStyle"
+          placeholder="请选择数据选择类型"
+        >
+          <el-option label="扫一扫" :value="1"></el-option>
+          <el-option label="点击选择" :value="2"></el-option>
+          <el-option label="扫一扫+点击选择" :value="3"></el-option>
+        </el-select>
         <apiot-button
           class="panelBtn"
-          v-if="activeObj.enableScan"
+          v-if="[1, 3].includes(activeObj.labelShowStyle)"
           @click="showScanConfig = true"
         >
           <i class="iconfont icon-shezhi m-r-4"></i>弹出扫一扫过滤条件
@@ -498,7 +507,9 @@ export default {
     canChangeSubmit() {
       if (this.activeObj.dataSource.mainTableInfo) {
         if (
-          this.activeObj.dataSource.mainTableInfo.tableName !== this.relateObj.tableInfo.tableName
+          this.activeObj.dataSource.mainTableInfo.tableName !==
+            this.relateObj.tableInfo.tableName ||
+          this.activeObj.dataSource.mainColumnInfo.columnName === 'id'
         ) {
           return true;
         }
@@ -544,7 +555,8 @@ export default {
           item.conditionArr[0][0].firstLineTable
         );
         if (
-          item.conditionArr[0][0].firstLineTable.tableName === this.relateObj.tableInfo.tableName
+          item.conditionArr[0][0].firstLineTable.tableName === this.relateObj.tableInfo.tableName &&
+          item.conditionArr[0][0].firstLineColumn.columnName !== 'id'
         ) {
           this.activeObj.submitType = 1;
         } else {

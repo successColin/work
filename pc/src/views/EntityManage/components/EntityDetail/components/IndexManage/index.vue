@@ -12,7 +12,7 @@
       </apiot-button>
       <search-input
         @getList="listSysEntityTablesIndexes"
-        v-model="keyWord"
+        v-model.trim="keyWord"
       ></search-input>
     </header>
     <section class="index__main">

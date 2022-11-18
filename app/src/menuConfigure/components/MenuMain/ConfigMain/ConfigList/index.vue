@@ -57,6 +57,7 @@
                 :isLoading="isLoading"
                 :showSkeleton="showSkeleton"
                 :value="item"
+                :carConfig="funcConfig"
                 :hasCardIcon="funcConfig.hasCardIcon"
                 :icon="{
                   icon: funcConfig.iconId,

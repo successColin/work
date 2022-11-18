@@ -178,6 +178,7 @@ export default {
     display: flex;
     align-items: center;
     width: min-content;
+    white-space: nowrap;
     i {
       font-size: 18px;
       margin-right: 8px;

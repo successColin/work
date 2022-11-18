@@ -15,7 +15,10 @@
     <el-form-item
       :prop="`${configData.compId}`"
       v-if="!isTable"
-      :class="[{ onelineCalss__form: isQueryEle }]"
+      :class="[
+        { onelineCalss__form: isQueryEle },
+        { 'is-required': isConfig && configData.shouldRequired },
+      ]"
     >
       <span class="span-box" slot="label">
         <span style="white-space: nowrap"> {{ configData.name }} </span>
@@ -150,10 +153,10 @@ export default {
           this.dataTime = '';
           return;
         }
-        if (copy.indexOf(',') !== -1) {
+        if (copy.indexOf(',') !== -1 && this.configData.timeInterval) {
           const val = copy && copy.split(',');
-          const startTime = formatDate(new Date(val[0]), 'yyyy-MM-dd hh:mm:ss');
-          const endTime = formatDate(new Date(val[1]), 'yyyy-MM-dd hh:mm:ss');
+          const startTime = formatDate(new Date(val[0]), 'yyyy-MM-dd');
+          const endTime = formatDate(new Date(val[1]), 'yyyy-MM-dd');
           this.dataTime = [startTime, endTime];
         } else {
           this.dataTime = copy;

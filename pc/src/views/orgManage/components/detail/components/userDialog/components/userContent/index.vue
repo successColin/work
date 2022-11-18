@@ -19,7 +19,7 @@
       <div class="personnel__content__search">
         <el-input
           :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="keywords"
+          v-model.trim="keywords"
           @input="searchUser"
           ref="input"
           @blur="isActive = false"
@@ -32,7 +32,11 @@
           ></i>
         </el-input>
       </div>
-      <el-tabs v-model="activeTab" @tab-click="switchTab">
+      <el-tabs
+        v-model="activeTab"
+        @tab-click="switchTab"
+        :class="[{ hiddenTitle: tabsArr.length === 1 }]"
+      >
         <el-tab-pane
           :label="item.label"
           :name="item.name"
@@ -66,8 +70,8 @@ import apiotInput from '@/globalComponents/ApiotInput/index';
 import userAvatar from '../../../../../userAvatar/index';
 import commonlyTab from '../../../commonlyTab/index';
 import orgTab from '../../../orgTab/index';
-import roleTab from '../../../roleTab/index';
 import postTab from '../../../postTab/index';
+import roleTab from '../../../roleTab/index';
 import wholeTab from '../../../wholeTab/index';
 
 export default {
@@ -107,6 +111,16 @@ export default {
       default() {
         return [];
       }
+    },
+    isSingle: {
+      type: Boolean,
+      default: false
+    },
+    getTabsArr: {
+      type: Array,
+      default() {
+        return [];
+      }
     }
   },
   provide() {
@@ -120,6 +134,7 @@ export default {
     }
     this.getCollectUserList();
     this.$nextTick(() => {
+      this.initTabsArr();
       this.$refs.input.$el.onkeydown = () => {
         const _key = window.event.keyCode;
         if (_key === 13) {
@@ -129,6 +144,16 @@ export default {
     });
   },
   methods: {
+    // 是否初始化tab
+    initTabsArr() {
+      const arr = [];
+      this.getTabsArr.forEach((flag, i) => {
+        if (flag) {
+          arr.push(this.tabsArr[i]);
+        }
+      });
+      this.tabsArr = arr;
+    },
     searchUser(val) {
       // console.log(val, this.activeTab);
       this.$refs[this.activeTab][0].getUserList(val);
@@ -150,7 +175,11 @@ export default {
     updateSelection(row) {
       const index = this.selection.findIndex((item) => String(item.id) === String(row.id));
       if (index === -1) {
-        this.selection.push(row);
+        if (this.isSingle) {
+          this.selection.splice(0, 1, row);
+        } else {
+          this.selection.push(row);
+        }
       } else {
         this.selection.splice(index, 1);
       }
@@ -329,6 +358,16 @@ export default {
     .el-tabs__nav-wrap::after {
       height: 1px;
       background-color: #e9e9e9;
+    }
+  }
+  .hiddenTitle {
+    ::v-deep {
+      .el-tabs__active-bar {
+        background-color: rgba(0, 0, 0, 0);
+      }
+      .el-tabs__item {
+        color: #ffffff;
+      }
     }
   }
 }

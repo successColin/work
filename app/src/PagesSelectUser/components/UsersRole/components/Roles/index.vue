@@ -17,55 +17,103 @@
     <div class="roles__content" v-if="isExpand">
       <p
         class="roles__content--item"
-        v-for="(role, index) in listData"
+        v-for="(role, index) in roleData"
         :key="index"
         @click.stop="clickRole(role)"
       >
         <i class="appIcon appIcon-jiaose"></i>
-        <span class="roleName">{{ role.roleName }}</span>
+        <span class="roleName"
+          >{{ role.roleName }}({{
+            role.id in treeNodeUsersNumber
+              ? treeNodeUsersNumber[role.id].length
+              : 0
+          }})</span
+        >
       </p>
     </div>
   </section>
 </template>
 
 <script>
+import userMixin from '../../../userMixin';
 import { getRoles } from '@/api/pagesSelectUser.js';
 
 export default {
+  mixins: [userMixin],
   components: {},
 
   props: {
-    group: Object
+    group: Object,
+    groupLoading: Boolean
   },
 
   data() {
     return {
-      listData: [],
-      isExpand: false
+      roleData: [],
+      isExpand: false,
+      treeNodeUsersNumber: {}
     };
   },
 
   computed: {},
 
+  watch: {
+    groupLoading(status) {
+      // 只有下拉加载时，group才能重新加载
+      // group重新加载的时候，已经展开group需要重新加载角色和人员
+      if (status) {
+        this.isExpand = false;
+        this.roleData = [];
+        this.listData = [];
+        this.treeNodeUsersNumber = {};
+      }
+    }
+  },
+
   methods: {
-    async showRoles() {
-      if (!this.isExpand && this.listData.length === 0) {
-        const { id } = this.group;
+    // 获取用户
+    async getUsers() {
+      await this.getUserList();
+      const { listData } = this;
+      const obj = {};
+
+      listData.forEach((user) => {
+        const { roleIds } = user;
+        const roleArry = roleIds.split(',');
+        roleArry.forEach((role) => {
+          const arry = obj[role] || [];
+          arry.push(user);
+          obj[role] = arry;
+        });
+      });
+      this.treeNodeUsersNumber = { ...obj };
+    },
+    async showRoles(isReload = false) {
+      const { id } = this.group;
+      if (this.listData.length === 0 || isReload) {
+        this.otherParam = {
+          searchType: 2,
+          roleGroupId: id
+        };
+        this.getUsers();
+      }
+      if ((!this.isExpand && this.roleData.length === 0) || isReload) {
         await this.getRoles(id);
       }
-      this.isExpand = !this.isExpand;
+      if (!isReload) this.isExpand = !this.isExpand;
     },
     async getRoles(groupId) {
       try {
         const result = await getRoles({ groupId });
-        this.listData = [...result];
+        this.roleData = [...result];
         console.log(result);
       } catch (error) {
         console.error(error);
       }
     },
     clickRole(role) {
-      this.$emit('click', role);
+      const users = this.treeNodeUsersNumber;
+      this.$emit('click', { role, users });
     }
   },
 

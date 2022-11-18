@@ -13,18 +13,18 @@
       class="form_el_row_wrap"
       style="margin: 0 !important"
     >
-      <el-col :span="24" v-if="formData.id" class="btnWrap">
-        <apiot-button
-          type="primary"
-          @click="resetPassword($t('user.sureReset'), 'pass')"
-          >{{ $t('user.resetPassword') }}
-        </apiot-button>
-        <apiot-button
-          class="departure"
-          @click="resetPassword($t('user.sureOutLine'))"
-          >{{ $t('user.outline') }}
-        </apiot-button>
-      </el-col>
+<!--      <el-col :span="24" v-if="formData.id" class="btnWrap">-->
+<!--        <apiot-button-->
+<!--          type="primary"-->
+<!--          @click="resetPassword($t('user.sureReset'), 'pass')"-->
+<!--          >{{ $t('user.resetPassword') }}-->
+<!--        </apiot-button>-->
+<!--        <apiot-button-->
+<!--          class="departure"-->
+<!--          @click="resetPassword($t('user.sureOutLine'))"-->
+<!--          >{{ $t('user.outline') }}-->
+<!--        </apiot-button>-->
+<!--      </el-col>-->
       <el-col :span="12">
         <el-form-item :label="$t('user.username')" prop="username">
           <apiot-input
@@ -88,16 +88,25 @@
           </apiot-input>
         </el-form-item>
       </el-col>
+<!--      <el-col :span="12">-->
+<!--        <el-form-item :label="$t('user.accountState')" prop="enabled">-->
+<!--          <el-switch-->
+<!--              v-model="formData.enabled"-->
+<!--              :active-text="$t('user.Enable')"-->
+<!--              :active-value="true"-->
+<!--              :inactive-value="false"-->
+<!--              :inactive-text="$t('user.Disable')"-->
+<!--          >-->
+<!--          </el-switch>-->
+<!--        </el-form-item>-->
+<!--      </el-col>-->
       <el-col :span="12">
-        <el-form-item :label="$t('user.accountState')" prop="enabled">
-          <el-switch
-              v-model="formData.enabled"
-              :active-text="$t('user.Enable')"
-              :active-value="true"
-              :inactive-value="false"
-              :inactive-text="$t('user.Disable')"
-          >
-          </el-switch>
+        <el-form-item :label="$t('user.addLable')" prop="userLabel">
+          <add-Tag
+              v-on:editTag="handleEditTag"
+              :tags="formData.userLabel"
+              :updateData="updateData"
+          ></add-Tag>
         </el-form-item>
       </el-col>
       <el-col :span="12">
@@ -133,15 +142,6 @@
       <!--          </el-date-picker>-->
       <!--        </el-form-item>-->
       <!--      </el-col>-->
-      <el-col :span="12">
-        <el-form-item :label="$t('user.addLable')" prop="userLabel">
-          <add-Tag
-            v-on:editTag="handleEditTag"
-            :tags="formData.userLabel"
-            :updateData="updateData"
-          ></add-Tag>
-        </el-form-item>
-      </el-col>
       <el-col :span="24">
         <el-form-item :label="$t('role.memo')" prop="memo">
           <el-input

@@ -7,46 +7,226 @@
 -->
 <template>
   <section class="homeConfig" v-loading="loading">
-    <ul>
-      <el-row>
-        <el-col
-          v-for="(item, i) in leftConfigArr"
-          :key="`${item.name}_${i}`"
-          :span="item.col"
-        >
-          <li>
-            <div class="leftName">
-              <div>
-                {{ item.name }}
-              </div>
+    <div class="head">
+      <apiot-button
+        class="operation"
+        @click="operationServer('add')"
+      >
+        <i class="iconfont icon-xinzeng"></i>
+        {{ $t('common.add', { name: '' }) }}
+      </apiot-button>
+    </div>
+    <div class="list">
+      <ul
+        v-for="(item, i) in fileStorages"
+        :key="`${item.name}_${i}`">
+        <el-row>
+          <el-col :span="24" class="top">
+            <div class="server">
+              <span class="serverLogo">
+                <img
+                  v-if="item.class !== 'Local'"
+                  :src="require(`@/assets/img/file_server/${item.class}.png`)"/>
+                  <span v-else class="iconfont icon-PCduan"></span>
+              </span>
+              {{serverName(item)}}
             </div>
-            <div v-if="i === 0" class="common">
-              <div v-if="!statement.isMinioUrl" style="line-height: 48px">
-                {{ config.minioUrl }}
-              </div>
-              <apiot-input
-                style="width: 90%"
-                v-else
-                :isForbid="false"
-                v-model="config.minioUrl"
-              ></apiot-input>
+            <div class="rightFloat">
               <apiot-button
-                type="text"
-                class="homeConfig__operation"
-                @click="handleChangeCount('isMinioUrl')"
+                class="operation"
+                @click="deleteServer(item, i)"
               >
-                {{ changeBtnName(statement.isMinioUrl) }}
+                <span class="iconfont icon-shanchu"></span>
+                {{ $t('common.delete', { name: '' }) }}
+              </apiot-button>
+              <apiot-button
+                class="operation"
+                @click="operationServer('edit', item)"
+              >
+                <span class="iconfont icon-bianji"></span>
+                {{ $t('common.edit', { name: '' }) }}
               </apiot-button>
             </div>
-          </li>
-        </el-col>
-      </el-row>
-    </ul>
+          </el-col>
+        </el-row>
+        <el-row v-if="item.class === 'Local'">
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  基础目录
+                </div>
+              </div>
+              <div class="common">
+                {{item.basePath}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  访问域名
+                </div>
+              </div>
+              <div class="common">
+                {{item.domain}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="24">
+            <li>
+              <div class="leftName">
+                <div>
+                  系统默认存储
+                </div>
+              </div>
+              <div class="common">
+                {{item.defaultStorage ? '是' : '否'}}
+              </div>
+            </li>
+          </el-col>
+        </el-row>
+        <el-row v-else>
+          <el-col :span="24">
+            <li>
+              <div class="leftName">
+                <div>
+                  平台编码
+                </div>
+              </div>
+              <div class="common">
+                {{item.platform}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  地址
+                </div>
+              </div>
+              <div class="common">
+                {{item.endPoint}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  账号
+                </div>
+              </div>
+              <div class="common">
+                {{item.accessKey}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  密钥
+                </div>
+              </div>
+              <div class="common">
+                <!-- {{item.secretKey}} -->
+                <input-password
+                  class="secretKey"
+                  v-model="item.secretKey"
+                  prependWidth="70px"
+                  :placeholder="$t('placeholder.pleaseEnterAnyName', { any: '' })"
+                  :isShow="true"
+                  :disabled="true"
+                >
+                </input-password>
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  存储桶
+                </div>
+              </div>
+              <div class="common">
+                {{item.bucketName}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  基础目录
+                </div>
+              </div>
+              <div class="common">
+                {{item.basePath}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  访问域名
+                </div>
+              </div>
+              <div class="common">
+                {{item.domain}}
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  系统默认存储
+                </div>
+              </div>
+              <div class="common">
+                <ApiotSwitch
+                  v-model="item.defaultStorage"
+                  @change="(value) => changeRadio(value, 'defaultStorage', item, i)"
+                  :activeValue="true"
+                  :inactivevalue="false"
+                ></ApiotSwitch>
+              </div>
+            </li>
+          </el-col>
+          <el-col :span="12">
+            <li>
+              <div class="leftName">
+                <div>
+                  是否启用服务
+                </div>
+              </div>
+              <div class="common">
+                <ApiotSwitch
+                  v-model="item.enableStorage"
+                  @change="(value) => changeRadio(value, 'enableStorage', item, i)"
+                  :activeValue="1"
+                  :inactivevalue="2"
+                ></ApiotSwitch>
+              </div>
+            </li>
+          </el-col>
+        </el-row>
+      </ul>
+    </div>
+    <AddFileServer :visible.sync="visible"
+      :fileStorages="fileStorages"
+      :curData.sync="curData" :type="type" :configArr="configArr"></AddFileServer>
   </section>
 </template>
 
 <script>
-import { commonUpdate } from '@/api/globalConfig';
+import { commonUpdate, deleteFileStorageVerify, saveGlobal, updateFileStorageServers } from '@/api/globalConfig';
+import AddFileServer from './AddFileServer/index';
 
 export default {
   data() {
@@ -56,12 +236,57 @@ export default {
       statement: {
         isUreportUrl: false,
         isMinioUrl: false
-      }
+      },
+      curData: {},
+      type: 'add',
+      visible: false,
+      platformOptions: [
+        {
+          name: 'MinIO',
+          value: 'MinIO'
+        },
+        {
+          name: '阿里云',
+          value: 'AliyunOss'
+        },
+        {
+          name: 'AWS S3',
+          value: 'AwsS3'
+        },
+        {
+          name: '百度云',
+          value: 'BaiduBos'
+        },
+        {
+          name: '华为云',
+          value: 'HuaweiObs'
+        },
+        {
+          name: '本地',
+          value: 'Local'
+        },
+        {
+          name: '七牛云',
+          value: 'QiniuKodo'
+        },
+        {
+          name: '腾讯云',
+          value: 'TencentCos'
+        },
+        {
+          name: '又拍云',
+          value: 'UpyunUSS'
+        }
+      ],
     };
+  },
+  components: {
+    AddFileServer
   },
   mounted() {
     console.log(this.config);
     console.log(this.configArr);
+    console.log(this.fileStorages);
   },
   computed: {
     config() {
@@ -70,27 +295,15 @@ export default {
     configArr() {
       return this.$store.state.globalConfig.fileConfigArr;
     },
-    // 左侧配置
-    leftConfigArr() {
-      return [
-        {
-          name: this.$t('globalConfig.fileUrl'),
-          col: 24,
-          attr: 'minioUrl'
-        }
-      ];
+    fileStorages() {
+      return JSON.parse(this.$store.state.globalConfig.fileConfig.fileStorages);
     },
-    // 修改 button 状态
-    changeBtnName() {
-      return function (state) {
-        return state ? this.$t('common.save') : this.$t('common.modify');
-      };
-    }
   },
   methods: {
     async update(params) {
       // 通用修改
       try {
+        this.loading = true;
         await commonUpdate({ list: [params] });
         await this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
         this.$message({
@@ -102,31 +315,73 @@ export default {
         this.loading = false;
       }
     },
-    async changeRadio(value, key) {
-      this.loading = true;
-      const arr = this.configArr || [];
-      const currentObj = arr.find((item) => item.attributeKey === key) || {};
-      const params = {
-        ...currentObj,
-        attributeValue: value
-      };
-      await this.update(params);
+    operationServer(type, obj = {}) {
+      this.type = type;
+      this.curData = obj;
+      this.visible = true;
     },
-    async handleChangeCount(key) {
-      if (!this.statement[key]) {
-        this.statement[key] = !this.statement[key];
-        return;
+    async deleteServer(item, index) {
+      try {
+        this.loading = true;
+        await deleteFileStorageVerify({ platform: item.platform });
+        const fileStorages = [...this.fileStorages];
+        fileStorages.splice(index, 1);
+        const param = {
+          parameterKey: 'FILE_SERVER',
+          attributeKey: 'fileStorages',
+          attributeValue: JSON.stringify(fileStorages)
+        };
+        await saveGlobal(param);
+        await this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
+        await updateFileStorageServers({ infos: JSON.stringify(fileStorages) });
+        this.$message({
+          type: 'success',
+          message: this.$t('common.successfullyModified')
+        });
+        this.loading = false;
+      } catch (e) {
+        this.loading = false;
       }
-      // 滑块显示设置
-      if (key === 'isUreportUrl' && this.statement[key]) {
-        this.changeRadio(this.config.ureportUrl, 'ureportUrl');
-      }
-      if (key === 'isMinioUrl' && this.statement[key]) {
-        this.changeRadio(this.config.minioUrl, 'minioUrl');
-      }
-
-      this.statement[key] = !this.statement[key];
-    }
+    },
+    serverName(obj) {
+      return this.platformOptions.filter((item) => item.value === obj.class)[0].name;
+    },
+    async changeRadio(value, key, obj, i) {
+      const fileStorages = this.fileStorages.filter(() => 1 !== 2);
+      this.$confirm('是否确定修改?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(async () => {
+          if (key === 'defaultStorage' && value) {
+            const oldIndex = fileStorages.findIndex((item) => item.defaultStorage
+              && item.platform !== obj.platform);
+            if (oldIndex !== -1) {
+              const oldData = {
+                ...fileStorages[oldIndex],
+                defaultStorage: false
+              };
+              fileStorages.splice(oldIndex, 1, oldData);
+            }
+          }
+          const data = {
+            ...obj,
+            [key]: value
+          };
+          fileStorages.splice(i, 1, data);
+          console.log(fileStorages);
+          const param = {
+            parameterKey: 'FILE_SERVER',
+            attributeKey: 'fileStorages',
+            attributeValue: JSON.stringify(fileStorages)
+          };
+          await saveGlobal(param);
+          await this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
+          await updateFileStorageServers({ infos: JSON.stringify(fileStorages) });
+        })
+        .catch(() => {});
+    },
   }
 };
 </script>
@@ -135,18 +390,65 @@ $borderColor: 1px solid #e9e9e9;
 .homeConfig {
   width: 100%;
   height: 100%;
-
-  ul {
+  ::v-deep{
+    .iconfont{
+      margin-right: 4px;
+      color: #4689f5;
+    }
+  }
+  .list {
     margin: 10px 10px 0 10px;
     background: #ffffff;
-    border: $borderColor;
     border-bottom: 0;
-    height: 100%;
+    height: calc(100% - 50px);
     overflow-y: auto;
-
+    ::v-deep{
+      .secretKey{
+        width: 100%;
+      }
+      .el-input__inner{
+        background: transparent;
+        border: none;
+        padding-left: 0;
+      }
+      ul{
+        margin-bottom: 10px;
+        border: $borderColor;
+        border-bottom: none;
+      }
+      .el-col-12:nth-child(even){
+        border-right: $borderColor;
+      }
+      .top{
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+        border-bottom: 1px solid #E9E9E9;
+      }
+      .server{
+        display: flex;
+        align-items: center;
+        .serverLogo{
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: 1px solid #E9E9E9;
+          display: flex;
+          align-items: center;
+          margin-right: 15px;
+          overflow: hidden;
+          img{
+            width: 100%;
+            height: auto;
+          }
+        }
+      }
+    }
     li {
       display: flex;
-      height: 72px;
+      height: 36px;
       border-bottom: $borderColor;
 
       & > div:first-child {
@@ -210,20 +512,21 @@ $borderColor: 1px solid #e9e9e9;
       }
     }
   }
-
-  &__operation {
-    display: flex;
-    font-size: 13px;
-    cursor: pointer;
-    user-select: none;
-    align-items: center;
-
-    & > div:nth-child(2) {
-      height: 12px;
-      border-right: 1px solid $--color-primary;
-      margin: 0 14px;
-      cursor: auto;
-    }
+  .head{
+    padding-top: 10px;
+  };
+  .operation{
+    // display: flex;
+    // align-items: center;
+    // border-radius: 4px;
+    // box-sizing: border-box;
+    // border: 1px solid #E9E9E9;
+    // padding: 0 10px;
+    margin-left: 10px;
+  }
+  .rightFloat{
+    float: right;
+    display: flex
   }
 }
 

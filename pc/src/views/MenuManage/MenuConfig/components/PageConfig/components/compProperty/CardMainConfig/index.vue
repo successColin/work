@@ -278,8 +278,26 @@
           </el-switch>
         </h2>
       </div>
-      <div class="contentConfig__box" v-if="getCurrentTab.hasCardIcon">
+      <div
+        class="contentConfig__box m-b-10"
+        v-show="getCurrentTab.hasPagination"
+        v-if="getCurrentTab.hasCardIcon"
+      >
         <h2>图标来源</h2>
+        <el-select
+          v-model="getCurrentTab.iconFrom"
+          style="width: calc(100% - 20px)"
+          class="p-l-10 p-r-10"
+        >
+          <el-option label="字段字典" :value="1"></el-option>
+          <el-option label="字段值" :value="2"></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box"
+        v-if="getCurrentTab.hasCardIcon && getCurrentTab.iconFrom === 1"
+      >
+        <h2>字段字典图标</h2>
         <el-select v-model="getCurrentTab.iconId" class="contentConfig__select">
           <el-option
             :label="item.name"
@@ -289,7 +307,10 @@
           ></el-option>
         </el-select>
       </div>
-      <div class="contentConfig__box" v-if="getCurrentTab.hasCardIcon">
+      <div
+        class="contentConfig__box"
+        v-if="getCurrentTab.hasCardIcon && getCurrentTab.iconFrom === 1"
+      >
         <h2>图标颜色来源</h2>
         <el-select
           v-model="getCurrentTab.iconColorId"
@@ -301,6 +322,46 @@
             v-for="item in getDictLable"
             :key="item.compId"
           ></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__dataSource"
+        v-if="getCurrentTab.hasCardIcon && getCurrentTab.iconFrom === 2"
+      >
+        <h2>字段值图标</h2>
+        <filterable-input
+          placeholder="请选择字段"
+          :tableName="getCurrentTab.tableInfo.tableName"
+          :showInfo="getCurrentTab.iconColumn"
+          :dialogType="2"
+          :notShowSys="true"
+          @selectRes="selectMultiColumn"
+        ></filterable-input>
+      </div>
+      <div
+        class="contentConfig__box"
+        v-if="
+          getCurrentTab.hasCardIcon &&
+          getCurrentTab.iconFrom === 2 &&
+          $route.query.isApp === '1'
+        "
+      >
+        <h2>字段值图标高度</h2>
+        <el-select
+          v-model="getCurrentTab.heightMul"
+          placeholder="请选择高度"
+          class="contentConfig__select"
+        >
+          <el-option label="1x" :value="1"></el-option>
+          <el-option label="2x" :value="2"></el-option>
+          <el-option label="3x" :value="3"></el-option>
+          <el-option label="4x" :value="4"></el-option>
+          <el-option label="5x" :value="5"></el-option>
+          <el-option label="6x" :value="6"></el-option>
+          <el-option label="7x" :value="7"></el-option>
+          <el-option label="8x" :value="8"></el-option>
+          <el-option label="9x" :value="9"></el-option>
+          <el-option label="10x" :value="10"></el-option>
         </el-select>
       </div>
       <div
@@ -902,6 +963,102 @@ export default {
         }
       }
       this.activeObj.canOperate = !this.activeObj.canOperate;
+    },
+    // 选择字段图标后变化
+    selectMultiColumn(table) {
+      if (!this.activeObj.iconColumn) {
+        this.activeObj.iconColumn = {
+          columnName: '',
+          id: '',
+          columnTypeDict: 0,
+          compId: ''
+        };
+      }
+      if (this.activeObj.iconColumn.columnName) {
+        this.activeObj.iconColumn.id = table.id;
+        this.activeObj.iconColumn.columnName = table.columnName;
+        this.activeObj.iconColumn.columnTypeDict = table.columnTypeDict;
+        const arr =
+          this.activeObj.pageType === 2
+            ? this.activeObj.children[1].children
+            : this.activeObj.children[0].children;
+        const obj = arr.find((item) => item.compId === this.activeObj.iconColumn.compId);
+        if (obj) {
+          obj.dataSource.columnName = table.columnName;
+          obj.dataSource.columnTypeDict = table.columnTypeDict;
+        }
+      } else {
+        this.activeObj.iconColumn.id = table.id;
+        this.activeObj.iconColumn.columnName = table.columnName;
+        this.activeObj.iconColumn.columnTypeDict = table.columnTypeDict;
+        this.activeObj.iconColumn.compId = createUnique();
+        const imgLable = {
+          areaType: 1,
+          backName: '图片字段占位',
+          canReadonly: false,
+          canShow: true,
+          compId: this.activeObj.iconColumn.compId,
+          compName: 'Label',
+          compType: 15,
+          dataSource: {
+            alias: '',
+            id: table.id,
+            columnName: table.columnName,
+            columnTypeDict: table.columnTypeDict,
+            dictObj: null,
+            mainColumnInfo: null,
+            relateName: '主表',
+            tableName: this.activeObj.tableInfo.tableName
+          },
+          labelNotChange: true,
+          dragCard: true,
+          enableDict: false,
+          enableDictIcon: false,
+          enableIcon: false,
+          enableMultiColumn: false,
+          font: { color: '#333333', size: 14, style: 1 },
+          helpInfo: '',
+          icon: { icon: '', color: '', imageUrl: '' },
+          imgUrl: 'baseComp/Label.svg',
+          labelBg: { color: '#ffffff', style: 0 },
+          labelName: 'label',
+          multiTable: {
+            table: { tableName: '', id: '' },
+            column: { columnName: '', id: '', columnTypeDict: 0 }
+          },
+          name: '图片字段占位',
+          pane: { name: '', columnName: '', paramArr: [] },
+          placeholder: '请选择数据',
+          propertyCompName: 'LabelConfig',
+          shouldRequired: true,
+          showLabelTitle: true,
+          showTreeText: false,
+          singleStatus: 4,
+          submitType: 1,
+          width: '100%'
+        };
+        const arr =
+          this.activeObj.pageType === 2
+            ? this.activeObj.children[1].children
+            : this.activeObj.children[0].children;
+        arr.push(imgLable);
+      }
+    },
+    deleteImgLable() {
+      const arr =
+        this.activeObj.pageType === 2
+          ? this.activeObj.children[1].children
+          : this.activeObj.children[0].children;
+      const index = arr.findIndex((item) => item.compId === this.activeObj.iconColumn.compId);
+      if (index !== -1) {
+        arr.splice(index, 1);
+        this.activeObj.iconColumn = {
+          columnName: '',
+          id: '',
+          columnTypeDict: 0,
+          compId: ''
+        };
+      }
     }
   },
 
@@ -916,6 +1073,16 @@ export default {
         // console.log(this.getCurrentTab.sortStr);
       },
       deep: true
+    },
+    'getCurrentTab.iconFrom': function (v, oldV) {
+      if (v !== 2 && oldV === 2) {
+        this.deleteImgLable();
+      }
+    },
+    'getCurrentTab.hasCardIcon': function (v) {
+      if (!v && this.getCurrentTab.iconFrom === 2) {
+        this.deleteImgLable();
+      }
     },
     filterDialog(v) {
       // console.log(v);

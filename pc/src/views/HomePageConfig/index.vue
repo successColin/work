@@ -14,27 +14,31 @@
   >
     <template v-slot:sidebar>
       <apiot-sidebar
-          ref="sidebar"
-          :isNeedAdd="false"
-          :isNeedNum="false"
-          :isNeedMove="false"
-          :isNeedOperate="false"
-          :groupList="gropList"
-          @selectList="selectList"
+        ref="sidebar"
+        :isNeedAdd="false"
+        :isNeedNum="false"
+        :isNeedMove="false"
+        :isNeedOperate="false"
+        :groupList="gropList"
+        @selectList="selectList"
       ></apiot-sidebar>
     </template>
     <template>
-      <section
-        class="menu__wrapper"
-      >
+      <section class="menu__wrapper">
         <header class="menu__header">
           <apiot-button type="primary" @click="addMenu">
             <i class="iconfont icon-xinzeng m-r-4"></i>新增页面
           </apiot-button>
-          <search-input @getList="sysMenuList" v-model="keywords"></search-input>
+          <search-input
+            @getList="sysMenuList"
+            v-model.trim="keywords"
+          ></search-input>
         </header>
 
-        <section class="menu__content" :class="[{ apiotNoData: !menuArr.length }]">
+        <section
+          class="menu__content"
+          :class="[{ apiotNoData: !menuArr.length }]"
+        >
           <draggable
             v-model="menuArr"
             group="menu"
@@ -86,12 +90,12 @@ export default {
       gropList: [
         {
           id: 1,
-          name: 'PC端',
+          name: 'PC端'
         },
         {
           id: 2,
-          name: '移动端',
-        },
+          name: '移动端'
+        }
       ],
       loading: false,
       asideLoading: false,

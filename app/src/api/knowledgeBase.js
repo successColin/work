@@ -2,7 +2,7 @@
  * @Author: ytx
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: ytx
- * @Last Modified time: 2022-11-04 16:45:05
+ * @Last Modified time: 2022-11-08 13:49:31
  * 知识库管理
  */
 import FetchData from './axiosConfig';

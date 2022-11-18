@@ -120,7 +120,7 @@ export default {
     padding: 30rpx 0;
     &__header {
       display: inline-flex;
-      // align-items: center;
+      align-items: center;
       div {
         display: inline-block;
       }
@@ -129,10 +129,6 @@ export default {
         font-size: 32rpx;
         font-family: $--font-family;
         color: #333333;
-        span {
-          display: inline-block;
-          vertical-align: -10rpx;
-        }
       }
     }
 

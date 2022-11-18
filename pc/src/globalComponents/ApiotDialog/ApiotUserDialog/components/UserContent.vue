@@ -28,7 +28,7 @@
       <div class="personnel__content__search">
         <el-input
           :placeholder="$t('placeholder.pleaseEnterkeySearch')"
-          v-model="keywords"
+          v-model.trim="keywords"
           @input="searchUser"
           ref="input"
           @blur="isActive = false"
@@ -49,7 +49,7 @@
           :key="item.name"
         >
           <component
-            v-if="activeTab===item.name"
+            v-if="activeTab === item.name"
             v-on="$listeners"
             :key="item.name"
             :activeTab="item.name"
@@ -72,8 +72,8 @@
 import { getCollectionUserList } from '@/api/orgManage.js';
 import CommonlyTab from './CommonlyTab';
 import OrgTab from './OrgTab';
-import RoleTab from './RoleTab';
 import PostTab from './PostTab';
+import RoleTab from './RoleTab';
 import WholeTab from './WholeTab';
 
 export default {

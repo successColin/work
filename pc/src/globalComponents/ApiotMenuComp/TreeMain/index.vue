@@ -27,7 +27,7 @@
       :fileDeleteIds="fileDeleteIds"
       :moreOperateArr="moreOperateArr"
       @click.native="changeCurActiveObj(2, $event)"
-      :btnTypesArr="[3, 5, 15]"
+      :btnTypesArr="[2, 3, 4, 5, 15]"
     ></BtnsArea>
     <section
       v-if="configData.children.length !== 0"
@@ -48,15 +48,6 @@
       ]"
       configData="功能区"
     >
-      <!-- <div
-          class="menuMain__cardLeft"
-          v-if="!isConfig && configData.hasCardIcon"
-        >
-          <i
-            :class="`iconfont ${getCurDict(item, 1)}`"
-            :style="`color:${getCurDict(item, 2)}`"
-          ></i>
-        </div> -->
       <div class="menuMain__cardRight">
         <!-- 配置页 -->
         <draggable
@@ -99,7 +90,7 @@
               :getBtnsArr="child"
               :getFeatureArr="getFeatureArr"
               :moreOperateArr="[]"
-              :btnTypesArr="[2, 3, 5, 15]"
+              :btnTypesArr="[2, 3, 4, 5, 15]"
               :isSidebar="isSidebar"
             ></component> </transition-group
         ></draggable>
@@ -184,8 +175,8 @@
 </template>
 
 <script>
-import { throttle } from '@/utils/utils';
 import { getSidebarList, getSidebarPage, getSidebarSingle } from '@/api/menuConfig';
+import { throttle } from '@/utils/utils';
 import initAreaMixin from '../initAreaMixin';
 import SingleTree from './SingleTree';
 
@@ -227,7 +218,8 @@ export default {
       showCheckbox: false, // 是否展示多选
       showSinglebox: false, // 是否展示单选
       multiEntityArr: [], // 多选/单选值
-      needSearch: false
+      needSearch: false,
+      notReloadArea: false
     };
   },
 
@@ -531,7 +523,7 @@ export default {
       }
       // console.log(obj);
       // 插入菜单id
-      obj.MENU_ID = this.$route.params.id;
+      obj.MENU_ID = this.$route.params.id || this.$route.query.menuId;
       return obj;
     },
     makeFlowParams(params) {
@@ -559,7 +551,7 @@ export default {
     getCurMenu(params) {
       const jumpMenuObj = sessionStorage.jumpMenuObj ? JSON.parse(sessionStorage.jumpMenuObj) : '';
       if (jumpMenuObj) {
-        const menu = jumpMenuObj[this.$route.params.id];
+        const menu = jumpMenuObj[this.$route.params.id || this.$route.query.menuId];
         if (menu && menu[params]) {
           return menu[params];
         }
@@ -689,6 +681,7 @@ export default {
             if (this.$refs.tree) {
               this.$refs.tree.getTree().setCurrentKey(this.selectKey);
               this.$nextTick(() => {
+                this.notReloadArea = true;
                 document
                   .querySelector(`.tree${this.configData.compId} .is-current`)
                   .firstChild.click();
@@ -769,6 +762,10 @@ export default {
     // },
     // 树节点点击
     nodeClick(data, index) {
+      if (this.notReloadArea) {
+        this.notReloadArea = false;
+        return;
+      }
       if (typeof index === 'number') {
         this.sidebarData.forEach((d, i) => {
           if (i !== index) {
@@ -916,6 +913,10 @@ export default {
           node.loaded = false;
           node.isLeaf = false;
         }
+        const parentNode = this.$refs.tree.getTree().getNode(this.selectKey);
+        if (parentNode) {
+          parentNode.data.childCount += 1;
+        }
       } else {
         const params = {
           compId: this.configData.compId,
@@ -936,12 +937,17 @@ export default {
     treeDelete() {
       const form = this.$refs.tree.getTree().getCurrentNode();
       const node = this.$refs.tree.getTree().getNode(this.selectKey);
+      const parentKey = `${node.parent.data[this.getIdCompId]}`;
       if (form[this.getIdCompId] === this.selectKey) {
-        this.$refs.tree.getTree().setCurrentKey(node.parent.data[this.getIdCompId]);
+        this.$refs.tree.getTree().setCurrentKey(parentKey);
         const curForm = this.$refs.tree.getTree().getCurrentNode();
         this.selectItem(curForm);
       }
       this.$refs.tree.getTree().remove(node);
+      const parentNode = this.$refs.tree.getTree().getNode(parentKey);
+      if (parentNode) {
+        parentNode.data.childCount -= 1;
+      }
     }
   },
 

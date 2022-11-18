@@ -129,6 +129,7 @@ export const DataOneBoxCom = {
   relateType: 1, // 弹窗类型 1是面板 2是菜单
   dialogName: 'PanelDialog', // 弹窗风格
   dialogTitle: '',
+  labelShowStyle: 3, // 扫一扫类型
   enableTableSearch: false, // 是否启用表头搜索
   singleStatus: 1,
   canShow: true,

@@ -7,6 +7,7 @@
   >
     <view
       class="apiotRate__content"
+      :class="[showType === 'facial-exp' ? 'center' : '']"
       @touchmove.stop="touchMove"
       @touchend.stop="touchEnd"
     >
@@ -74,7 +75,7 @@
           ></u-icon>
         </view>
       </view>
-      <span>{{ levelName[activeIndex - 1] }}</span>
+      <span v-if="showLevel">{{ levelName[activeIndex - 1] }}</span>
     </view>
   </view>
 </template>
@@ -331,6 +332,9 @@ $apiotRate-item-icon-wrap-half-left: 0 !default;
 
   &__content {
     @include flex;
+    &.center {
+      align-items: center;
+    }
 
     &__item {
       position: relative;

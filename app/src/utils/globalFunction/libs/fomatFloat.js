@@ -1,6 +1,7 @@
 // 小数位
 // mode 类型：polish=补齐，如果位数不够默认补齐0
-const fomatFloat = function (value, n, mode = '') {
+const digitPolish = function (value, n, mode = '') {};
+const polishNum = function (value, n, mode = '') {
   if (!n) return value;
 
   const arry = `${value}`.split('.');
@@ -30,4 +31,23 @@ const fomatFloat = function (value, n, mode = '') {
   return Number(num);
 };
 
-export default fomatFloat;
+// 显示千分位
+const getThousandth = function (value) {
+  if (!value) return value;
+  let inputValue = value.toString();
+  const index = inputValue.indexOf('.');
+  if (index !== -1) {
+    const intNum = inputValue
+      .substring(0, index)
+      .replace(/\B(?=(?:\d{3})+$)/g, ',');
+    const dot = inputValue.substring(index, inputValue.length);
+    inputValue = intNum + dot;
+  } else {
+    inputValue = inputValue
+      .substring(0, inputValue.length)
+      .replace(/\B(?=(?:\d{3})+$)/g, ',');
+  }
+  return inputValue;
+};
+
+export default { getThousandth, polishNum };

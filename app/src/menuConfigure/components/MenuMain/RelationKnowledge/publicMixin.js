@@ -84,7 +84,7 @@ export default {
         current: 1,
         size: 9999,
       });
-      this.sortFun(res.records);
+      this.sortFun(res);
       this.loading = false;
     },
     // 排序

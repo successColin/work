@@ -211,7 +211,7 @@ export default {
   }
   &.disabled {
     .apiotSelectData__value--content {
-      padding: 0 10rpx;
+      padding: $form-el-disabled-padding;
       background: $form-el-disabled;
       color: $form-el-disabled-valueColor;
       border-radius: 12rpx;

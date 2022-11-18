@@ -1,5 +1,4 @@
 .apiotWangeditor {
-  border: 1px solid #e9e9e9;
   ::v-deep {
     html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,
     blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,
@@ -14,6 +13,15 @@
       // font-size: initial;
       font: revert;
       // vertical-align: initial;
+      font-size: 13px;
+      color: #333;
+    }
+    p,
+    ol,
+    ul,
+    blockquote,
+    div {
+      line-height: 1.5;
     }
     ul{
       list-style: initial;

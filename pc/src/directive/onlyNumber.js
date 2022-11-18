@@ -20,7 +20,6 @@ Vue.directive('onlyNumber', {
       if (binding.value === 2 && targetEl.value.indexOf('.') === -1) {
         numberArr.push(190);
       }
-      console.log(e.keyCode);
       if (!numberArr.includes(e.keyCode)) {
         e.preventDefault();
         return false;

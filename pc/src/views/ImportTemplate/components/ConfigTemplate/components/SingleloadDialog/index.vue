@@ -44,7 +44,10 @@
           >({{ tableMemo }})</span
         >
       </div>
-      <search-input @getList="getColumnList" v-model="keyWord"></search-input>
+      <search-input
+        @getList="getColumnList"
+        v-model.trim="keyWord"
+      ></search-input>
     </div>
     <apiot-table
       class="multi__table"

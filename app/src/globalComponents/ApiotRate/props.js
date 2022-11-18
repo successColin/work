@@ -18,7 +18,7 @@ export default {
     // 星星的大小，单位px
     size: {
       type: [String, Number],
-      default: 37,
+      default: 40,
     },
     // 未选中时的颜色
     inactiveColor: {
@@ -64,6 +64,11 @@ export default {
     showType: {
       type: String,
       default: 'flag',
+    },
+    // 是否展示内容
+    showLevel: {
+      type: Boolean,
+      default: false,
     },
   },
 };

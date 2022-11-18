@@ -79,7 +79,7 @@ export default {
           url = data.icon.imageUrl;
         }
       }
-      if (url === '""' || !url) {
+      if ((url === '""' || !url) && data.username) {
         // 根据用户名生产用户名首字母头像
         const len = data.username && data.username.length;
         // 用户名大于两个字时取最后两个字的首字母

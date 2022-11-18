@@ -37,6 +37,12 @@
         :curData="scope.row"
         :getIdCompId="getIdCompId"
         :multiEntityArr="multiEntityArr"
+        v-if="
+          !(
+            areaData.lineEditable &&
+            showCell === `${scope.column.id}_${scope.row.unique}`
+          )
+        "
         v-on="$listeners"
         v-bind="$attrs"
       ></SelectBox>
@@ -83,7 +89,7 @@
         class="column__notEditable"
         :class="[{ hasMenu: showMenuColor }]"
         v-else
-        @click="jumpMenu"
+        @click="jumpMenu(scope.row)"
       >
         {{ getContent(scope.row[`${configData.compId}_`]) }}
       </div>
@@ -255,7 +261,8 @@ export default {
         );
       }
     },
-    jumpMenu() {
+    jumpMenu(rowData) {
+      this.$bus.$emit('selectTableLine', this.grandFather.compId, rowData);
       if (this.$route.name === 'sharePage') {
         return this.$message({
           type: 'warning',

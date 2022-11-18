@@ -135,9 +135,9 @@ export default {
       this.form.enableWorkflow = row.enableWorkflow;
       this.form.enableShare = row.enableShare;
       this.form.memo = row.memo;
-      this.form.menuId = this.$route.params.id;
+      this.form.menuId = this.$route.params.id || this.$route.query.menuId;
       this.rowInfo = row;
-      this.menuObj.id = this.$route.params.id;
+      this.menuObj.id = this.$route.params.id || this.$route.query.menuId;
       this.menuObj.menuName = this.$route.query.menuName;
     },
     resetForm() {
@@ -236,7 +236,7 @@ export default {
       };
       if (this.rowInfo.panelType === 2) {
         params.menuId = this.form.menuId;
-        params.oldMenuId = this.$route.params.id;
+        params.oldMenuId = this.$route.params.id || this.$route.query.menuId;
       }
       try {
         await copyPanel(params);

@@ -189,15 +189,18 @@ export default {
     },
     // 生成搜索结构
     createColumn(comp, flag) {
+      console.log('createColumn===================================');
       // flag 1 普通搜索 flag 2 高级搜索
       const column = {
         dict: 2,
         lambda: 'in',
         name: '',
         value: '',
-        compId: ''
+        compId: '',
+        userComp: 2
       };
       // 转化label
+      comp = JSON.parse(JSON.stringify(comp));
       if (comp.compType === 15) {
         // 启用字典
         if (comp.enableDict) {
@@ -219,6 +222,11 @@ export default {
         } else {
           comp.compType = 6;
         }
+      }
+      if (comp.compType === 28) {
+        console.log('调整=======================');
+        comp.compType = 7;
+        column.userComp = 1;
       }
       // 一般处理赋值
       if (flag === 2) {
@@ -246,7 +254,7 @@ export default {
       }
 
       // lambda的处理
-      if (flag === 2) {
+      if (flag === 2 && column.userComp !== 1) {
         column.lambda = this.form[`${comp.compId}_lambda`];
         column.lambdaLable = this.form[`${comp.compId}_lambdaLabel`];
       }

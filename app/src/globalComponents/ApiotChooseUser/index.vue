@@ -6,40 +6,17 @@
  * @Desc: 选择人员控件
 -->
 <template>
-  <section class="apiotChooseUser">
-    <div class="apiotChooseUser__header" v-if="!disabled">
-      <div class="apiotChooseUser__header__choose">
-        <span
-          class="apiotChooseUser__header--choose"
-          :style="{ borderColor: themeColor, color: themeColor }"
-          @click.stop="gotoChooseUsers"
-        >
-          <i class="appIcon appIcon-tianjiagongneng"></i>
-        </span>
-        <input
-          v-model="searchInput"
-          placeholder-class="inputPlaceholder"
-          placeholder="搜索人员"
-          confirm-type="search"
-          @input="debouncedSearch"
-        />
-      </div>
-      <div
-        class="apiotChooseUser__header__chooseContent"
-        v-if="isShowSearchBox && searchInput"
-      >
-        <div class="searchResulet">
-          {{ $t('common.search') }}"<span :style="{ color: themeColor }">{{
-            searchInput
-          }}</span
-          >"{{ $t('common.searchResult', { num: usersSearchList.length }) }}
-        </div>
-        <scroll-view scroll-y="true" class="searchContent">
+  <section
+    class="apiotChooseUser"
+    :class="[mode, !shouldAdd ? 'disabled' : '']"
+  >
+    <div class="apiotChooseUser__content">
+      <div class="apiotChooseUser__users">
+        <template v-if="checkUsers.length > 0">
           <div
-            class="searchContent__user"
-            v-for="user in usersSearchList"
+            class="apiotChooseUser__users--item"
+            v-for="(user, index) in checkUsers"
             :key="user.id"
-            @click.stop="chooseUser(user)"
           >
             <apiot-userhead
               :userInfo="{
@@ -47,30 +24,62 @@
                 username: user.username,
                 icon: user.icon,
               }"
-              :size="45"
+              :size="50"
+              :isClear="!disabled"
+              @handleClear="deleteUser(index)"
             ></apiot-userhead>
           </div>
-        </scroll-view>
+        </template>
+        <template v-else>
+          <div class="apiotChooseUser__placeholder">
+            {{ title }}
+          </div>
+        </template>
+        <!-- <div class="apiotChooseUser__header" v-if="shouldAdd && shouldSearch">
+          <div class="apiotChooseUser__header__choose">
+            <input
+              v-model="searchInput"
+              placeholder-class="inputPlaceholder"
+              placeholder="搜索人员"
+              confirm-type="search"
+              @input="debouncedSearch"
+            />
+          </div>
+          <div
+            class="apiotChooseUser__header__chooseContent"
+            v-if="isShowSearchBox && searchInput"
+          >
+            <div class="searchResulet">
+              {{ $t('common.search') }}"<span :style="{ color: themeColor }">{{
+                searchInput
+              }}</span
+              >"{{ $t('common.searchResult', { num: usersSearchList.length }) }}
+            </div>
+            <scroll-view scroll-y="true" class="searchContent">
+              <div
+                class="searchContent__user"
+                v-for="user in usersSearchList"
+                :key="user.id"
+                @click.stop="chooseUser(user)"
+              >
+                <apiot-userhead
+                  :userInfo="{
+                    userId: user.id,
+                    username: user.username,
+                    icon: user.icon,
+                  }"
+                  :size="45"
+                ></apiot-userhead>
+              </div>
+            </scroll-view>
+          </div>
+        </div> -->
       </div>
     </div>
-
-    <div class="apiotChooseUser__users">
-      <div
-        class="apiotChooseUser__users--item"
-        v-for="(user, index) in checkUsers"
-        :key="user.id"
-      >
-        <apiot-userhead
-          :userInfo="{
-            userId: user.id,
-            username: user.username,
-            icon: user.icon,
-          }"
-          :size="50"
-          :isClear="!disabled"
-          @handleClear="deleteUser(index)"
-        ></apiot-userhead>
-      </div>
+    <div v-if="shouldAdd" class="apiotChooseUser__btn">
+      <apiot-button-font @click="gotoChooseUsers">
+        <i class="appIcon appIcon-a-shujuxuanzejinru"></i>
+      </apiot-button-font>
     </div>
   </section>
 </template>
@@ -83,6 +92,11 @@ export default {
   components: {},
 
   props: {
+    // small=小，big=大
+    mode: {
+      type: String,
+      default: 'big'
+    },
     value: {
       type: Array,
       default() {
@@ -102,6 +116,31 @@ export default {
     isMultiple: {
       type: Boolean,
       default: true
+    },
+    // 是否启用常用收藏
+    shouldFav: {
+      type: Boolean,
+      default: true
+    },
+    // 是否启用按组织选择
+    shouldInOrg: {
+      type: Boolean,
+      default: true
+    },
+    // 是否启用按职位选择
+    shouldInPost: {
+      type: Boolean,
+      default: true
+    },
+    // 是否启用按角色选择
+    shouldInRole: {
+      type: Boolean,
+      default: true
+    },
+    // 是否支持搜索
+    shouldSearch: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -116,6 +155,13 @@ export default {
   },
 
   computed: {
+    // 是否允许新增
+    shouldAdd() {
+      const { disabled, isMultiple, checkUsers } = this;
+      if (disabled) return false;
+      if (!isMultiple && checkUsers.length > 0) return false;
+      return true;
+    },
     themeColor() {
       return this.$store.state.base.themeColor;
     },
@@ -138,7 +184,7 @@ export default {
         else this.$emit('input', checkList);
         this.$store.commit('setSelectUserCheck', {
           selectFlag: this.selectFlag,
-          checkUsers: checkList
+          checkUsers: [...checkList]
         });
       },
       immediate: true,
@@ -153,11 +199,19 @@ export default {
     },
     // 跳转界面选择人员
     gotoChooseUsers() {
-      const { isMultiple, title, selectFlag } = this;
+      const { isMultiple, title, selectFlag, shouldFav, shouldInOrg, shouldInPost, shouldInRole } =
+        this;
+      const params = {
+        title,
+        isMultiple,
+        shouldFav,
+        shouldInOrg,
+        shouldInPost,
+        shouldInRole,
+        flag: selectFlag
+      };
       uni.navigateTo({
-        url: `/PagesSelectUser/index?flag=${selectFlag}&title=${title}&isMultiple=${
-          isMultiple ? 1 : 0
-        }`
+        url: `/PagesSelectUser/index?config=${JSON.stringify(params)}`
       });
     },
     // 选择人员
@@ -167,10 +221,12 @@ export default {
       this.searchInput = '';
     },
     sure(users) {
+      console.log('sure==================');
       this.checkUsers = users;
     },
     // 搜索人员
     async searchUser() {
+      console.log('searchUser====================');
       const value = this.searchInput;
       if (!value) return false;
       const params = {
@@ -208,14 +264,44 @@ export default {
 <style lang='scss' scoped>
 .apiotChooseUser {
   width: 100%;
+
+  display: flex;
+  &.big {
+    padding: 10rpx 0;
+    .apiotChooseUser__users--item {
+      height: $form-el-height;
+    }
+  }
+  &.small {
+    .apiotChooseUser__users--item {
+      margin-top: 10rpx;
+    }
+  }
+  &__placeholder {
+    font-size: $form-el-fontSize;
+    color: $form-el-placeholderColor;
+  }
+  &__content {
+    flex: 1;
+    display: flex;
+  }
+  &__btn {
+    flex-shrink: 0;
+    height: $form-el-height;
+    line-height: $form-el-height;
+    .appIcon {
+      font-size: 48rpx;
+      color: #bbc3cd;
+    }
+  }
   &__header {
     position: relative;
     &__choose {
       display: flex;
       input {
         flex: 1;
-        height: 50rpx;
-        font-size: 15px;
+        height: $form-el-height;
+        font-size: $form-el-fontSize;
         text-align: left;
         box-sizing: border-box;
       }
@@ -257,11 +343,13 @@ export default {
   }
 
   &__users {
-    margin-top: 20rpx;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     &--item {
-      margin-right: 20rpx;
+      margin-right: 14rpx;
+      display: inline-flex;
+      align-items: center;
     }
   }
 }

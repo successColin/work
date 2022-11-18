@@ -104,7 +104,7 @@
         class="knowledgeSearch"
         v-if="configData.showSearch"
         @getList="getFileList"
-        v-model="keyWord"
+        v-model.trim="keyWord"
       ></search-input>
     </div>
     <input
@@ -233,41 +233,41 @@
 </template>
 
 <script>
-import { Decrypt, saveAs, createUnique } from '_u/utils';
 import axios from 'axios';
-import { lighten } from '@/utils/varyColor';
+import { createUnique, Decrypt, saveAs } from '_u/utils';
+import ajax from '@/api/axiosConfig';
 import {
+  bindKl,
+  deleteFile,
+  doCollect,
+  downFiles,
   downloadSingle,
+  fetchBusList,
   // getKonwledgeList,
   getAllFileList,
-  saveFolder,
-  updateFolder,
-  deleteFile,
-  moveFiles,
-  doCollect,
-  visitFiles,
   getBussinessList,
-  fetchBusList,
   listFiles,
-  bindKl,
-  unbindKl,
-  downFiles,
-  searchFiles
+  moveFiles,
+  saveFolder,
+  searchFiles,
   // eslint-disable-next-line import/named
+  unbindKl,
+  updateFolder,
+  visitFiles
 } from '@/api/knowledge';
-import ajax from '@/api/axiosConfig';
-import xls from '@/assets/img/XLS.svg';
-import zipFile from '@/assets/img/zipFile.svg';
-import txt from '@/assets/img/TXT.svg';
-import ppt from '@/assets/img/PPT.svg';
-import pdf from '@/assets/img/PDF.svg';
-import doc from '@/assets/img/DOC.svg';
-import imageFile from '@/assets/img/imageFile.svg';
-import vedio from '@/assets/img/vedio.svg';
 import audioFiile from '@/assets/img/audioFile.svg';
+import doc from '@/assets/img/DOC.svg';
 import elseFile from '@/assets/img/else.svg';
 import filesSvg from '@/assets/img/files.svg';
+import imageFile from '@/assets/img/imageFile.svg';
+import pdf from '@/assets/img/PDF.svg';
+import ppt from '@/assets/img/PPT.svg';
+import txt from '@/assets/img/TXT.svg';
+import vedio from '@/assets/img/vedio.svg';
+import xls from '@/assets/img/XLS.svg';
+import zipFile from '@/assets/img/zipFile.svg';
 import { allowFileType } from '@/config/index';
+import { lighten } from '@/utils/varyColor';
 import FilePath from './FilePath';
 
 const BlockContent = () => import('./BlockContent/index');

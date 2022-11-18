@@ -12,7 +12,10 @@
       :menuArr="moreOpeArr"
     ></dropdown-menu>
     <section class="header__bg" :style="getbg"></section>
-    <section class="header__bgOpi"></section>
+    <section
+      class="header__bgOpi"
+      v-if="$store.state.globalConfig.isInited"
+    ></section>
     <section class="header__animate">
       <i
         class="iconfont icon-dingbudonghuatuansan animate"
@@ -45,7 +48,10 @@
     </section>
     <section class="header__content">
       <header-menu
-        v-show="[1, 3].includes($store.getters.getMenuType)"
+        v-show="
+          [1, 3].includes($store.getters.getMenuType) &&
+          $store.state.globalConfig.isInited
+        "
       ></header-menu>
       <img
         :src="getUrl"
@@ -268,7 +274,7 @@
     />
     <apiot-drawer
       :visible.sync="showMessage"
-      :class="{showTaskMessage: showTaskMessage}"
+      :class="{ showTaskMessage: showTaskMessage }"
       class="drawerMessage"
       destroy-on-close
       ref="apiotDrawer"
@@ -277,7 +283,9 @@
     >
       <message-show
         :showMessage.sync="showMessage"
-        :showTaskMessage.sync="showTaskMessage" @readCountChanged="allCount" />
+        :showTaskMessage.sync="showTaskMessage"
+        @readCountChanged="allCount"
+      />
     </apiot-drawer>
   </div>
 </template>
@@ -287,7 +295,7 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import cnImg from '@/assets/img/cn.png';
 // import enImg from '@/assets/img/en.png';
-import { fontChange, debounce } from '@/utils/utils';
+import { fontChange, debounce, Decrypt } from '@/utils/utils';
 import UserCenter from '@/views/UserCenter/index';
 import SwitchTenant from '@/views/UserCenter/components/SwitchTenant/index';
 import UserInfo from '@/views/UserCenter/UserInfo/index';
@@ -580,7 +588,8 @@ export default {
       //   }
       // }, 5000);
     },
-    connection() {
+    async connection() {
+      await this.getUserCenterInfo();
       // 建立连接对象
       const { socketUrl } = this.$store.state.globalConfig.messageConfig;
       if (!socketUrl) return;
@@ -589,7 +598,7 @@ export default {
       this.stompClient = Stomp.over(socket);
       // 定义客户端的认证信息,按需求配置
       const headers = {
-        // token: Decrypt(localStorage.getItem('token') || '')
+        token: Decrypt(localStorage.getItem('token') || '')
       };
       const that = this;
       // 向服务器发起websocket连接
@@ -600,12 +609,24 @@ export default {
           const { account } = this.$store.state.userCenter.userInfo;
           // eslint-disable-next-line no-unused-vars
           this.stompClient.subscribe(
-            `/user/${account}/msg`,
-            () => {
-              // 订阅服务端提供的某个topic
-              console.log('广播成功');
-              that.allCount();
-              // console.log(msg); // msg.body存放的是服务端发送给我们的信息
+            `/user/${account}:PC/msg`,
+            async (response) => {
+              const res = JSON.parse(response.body);
+              // 用户踢登提示
+              if (res.bizKey === 'SESSION_KICKED') {
+                this.disconnect();
+                localStorage.setItem('token', '');
+                await this.$confirm('您的账号已被挤下线，回到登录页可重新登录！', '提示', {
+                  confirmButtonText: '好的',
+                  showCancelButton: false,
+                  type: 'warning'
+                }).then(() => {
+                  window.vue.$router.push('/login');
+                });
+              }
+              if (res.bizKey === 'NEW_INNER_MAIL ') {
+                that.allCount();
+              }
             },
             headers
           );
@@ -706,11 +727,13 @@ export default {
     },
     // 点击帮助
     changeHelp(command) {
-      // console.log(command);
+      const arr = this.filterHelp(this.helpCenter);
+      const obj = arr.find((v) => v.command === command);
       const routeUrl = this.$router.resolve({
         name: 'helpCenterShow',
         query: {
-          id: command
+          id: command,
+          name: obj.title
         }
       });
       window.open(routeUrl.href, '_blank');
@@ -767,7 +790,8 @@ export default {
     // 鼠标移出
     mouseLeave(e) {
       clearTimeout(this.timer);
-      if (e.y < 50) {
+      const H = this.$store.state.globalConfig.themeConfig.topHeight || 50;
+      if (e.y < H) {
         this.isHover = false;
       }
     },
@@ -805,7 +829,7 @@ $iconNavWidth: 44px;
     right: 0;
     top: 0;
     bottom: 0;
-    background: #29354d;
+    background: #fff;
     overflow: hidden;
   }
 
@@ -819,7 +843,7 @@ $iconNavWidth: 44px;
     right: 0;
     top: 0;
     bottom: 0;
-    opacity: 0.2;
+    opacity: 0.25;
     background: #000;
     overflow: hidden;
   }
@@ -1067,7 +1091,7 @@ $iconNavWidth: 44px;
       position: relative;
       z-index: 1;
     }
-    .showTaskMessage{
+    .showTaskMessage {
       .el-drawer__close-btn {
         display: none;
       }

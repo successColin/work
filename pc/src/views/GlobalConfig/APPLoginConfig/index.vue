@@ -300,6 +300,28 @@
                 {{ changeBtnName(statement.isRegistration) }}
               </apiot-button>
             </div>
+            <!-- 账号登录方式 -->
+            <div v-if="i === 13" class="common">
+              <div v-if="!statement.isLoginModeApp">
+                {{
+                  showValueName(loginModepcArr, loginModeApp, item.attributeKey)
+                }}
+              </div>
+              <apiot-select
+                :style="selectWidth"
+                v-else
+                v-model="loginModeApp"
+                :options="loginModepcArr"
+                @change="handleChangeSelectVal('onlineTime', $event)"
+              ></apiot-select>
+              <apiot-button
+                type="text"
+                class="passwordConfig__operation"
+                @click="handleChangeCount('isLoginModeApp', item.attributeKey)"
+              >
+                {{ changeBtnName(statement.isLoginModeApp) }}
+              </apiot-button>
+            </div>
           </li>
         </el-col>
       </el-row>
@@ -336,7 +358,8 @@ export default {
         isLoginStyle: false, // 登陆风格
         isSsoType: false, // 是否单点登录
         isWelcomeTitle: '', // 欢迎登录名称
-        isBottomText: false // 底部自定义文字
+        isBottomText: false, // 底部自定义文字
+        isLoginModeApp: false // 账号登录方式
       },
       loginObj: {}, // login url
       loopMaps: [],
@@ -360,6 +383,8 @@ export default {
       welcomeTitle: '', // 欢迎登录名称
       bottomText: false, // 底部自定义文字
       loginWidth: 20,
+      loginModeApp: 3, // 账号登录方式
+      loginModepcArr: [] // 账号登录方式
     };
   },
   components: { ImageAndChange },
@@ -478,6 +503,13 @@ export default {
           col: 24,
           key: 'loginLogo',
           attributeKey: 'loginLogo'
+        },
+        // 登录账号方式
+        {
+          name: this.$t('globalConfig.accountLoginMode'),
+          col: 24,
+          key: 'loginModeApp',
+          attributeKey: 'loginModeApp'
         }
       ];
     },
@@ -596,14 +628,17 @@ export default {
     },
     async init() {
       this.loading = true;
-      await this.$store.dispatch('getCurrentDict', 'SSO_TYPE');
+      await this.$store.dispatch('getCurrentDict', 'SSO_TYPE,LOGIN_BOOT_MODE');
       this.ssoTypeArr = this.$store.getters.getCurDict('SSO_TYPE');
+      this.loginModepcArr = this.$store.getters.getCurDict('LOGIN_BOOT_MODE'); // 单点登录类型
       const res = await getListByKey({ parameterKey: 'APPLOGIN' });
       this.loading = false;
       this.response = res;
       this.response.forEach((item) => {
         this.params[item.attributeKey] = item.attributeValue;
       });
+      const loginModeappObj =
+        this.response.find((item) => item.attributeKey === 'loginModeApp') || {};
       this.loginObj = this.response.find((item) => item.attributeKey === 'loginLogo') || {};
       const backgroundUrlObj =
         this.response.find((item) => item.attributeKey === 'backgroundUrl') || {};
@@ -623,6 +658,7 @@ export default {
         this.response.find((item) => item.attributeKey === 'loginLogoWidth') || {};
       this.loginWidth = Number(logoObjWidth.attributeValue);
       this.loopMaps = [];
+      this.loginModeApp = Number(loginModeappObj.attributeValue);
       const makeUrlArr = (value, key) => {
         if (value) {
           const arr = value.split(',');
@@ -755,7 +791,8 @@ export default {
           key === 'isSsoType' ||
           key === 'isBottomText' ||
           key === 'isWelcomeTitle' ||
-          key === 'isRegistration'
+          key === 'isRegistration' ||
+          key === 'isLoginModeApp'
         ) {
           const currentObj = this.response.find((item) => item.attributeKey === attr);
           // 登录logo保存
@@ -787,6 +824,11 @@ export default {
             params = {
               ...widthObj,
               attributeValue: imgWidth
+            };
+          } else if (key === 'isLoginModeApp') {
+            params = {
+              ...currentObj,
+              attributeValue: this.loginModeApp
             };
           }
 

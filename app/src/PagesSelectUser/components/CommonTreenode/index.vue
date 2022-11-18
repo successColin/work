@@ -17,7 +17,7 @@
       :class="[`appIcon-${prefixIcon}`]"
       :style="{ color: prefixIconColor }"
     ></i>
-    <span class="name">{{ value[showColumn] }}</span>
+    <span class="name">{{ showValue }}</span>
     <i class="appIcon appIcon-a-shujuxuanzejinru"></i>
   </p>
 </template>
@@ -39,6 +39,12 @@ export default {
     prefixIconColor: {
       type: String,
       default: '#4689F5'
+    },
+    treeNodeUsers: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
 
@@ -48,7 +54,17 @@ export default {
     };
   },
 
-  computed: {},
+  computed: {
+    users() {
+      const { value, treeNodeUsers } = this;
+      return treeNodeUsers[value.id] || '';
+    },
+    showValue() {
+      const { users, value, showColumn } = this;
+      if (users) return `${value[showColumn]}(${users.length})`;
+      return `${value[showColumn]}`;
+    }
+  },
 
   methods: {
     handleClick() {

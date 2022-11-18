@@ -188,7 +188,7 @@ export default {
   &.disabled {
     &.disabled {
       box-sizing: border-box;
-      padding: 0 $form-el-disabled-left;
+      padding: $form-el-disabled-padding;
       background: $form-el-disabled;
       border-radius: 12rpx;
       .apiotCheckbox__content {

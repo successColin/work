@@ -20,7 +20,11 @@
         }}</view>
         <span v-else>{{ showValue }}</span>
       </view>
-      <i v-if="!(disabled || readonly)" class="appIcon appIcon-riqi"></i>
+      <i
+        v-if="!(disabled || readonly)"
+        class="appIcon appIcon-riqi"
+        :class="[show ? getThemeColorFont : '']"
+      ></i>
     </view>
     <u-datetime-picker
       v-model="dateValue"
@@ -71,7 +75,7 @@ export default {
     },
     showFmt() {
       const { fmt, mode } = this;
-      return fmt || (mode === 'datetime' ? 'yyyy-MM-dd hh:mm' : 'yyyy-MM-dd');
+      return fmt || (mode === 'datetime' ? 'yyyy-MM-dd hh:mm:ss' : 'yyyy-MM-dd');
     },
     // 格式化日期
     showValue() {
@@ -81,6 +85,9 @@ export default {
     },
     confirmColor() {
       return this.$store.state.base.themeColor;
+    },
+    getThemeColorFont() {
+      return this.$store.getters.getThemeColorFont;
     }
   },
 
@@ -124,7 +131,7 @@ export default {
   color: $form-el-valueColor;
   &.disabled {
     .datePicker__value--content {
-      padding: 0 10rpx;
+      padding: $form-el-disabled-padding;
       background: $form-el-disabled;
       color: $form-el-disabled-valueColor;
       border-radius: 12rpx;

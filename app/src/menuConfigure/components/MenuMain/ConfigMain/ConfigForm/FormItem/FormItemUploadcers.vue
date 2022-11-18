@@ -30,7 +30,7 @@
 
 <script>
 import elementMixin from './elementMixin';
-import { fileUpload, getFileList } from '@/api/menuConfig';
+import { fileUpload } from '@/api/menuConfig';
 
 export default {
   components: {},
@@ -66,7 +66,6 @@ export default {
       try {
         const image = await fileUpload(filePath, { menuId: this.getMenuFlag() });
         this.fileList = this.fileList.concat(image);
-        console.log(index);
         this.fileList.splice(index, 0, image);
       } catch (error) {
         console.error(error);
@@ -78,7 +77,7 @@ export default {
         return;
       }
       try {
-        const image = await getFileList({ ids: this.value });
+        const image = await this.$store.dispatch('get_userCenter_filesInfo', this.value);
         this.fileList = this.fileList.concat(image);
       } catch (error) {
         console.error(error);
@@ -88,7 +87,6 @@ export default {
     },
     // 删除图片
     deleteImage(e) {
-      console.log(e);
       const { tempFile } = e;
       const index = this.fileList.findIndex((img) => img.id === tempFile.id);
       if (index !== -1) this.fileList.splice(index, 1);

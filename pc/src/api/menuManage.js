@@ -161,3 +161,12 @@ export function shortLink(data) {
     data,
   });
 }
+
+// 个性化保存
+export function saveOrUpdate(data) {
+  return FetchData.request({
+    url: '/system/designPersonal/saveOrUpdate',
+    method: 'post',
+    data,
+  });
+}

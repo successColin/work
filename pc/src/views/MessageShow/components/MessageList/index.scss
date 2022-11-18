@@ -1,12 +1,12 @@
 .messageList {
   height: 100%;
+  padding: 0 30px;
   .header{
     height: 42px;
     box-shadow: inset 0px -1px 0px 0px #E9E9E9;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-right: 30px;
     &__right{
       display: flex;
       align-items: center;

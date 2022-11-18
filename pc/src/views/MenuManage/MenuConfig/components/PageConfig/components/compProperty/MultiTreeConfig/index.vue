@@ -623,7 +623,7 @@ export default {
         termParams: '' // 过滤条件需要的组件参数id
       });
 
-      if (this.$route.query.isApp !== '1') {
+      if (this.$route.query.isApp !== '1' && !this.isSelect) {
         this.getCurrentTab.children[1].children.splice(2, 0, {
           name: '操作',
           compName: 'BtnsArea',
@@ -640,7 +640,9 @@ export default {
     // 删除多表
     deleteMultiData() {
       this.getCurrentTab.multiDataSource.splice(2, 1);
-      this.getCurrentTab.children[1].children.splice(2, 1);
+      if (this.$route.query.isApp !== '1' && !this.isSelect) {
+        this.getCurrentTab.children[1].children.splice(2, 1);
+      }
     },
     // 添加label组件
     addLableComp() {
@@ -719,7 +721,9 @@ export default {
         shouldRequired: false,
         submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
       };
-      console.log(this.activeObj);
+      if (this.$route.query.isApp === '1') {
+        label.width = '100%';
+      }
       this.activeObj.children[1].form[idCompId] = '';
       this.activeObj.children[1].children.push(label);
     },

@@ -2,9 +2,6 @@
   width: 100%;
   display: flex;
   align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   box-sizing: border-box;
   &.labelRight {
     justify-content: flex-end;

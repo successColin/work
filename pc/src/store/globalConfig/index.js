@@ -29,6 +29,7 @@ export default {
     // 水印及其相关选项,
     waterConfig: [],
     waterConfigArr: [],
+    isInited: false,
   },
   getters: {
     getMenuType(state) {
@@ -39,6 +40,10 @@ export default {
     },
   },
   mutations: {
+    // 改变是否加载状态
+    setIsInited(state, flag) {
+      state.isInited = flag;
+    },
     // 扫码地址
     setZzdScan(state, url) {
       state.zzdScan = url;
@@ -151,6 +156,7 @@ export default {
           commit('resolveData', [res[k], k]);
         }
       });
+      commit('setIsInited', true);
     },
   },
 };

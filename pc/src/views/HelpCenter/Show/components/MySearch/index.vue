@@ -26,7 +26,7 @@
             @click="handleSearch('')"
           ></apiot-button>
         </div>
-        <div class="m-t-10">
+        <!-- <div class="m-t-10">
           <div>{{ $t('helpCenter.TopSearches') }}</div>
           <div
             v-for="(item, i) in searchesArr"
@@ -37,7 +37,7 @@
           >
             {{ item }}
           </div>
-        </div>
+        </div> -->
       </section>
     </div>
   </section>

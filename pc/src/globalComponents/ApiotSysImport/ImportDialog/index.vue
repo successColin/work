@@ -49,23 +49,10 @@
 
 <script>
 import {
-  // checkOrgSpecialTemplate,
-  // checkPDSpecialTemplate,
-  // checkTreeTemplate,
-  // checkUserSpecialTemplate,
-  // getCheckSpecialProgress,
-  // getCheckSpecialSpecialProgress,
-  // getCheckTreeProgress,
-  // getUploadTreeProgress,
-  // importSpecialTemplate,
-  // importTemplateOrgStart,
-  // importTemplatePDStart,
-  // importTemplateTreeOrgStart,
-  // importTemplateUserStart,
-  importData,
+  getCheckSysImportProgress,
   // importTreeTemplate,
   getUploadsysImportProgress,
-  getCheckSysImportProgress
+  importData
 } from '@/api/importTemplate';
 // import {
 //   // doCheckTemplateIsRight,
@@ -358,7 +345,7 @@ export default {
       const logContent = `${userInfo.username}(${userInfo.account})导入${b},模板id:${this.templateId},模板名称:${this.templateName}`;
       formData.append('logData.content', Encrypt(logContent));
       formData.append('logData.clientType', 'PC');
-      formData.append('logData.curMenuId', this.$route.params.id);
+      formData.append('logData.curMenuId', this.$route.params.id || this.$route.query.menuId);
       // if (this.isSpecial && this.tableArr.length === 1) {
       //   // 特殊表导入
       //   if (this.tableArr.find((v) => v === 'sys_org')) {
@@ -405,12 +392,17 @@ export default {
           // } else {
           //   res = await doImportProcess({ uuid: this.uniqueId });
           // }
-          const res = await getUploadsysImportProgress({ uuid: this.uniqueId });
+          let res = await getUploadsysImportProgress({ uuid: this.uniqueId });
           const { Row, Sum, isImportFinish, status } = res;
           if (isImportFinish || Row >= Sum) {
             // 导入结束
             this.isEnd = true; // 导入结束，做个标记
             this.$emit('importRefresh');
+            res = {
+              ...res,
+              isImportFinish: true,
+              status: 200
+            };
             clearTimeout(this.timer);
           } else if (status === 201) {
             if (this.timer) {

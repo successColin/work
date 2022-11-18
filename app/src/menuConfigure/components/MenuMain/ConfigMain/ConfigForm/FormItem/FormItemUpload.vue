@@ -31,7 +31,7 @@
 
 <script>
 import elementMixin from './elementMixin';
-import { fileUpload, getFileList } from '@/api/menuConfig';
+import { fileUpload } from '@/api/menuConfig';
 
 export default {
   components: {},
@@ -101,7 +101,7 @@ export default {
     async gefileList() {
       if (!this.value) return;
       try {
-        const image = await getFileList({ ids: this.value });
+        const image = await this.$store.dispatch('get_userCenter_filesInfo', this.value);
         this.fileList = this.fileList.concat(image);
       } catch (error) {
         console.error(error);

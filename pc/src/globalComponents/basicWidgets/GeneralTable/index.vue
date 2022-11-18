@@ -836,6 +836,9 @@ export default {
           newJumpMenuObj[menuConfig.id] = newMenuConfig;
           sessionStorage.jumpMenuObj = JSON.stringify(newJumpMenuObj);
           this.$bus.$emit('changeMenuTab', curMenu);
+          this.$nextTick(() => {
+            this.$bus.$emit('refresh');
+          });
         } else {
           this.$message({
             type: 'warning',

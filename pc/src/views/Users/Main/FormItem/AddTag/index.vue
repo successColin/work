@@ -100,8 +100,8 @@ export default {
   },
   methods: {
     async init() {
-      const res = await getUsersState({ dictKeys: 'DICT-00373' });
-      this.list = res['DICT-00373'] || [];
+      const res = await getUsersState({ dictKeys: 'USER_LABEL_TAGS' });
+      this.list = res.USER_LABEL_TAGS || [];
       const arr = this.tags.split(',');
       this.tagArr = arr.reduce((init, pre) => {
         const current = this.list.find((item) => item.value === +pre);

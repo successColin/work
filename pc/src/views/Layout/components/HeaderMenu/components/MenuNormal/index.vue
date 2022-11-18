@@ -10,7 +10,7 @@
     <section class="content">
       <section class="content__left">
         <!-- 输入框 -->
-        <my-search v-model="keywords"></my-search>
+        <my-search v-model.trim="keywords"></my-search>
         <!-- 最近访问 -->
         <div class="recently" v-if="recentlyTabArr.length !== 0">
           <div class="recently__font">{{ $t('menu.recentVisits') }}</div>
@@ -200,10 +200,10 @@
 
 <script>
 import BScroll from 'better-scroll';
-import bus from '@/utils/bus';
 import { postChangeCollect } from '@/api/menuManage';
-import MySearch from '../MySearch';
+import bus from '@/utils/bus';
 import CollectIcon from '../CollectIcon';
+import MySearch from '../MySearch';
 import MenuItem from './components/MenuItem';
 
 export default {

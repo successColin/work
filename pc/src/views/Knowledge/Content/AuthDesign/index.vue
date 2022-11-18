@@ -46,7 +46,7 @@
             ></el-tab-pane>
           </el-tabs>
           <div class="tabs__content__type">
-            <div class="tabs__content__search" style="padding-right: 0;">
+            <div class="tabs__content__search" style="padding-right: 0">
               <search-input
                 style="width: 226px; margin: 0 auto; float: none"
                 @getList="doSearch"
@@ -80,7 +80,7 @@
           >
             <search-input
               @getList="getFileList"
-              v-model="keyWord"
+              v-model.trim="keyWord"
             ></search-input>
           </div>
           <div class="tabs__content__table">
@@ -212,7 +212,7 @@ export default {
 
   computed: {
     isSelectAll() {
-      return function(obj) {
+      return function (obj) {
         return !!obj.deleteAllow && !!obj.editAllow && !!obj.selectAllow;
       };
     }

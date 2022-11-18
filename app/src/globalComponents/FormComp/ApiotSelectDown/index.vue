@@ -11,7 +11,11 @@
       <template v-if="!canCustom">
         <view class="apiotSelectDown__value--content">
           <!-- <span v-else-if="value && !multiple">{{ showValue }}</span> -->
-          <scroll-view v-if="multiple" scroll-x="true" class="scroll-Y">
+          <scroll-view
+            v-if="multiple && showValueList.length !== 0"
+            scroll-x="true"
+            class="scroll-Y"
+          >
             <view class="apiotSelectDown__value--multiple">
               <span
                 v-for="(valueItem, index) in showValueList"
@@ -22,7 +26,7 @@
             </view>
           </scroll-view>
           <data-types
-            v-else-if="checkList.length !== 0"
+            v-else-if="!multiple && checkList.length !== 0"
             :icon="showIcon.icon"
             :fontColor="showIcon.fontColor"
             :value="showValue"
@@ -205,6 +209,9 @@ export default {
   watch: {
     show(value) {
       this.$store.commit('setmaskOverhiddenClass', value);
+      if (value) {
+        this.checkValues = this.value;
+      }
     },
     value: {
       handler(newValue) {
@@ -292,6 +299,8 @@ export default {
     open() {},
     closePopup() {
       this.show = false;
+      this.checkValues = '';
+      this.selectArry = [];
     },
     showPopup() {
       const { disabled, readonly } = this;
@@ -302,7 +311,7 @@ export default {
       const { multiple, checkList, valueProp } = this;
       let list = [...checkList];
       if (multiple) {
-        const index = list.findIndex((item) => val === item[valueProp]);
+        const index = list.findIndex((item) => val[valueProp] === item[valueProp]);
         if (index !== -1) list.splice(index);
         else list.push(val);
         const checkValues = [];
@@ -349,7 +358,7 @@ export default {
   &.disabled {
     .apiotSelectDown__value {
       background: $form-el-disabled;
-      padding-left: $form-el-disabled-left;
+      padding: $form-el-disabled-padding;
       color: $form-el-disabled-valueColor;
       border-radius: 12rpx;
     }

@@ -41,7 +41,7 @@
           <ul class="list">
             <li
               v-for="(item, index) in contentList"
-              :key="index"
+              :key="`${index}_${item.columnObj.columnName}`"
               class="list__item m-b-8"
             >
               <filterable-input
@@ -286,6 +286,7 @@ export default {
         valueType: 1,
         content: ''
       });
+      console.log(this.contentList);
     },
     selectTable(table) {
       // console.log(table);

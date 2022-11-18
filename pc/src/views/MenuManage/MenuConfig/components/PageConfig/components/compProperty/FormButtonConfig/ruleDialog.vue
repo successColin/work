@@ -112,6 +112,7 @@ export default {
 
   watch: {
     showRuleDialog(v) {
+      console.log(v);
       if (!v) {
         const { length } = this.activeObj.ruleArr;
         for (let i = length - 1; i >= 0; i -= 1) {

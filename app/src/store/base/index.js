@@ -39,6 +39,15 @@ export default {
     },
   },
   getters: {
+    // 是否启动水印功能
+    getWatermark(state) {
+      const { WATER_MASK } = state.globalConfig;
+      const waterMask =
+        WATER_MASK.find((item) => item.attributeKey === 'enableWaterMask') ||
+        {};
+      if (!waterMask.attributeValue) return false;
+      return waterMask.attributeValue === '1';
+    },
     getThemeIndex(state) {
       // 主题色的序号，该序号要与主题颜色保持一致
       return selectColorArr.findIndex((color) => color === state.themeColor);

@@ -44,12 +44,12 @@
 
           <!-- <search-input
             @getList="getList"
-            v-model="keywords"
+            v-model.trim="keywords"
             class="m-l-10"
           ></search-input> -->
           <conditionInput
             @getList="getList"
-            v-model="keywords"
+            v-model.trim="keywords"
             :selectArr="selectArr"
             :selectValue.sync="selectValue"
             class="m-l-10 m-t-6"
@@ -147,8 +147,8 @@ import MenuCard from './components/MenuCard';
 import MenuHome from './components/MenuHome';
 import MenuSelect from './components/MenuSelect';
 // import SecondMenu from './components/SecondMenu';
-import SidebarList from './components/Sidebar';
 import MoveDialog from './components/MoveDialog';
+import SidebarList from './components/Sidebar';
 
 export default {
   name: 'menuManage',

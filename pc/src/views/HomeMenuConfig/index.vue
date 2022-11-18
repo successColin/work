@@ -103,8 +103,8 @@
 </template>
 
 <script>
-import { insertElement, fetchElementList, saveElementList } from '@/api/design';
-import { menuProperties, menuAppProperties } from './constants/global';
+import { fetchElementList, insertElement, saveElementList } from '@/api/design';
+import { menuAppProperties, menuProperties } from './constants/global';
 import Header from './Layout/Header/index';
 import Sidebar from './Layout/Sidebar/index';
 
@@ -128,6 +128,9 @@ const RealTimeConfig = () => import('./configComponents/RealTimeConfig/index');
 const RadarChartConfig = () => import('./configComponents/RadarChartConfig/index');
 const AuxiliaryLineConfig = () => import('./configComponents/LineConfig/index');
 const NoticeConfig = () => import('./configComponents/NoticeConfig/index');
+const RoseChartConfig = () => import('./configComponents/RoseChartConfig/index');
+const LiquidfillConfig = () => import('./configComponents/LiquidfillConfig/index');
+const FunnelChartConfig = () => import('./configComponents/FunnelChartConfig/index');
 
 export default {
   data() {
@@ -148,6 +151,9 @@ export default {
   },
 
   components: {
+    FunnelChartConfig,
+    LiquidfillConfig,
+    RoseChartConfig,
     CommonContainer,
     NoticeConfig,
     Header,
@@ -214,7 +220,7 @@ export default {
           obj = {
             ...obj,
             left: '50%',
-            marginLeft: `-${width * this.scale / 2}px`
+            marginLeft: `-${(width * this.scale) / 2}px`
           };
         }
         return obj;
@@ -303,7 +309,7 @@ export default {
     },
     async initElementList() {
       // 获取控件列表
-      const res = await fetchElementList({ id: this.$route.params.id });
+      const res = await fetchElementList({ id: this.$route.params.id || this.$route.query.menuId });
       const { designJson, list } = res;
       const newList = list.map((item) => {
         const { id, designJson: elementDesign, sqlResponse, sqlFilterResponse } = item;
@@ -322,7 +328,11 @@ export default {
       this.updateList(newList);
       const { clientType } = sessionStorage;
       // eslint-disable-next-line max-len
-      this.menuProperties = designJson ? JSON.parse(designJson) : (+clientType === 2 ? menuAppProperties : menuProperties);
+      this.menuProperties = designJson
+        ? JSON.parse(designJson)
+        : +clientType === 2
+          ? menuAppProperties
+          : menuProperties;
       if (+clientType !== 1) {
         this.autoScale = false;
         this.scale = 1;
@@ -340,7 +350,7 @@ export default {
           designJson: JSON.stringify(item),
           id,
           type: 0,
-          homepageId: this.$route.params.id
+          homepageId: this.$route.params.id || this.$route.query.menuId
         };
         if (dataType === 3) {
           obj.dataJson = JSON.stringify({
@@ -363,7 +373,7 @@ export default {
       });
       const params = {
         homepageDesignJson: JSON.stringify(this.menuProperties),
-        homepageId: this.$route.params.id,
+        homepageId: this.$route.params.id || this.$route.query.menuId,
         list: newList
       };
       try {
@@ -405,14 +415,22 @@ export default {
       };
       const { clientType } = sessionStorage;
       if (+clientType === 2) {
-        const w1 = document.querySelector('.homePageContent__main--content').getBoundingClientRect().width;
-        const w2 = document.querySelector('.homePageContent__main--area').getBoundingClientRect().width;
-        positionsObj.left = pageX - 300 - (w1 - w2) / 2 - width * this.scale / 2;
+        const w1 = document
+          .querySelector('.homePageContent__main--content')
+          .getBoundingClientRect().width;
+        const w2 = document
+          .querySelector('.homePageContent__main--area')
+          .getBoundingClientRect().width;
+        positionsObj.left = pageX - 300 - (w1 - w2) / 2 - (width * this.scale) / 2;
       }
       const designObj = { ...componentInfo, ...positionsObj, type: 0 };
       const newObj = JSON.parse(JSON.stringify(designObj));
       const data = await insertElement(newObj);
-      this.list.push({ ...newObj, id: data, homepageId: this.$route.params.id });
+      this.list.push({
+        ...newObj,
+        id: data,
+        homepageId: this.$route.params.id || this.$route.query.menuId
+      });
       this.activeComponent = newObj;
       this.activateComponentKey = newObj.componentName;
     },

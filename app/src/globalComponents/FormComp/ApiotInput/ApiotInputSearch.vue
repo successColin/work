@@ -34,8 +34,12 @@
           :class="[filterActivity ? getThemeColorFont : '']"
         ></i>
       </p>
-      <div v-if="enableScan" class="apiotInputSearch__input__scanBtn">
-        <i class="appIcon appIcon-saoma" @click.stop="gotoScan"></i>
+      <div
+        v-if="enableScan"
+        class="apiotInputSearch__input__scanBtn"
+        @click.stop="gotoScan"
+      >
+        <i class="appIcon appIcon-saoma"></i>
       </div>
       <div
         v-if="isFilter"
@@ -207,7 +211,7 @@ export default {
       color: #aaaaaa;
     }
     .appIcon {
-      font-size: 18px;
+      font-size: 36rpx;
       color: #bbc3cd;
     }
     .appIcon-sousuo {
@@ -236,7 +240,7 @@ export default {
         margin: 0 6rpx;
       }
       .filter--line {
-        margin: 0 18rpx 0 6rpx;
+        margin: 0 18rpx 0 0;
         width: 1rpx;
         height: 28rpx;
         background: #d9d9d9;
@@ -244,11 +248,12 @@ export default {
     }
     &__scanBtn {
       flex-shrink: 0;
+      padding: 20rpx 23rpx 20rpx 0;
       &.switchScan {
         margin-right: 10rpx;
       }
       .appIcon-saoma {
-        font-size: 48rpx;
+        font-size: 36rpx;
         color: #bbc3cd;
       }
     }

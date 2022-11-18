@@ -1,8 +1,8 @@
 /*
  * @Author: sss
  * @Date: 2021-06-17 18:40:09
- * @Last Modified by: sss
- * @Last Modified time: 2022-10-18 14:52:24
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-11-11 16:45:28
  * @desc：菜单配置
  */
 import FetchData from './axiosConfig';
@@ -53,8 +53,6 @@ export function getSidebarSingle(params) {
 // 文件下载，存储于临时路径中
 // isAddPrefix
 export function downloadFile(filesUrl, isAddPrefix = true) {
-  console.log(filesUrl);
-  console.log(isAddPrefix);
   if (isAddPrefix) filesUrl = `system/waterMark/addWaterMark?url=${filesUrl}`;
   return FetchData.downloadFile({
     url: filesUrl,

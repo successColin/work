@@ -8,7 +8,7 @@
 <template>
   <section class="transferLogList" v-loading="contentLoading">
     <header class="transferLogList__header">
-      <search-input v-model="keywords" @getList="getList"></search-input>
+      <search-input v-model.trim="keywords" @getList="getList"></search-input>
     </header>
     <div class="transferLogList__main">
       <apiot-table

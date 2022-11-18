@@ -1,7 +1,4 @@
-import {
-  getEncryptToBase64 as encrypt,
-  getDecryptByBase64 as decrypt,
-} from './encryption';
+import { Decrypt, Encrypt } from '@/utils/utils';
 
 const encodeReserveRE = /[!'()*]/g;
 const encodeReserveReplacer = (c) => `%${c.charCodeAt(0).toString(16)}`;
@@ -35,7 +32,6 @@ function isBase64(str) {
  * @param {Object} obj
  */
 export const stringifyQuery = (obj) => {
-  console.log(obj);
   let res = null;
   if (obj) {
     res = Object.keys(obj)
@@ -70,7 +66,7 @@ export const stringifyQuery = (obj) => {
       .filter((x) => x.length > 0)
       .join('&');
   }
-  return res ? `?${encrypt(res)}` : '';
+  return res ? `?${Encrypt(res)}` : '';
 };
 
 /**
@@ -85,10 +81,8 @@ export const parseQuery = (query) => {
   if (!query) {
     return res;
   }
-
   // 解密
-  query = isBase64(query) ? decrypt(query) : query;
-
+  query = isBase64(query) ? Decrypt(query) : query;
   query.split('&').forEach((param) => {
     const parts = param.replace(/\+/g, ' ').split('=');
     const key = decode(parts.shift());
@@ -102,6 +96,5 @@ export const parseQuery = (query) => {
       res[key] = [res[key], val];
     }
   });
-
   return res;
 };

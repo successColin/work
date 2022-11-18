@@ -9,7 +9,10 @@
     ]"
     v-if="showInput"
   >
-    <el-form-item :prop="`${configData.compId}`">
+    <el-form-item
+      :prop="`${configData.compId}`"
+      :class="[{ 'is-required': isConfig && configData.shouldRequired }]"
+    >
       <span class="span-box" slot="label">
         <span> {{ configData.name }} </span>
         <el-tooltip

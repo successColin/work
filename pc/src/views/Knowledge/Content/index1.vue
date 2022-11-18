@@ -123,7 +123,7 @@
         v-if="showType === 3"
         style="width: 224px"
         @getList="getFileList"
-        v-model="keyWord"
+        v-model.trim="keyWord"
       ></search-input>
     </div>
     <div class="pathWrap">
@@ -287,13 +287,14 @@
 import axios from 'axios';
 // import mugenScroll from 'vue-mugen-scroll';
 import { Decrypt, getBlob, saveAs } from '_u/utils';
+import ajax from '@/api/axiosConfig';
 import {
-  downloadSingle,
   addFolder,
   delFiles,
   doCancelShareFiles,
   doCollect,
   doUpdateShareUser,
+  downloadSingle,
   editFolder,
   fetchBusList,
   // eslint-disable-next-line import/named
@@ -309,7 +310,6 @@ import {
   unCollect,
   visitFiles
 } from '@/api/knowledge';
-import ajax from '@/api/axiosConfig';
 import query from '@/api/query';
 import audioFiile from '@/assets/img/audioFile.svg';
 import doc from '@/assets/img/DOC.svg';
@@ -404,7 +404,7 @@ export default {
     ImageZoom,
     BussinessList,
     VideoPreview,
-    MusicProgress,
+    MusicProgress
     // mugenScroll
   },
 
@@ -1359,7 +1359,8 @@ export default {
         this.dialogVisible = false;
       }
     },
-    scroll() { // 滚动
+    scroll() {
+      // 滚动
       console.log('滚动');
     },
     async moveFilesToNewFile({ dom, chooseItemId }) {

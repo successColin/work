@@ -305,6 +305,15 @@ export default {
         this.changeSelectd(row, row.isChecked);
       }
     },
+    // 默认全选
+    defaultSelection() {
+      this.$nextTick(() => {
+        this.curData.forEach((item) => {
+          item.isChecked = true;
+          this.$refs.multipleTable.toggleRowSelection(item, true);
+        });
+      });
+    },
     // checked更改
     changeSelectd(row, checked) {
       this.$refs.multipleTable.toggleRowSelection(row, checked);

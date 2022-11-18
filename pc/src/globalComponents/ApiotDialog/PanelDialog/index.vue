@@ -49,6 +49,7 @@
     ></ApiotMenu>
     <ApiotShareDialog
       :visible.sync="showShare"
+      v-if="getCanShare"
       :panelObj="panelObj"
     ></ApiotShareDialog>
   </apiot-dialog>

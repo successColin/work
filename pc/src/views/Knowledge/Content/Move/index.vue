@@ -3,7 +3,10 @@
   <div class="contentWrap" v-loading="loading">
     <div class="pathContentWrap">
       <!--      <file-path :pathArr="pathArr" v-on:changePath="changePath"></file-path>-->
-      <search-input @getList="getFileList" v-model="keyWord"></search-input>
+      <search-input
+        @getList="getFileList"
+        v-model.trim="keyWord"
+      ></search-input>
     </div>
     <div class="tableWrap">
       <apiot-table
@@ -29,7 +32,8 @@
               style="cursor: pointer; display: inline"
               @click.prevent="checkChange(scope.row)"
             >
-              <apiot-checkbox class="checkBoxWrap"
+              <apiot-checkbox
+                class="checkBoxWrap"
                 :value="isCheck(scope.row)"
                 @change="checkChange(scope.row)"
                 @click.native.stop
@@ -83,17 +87,17 @@ export default {
 
   computed: {
     checkIschecked() {
-      return function(obj) {
+      return function (obj) {
         return this.selectKeys.find((item) => item.sysKlTree.id === obj.sysKlTree.id);
       };
     },
     getFileUrl() {
-      return function(obj) {
+      return function (obj) {
         return this.fileUrl(obj);
       };
     },
     isCheck() {
-      return function(obj) {
+      return function (obj) {
         return obj.id === (this.selectKeys && this.selectKeys[0] && this.selectKeys[0].id);
       };
     }
@@ -231,7 +235,7 @@ export default {
       margin-left: 10px;
       vertical-align: middle;
     }
-    .checkBoxWrap{
+    .checkBoxWrap {
       margin-left: 13px;
     }
 
@@ -251,10 +255,10 @@ export default {
           }
         }
       }
-      .el-table__expand-icon + div > .checkBoxWrap{
+      .el-table__expand-icon + div > .checkBoxWrap {
         margin-left: 0;
       }
-      .el-table__placeholder{
+      .el-table__placeholder {
         width: 7px;
       }
     }

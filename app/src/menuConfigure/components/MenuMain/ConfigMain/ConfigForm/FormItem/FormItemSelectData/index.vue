@@ -34,7 +34,7 @@
             :menuConfig="panelConfig"
             :value="list"
             :checkFlagId="getRelateColumnName"
-            :popTitle="element.dialogTitle || element.name"
+            :popTitle="element.dialogTitle || element.placeholder"
             :menuHeight="popHeight"
           ></SelectDataProp>
         </apiot-select-data>

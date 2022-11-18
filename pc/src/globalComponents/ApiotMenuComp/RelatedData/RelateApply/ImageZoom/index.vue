@@ -199,6 +199,7 @@ export default {
       ) {
         return this.blobToImg(this.getCurrentImage.blob);
       }
+      console.log(this.getCurrentImage);
       return this.$parseImgUrl(this.getCurrentImage.url);
     }
   },
@@ -210,6 +211,7 @@ export default {
       const { id } = item.sysKlTree || item;
       return id === this.previewObj.sysKlTree.id;
     });
+    console.log(this.defaultPage);
   },
   destroyed() {
     window.removeEventListener('mousewheel', this.handleScroll, false);
