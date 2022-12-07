@@ -1,0 +1,378 @@
+/**
+* @name: index
+* @author: DELL
+* @date: 2021/8/21 14:51
+* @description：index
+* @update: 2021/8/21 14:51
+*/
+<!-- 页面 -->
+<template>
+  <div
+      v-loading="loading"
+      class="singleTextWrap"
+      :id="`basicPie_${config.componentId}`"
+      :style="getContentStyles"
+  >
+    <div class="singleTextContent" :id="`basicPie_${config.componentId}${designType}`">
+    </div>
+  </div>
+</template>
+
+<script>
+// 引入基本模板
+import {getInfoById} from '@/services/design';
+import {supplementaryColor} from '@/utils/common';
+import {isEqual} from 'lodash';
+import 'echarts-liquidfill';
+
+
+// eslint-disable-next-line no-undef
+let echarts = require('echarts')
+
+export default {
+  props: {
+    designType: {
+      type: String,
+      default: ''
+    },
+    config: {
+      type: Object,
+      default: () => {
+      }
+    },
+    activeComponent: {
+      type: Object,
+      default: () => {
+      }
+    },
+    otherParams: {
+      type: Object,
+      default() {
+        return {};
+      }
+    }
+  },
+  data() {
+    return {
+      content: [],
+      myChart: null,
+      observer: null,
+      instance: null,
+      timer: null,
+      loading: false
+    };
+  },
+
+  components: {
+    // VueDragResize
+  },
+
+  computed: {
+    getContentStyles() {
+      const {width, height, stylesObj, left, top} = this.config;
+      return `width:${width}px;height:${height}px;left:${left}px;top: ${top}px;zIndex:${stylesObj.zIndex};`;
+    },
+    getOption() {
+      return function () {
+        const { stylesObj: {
+          colorArr,
+          radius,
+          shape,
+          waveNum,
+          animationDuration,
+          waveLength,
+          amplitude,
+          waveAnimation,
+          outlineShow,
+          borderDistance,
+          borderColor,
+          borderWidth,
+          shadowColor, // 阴影颜色
+          shadowBlur, // 阴影距离
+          bgColor, // 内部背景颜色
+          bgBorderColor, // 内部背景边框颜色
+          bgBorderWidth, // 内部背景边框宽度
+          bgShadowColor, // 背景阴影颜色
+          bgShadowBlur, // 背景阴影距离
+          labelPosition, // 文字位置inside， left， right， top，bottom
+          labelFontSize, // 文字大小
+          labelFontWeight, // 文字
+          labelColor, // 文字颜色
+          labelShow // 是否显示文字
+        }, dataType, dataConfig: { staticValue }, SqlDataConfig, apiDataConfig } = this.config;
+        let lastData = {};
+        let seriesData = [], supplementaryColorArr;
+        const cn = colorArr.length; // 颜色长度
+
+        if (dataType === 1) {
+          lastData = JSON.parse(staticValue);
+        }
+        if (dataType === 2 || dataType === 3) {
+          lastData = this.content;
+        }
+        supplementaryColorArr = supplementaryColor(waveNum, cn)
+        supplementaryColorArr = supplementaryColor(waveNum, cn)
+        const per1 = lastData.value || 0;
+        const colorList = [...colorArr, ...supplementaryColorArr];
+        for (let i = 0; i < waveNum; i++) {
+          seriesData.push(
+              {
+                value: per1,
+                itemStyle: {
+                  normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                      offset: 0,//0%时的颜色 从上往下看 最上面是0%
+                      color: colorList[i].c1 || colorList[i].c2 || '#fff'
+                    }, {
+                      offset: 1,//100%时的颜色 从上往下看 最上面是0%
+                      color: colorList[i].c2 || colorList[i].c1 || '#fff'
+                    }])
+                  }
+                }
+              }
+          );
+        }
+        let option = {
+          series: [
+            {
+              type: 'liquidFill',
+              name: '',
+              radius: `${radius}%`,
+              shape: shape,
+              waveLength,
+              amplitude,
+              waveAnimation,
+              direction: animationDuration,
+              data: seriesData,
+              outline: {
+                show: outlineShow,
+                borderDistance: borderDistance,
+                itemStyle: {
+                  borderWidth,
+                  borderColor,
+                  shadowBlur,
+                  shadowColor
+                }
+              },
+              backgroundStyle: {
+                color: bgColor,
+                borderColor: bgBorderColor,
+                borderWidth: bgBorderWidth,
+                shadowColor: bgShadowColor,
+                shadowBlur: bgShadowBlur
+              },
+              label: {
+                normal: {
+                  formatter: () => {
+                    return (lastData.value || 0) * 100 + '%';
+                  },
+                  show: labelShow,
+                  // color: labelColor,
+                  insideColor: labelColor,
+                  fontSize: labelFontSize,
+                  fontWeight: labelFontWeight,
+                  position: labelPosition
+                }
+              }
+            }
+          ]
+        };
+        return option;
+      };
+    }
+  },
+  mounted() {
+    this.initDom();
+  },
+  watch: {
+    config(val) { // 普通的watch监听
+      if (this.myChart && val) {
+        const options = this.getOption();
+        this.myChart.setOption(options);
+      }
+    },
+    content: {
+      deep: true,
+      immediate: true,
+      handler(val) {
+        if (this.myChart && val) {
+          const options = this.getOption();
+          this.myChart.setOption(options);
+        }
+      }
+    },
+    otherParams: {
+      deep: true,
+      immediate: true,
+      handler(v, o) {
+        const params = this.getParameters();
+        const {isShow} = this.config;
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+          this.fetchData();
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+          this.fetchData();
+        }
+      }
+    }
+  },
+  methods: {
+
+    initDom() {
+      const {componentId} = this.config;
+      const domWrap = `basicPie_${componentId}${this.designType}`;
+      this.myChart = echarts.init(document.getElementById(domWrap));
+      this.instance = Object.freeze({myChart: this.myChart});
+      this.fetchData();
+    },
+    async fetchData() {
+      if (!this.myChart) {return;}
+      const {dataType} = this.config;
+      if (dataType === 1) {
+        const option = this.getOption();
+        // 绘制图表
+        this.myChart.setOption(
+          option
+        );
+      }
+      if (dataType === 2) {
+        this.loading = true;
+        await this.getApi();
+        this.loading = false;
+      }
+      if (dataType === 3) {
+        this.loading = true;
+        await this.getSQL();
+        this.loading = false;
+      }
+      // getInfoById
+    },
+    async getApi() {
+      const {apiDataConfig} = this.config;
+      const params = this.getParameters();
+      const res = await getInfoById(params) || [];
+      if (res.length) {
+        const obj = res[0] || {};
+        const targetObj = obj.response || '{}';
+        const {
+          enableApiFilter,
+          enableApiAutoUpdate,
+          apiUpdateTime = 1,
+          apiFilterFun,
+          apiDataFilterId
+        } = apiDataConfig;
+        if (enableApiAutoUpdate) {
+          const time = apiUpdateTime * 1000;
+          this.timer && clearTimeout(this.timer);
+          this.timer = setTimeout(async () => {
+            await this.getApi();
+            this.myChart.clear();
+            const option = this.getOption();
+            this.myChart.setOption(
+              option
+            );
+          }, time);
+        }
+        if (!enableApiFilter) {
+          this.content = JSON.parse(targetObj);
+          return
+        }
+        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
+          // eslint-disable-next-line no-new-func
+          const fun = new Function(`return ${apiFilterFun}`);
+          const result = fun()(JSON.parse(targetObj));
+          this.content = result;
+          return;
+        }
+        this.content = JSON.parse(targetObj);
+      }
+    },
+    getParameters() {
+      const {id, componentId} = this.config;
+      const reduce = (obj) => { // 将Object 处理成 Array
+        return Object.keys(obj).map((item) => {
+          return {
+            name: item,
+            value: obj[item]
+          }
+        })
+      }
+      const query = this.$route.query
+      let satisfyParams = {};
+      if (JSON.stringify(this.otherParams) !== '{}') {
+        Object.keys(this.otherParams).forEach((item) => {
+          if (item.indexOf(componentId) > -1) {
+            const key = item.replace(`${componentId}_`, '');
+            satisfyParams[key] = this.otherParams[item];
+          }
+        })
+      }
+      const currentParams = {
+        ...satisfyParams,
+        ...query
+      }
+      const arr = reduce(currentParams);
+      return {
+        id,
+        varJson: JSON.stringify(arr)
+      };
+    },
+    async getSQL() {
+      const {SqlDataConfig} = this.config;
+      const {
+        SQLFilterFun,
+        enableSQLFilter,
+        SQLDataFilterId,
+        enableSQLAutoUpdate,
+        SQLUpdateTime = 1
+      } = SqlDataConfig;
+      const params = this.getParameters();
+      const res = await getInfoById(params);
+      if (enableSQLAutoUpdate) {
+        const time = SQLUpdateTime * 1000;
+        this.timer && clearTimeout(this.timer);
+        this.timer = setTimeout(async () => {
+          await this.getSQL();
+          const option = this.getOption();
+          this.myChart.clear();
+          this.myChart.setOption(
+            option
+          );
+        }, time);
+      }
+      if (!enableSQLFilter) {
+        this.content = res;
+        return
+      }
+      if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${SQLFilterFun}`);
+        const result = fun()(res);
+        this.content = result;
+        return;
+      }
+      this.content = res;
+    }
+  },
+  beforeDestroy() {
+    this.timer && clearTimeout(this.timer);
+  },
+  name: 'SingleLineText'
+};
+</script>
+
+<style lang='scss' scoped>
+.singleTextWrap {
+  position: absolute;
+  //overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  .singleTextContent {
+    width: calc(100%);
+    height: calc(100%);
+    position: relative;
+    margin: 0 auto;
+  }
+}
+</style>

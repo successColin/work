@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>折线图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="折线图">
+            <rect id="矩形备份-28" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <g id="编组-20" transform="translate(25.000000, 8.000000)" fill-rule="nonzero">
+                <path d="M0.019,37.981 L6.213,37.981 L6.213,27.987 L0.019,28.006 L0.019,37.981 M10.412,19.665 L10.412,37.981 L16.359,37.981 L16.359,19.703 L10.412,19.665 M20.786,24.453 L20.786,37.981 L26.733,37.981 L26.733,24.396 L20.786,24.415 M31.179,13.585 L31.179,38 L37.373,38 L37.373,13.547 L31.179,13.585" id="形状" fill="url(#linearGradient-1)"></path>
+                <path d="M37.335,0.057 C37.278,1.89004368e-14 37.221,1.89004368e-14 37.164,1.89004368e-14 L26.22,1.89004368e-14 C26.144,1.89004368e-14 26.03,0.057 26.011,0.133 C25.992,0.209 26.011,0.285 26.068,0.361 L30.666,4.636 L18.544,14.763 L10.431,7.942 L4.05009359e-14,18.354 L4.05009359e-14,22.857 L10.412,12.445 L18.563,19.247 L33.231,7.03 L37.012,10.564 C37.069,10.621 37.164,10.64 37.24,10.621 C37.316,10.564 37.373,10.526 37.373,10.431 L37.373,0.209 C37.411,0.152 37.373,0.095 37.335,0.057" id="路径" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="92px" height="92px" viewBox="0 0 92 92" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>椭圆形</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#3C87FF" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#1FD4FF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1.3.2-设计大屏-文本组件-数据配置-静态数据" transform="translate(-728.000000, -385.000000)" fill="url(#linearGradient-1)" fill-rule="nonzero">
+            <g id="编组-21备份-3" transform="translate(720.000000, 365.000000)">
+                <path d="M54,20 C28.5949015,20 8,40.5949015 8,66 C8,91.4050985 28.5949015,112 54,112 C79.4050985,112 100,91.4050985 100,66 C100,40.5949015 79.4050985,20 54,20 Z M54,34 C71.673112,34 86,48.326888 86,66 C86,83.673112 71.673112,98 54,98 C36.326888,98 22,83.673112 22,66 C22,48.326888 36.326888,34 54,34 Z" id="椭圆形" transform="translate(54.000000, 66.000000) rotate(-360.000000) translate(-54.000000, -66.000000) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,28 @@
+$component-border-color: #2F437F;
+$component-background-color: #192757;
+$component-borderFocus-color: #4689F5;
+
+@mixin leftTriangle($w, $h,$color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to bottom right,$color  49.9%, $color1 50%,$color2 100%);
+}
+
+@mixin rightTriangle($w, $h,$color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to bottom left, $color 49.9%, $color1 50%,$color2 100%);
+}
+
+@mixin topTriangle($w, $h, $color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to bottom left, $color 49.9%, $color1 50%,$color2 100%);
+}
+
+@mixin bottomTriangle($w, $h,$color, $color1, $color2) {
+  width: $w;
+  height: $h;
+  background:linear-gradient(to top left, $color 49.9%, $color1 50%,$color2 100%);
+}
+

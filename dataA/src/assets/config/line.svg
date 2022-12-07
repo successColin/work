@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>线条</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="线条">
+            <rect id="矩形" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <rect id="矩形" fill="url(#linearGradient-1)" x="13.25" y="8" width="62" height="38"></rect>
+            <rect id="矩形" fill="#FFFFFF" x="20.25" y="28" width="48" height="3"></rect>
+            <rect id="矩形备份-15" fill="#FFFFFF" x="20.25" y="33" width="8" height="3"></rect>
+            <rect id="矩形备份-16" fill="#FFFFFF" x="30.25" y="33" width="8" height="3"></rect>
+            <rect id="矩形备份-17" fill="#FFFFFF" x="40.25" y="33" width="8" height="3"></rect>
+            <rect id="矩形备份-18" fill="#FFFFFF" x="50.25" y="33" width="8" height="3"></rect>
+            <rect id="矩形备份-22" fill="#FFFFFF" x="60.25" y="33" width="8" height="3"></rect>
+            <rect id="矩形" fill="#FFFFFF" transform="translate(23.750000, 17.878680) rotate(-315.000000) translate(-23.750000, -17.878680) " x="21.25" y="15.3786797" width="5" height="5"></rect>
+            <rect id="矩形备份-23" fill="#FFFFFF" transform="translate(34.000000, 17.878680) rotate(-315.000000) translate(-34.000000, -17.878680) " x="31.5" y="15.3786797" width="5" height="5"></rect>
+            <rect id="矩形备份-24" fill="#FFFFFF" transform="translate(44.250000, 17.878680) rotate(-315.000000) translate(-44.250000, -17.878680) " x="41.75" y="15.3786797" width="5" height="5"></rect>
+            <rect id="矩形备份-25" fill="#FFFFFF" transform="translate(54.500000, 17.878680) rotate(-315.000000) translate(-54.500000, -17.878680) " x="52" y="15.3786797" width="5" height="5"></rect>
+            <rect id="矩形备份-26" fill="#FFFFFF" transform="translate(64.750000, 17.878680) rotate(-315.000000) translate(-64.750000, -17.878680) " x="62.25" y="15.3786797" width="5" height="5"></rect>
+        </g>
+    </g>
+</svg>

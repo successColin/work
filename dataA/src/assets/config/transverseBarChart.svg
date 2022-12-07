@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>跑道图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-2">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-3">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-4">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="跑道图">
+            <rect id="矩形备份-9" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <g id="堆积柱状图备份" transform="translate(44.000000, 27.500000) rotate(-270.000000) translate(-44.000000, -27.500000) translate(23.000000, 5.000000)" fill-rule="nonzero">
+                <polygon id="路径" fill-opacity="0.01" fill="#011528" points="0.00419023236 3.00419023 41.9064184 3.00419023 41.9064184 44.9064184 0.00419023236 44.9064184"></polygon>
+                <g id="柱状图">
+                    <polygon id="路径" fill="url(#linearGradient-1)" points="1 5 7 5 7 41 1 41"></polygon>
+                    <polygon id="路径" fill="url(#linearGradient-2)" points="17.5 0 23.5 0 23.5 41 17.5 41"></polygon>
+                    <polygon id="路径" fill="url(#linearGradient-3)" points="34.5 22 40.5 22 40.5 41 34.5 41"></polygon>
+                    <polygon id="路径" fill="url(#linearGradient-4)" points="0.909211829 43.5138676 40.9092118 43.5138676 40.9092118 44.9106086 0.909211829 44.9106086"></polygon>
+                    <polygon id="路径" fill="#FFFFFF" points="9.5 16 15.5 16 15.5 41 9.5 41"></polygon>
+                    <polygon id="路径" fill="#FFFFFF" points="26.5 13 32.5 13 32.5 41 26.5 41"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

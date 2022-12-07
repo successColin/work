@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>背景</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="背景">
+            <rect id="矩形" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <rect id="矩形" fill="url(#linearGradient-1)" x="13.25" y="8" width="62" height="38"></rect>
+            <path d="M49.8982143,32.2928571 L56.5354911,43.9006696 C57.0825893,44.8464286 56.4082589,46.0169643 55.3310268,46.0043439 L34.6600446,46.0043439 C34.0238839,46.0043439 33.6167411,45.3044643 33.9390625,44.7446429 L37.9214286,37.7892857 C38.4430804,36.8774554 39.6136161,36.8774554 40.1395089,37.7892857 L41.6026786,40.3381696 L46.2084821,32.2928571 C47.0651786,30.7872768 49.0415179,30.7872768 49.8982143,32.2928571 Z M39.2276786,27 C40.3982143,27 41.3482143,27.95 41.3482143,29.1205357 C41.3482143,30.2910714 40.3982143,31.2410714 39.2276786,31.2410714 C38.0571429,31.2410714 37.1071429,30.2910714 37.1071429,29.1205357 C37.1071429,27.95 38.0571429,27 39.2276786,27 Z" id="形状结合" fill="#FFFFFF" opacity="0.304292225"></path>
+            <rect id="矩形" fill="#FFFFFF" transform="translate(36.210155, 27.000000) rotate(-315.000000) translate(-36.210155, -27.000000) " x="34.7101551" y="13" width="3" height="28"></rect>
+            <rect id="矩形备份-14" fill="#FFFFFF" transform="translate(27.750000, 27.000000) rotate(-315.000000) translate(-27.750000, -27.000000) " x="26.25" y="20" width="3" height="14"></rect>
+            <rect id="矩形备份-11" fill="#FFFFFF" transform="translate(45.210155, 27.000000) rotate(-315.000000) translate(-45.210155, -27.000000) " x="43.7101551" y="20" width="3" height="14"></rect>
+            <rect id="矩形备份-12" fill="#FFFFFF" transform="translate(54.210155, 27.000000) rotate(-315.000000) translate(-54.210155, -27.000000) " x="52.7101551" y="13" width="3" height="28"></rect>
+            <rect id="矩形备份-13" fill="#FFFFFF" transform="translate(62.750000, 27.000000) rotate(-315.000000) translate(-62.750000, -27.000000) " x="61.25" y="20" width="3" height="14"></rect>
+        </g>
+    </g>
+</svg>

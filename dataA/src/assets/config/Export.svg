@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>文档导出按钮</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataA模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="文档导出按钮">
+            <rect id="矩形备份-28" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <g id="编组-34" transform="translate(24.000000, 5.000000)" fill-rule="nonzero">
+                <g id="编组-39">
+                    <path d="M22.027032,2.40491387e-14 L4.40539626,2.40491387e-14 C1.97140723,2.40491387e-14 0.0220422232,1.9255605 0.0220422232,4.30294518 L-1.43626801e-14,38.7265561 C-1.43626801e-14,41.1039407 1.94941578,43.0295013 4.38335404,43.0295013 L30.8378245,43.0295013 C33.2718135,43.0295013 35.2432208,41.1039408 35.2432208,38.7265561 L35.2432208,12.9088851 L22.027032,2.40491387e-14 Z" id="路径" fill="url(#linearGradient-1)"></path>
+                    <polygon id="路径" fill="#FFFFFF" transform="translate(38.455285, 33.804878) rotate(-270.000000) translate(-38.455285, -33.804878) " points="29.8699187 35.757164 35.3215576 35.757164 35.3215576 40.9465738 41.5890115 40.9465738 41.5890115 35.757164 47.0406504 35.757164 38.4556356 26.6631823"></polygon>
+                    <polygon id="路径" fill="#FFFFFF" points="25.3062378 34.423611 7.68460199 34.423611 7.68460199 30.1206658 25.3062378 30.1206658"></polygon>
+                    <polygon id="路径" fill="#FFFFFF" points="25.3062378 25.8177206 7.68460199 25.8177206 7.68460199 21.5147755 25.3062378 21.5147755"></polygon>
+                    <polygon id="路径" fill="#FFFFFF" points="19.8243339 15.0603577 19.8243339 3.22720889 31.9391736 15.0603577"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

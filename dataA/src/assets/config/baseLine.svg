@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>折线图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-2">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#42DAFF" offset="0%"></stop>
+            <stop stop-color="#4689F5" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-4">
+            <stop stop-color="#42DAFF" offset="0%"></stop>
+            <stop stop-color="#4689F5" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="折线图">
+            <rect id="矩形备份-28" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <g id="堆积柱状图备份-2" transform="translate(23.000000, 6.000000)">
+                <polygon id="路径" fill-opacity="0.01" fill="#011528" fill-rule="nonzero" points="0.00419023236 0.00419023236 41.9064184 0.00419023236 41.9064184 41.9064184 0.00419023236 41.9064184"></polygon>
+                <g id="柱状图" transform="translate(0.000000, 4.000000)">
+                    <polygon id="路径" fill="url(#linearGradient-1)" fill-rule="nonzero" points="0.00698369241 33.5138676 41.9092118 33.5138676 41.9092118 34.9106086 0.00698369241 34.9106086"></polygon>
+                    <polygon id="路径" fill="url(#linearGradient-2)" fill-rule="nonzero" transform="translate(0.698128, 16.100000) rotate(-90.000000) translate(-0.698128, -16.100000) " points="-15.201872 15.4 16.598128 15.4 16.598128 16.8 -15.201872 16.8"></polygon>
+                    <polygon id="矩形" fill="url(#linearGradient-3)" points="3 21.8961899 16 8 16 32 3 32"></polygon>
+                    <polygon id="矩形备份-53" fill="#FFFFFF" points="16 8 28 16.2993782 28 32 16 32"></polygon>
+                    <polygon id="矩形备份-54" fill="url(#linearGradient-4)" points="28 16.3067087 41 1 41 32 28 32"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

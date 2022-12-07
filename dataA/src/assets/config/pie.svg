@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>饼状图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataV模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="饼状图">
+            <rect id="矩形备份-9" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <g id="编组-22" transform="translate(23.000000, 7.000000)" fill-rule="nonzero">
+                <path d="M23.7645194,21.0619922 L36.7903969,33.5938776 C40.1983822,30.2688817 42.1103023,25.760762 42.1052532,21.0619922 L23.7645194,21.0619922 Z" id="路径" fill="#FFFFFF"></path>
+                <path d="M18.2875252,3.8438136 L18.2875252,21.6236453 L31.2773699,34.2081857 C27.8403668,37.5791254 23.1646133,39.4744653 18.2875252,39.473684 C11.754123,39.473684 5.71688043,36.0785371 2.45009161,30.5664554 C-0.816697205,25.0543737 -0.816697205,18.2631236 2.45009161,12.7510419 C5.71688043,7.23896021 11.754123,3.8438136 18.2875252,3.8438136 L18.2875252,3.8438136 Z M22.2511394,-4.76811573e-15 C32.376372,-4.76811573e-15 42.1052432,7.91579873 42.0693101,17.6745218 L42.0693101,17.6745218 L22.2511394,17.6745218 Z" id="形状结合" fill="url(#linearGradient-1)"></path>
+            </g>
+        </g>
+    </g>
+</svg>
