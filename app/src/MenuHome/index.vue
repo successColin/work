@@ -299,7 +299,6 @@ export default {
 
   onShow() {
     this.currentNav = this.oldNav;
-    console.log(this.initHornMarkNums);
     if (this.initHornMarkNums === true) {
       this.getSubscriptNumberFun();
     }

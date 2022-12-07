@@ -8,23 +8,39 @@
 <template>
   <div class="inforDetails">
     <!-- 顶部 -->
+    <!-- #ifndef MP-ALIPAY -->
     <apiot-navbar :title="title" v-if="isNoShare"></apiot-navbar>
+    <!-- #ifdef MP-WEIXIN -->
+    <div v-else style="margin-top: 150rpx; background: #fff"></div>
+    <!-- #endif -->
+    <!-- #endif -->
     <view
       :class="[
         isNoShare && isComment ? 'inforDetails__box' : 'inforDetails__box1',
       ]"
+      :style="{ height: boxHeight }"
     >
       <view class="content">
         <view class="content__title">
           {{ detailsObj.title }}
         </view>
         <view class="content__case">
-          <view>{{ detailsObj.createTime }}</view>
-          <view v-if="isNoShare">浏览{{ detailsObj.views }}次</view>
+          <user-icon
+            class="content__case--icon"
+            :userInfo="detailsObj"
+            :size="56"
+            :colorId="String(detailsObj.id)"
+            prop="userName"
+          ></user-icon>
+          <view class="content__case--userName">
+            <view>{{ detailsObj.userName || '游客' }}</view>
+            <view>{{ timeago(detailsObj.createTime) }}</view>
+          </view>
+          <view>浏览{{ detailsObj.views }}次</view>
         </view>
         <view class="content__val richText">
           <!-- <rich-text :nodes="detailsObj.html"></rich-text> -->
-          <u-parse class="aaa" :content="detailsObj.html"></u-parse>
+          <u-parse :content="detailsObj.html"></u-parse>
         </view>
         <view class="content__shareBtn" v-if="isNoShare">
           <view
@@ -51,11 +67,13 @@
             @click="handleApplaud"
           >
             <!-- 1===当前用户点赞，0===没有点赞 -->
-            <i
-              class="appIcon appIcon-yidianzan"
-              v-if="detailsObj.applaudForUser === 1"
-            ></i>
-            <i class="appIcon appIcon-dianzan" v-else></i>
+            <view class="content__shareBtn--icon">
+              <view
+                class="appIcon appIcon-yidianzan"
+                v-if="detailsObj.applaudForUser === 1"
+              ></view>
+              <view class="appIcon appIcon-dianzan"></view>
+            </view>
             {{ detailsObj.applauds }}
           </view>
         </view>
@@ -69,17 +87,26 @@
             v-for="(val, i) in comListArr"
             :key="i"
           >
-            <!-- <i class="appIcon appIcon-zhanghao comments__content--icon"></i> -->
-            <image
-              :src="$apiot.getComUrlByToken(val.icon.imageUrl)"
-              class="comments__content--userImg comments__content--icon"
-            ></image>
+            <view class="comments__content--icon">
+              <user-icon
+                :userInfo="val"
+                :size="48"
+                :colorId="String(detailsObj.id)"
+                prop="userName"
+              ></user-icon>
+            </view>
             <view class="comments__content--dec">
               <view class="dec__name">{{ val.userName }}</view>
               <view class="dec__val">{{ val.content }}</view>
-              <view class="dec__time">{{ val.createTime }}</view>
+              <view class="dec__time">{{
+                timeago(val.createTime) || '刚刚'
+              }}</view>
             </view>
-            <view class="comments__content--dele" @click="handleDelete(val.id)">
+            <view
+              class="comments__content--dele"
+              @click="handleDelete(val.id)"
+              v-if="getUserId === val.userId"
+            >
               删除
             </view>
           </view>
@@ -89,26 +116,28 @@
     </view>
     <!-- 固定输入评论 -->
     <view class="inforDetails__write write" v-if="isNoShare && isComment">
-      <input
-        class="write__input"
-        placeholder="请输入内容"
-        disabled
-        @click="handleOpenInput"
-      />
-      <i
+      <view @touchend.prevent="handleOpenInput" style="flex: 1; display: flex">
+        <input class="write__input" placeholder="请输入内容" disabled />
+      </view>
+      <view
         class="appIcon appIcon-fenxiang2 write__icon"
         @click="handleOpenShare"
         v-if="isShare"
-      ></i>
-      <!-- <i class="appIcon appIcon-yidianzan write__icon"></i> -->
+      ></view>
       <!-- 1===当前用户点赞，0===没有点赞 -->
-
       <view @click="handleApplaud" class="write__box">
-        <i
+        <view
           class="appIcon appIcon-yidianzan write__icon"
           v-if="detailsObj.applaudForUser === 1"
-        ></i>
-        <i v-else class="appIcon appIcon-dianzan write__icon"></i>
+        ></view>
+        <view
+          :class="[
+            'appIcon',
+            'appIcon-dianzan',
+            'write__icon',
+            detailsObj.applaudForUser === 1 ? 'basecolor' : '',
+          ]"
+        ></view>
         <view class="write__box--val" v-if="detailsObj.applauds !== 0">
           {{ detailsObj.applauds }}
         </view>
@@ -159,6 +188,8 @@
 </template>
 
 <script>
+import mixin from '../mixin';
+import UserIcon from '@/globalComponents/ApiotUserhead/components/UserIcon';
 import { Decrypt, Encrypt } from '@/utils';
 import {
   getArticle,
@@ -170,21 +201,37 @@ import {
 } from '@/api/moreInfor';
 
 export default {
+  mixins: [mixin],
   data() {
     return {
       articleId: 0, // 文章的id
       detailsObj: {}, // 这条数据的详情
       comListArr: [], // 评论数组
       title: '资讯详情',
-      content: '<div>asd阿斯顿发斯蒂芬</div>',
+      content: '<div></div>',
       value: '',
       shareShow: false, // 分享弹框
       inputShow: false, // 输入框弹框
-      code: '' // 数据源编码
+      code: '', // 数据源编码
+      isShowComments: ''
     };
   },
-  components: {},
+  components: {
+    UserIcon
+  },
   computed: {
+    boxHeight() {
+      const { navbarHeight, statusBar } = this.$store.state.base.systemInfo;
+      let height = `calc(100vh - ${navbarHeight}px - ${statusBar}px - 50px)`;
+      if (!this.isNoShare && this.isComment) {
+        height = '100vh';
+      }
+      console.log(height);
+      // #ifdef MP-ALIPAY
+      height = 'calc(100vh - 50px)';
+      // #endif
+      return height;
+    },
     getUserId() {
       return this.$store.state.userCenter.userInfo.id;
     },
@@ -201,16 +248,44 @@ export default {
   },
   watch: {},
   mounted() {
-    this.getArticle();
+    console.log(this.detailsObj);
+    this.getArticle(1);
+    // #ifdef MP-ALIPAY
+    uni.setNavigationBarTitle({
+      title: this.title
+    });
+    // #endif
   },
+  // 微信小程序
+  // #ifdef MP-WEIXIN
+  onShareAppMessage() {
+    const shareUrl = `/MoreInfor/components/InforDetails/index?id=${Encrypt(
+      String(this.articleId)
+    )}&isVal=${Encrypt('1')}&code=${Encrypt(this.detailsObj.code || this.code)}`;
+    return {
+      title: this.detailsObj.title, // 分享的名称
+      path: shareUrl,
+      mpId: 'wx41888c928ebfd1e5' // 此处配置微信小程序的AppId
+    };
+  },
+  // 分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: this.detailsObj.title,
+      query: `id=${Encrypt(String(this.articleId))}&isVal=${Encrypt('1')}&code=${Encrypt(
+        this.detailsObj.code || this.code
+      )}`
+    };
+  },
+  // #endif
   methods: {
-    // 获取文章内容
-    async getArticle() {
+    // 获取文章内容  flag：点击浏览+1
+    async getArticle(flag = 2) {
       let res = {};
       if (this.isNoShare) {
         res = await getArticle({
           id: this.articleId,
-          flag: 1 // 订阅次数
+          flag // 订阅次数
         });
       } else {
         res = await getArticleByShare({
@@ -218,8 +293,8 @@ export default {
         });
       }
       console.log(res);
-      this.detailsObj = res;
-      this.comListArr = res.comList;
+      this.detailsObj = res || {};
+      this.comListArr = res.comList || [];
     },
     // 新增评论
     async handleBlur(e) {
@@ -234,10 +309,19 @@ export default {
       this.value = '';
       this.inputShow = false;
       this.getArticle();
-      this.$refs.uToast.show({
-        type: 'success',
-        message: '评论成功'
-      });
+      if (this.detailsObj.audit === 1) {
+        this.$refs.uToast.show({
+          type: 'warning',
+          message: '评论显示待通过'
+        });
+      } else {
+        this.$refs.uToast.show({
+          type: 'success',
+          message: '评论成功'
+        });
+      }
+
+      console.log(this.detailsObj.audit);
     },
     // 删除评论
     async handleDelete(id) {
@@ -279,25 +363,17 @@ export default {
     // 分享
     async handleShare(type) {
       this.shareShow = false;
-      let fixedUrl = '';
-      // #ifdef APP-PLUS
-      fixedUrl = '/onlineApp/MoreInfor/components/InforDetails/index';
-      // #endif
-
-      // #ifdef H5
-      fixedUrl = '/onlineApp/MoreInfor/components/InforDetails/index';
-      // #endif
+      const fixedUrl = '/onlineApp/MoreInfor/components/InforDetails/index';
 
       const url = this.$apiot.getComUrlByToken(
         fixedUrl,
         {
           id: Encrypt(String(this.articleId)),
           isVal: Encrypt('1'),
-          code: Encrypt(this.detailsObj.code)
+          code: Encrypt(this.detailsObj.code || this.code)
         },
         false
       );
-
       const _this = this;
       // #ifdef APP-PLUS
       let scene = 'WXSceneSession';
@@ -314,32 +390,34 @@ export default {
       } else {
         provider = 'weixin';
       }
-      console.log(url);
+      const summary = (this.detailsObj.txt && this.detailsObj.txt.slice(0, 30)) || '';
       uni.share({
         provider,
         scene,
         type: 0,
         href: url, // 分享跳转的链接
         title: this.detailsObj.title, // 分享标题
-        summary: this.detailsObj.txt, // 分享内容文字
+        summary, // 分享内容文字
         imageUrl: this.detailsObj.articleCover
       });
       // #endif
 
-      // #ifdef H5
+      // #ifndef APP-PLUS
       await this.$refs.apiotModal
         .showAsyncModal({
-          content: `链接: ${url}`
+          content: `链接: ${this.detailsObj.title.slice(0, 14)}...`
         })
         .then((v) => {
           uni.setClipboardData({
             showToast: false,
             data: url,
             success() {
+              // #ifndef MP-WEIXIN
               _this.$refs.uToast.show({
                 type: 'success',
                 message: '复制成功'
               });
+              // #endif
             }
           });
         });
@@ -350,24 +428,32 @@ export default {
     this.articleId = Decrypt(option.id);
     this.isShowComments = Decrypt(option.isVal); // 是分享过的
     this.code = Decrypt(option.code);
+
+    // #ifdef MP-WEIXIN
+    wx.showShareMenu({
+      withShareTicket: true,
+      // 设置下方的Menus菜单，才能够让发送给朋友与分享到朋友圈两个按钮可以点击
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
+    // #endif
   }
 };
 </script>
 <style lang='scss' scoped>
 @import './index.scss';
-@import url('@/components/u-parse/u-parse.css');
+@import '../u-parse/u-parse.css';
 
 .inforDetails {
   width: 100%;
   height: 100vh;
   &__box {
-    height: calc(100vh - 90rpx - 98rpx);
+    // height: calc(100vh - 90rpx - 98rpx);
     overflow: auto;
     display: flex;
     flex-direction: column;
   }
   &__box1 {
-    height: calc(100vh - 90rpx);
+    // height: 100vh;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -403,11 +489,26 @@ export default {
   }
   &__case {
     display: flex;
-    justify-content: space-between;
     margin-top: 20rpx;
     font-size: 24rpx;
     color: #aaaaaa;
     line-height: 33rpx;
+    align-items: center;
+    &--icon {
+      ::v-deep {
+        .userIcon__circle {
+          font-size: 30rpx !important;
+        }
+      }
+    }
+    &--userName {
+      flex: 1;
+      margin-left: 16rpx;
+      view:first-child {
+        font-size: 26rpx;
+        color: #333333;
+      }
+    }
   }
   &__val {
     margin-top: 40rpx;
@@ -438,6 +539,14 @@ export default {
       color: #444444;
       margin-right: 20rpx;
     }
+    &--icon {
+      position: relative;
+      .appIcon-yidianzan {
+        position: absolute;
+        color: #a5c7fb;
+        opacity: 0.3;
+      }
+    }
     .beenLiked {
       background: #e5f0ff;
       border: 2rpx solid #4689f5;
@@ -465,13 +574,12 @@ export default {
     display: flex;
     &--icon {
       margin-top: 33rpx;
-      font-size: 48rpx;
       margin-right: 13rpx;
-    }
-    &--userImg {
-      width: 48rpx;
-      height: 48rpx;
-      border-radius: 50%;
+      ::v-deep {
+        .userIcon__circle {
+          font-size: 24rpx !important;
+        }
+      }
     }
     &--dec {
       flex: 1;
@@ -515,17 +623,20 @@ export default {
   &__box {
     position: relative;
     .appIcon-yidianzan {
+      position: absolute;
+      color: #b5d0fb;
+      opacity: 0.3;
+    }
+    .basecolor {
       color: #4689f5;
     }
     &--val {
       position: absolute;
       top: -10rpx;
       right: 0rpx;
-
       background: #4689f5;
       border-radius: 14rpx;
       border: 2rpx solid #ffffff;
-
       font-size: 20rpx;
       font-family: PingFangSC-Semibold, PingFang SC;
       font-weight: 600;
@@ -565,6 +676,7 @@ export default {
     i {
       width: 50rpx;
       height: 50rpx;
+      font-size: 50rpx;
     }
   }
   &__font {

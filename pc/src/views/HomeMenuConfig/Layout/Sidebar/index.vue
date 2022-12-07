@@ -280,6 +280,7 @@ export default {
                 borderColor: '#4689F5',
                 borderWidth: 1,
                 borderStyle: 'solid',
+                externalUrl: ''
               },
               dataConfig: {
                 staticValue: '{"text":"文本组件","value":"文本组件2"}', // 静态值
@@ -1317,7 +1318,7 @@ export default {
                 legendFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
                 legendFontWeight: 'normal', // 图例文字粗细
                 legendFontSize: 12, // 图例文字大小
-                legendColor: '#FFF', // 图例字体颜色
+                legendColor: '#333333', // 图例字体颜色
                 legendOrient: 'horizontal', // 图例布局， 默认水平，选项水平， 垂直
                 labelPosition: 'inside', // 标注位置，内部外部
                 labelColor: 'rgba(255, 255, 255, 0.7)', // 标注字体颜色

@@ -65,6 +65,14 @@
       </u-list-item>
     </u-list>
     <nodata v-else style="min-height: 70vh"></nodata>
+    <view v-if="videoPreviewUrl" class="previewVideo" @click="cancelVideo">
+      <video
+        :src="videoPreviewUrl"
+        autoplay="true"
+        controls
+        object-fit="contain"
+      ></video>
+    </view>
   </div>
 </template>
 
@@ -101,7 +109,9 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      videoPreviewUrl: ''
+    };
   },
   components: { nodata },
   computed: {
@@ -144,6 +154,9 @@ export default {
   watch: {},
   mounted() {},
   methods: {
+    cancelVideo() {
+      this.videoPreviewUrl = '';
+    },
     handleMoreOper(v) {
       this.$emit('update:isShowMoreOper', true);
       this.$emit('update:currentObj', v);
@@ -177,8 +190,15 @@ export default {
         // 预览
         this.visitRecordFun(v);
         const { name, url } = v;
+        let imgArr = [];
+        let index = -1;
+        if (v.treeType === 3) {
+          imgArr = JSON.parse(JSON.stringify(this.dataArr)).filter((item) => item.treeType === 3);
+          index = imgArr.findIndex((item) => item.id === v.id) || -1;
+        }
         this.$apiot.preview.previewFile({
-          file: [v],
+          file: imgArr.length === 0 ? [v] : imgArr,
+          currentIndex: index,
           isWatermark: this.isWatermark,
           fileParamUrl: 'url',
           fileParamName: 'name'
@@ -186,7 +206,7 @@ export default {
         const suffix = this.$apiot.preview.getFileSuffix(name);
         const type = this.$apiot.preview.getFileType(suffix);
         if (type === 'video') {
-          this.$emit('update:videoPreviewUrl', this.$apiot.getComUrlByToken(url));
+          this.videoPreviewUrl = this.$apiot.getComUrlByToken(url);
         }
       }
     },
@@ -310,6 +330,22 @@ $listHeight: 140rpx;
   .source_3 {
     background: #ebfcf7;
     color: #10b98a;
+  }
+}
+.previewVideo {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  video {
+    width: 100%;
   }
 }
 </style>

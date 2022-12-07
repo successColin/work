@@ -139,7 +139,7 @@
           >
           </el-switch>
         </p>
-        <div class="numberLength m-b-4">
+        <!-- <div class="numberLength m-b-4">
           最大长度限制
           <div class="numberLength__inputBox">
             <el-input-number
@@ -151,12 +151,30 @@
               label="描述文字"
             ></el-input-number>
           </div>
+        </div> -->
+        <div class="numberLength">
+          长度限制
+          <div class="numberLength__inputBox">
+            <apiot-input
+              class="numberLength__input"
+              v-onlyNumber="1"
+              v-model="lengthMin"
+              @blur="minBlur"
+            ></apiot-input>
+            -
+            <apiot-input
+              class="numberLength__input"
+              v-onlyNumber="1"
+              v-model="lengthMax"
+              @blur="maxBlur"
+            ></apiot-input>
+          </div>
         </div>
         <div class="numberLength">
           显示行数
           <div class="numberLength__inputBox">
             <el-input-number
-              class="numberLength__input"
+              class="numberLength__input1"
               v-model="activeObj.maxRow"
               :controls="false"
               :precision="0"
@@ -185,6 +203,7 @@ export default {
   mixins: [propertyMixin],
   data() {
     return {
+      lengthMin: '',
       lengthMax: ''
     };
   },
@@ -227,6 +246,70 @@ export default {
       this.activeObj.dataSource.id = table.id;
       this.activeObj.dataSource.columnName = table.columnName;
       this.activeObj.dataSource.columnTypeDict = table.columnTypeDict;
+    },
+    minBlur() {
+      if (this.lengthMin && this.lengthMax && this.lengthMin >= this.lengthMax) {
+        this.lengthMin = '';
+      }
+      this.setMaxAndMinRule();
+    },
+    maxBlur() {
+      if (this.lengthMin && this.lengthMax && this.lengthMin >= this.lengthMax) {
+        this.lengthMax = '';
+      }
+      this.setMaxAndMinRule();
+    },
+    setMaxAndMinRule() {
+      const ruleArr = this.fatherObj.rules[this.activeObj.compId];
+      let str = '';
+      if (this.lengthMin) {
+        str = `长度大于${this.lengthMin}个字符`;
+      }
+      if (this.lengthMax) {
+        str = `长度小于${this.lengthMax}个字符`;
+      }
+      if (this.lengthMin && this.lengthMax) {
+        str = `长度在 ${this.lengthMin} 到 ${this.lengthMax} 个字符`;
+      }
+      const ruleObj = {
+        flag: 'maxAndMin',
+        min: +this.lengthMin,
+        max: +this.lengthMax,
+        message: str,
+        trigger: 'change'
+      };
+      // console.log(ruleObj);
+      // if (!this.lengthMin || !this.lengthMax) {
+      //   return;
+      // }
+      if (ruleArr && ruleArr.length !== 0) {
+        const index = ruleArr.findIndex((item) => item.flag === 'maxAndMin');
+        if (index === -1 && this.activeObj.lengthLimit) {
+          ruleArr.push(ruleObj);
+        }
+        if (index !== -1 && !this.activeObj.lengthLimit) {
+          ruleArr.splice(index, 1);
+        }
+        if (index !== -1 && this.activeObj.lengthLimit) {
+          ruleArr.splice(index, 1, ruleObj);
+        }
+      } else if (this.activeObj.lengthLimit) {
+        this.$set(this.fatherObj.rules, this.activeObj.compId, [ruleObj]);
+      }
+    }
+  },
+  watch: {
+    lengthMin(v) {
+      this.activeObj.lengthLimit = `${v}-${this.lengthMax}`;
+      if (!v && !this.lengthMax) {
+        this.activeObj.lengthLimit = '';
+      }
+    },
+    lengthMax(v) {
+      this.activeObj.lengthLimit = `${this.lengthMin}-${v}`;
+      if (!v && !this.lengthMin) {
+        this.activeObj.lengthLimit = '';
+      }
     }
   }
 };
@@ -261,6 +344,11 @@ export default {
     top: 0;
   }
   &__input {
+    width: 63px;
+    height: 32px;
+    border-radius: 4px;
+  }
+  &__input1 {
     width: 140px;
     height: 32px;
     border-radius: 4px;

@@ -65,7 +65,7 @@ export default {
         height: 360
       },
       toolbarConfig: {
-        toolbarKeys: ['headerSelect', '|', 'bold', 'underline', 'italic', 'color', 'bgColor']
+        toolbarKeys: ['bold', 'underline', 'italic', 'color', 'bgColor']
       }
     };
   },

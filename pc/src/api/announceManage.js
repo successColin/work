@@ -2,8 +2,8 @@
  * @Description: 消息模板
  * @Author: sss
  * @Date: 2021-07-28 11:13:03
- * @Last Modified by: sss
- * @Last Modified time: 2021-08-05 11:14:07
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-12-05 16:12:04
  */
 
 import FetchData from './axiosConfig';
@@ -95,7 +95,7 @@ export function listAnnounceGroup(params) {
 }
 
 // 分组切换位置
-export function switchAnnounceLocation(data) {
+export function switchAnnounceGroupLocation(data) {
   return FetchData.request({
     url: 'system/announce/switchLocation',
     data,
@@ -107,6 +107,41 @@ export function switchAnnounceLocation(data) {
 export function getAnnounceUser(params) {
   return FetchData.request({
     url: 'system/announce/pageAnnounceUser',
+    params,
+  });
+}
+
+// 公告切换位置
+export function switchAnnounceLocation(data) {
+  return FetchData.request({
+    url: 'system/announce/switchLocationAnnounce',
+    data,
+    method: 'post',
+  });
+}
+
+// 文章评论列表接口
+export function getPageSysCommentVo(params) {
+  return FetchData.request({
+    url: 'system/article/pageSysCommentVo',
+    params,
+  });
+}
+
+// 修改文章评论状态接口
+export function updateCommentStatus(data) {
+  return FetchData.request({
+    url: 'system/article/updateCommentStatus',
+    data,
+    method: 'post',
+  });
+}
+
+// 文章评论删除接口
+export function deleteComment(params) {
+  return FetchData.request({
+    url: 'system/article/deleteComment',
+    method: 'delete',
     params,
   });
 }

@@ -21,120 +21,139 @@
         ref="curData"
         class="drawer__curData"
       >
-        <!-- 输入框 -->
-        <el-form-item prop="title">
+        <!-- 文章标题 -->
+        <el-form-item prop="title" label="文章标题">
           <apiot-input
             :placeholder="placeholder"
             v-model="curData.title"
-            class="drawer__curData--special"
+            class="drawer__curData--input"
           ></apiot-input>
-        </el-form-item>
-        <el-form-item class="hlaf">
-          <div class="drawer__type">
-            <div
-              class="drawer__type--box"
-              v-for="i in 3"
-              :key="i"
-              :class="[{ active: i === curData.articleType }]"
-              @click="changeType(i)"
-            >
-              <img :src="require(`../images/${i}.svg`)" />
+          <div class="drawer__curData--suspension">
+            <!-- 是否置顶 -->
+            置顶
+            <apiot-switch
+              v-model="curData.isPlacedTop"
+              :active-value="1"
+              :inactive-value="0"
+              class="m-l-8 m-r-20"
+            ></apiot-switch>
+            分享
+            <apiot-switch
+              v-model="curData.isShare"
+              :active-value="1"
+              :inactive-value="0"
+              class="m-l-6 m-r-20"
+            ></apiot-switch>
+            评论
+            <div class="m-l-6 m-r-20 commentCheck">
+              <apiot-switch
+                v-model="curData.isComment"
+                :active-value="1"
+                :inactive-value="0"
+              ></apiot-switch>
+              <el-checkbox
+                v-model="curData.audit"
+                class="m-l-12 m-r-4"
+                :true-label="1"
+                :false-label="2"
+              >
+                是否控制评论
+              </el-checkbox>
             </div>
           </div>
         </el-form-item>
-        <el-form-item
-          prop="isPlacedTop"
-          :label="$t('announce.topOrNot')"
-          class="hlaf"
-        >
-          <apiot-switch
-            v-model="curData.isPlacedTop"
-            :active-value="1"
-            :inactive-value="0"
-            class="passwordConfig__switch"
-          ></apiot-switch>
-        </el-form-item>
-        <el-form-item
-          prop="isShare"
-          :label="$t('announce.isShare')"
-          class="hlaf"
-        >
-          <apiot-switch
-            v-model="curData.isShare"
-            :active-value="1"
-            :inactive-value="0"
-            class="passwordConfig__switch"
-          ></apiot-switch>
-        </el-form-item>
-        <el-form-item
-          prop="isComment"
-          :label="$t('announce.isComment')"
-          class="hlaf"
-        >
-          <apiot-switch
-            v-model="curData.isComment"
-            :active-value="1"
-            :inactive-value="0"
-            class="passwordConfig__switch"
-          ></apiot-switch>
-        </el-form-item>
-        <el-form-item prop="articleCover" :label="$t('announce.articleCover')">
-          <el-upload
-            class="upload"
-            action=""
-            drag
-            accept=".png, .jpg,.jpeg,"
-            :on-success="uploadSuccess"
-            :before-upload="beforeUpload"
-            :http-request="doUpload"
-            :file-list="fileList"
-            list-type="picture-card"
-          >
-            <i class="iconfont icon-jiahao"></i>
-            <div
-              slot="file"
-              slot-scope="{ file }"
-              class="file"
-              @mouseenter="mouseenter(file)"
-              @mouseleave="mouseleave(file)"
+        <div class="form__line">
+          <!-- 展示风格 -->
+          <el-form-item class="hlaf" label="展示风格">
+            <el-select
+              v-model="curData.articleType"
+              popper-class="articleType"
+              class="drawer__curData--articleType"
+              @change="changeType"
             >
-              <img
-                v-show="file.url"
-                class="file__img"
-                :src="$parseImgUrl(file.url)"
-              />
-              <div class="file__progress" v-show="file.percentage !== 100">
-                <el-progress
-                  :percentage="file.percentage"
-                  :show-text="false"
-                  color="#FAB71C"
-                  type="circle"
-                ></el-progress>
-              </div>
-              <div
-                class="file__cancleUpload"
-                v-show="file.percentage !== 100"
-                @click="cancleUpload(file)"
+              <el-option
+                v-for="item in imgOption"
+                :key="item.index"
+                :value="item.index"
               >
-                <i class="iconfont icon-guanbi"></i>
-              </div>
-
-              <div
-                class="file__operateBox fontHover"
-                v-show="file.percentage === 100 && file.showOperate"
-              >
-                <el-tooltip effect="dark" content="删除" placement="top"
-                  ><i
-                    class="iconfont icon-guanbi file__operateBox--shanchu"
-                    @click.stop="delFile(file)"
-                  ></i
-                ></el-tooltip>
-              </div>
+                <img :src="require(`../images/${item.index}.svg`)" />
+                <span style="margin-left: 10px; font-size: 13px">
+                  {{ item.label }}
+                </span>
+              </el-option>
+            </el-select>
+            <div class="drawer__curData--articleTypeVal">
+              <img :src="require(`../images/${curData.articleType}.svg`)" />
+              <span style="margin-left: 10px; font-size: 13px">
+                {{ imgOption[curData.articleType - 1].label }}
+              </span>
             </div>
-          </el-upload>
-        </el-form-item>
+          </el-form-item>
+          <!-- 上传图片 -->
+          <el-form-item
+            class="hlaf"
+            prop="articleCover"
+            :label="$t('announce.articleCover')"
+          >
+            <el-upload
+              :class="`upload ${isShowUpload ? '' : 'noShowUpload'}`"
+              action=""
+              drag
+              accept=".png, .jpg,.jpeg,"
+              :on-success="uploadSuccess"
+              :on-change="uploadChange"
+              :before-upload="beforeUpload"
+              :http-request="doUpload"
+              :file-list="fileList"
+              list-type="picture-card"
+            >
+              <i class="iconfont icon-jiahao"></i>
+              <div
+                slot="file"
+                slot-scope="{ file }"
+                class="file"
+                @mouseenter="mouseenter(file)"
+                @mouseleave="mouseleave(file)"
+              >
+                <img
+                  v-show="file.url"
+                  class="file__img"
+                  :src="$parseImgUrl(file.url)"
+                />
+                <div class="file__progress" v-show="file.percentage !== 100">
+                  <el-progress
+                    :percentage="file.percentage"
+                    :show-text="false"
+                    color="#FAB71C"
+                    type="circle"
+                  ></el-progress>
+                </div>
+                <div
+                  class="file__cancleUpload"
+                  v-show="file.percentage !== 100"
+                  @click="cancleUpload(file)"
+                >
+                  <i class="iconfont icon-guanbi"></i>
+                </div>
+
+                <div
+                  class="file__operateBox fontHover"
+                  v-show="file.percentage === 100 && file.showOperate"
+                >
+                  <el-tooltip effect="dark" content="删除" placement="top"
+                    ><i
+                      class="iconfont icon-guanbi file__operateBox--shanchu"
+                      @click.stop="delFile(file)"
+                    ></i
+                  ></el-tooltip>
+                </div>
+              </div>
+            </el-upload>
+          </el-form-item>
+        </div>
+
         <!-- 富文本 -->
-        <el-form-item :label="$t('announce.announceContent')" v-if="isShow">
+        <el-form-item label="文章内容" v-if="isShow">
           <apiot-wangeditor
             ref="wangeditor"
             class="helpCenterShow"
@@ -188,6 +207,21 @@ export default {
   },
   data() {
     return {
+      isShowUpload: true,
+      imgOption: [
+        {
+          label: '大图展示',
+          index: 1
+        },
+        {
+          label: '小图展示',
+          index: 2
+        },
+        {
+          label: '三图展示',
+          index: 3
+        }
+      ],
       // 是否显示loading
       showLoading: false,
       // 视频格式
@@ -198,7 +232,8 @@ export default {
         isShare: 1,
         isComment: 1,
         articleCover: '',
-        html: ''
+        html: '',
+        audit: 2
       },
       fileList: [
         // {
@@ -240,6 +275,7 @@ export default {
     currentTableObj(v) {
       if (JSON.stringify(v) !== '{}') {
         this.curData = JSON.parse(JSON.stringify(v));
+        console.log(this.curData);
         this.curData.html = v.html || '';
         const arr = this.curData.articleCover.split(',');
         this.fileList = [];
@@ -253,7 +289,7 @@ export default {
         if (this.$refs.curData) {
           this.$refs.curData.clearValidate();
         }
-        console.log(this.curData);
+        this.uploadChange();
       }
     },
     isShow(v) {
@@ -264,6 +300,8 @@ export default {
         this.curData.isPlacedTop = 1;
         this.curData.isShare = 1;
         this.curData.isComment = 1;
+        this.curData.audit = 2;
+        this.isShowUpload = true;
         this.curData.articleCover = '';
         this.curData.html = '';
       } else if (this.$refs.curData) {
@@ -275,16 +313,11 @@ export default {
   methods: {
     // 更改类型
     changeType(i) {
-      // if (i === 3 && this.curData.articleType !== i) {
-      //   this.curData.articleCover = '';
-      //   this.fileList = [];
-      // }
-      if ([1, 2].includes(i) && this.curData.articleType === 3) {
+      if ([1, 2].includes(i) && this.fileList.length > 1) {
         this.curData.articleCover = '';
         this.fileList = [];
       }
-
-      this.curData.articleType = i;
+      this.uploadChange();
     },
     // 富文本上传接口重写
     initConfig() {
@@ -329,6 +362,18 @@ export default {
       if (file.percentage === 99) {
         file.percentage = 100;
       }
+    },
+    // 上传变化
+    uploadChange() {
+      if ([1, 2].includes(this.curData.articleType) && this.fileList.length >= 1) {
+        this.isShowUpload = false;
+        return;
+      }
+      if (this.curData.articleType === 3 && this.fileList.length >= 3) {
+        this.isShowUpload = false;
+        return;
+      }
+      this.isShowUpload = true;
     },
     // 上传之前
     beforeUpload(file) {
@@ -411,6 +456,7 @@ export default {
       if (index !== -1) {
         this.fileList.splice(index, 1);
       }
+      this.isShowUpload = true;
     },
     hideImgPreview() {
       // 关闭预览
@@ -505,14 +551,51 @@ $--videoHeight: 340px;
 .drawer {
   &__curData {
     margin: 30px 37px 0;
-    &--special {
+    &--input {
       ::v-deep {
         .el-input__inner {
-          border: 0px none !important;
-          border-bottom: 1px solid #e9e9e9 !important;
           height: 36px !important;
-          padding-left: 0px !important;
         }
+      }
+    }
+    &--suspension {
+      position: absolute;
+      right: 0;
+      top: -38px;
+      display: flex;
+      align-items: center;
+
+      font-size: 13px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #333333;
+      .commentCheck {
+        border-radius: 13px;
+        border: 1px solid #e9e9e9;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        padding: 3px 13px 3px 3px;
+        // padding: 3px;
+        // padding-right: 13px;
+      }
+    }
+    &--articleType {
+      ::v-deep {
+        .el-input__inner {
+          height: 54px !important;
+          line-height: 54px !important;
+        }
+      }
+    }
+    &--articleTypeVal {
+      display: flex;
+      align-items: center;
+      position: absolute;
+      left: 8px;
+      top: 10px;
+      img {
+        height: 38px;
       }
     }
   }
@@ -632,9 +715,6 @@ $--videoHeight: 340px;
     }
 
     .el-upload--picture-card {
-      width: 104px;
-      height: 104px;
-      line-height: 104px;
       &:hover {
         .icon-jiahao {
           color: $--color-primary;
@@ -717,6 +797,7 @@ $--videoHeight: 340px;
     }
     .hlaf {
       width: 50%;
+      position: relative;
     }
     .disabled {
       .el-upload--picture-card {
@@ -724,15 +805,20 @@ $--videoHeight: 340px;
       }
     }
     .el-upload--picture-card {
-      width: 104px;
-      height: 104px;
+      width: 54px;
+      height: 54px;
       background: #fafafa;
       border-radius: 4px;
       border: 1px dashed #e0e0e0;
     }
+    .upload,
+    .el-upload-list--picture-card {
+      display: flex;
+    }
     .el-upload-list--picture-card .el-upload-list__item {
-      width: 104px;
-      height: 104px;
+      width: 54px;
+      height: 54px;
+      margin-bottom: 0;
     }
     .el-upload:hover {
       border-color: #409eff;
@@ -756,6 +842,13 @@ $--videoHeight: 340px;
       position: absolute;
       top: 5px;
       right: 10px;
+    }
+  }
+  .noShowUpload {
+    ::v-deep {
+      .el-upload--picture-card {
+        display: none;
+      }
     }
   }
 }

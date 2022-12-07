@@ -100,14 +100,6 @@ export default {
       type: String,
       default: 'WORK_FLOW'
     },
-    sysMenuId: {
-      type: String,
-      default: null
-    },
-    compId: {
-      type: String,
-      default: ''
-    }
   },
 
   // mixins: [elementMixin],
@@ -192,7 +184,7 @@ export default {
         });
         this.isLoading = true;
         if (this.isOnlyUnread) {
-          param.hasRead = false;
+          param.hasRead = 2;
         }
         if (this.command && this.command !== 'all') {
           param.sendTime = this.getSendTime(this.command);
@@ -260,7 +252,7 @@ export default {
         this.messageArr = this.messageArr.map((item) => {
           const obj = {
             ...item,
-            hasRead: true
+            hasRead: 1
           };
           return obj;
         });
@@ -298,63 +290,6 @@ export default {
         this.gotoMenu(skipMenuConfigApp, variablesStr);
       }
     },
-    // 跳转面板
-    // doSpringPanel(panelConfig, variablesStr) {
-    //   const { curPaneObj } = panelConfig;
-    //   if (curPaneObj && curPaneObj.id) {
-    //     curPaneObj.panelFilter.forEach((item, index) => {
-    //       // 将公式值处理成固定值
-    //       const { filterTermStr, filterTermSql, filterTermType } = item;
-    //       if (filterTermType === 1) {
-    //         // 普通的过滤条件
-    //         const newFilterTermStr = this.reduceNormalFilter(filterTermStr, variablesStr);
-    //         curPaneObj.panelFilter[index].filterTermStr = newFilterTermStr
-    //           ? JSON.stringify(newFilterTermStr)
-    //           : '';
-    //       }
-    //       if (filterTermType === 2) {
-    //         // sql过滤条件
-    //         const str = this.reduceSqlFilter(filterTermSql);
-    //         curPaneObj.panelFilter[index].filterTermSql = str;
-    //       }
-    //     });
-    //     // const { panelData } = curPaneObj;
-    //     const panelFixData = {};
-    //     // if (panelData && panelData.length) {
-    //     //   panelData.forEach((item) => {
-    //     //     const {
-    //     //       field,
-    //     //       paneComp: { compId }
-    //     //     } = item;
-    //     //     panelFixData[compId] = FIXED_OBJ[field] || field;
-    //     //   });
-    //     // }
-    //     curPaneObj.panelFixData = panelFixData;
-    //     this.panelConfig = panelConfig;
-    //     // 不同路由用vuex进行管理
-    //     this.$store.commit('setMenuPanelFilter', {
-    //       sourceFlagId,
-    //       data: { ...panelObj.panelVarObj, panelFilter: panelObj.panelFilter },
-    //     });
-    //     const panel = this.reduceNormalFilter(curPaneObj, variablesStr);
-    //     this.$store.commit('setMenuPanelDataTrans', {
-    //       sourceFlagId,
-    //       data: panelObj.panelDataTrans
-    //     });
-    //     if (curPaneObj && curPaneObj.panelName) {
-    //       uni.navigateTo({
-    //         url: `/menuConfigure/index?id=${panel.id}&title=${
-    //           panel.panelName
-    //         }&isPanel=true&ejectComId=${this.compId}&parentCompId=${
-    //           this.compId
-    //         }&sourceFlagId=${
-    //           this.compId
-    //         }_${this._uid}`,
-    //         animationType: 'slide-in-right'
-    //       });
-    //     }
-    //   }
-    // },
     // 跳转面板
     gotoPanel(panelConfig, variablesStr) {
       const { curPaneObj } = panelConfig;

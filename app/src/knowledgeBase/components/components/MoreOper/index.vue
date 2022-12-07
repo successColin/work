@@ -45,6 +45,7 @@
 import SelectPeople from './components/SelectPeople';
 import RenameList from './components/RenameList';
 import MoveFile from './components/MoveFile';
+import ApiotPoint from '../../ApiotPoint';
 // 接口
 import { collectFile, updateFolder, deleteFile, cancelCollect } from '@/api/knowledgeBase';
 
@@ -84,7 +85,8 @@ export default {
   components: {
     SelectPeople,
     RenameList,
-    MoveFile
+    MoveFile,
+    ApiotPoint
   },
   computed: {
     getUserId() {

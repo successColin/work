@@ -199,11 +199,24 @@ export default {
     // console.log(this.configData);
     if (!this.isConfig) {
       this.initMoreBtnArr();
-      if (this.configData.hiddenRules && this.configData.hiddenRules.length !== 0) {
+      if (
+        this.configData.showTab &&
+        this.configData.hiddenRules &&
+        this.configData.hiddenRules.length !== 0
+      ) {
         this.$bus.$on('tabHidden', this.tabHidden);
       } else {
         this.tabsArr = this.configData.children;
-        this.showTabId = this.configData.firstShowTabId;
+
+        const index = this.tabsArr.findIndex(
+          (tab) => tab.compId === this.configData.firstShowTabId
+        );
+        if (index === -1) {
+          this.showTabId = this.tabsArr[0].compId;
+        } else {
+          this.showTabId = this.configData.firstShowTabId;
+        }
+
         this.loadedTabs = [this.showTabId];
       }
       this.$bus.$on('returnFirst', this.returnFirst);
@@ -420,7 +433,7 @@ export default {
   &__pane {
     height: 100%;
     &.showBtnsArea.inTop {
-      padding-top: 40px;
+      padding-top: 42px;
       // padding-bottom: 10px;
       position: relative;
       box-sizing: border-box;

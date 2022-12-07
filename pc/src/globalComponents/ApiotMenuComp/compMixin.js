@@ -286,7 +286,11 @@ export default {
         return true;
       }
       // 如果当前页面是自定义页面，同时不是流程的界面，按钮都有权限
-      if (this.$route.name === 'homePage' && JSON.stringify(this.showType) === '{}' && this.configData.compName === 'FormButton') {
+      if (
+        this.$route.name === 'homePage' &&
+        JSON.stringify(this.showType) === '{}' &&
+        this.configData.compName === 'FormButton'
+      ) {
         return true;
       }
       if (
@@ -306,6 +310,7 @@ export default {
           return false;
         }
       }
+
       if (this.isTableBtn) {
         if (this.canShow) {
           return true;

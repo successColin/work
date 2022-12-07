@@ -324,6 +324,7 @@ export default {
                 columnTypeDict: 0,
                 compId: ''
               }, // 字段图标来源
+              cardType: 1, // 卡片布局类型
               heightMul: 1 // 高度倍数
             },
             {
@@ -556,6 +557,55 @@ export default {
               rowNum: 10, // 分页条数
               sortArr: [], // 排序数组
               sortStr: '' // 排序字符串
+            },
+            {
+              name: '卡片列表',
+              compType: 1010,
+              propertyCompName: 'CardTableConfig',
+              imgUrl: 'areaComp/CardTable.svg',
+              compId: createUnique(),
+              compName: 'CardTable',
+              pageType: 1,
+              shouldTab: true,
+              areaType: 1,
+              showTitle: false, // 显示标题
+              canChangeName: true, // 标记名字是否可以变更，用于组件树上名字的替换
+              tableInfo: {
+                tableName: '',
+                id: 0,
+                nameAlias: ''
+              },
+              relateTableArr: [],
+              relateTableIndex: 0,
+              children: [],
+              filterTermType: 1, // 1 是普通 2是sql
+              filterTermStr: '', // 普通字符串
+              filterTermSql: '', // sql字符串
+              termParams: '', // 过滤条件需要的组件参数id
+              canOperate: false, // 是否启用操作列
+              shouldInit: true, // 是否初始化
+              needPermissions: true,
+              reloadArea: [], // 要刷新的区域
+              isTree: false, // 是否是树区
+              hasPagination: true, // 是否启用分页
+              rowNum: 10, // 分页条数
+              sortArr: [], // 排序数组
+              sortStr: '', // 排序字符串
+              relateType: 1, // 弹窗类型 1是面板 2是菜单
+              dialogName: 'PanelDialog', // 弹窗风格
+              dialogTitle: '', // 弹窗名称
+              hasCardIcon: false, // 是否有卡片图标
+              iconFrom: 1, // 图标来源
+              iconId: '', // 卡片图标来源的组件id
+              iconColorId: '', // 卡片图标颜色来源的组件id,
+              iconColumn: {
+                columnName: '',
+                id: '',
+                columnTypeDict: 0,
+                compId: ''
+              }, // 字段图标来源
+              cardType: 1, // 卡片布局类型
+              heightMul: 1 // 高度倍数
             }
           ]
         }
@@ -717,6 +767,7 @@ export default {
               width: '100%',
               tableWidth: '0.1',
               shouldRequired: false,
+              lengthLimit: '', // 长度限制
               maxlength: 1000, // 最大长度
               maxRow: 3, // 最大行数
               submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
@@ -740,6 +791,7 @@ export default {
               placeholder: '请选择数据',
               showLabelTitle: true, // 是否显示label的标题
               helpInfo: '', // 帮助信息
+              dataSourceType: 1, // 数据源类型
               enableMultiColumn: false, // 是否多选字段
               labelNotChange: false, // label 不可更改
               enableDict: false, // 是否字典值
@@ -774,7 +826,8 @@ export default {
               canReadonly: false,
               width: '50%',
               tableWidth: '0.1',
-              alignStyle: 1, // 1 是左对齐 2右对齐
+              alignStyle: 1, // 1 是左对齐 2右对齐 3居中
+              ellipsis: true, // 是否溢出隐藏
               font: {
                 color: '#333333', // 字体颜色
                 size: 13, // 字体大小
@@ -875,7 +928,7 @@ export default {
               propertyCompName: 'TextTipConfig',
               labelName: 'text',
               showLabelTitle: true, // 是否显示label的标题
-              defaultValueType: 1, // 1 是固定值 2 是公式
+              defaultValueType: 1, // 1 是固定值 2 是公式alue
               fixedContent: '', // 固定值字符串
               formulaContent: '', // 公式字符串
               singleStatus: 1,
@@ -1194,7 +1247,7 @@ export default {
             {
               name: '级联',
               areaType: 1, // 表示内容区
-              imgUrl: 'highComp/PapersUpload.svg',
+              imgUrl: 'highComp/Cascade.svg',
               compType: 25,
               compId: createUnique(),
               compName: 'Cascade',
@@ -1257,7 +1310,7 @@ export default {
             {
               name: '轮播图',
               areaType: 1,
-              imgUrl: 'baseComp/DividingLine.svg',
+              imgUrl: 'baseComp/Carousel.svg',
               compType: 26,
               compId: createUnique(),
               compName: 'Carousel',
@@ -1276,7 +1329,7 @@ export default {
             {
               name: '步骤条',
               areaType: 1,
-              imgUrl: 'baseComp/DividingLine.svg',
+              imgUrl: 'baseComp/Steps.svg',
               compType: 27,
               compId: createUnique(),
               compName: 'Steps',
@@ -1373,7 +1426,7 @@ export default {
               dragTable: true,
               showLabelTitle: true, // 是否显示分割线的标题
               areaType: 1,
-              imgUrl: 'highComp/Webview.svg',
+              imgUrl: 'highComp/UserComp.svg',
               compType: 28,
               compId: createUnique(),
               compName: 'UserComp',
@@ -1385,6 +1438,7 @@ export default {
               tableWidth: '0.1',
               singleStatus: 1,
               dropDownType: 2,
+              alignStyle: 1,
               dataSource: {
                 relateName: '主表', // 关系名称
                 tableName: '', //  表名
@@ -1414,6 +1468,35 @@ export default {
               shouldInPost: true, // 是否启用按职位选择
               canShow: true,
               canReadonly: false,
+              shouldRequired: false,
+              submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
+            },
+            {
+              name: '定位',
+              areaType: 1, // 表示内容区
+              imgUrl: 'baseComp/MultiLineText.svg',
+              compType: 29, // 29
+              compId: createUnique(),
+              compName: 'ApiotPosition',
+              propertyCompName: 'ApiotPositionConfig',
+              labelName: '多行文本',
+              placeholder: '请输入多行文本',
+              helpInfo: '',
+              dataSource: {
+                relateName: '主表',
+                tableName: '',
+                columnName: '',
+                columnTypeDict: 0,
+                id: 0,
+                alias: '',
+                dictObj: null // 字典表数据
+              },
+              singleStatus: 1,
+              defaultValueType: 1, // 1 固定值 2 公式
+              canShow: true,
+              canReadonly: false,
+              width: '100%',
+              tableWidth: '0.1',
               shouldRequired: false,
               submitType: 1 // 1 始终提交 2 仅显示时提交 3 始终不提交
             }
@@ -1663,20 +1746,6 @@ export default {
         return false;
       }
       // console.log(component, dragElement, relateElement);
-      // 能否拖入表单去
-      if (component.$attrs.isForm) {
-        if (dragElement.noDragForm) {
-          return false;
-        }
-        return true;
-      }
-      // 能否拖入查询区
-      if (component.$attrs.isQuery) {
-        if (dragElement.dragQuery) {
-          return true;
-        }
-        return false;
-      }
       // 能否拖入搜索框
       if (dragElement.canSearch) {
         if (component.$attrs.canSearch) {
@@ -1691,6 +1760,21 @@ export default {
         }
         return false;
       }
+      // 能否拖入表单去
+      if (component.$attrs.isForm) {
+        if (dragElement.noDragForm) {
+          return false;
+        }
+        return true;
+      }
+      // 能否拖入查询区
+      if (component.$attrs.isQuery) {
+        if (dragElement.dragQuery) {
+          return true;
+        }
+        return false;
+      }
+
       // 能否拖入卡片区
       if (component.$attrs.isCard) {
         if (dragElement.dragCard) {
@@ -1767,7 +1851,7 @@ export default {
         // pc 端
         if (!component.$attrs.isSidebar) {
           // 不是侧边 不是表单 不是表格 不是树表 不允许拖进
-          if (![1000, 1001, 1006, 1008, 1009].includes(dragElement.compType)) {
+          if (![1000, 1001, 1006, 1008, 1009, 1010].includes(dragElement.compType)) {
             return false;
           }
         } else {

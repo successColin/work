@@ -162,7 +162,7 @@
       </div>
       <div
         class="contentConfig__box"
-        v-if="getCardArea.children.length && !isSelect"
+        v-if="getCardArea.children.length && !isSelect && false"
       >
         <h2>包含组件</h2>
         <draggable
@@ -337,6 +337,24 @@
           :notShowSys="true"
           @selectRes="selectMultiColumn"
         ></filterable-input>
+      </div>
+      <div
+        class="contentConfig__box"
+        v-if="
+          getCurrentTab.hasCardIcon &&
+          getCurrentTab.iconFrom === 2 &&
+          $route.query.isApp === '1'
+        "
+      >
+        <h2>卡片布局类型</h2>
+        <el-select
+          v-model="getCurrentTab.cardType"
+          placeholder="请选择高度"
+          class="contentConfig__select"
+        >
+          <el-option label="左右布局" :value="1"></el-option>
+          <el-option label="上下布局" :value="2"></el-option>
+        </el-select>
       </div>
       <div
         class="contentConfig__box"
@@ -951,7 +969,7 @@ export default {
         this.activeObj.pageType === 2
           ? this.activeObj.children[1].children
           : this.activeObj.children[0].children;
-      const obj = arr.find((comp) => comp.tableCompName === 'OperateCol');
+      const obj = arr.find((comp) => comp.compName === 'BtnsArea');
       if (obj) {
         const res = obj.children.find((btn) => this.hasTriggerComp[btn.compId]);
         if (res) {

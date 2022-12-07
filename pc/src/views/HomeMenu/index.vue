@@ -20,17 +20,28 @@
       <div class="previewWrap" :style="getStylesBgUrl()">
         <div class="contentBox">
           <el-skeleton v-if="loading" :rows="14" animated />
+<!--          <component-->
+<!--            :transitionScaleX="transitionScaleX"-->
+<!--            :transitionScaleY="transitionScaleY"-->
+<!--            :config="configItem"-->
+<!--            :is="configItem.componentName"-->
+<!--            v-for="(configItem, i) in filterList"-->
+<!--            :key="`${configItem.componentId}_${i}`"-->
+<!--            :metaDataList="metaDataList"-->
+<!--            :updateState="updateState"-->
+<!--            :otherParams="otherParams"-->
+<!--            :elementData="elementData"-->
+<!--          ></component>-->
           <component
-            :transitionScaleX="transitionScaleX"
-            :transitionScaleY="transitionScaleY"
-            :config="configItem"
-            :is="configItem.componentName"
-            v-for="(configItem, i) in filterList"
-            :key="`${configItem.componentId}_${i}`"
-            :metaDataList="metaDataList"
-            :updateState="updateState"
-            :otherParams="otherParams"
-            :elementData="elementData"
+              :transitionScaleX="transitionScaleX"
+              :transitionScaleY="transitionScaleY"
+              :config="configItem"
+              :is="configItem.componentName"
+              v-for="(configItem, i) in filterList"
+              :key="`${configItem.componentId}_${i}`"
+              :metaDataList="metaDataList"
+              :updateState="updateState"
+              :otherParams="otherParams"
           ></component>
         </div>
         <CScreenBullet
@@ -313,7 +324,7 @@ export default {
     getInitFilterParams(arr) {
       const newArr = cloneDeep(arr);
       this.list = newArr.filter((item) => item.isShow); // 只展示显示的控件
-      this.fetchElementData(this.list);
+      // this.fetchElementData(this.list);
       this.$nextTick(() => {
         this.setDrawContent();
         this.isShow = false;
@@ -333,7 +344,6 @@ export default {
       if (!paramArr.length) return;
       const res = await fetchElementData({ elementDtos: paramArr });
       this.elementData = res;
-      // fetchElementData
     },
     getParameters(config) {
       const { id, dataType, SqlDataConfig: {
@@ -374,7 +384,6 @@ export default {
       const { showType, width: dWidth, height: dHeight } = this.bgConfig;
       const widthScalc = availWidth / (dWidth + 10 || 1920);
       const heightScalc = availHeight / (dHeight || 1080);
-      console.log(availWidth, availHeight, this.bgConfig, widthScalc, heightScalc);
       if (showType === 1) {
         this.transitionScaleX = widthScalc;
         this.transitionScaleY = heightScalc;
@@ -388,7 +397,6 @@ export default {
         this.transitionScaleY = heightScalc;
       }
       if (showType === 4) {
-        // const transitionScale = widthScalc > heightScalc ? heightScalc : widthScalc;
         this.transitionScaleX = 1;
         this.transitionScaleY = 1;
       }

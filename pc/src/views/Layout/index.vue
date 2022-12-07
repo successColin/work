@@ -99,7 +99,7 @@ export default {
     );
   },
   mounted() {
-    this.getUserCenterInfo();
+    // this.getUserCenterInfo();
     this.$bus.$on('showMenu', this.showMenu);
     this.$bus.$on('refresh', this.refresh);
     if (this.$store.getters.getMenuType === 2) {

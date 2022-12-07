@@ -192,7 +192,7 @@
           <el-button
             :class="[{ active: activeObj.singleStatus === 2 }]"
             @click="activeObj.singleStatus = 2"
-            >只读</el-button
+            >禁用</el-button
           >
           <el-button
             v-if="false"
@@ -1084,7 +1084,7 @@ export default {
       });
       return arr;
     },
-    // 是不是树的按钮
+    // 是不是树的按钮或者cardTable的按钮
     isTreeBtn() {
       if (
         this.getParentObj(3) &&

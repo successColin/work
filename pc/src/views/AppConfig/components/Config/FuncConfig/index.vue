@@ -146,6 +146,7 @@ export default {
           compName: 'AppMenu',
           configCompName: 'DeployMenuConfig',
           id: 101,
+          parentId: 0,
           menuName: '我的',
           routeName: '',
           icon: {

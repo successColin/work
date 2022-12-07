@@ -177,6 +177,10 @@ export default {
     this.getTime();
     this.init();
   },
+  activated() {
+    this.getTime();
+    this.init();
+  },
   methods: {
     async init() {
       if (this.timer) {
@@ -218,6 +222,11 @@ export default {
     // eslint-disable-next-line no-unused-expressions
     this.timer && clearTimeout(this.timer);
     this.timer = null;
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
   name: 'SingleLineText'
 };

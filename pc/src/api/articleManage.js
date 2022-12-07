@@ -2,8 +2,8 @@
  * @Description: 文章管理
  * @Author: sss
  * @Date: 2021-07-28 11:13:03
- * @Last Modified by: cmk
- * @Last Modified time: 2021-08-05 11:14:07
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-11-29 17:08:26
  */
 
 import FetchData from './axiosConfig';
@@ -106,6 +106,14 @@ export function batchDeleteArticle(params) {
   return FetchData.request({
     url: 'system/article/batchDeleteArticle',
     method: 'delete',
+    params,
+  });
+}
+
+// 查看评论
+export function getArticle(params) {
+  return FetchData.request({
+    url: 'system/article/getArticle',
     params,
   });
 }

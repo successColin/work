@@ -1,4 +1,5 @@
 import { dynamicGetData } from '@/api/design';
+import { formatDate } from '_u/utils';
 
 /**
  * @name: common
@@ -23,6 +24,57 @@ export const supplementaryColor = (ln, cn) => {
     }
   }
   return supplementaryColorArr;
+};
+
+// 常规的公式
+export const getVariableValue = (varKey) => {
+  const roleIds = window.vue.$store.state.userCenter.userInfo.roleIds || [];
+  const { name } = window.vue.$route;
+  console.log(name);
+  switch (varKey) {
+    case '[GET_USER_ID]()':
+      return window.vue.$store.state.userCenter.userInfo.id;
+    case '[GET_ORG_ID]()':
+      return window.vue.$store.state.userCenter.userInfo.orgId;
+    case '[GET_ROLES_ID]()':
+      return roleIds.join(',');
+    case '[GET_DATE]()':
+      return formatDate(new Date(), 'yyyy-MM-dd');
+    case '[GET_DATETIME]()':
+      return formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
+    case '[GET_YEAR]()':
+      return new Date().getFullYear();
+    case '[GET_MONTH]()':
+      return new Date().getMonth();
+    case '[GET_WEEK]()':
+      return new Date().getDay();
+    case '[GET_DAY]()':
+      return new Date().getDate();
+    case '[GET_TIMESTAMP]()':
+      return new Date().getTime();
+    case '[GET_MENU_ID]()':
+      return window.vue.$route.query.id;
+    default: return null;
+  }
+};
+
+// 判断是否有公式的值
+export const reduceVariableConfig = (arr = []) => {
+  const newArr = arr.reduce((data, pre) => {
+    const { valueType = 1, value, name } = pre;
+    if (valueType === 1 && name) {
+      return data.concat([{ value, name }]);
+    }
+    if (valueType === 2 && name) {
+      const newValue = getVariableValue(value);
+      return data.concat({
+        name,
+        value: newValue
+      });
+    }
+    return data;
+  }, []);
+  return newArr;
 };
 
 export const changeDataConfig = async ({
@@ -65,8 +117,7 @@ export const changeDataConfig = async ({
     dataConfig.SQLFilterResponse = dataConfig.SQLResponse;
   } else if (key === 'enableSQLFilter' && value && objKey === 'SqlDataConfig' && dataConfig.SQLDataFilterId && dataConfig.SQLFilterFun) {
     // eslint-disable-next-line no-new-func
-    const fun = new Function(`'use strict';
-                  return ${dataConfig.SQLFilterFun}`);
+    const fun = new Function(`'use strict';return ${dataConfig.SQLFilterFun}`);
     let result;
     try {
       result = fun()(JSON.parse(dataConfig.SQLResponse)) || '{}';
@@ -88,45 +139,6 @@ export const changeDataConfig = async ({
       dataSourceId
     };
   }
-  if (objKey === 'apiDataConfig' && ['apiUrl', 'requestType', 'requestParams', 'requestHeader'].includes(key)) {
-    const params = {
-      dataJson: JSON.stringify(newOObj),
-      dataType: 2
-    };
-    try {
-      const data = await dynamicGetData(params);
-      let res = data[0].response || '{}';
-      try {
-        JSON.parse(res);
-      } catch (e) {
-        res = JSON.stringify({
-          isErr: true,
-          message: res
-        });
-      }
-      newOObj.apiResponse = res || '{}';
-      newOObj.apiFilterResponse = res || '{}';
-      const {
-        apiDataFilterId,
-        enableApiFilter,
-        apiFilterFun
-      } = newOObj;
-      if (apiDataFilterId && enableApiFilter && apiFilterFun) {
-        // eslint-disable-next-line no-new-func
-        const fun = new Function(`return ${apiFilterFun}`);
-        let result;
-        try {
-          result = fun()(JSON.parse(res));
-        } catch (e) {
-          result = JSON.parse(res);
-        }
-        newOObj.apiFilterResponse = JSON.stringify(result) || '{}';
-      }
-    } catch (e) {
-      const { data } = e;
-      newOObj.apiResponse = JSON.stringify(data);
-    }
-  }
   if (
     objKey === 'SqlDataConfig'
     &&
@@ -142,8 +154,9 @@ export const changeDataConfig = async ({
       dataJson: JSON.stringify(newOObj),
       dataType: 3
     };
-    if (newOObj.enableDataManage) {
-      params.varJson = JSON.stringify(newOObj.variableConfig || []);
+    if (newOObj.enableDataManage && newOObj.variableConfig.length) {
+      const reduceVariableArr = reduceVariableConfig(newOObj.variableConfig);
+      params.varJson = JSON.stringify(reduceVariableArr || []);
     }
     try {
       let data = await dynamicGetData(params);
@@ -152,6 +165,7 @@ export const changeDataConfig = async ({
       }
       newOObj.SQLResponse = JSON.stringify(data) || '{}';
       newOObj.SQLFilterResponse = JSON.stringify(data) || '{}';
+      console.log(newOObj, 'zz');
       const {
         SQLDataFilterId,
         enableSQLFilter,
@@ -553,5 +567,67 @@ export const getLiquidfillOption = (params = {}) => {
         }
       }
     ]
+  };
+};
+
+/**
+ * 获取到组件的初始化传参
+ * @param config
+ * @param routeQuers
+ * @param otherParams
+ * @returns {{varJson: string, id}}
+ */
+export const getRequestParams = ({
+  config = {},
+  routeQuery = {},
+  otherParams = {},
+  elseParams = {}
+}) => {
+  const {
+    id,
+    componentId,
+    SqlDataConfig: {
+      variableConfig = []
+    }
+  } = config;
+  const reduce = (
+    obj // 将Object 处理成 Array
+  ) =>
+    Object.keys(obj)
+      .map((item) => ({
+        name: item,
+        value: obj[item]
+      }));
+
+  const satisfyParams = {};
+  if (JSON.stringify(otherParams) !== '{}') {
+    Object.keys(otherParams)
+      .forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.replace(`${componentId}_`, '');
+          satisfyParams[key] = otherParams[item];
+        }
+      });
+  }
+  const initVarConfig = variableConfig.reduce((last, pre) => {
+    const { value, valueType = 1, name } = pre;
+    if (name) {
+      return {
+        ...last,
+        [name]: valueType === 1 ? value : getVariableValue(value)
+      };
+    }
+    return last;
+  }, {});
+  const currentParams = {
+    ...initVarConfig,
+    ...routeQuery,
+    ...satisfyParams,
+    ...elseParams
+  };
+  const arr = reduce(currentParams);
+  return {
+    id,
+    varJson: JSON.stringify(arr)
   };
 };

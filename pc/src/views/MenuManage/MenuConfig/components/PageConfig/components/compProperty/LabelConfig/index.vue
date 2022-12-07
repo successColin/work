@@ -74,8 +74,14 @@
           getMultiRelate.length
         "
       >
-        <el-select :value="1" placeholder="请选择数据源" :disabled="true">
+        <el-select
+          v-model="activeObj.dataSourceType"
+          placeholder="请选择数据源"
+          @change="clearRelate"
+          :disabled="['TableMain'].includes(relateObj.compName)"
+        >
           <el-option label="数据表" :value="1"></el-option>
+          <el-option label="无数据表" :value="2"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item
@@ -83,7 +89,8 @@
         v-if="
           (this.relateObj.tableInfo.tableName ||
             ['MultiTree'].includes(relateObj.compName)) &&
-          getMultiRelate.length
+          getMultiRelate.length &&
+          activeObj.dataSourceType !== 2
         "
       >
         <el-select
@@ -298,6 +305,16 @@
           >
           </el-switch>
         </p>
+        <p class="switchBox">
+          是否需要溢出隐藏
+          <el-switch
+            v-model="activeObj.ellipsis"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
       </el-form-item>
       <el-form-item
         label="状态"
@@ -372,7 +389,10 @@
           >
         </el-button-group>
       </el-form-item>
-      <el-form-item label="宽度" v-if="relateObj.compName === 'CardMain'">
+      <el-form-item
+        label="宽度"
+        v-if="['CardMain', 'CardTable'].includes(relateObj.compName)"
+      >
         <el-button-group>
           <el-button
             :class="[{ active: activeObj.width === '50%' }]"
@@ -412,12 +432,33 @@
       </el-form-item>
       <el-form-item
         label="对齐方式"
-        v-if="$route.query.isApp === '1' && relateObj.compName === 'CardMain'"
+        v-if="
+          ($route.query.isApp === '1' && relateObj.compName === 'CardMain') ||
+          relateObj.compName === 'CardTable'
+        "
       >
         <el-select v-model="activeObj.alignStyle" class="m-r-8">
-          <el-option label="左对齐" :value="1"></el-option>
-          <el-option label="右对齐" :value="2"></el-option>
+          <el-option label="居左对齐" :value="1"></el-option>
+          <el-option label="居右对齐" :value="2"></el-option>
+          <el-option label="居中对齐" :value="3"></el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item
+        v-if="
+          ($route.query.isApp === '1' && relateObj.compName === 'CardMain') ||
+          relateObj.compName === 'CardTable'
+        "
+      >
+        <p class="switchBox">
+          是否需要溢出隐藏
+          <el-switch
+            v-model="activeObj.ellipsis"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
       </el-form-item>
       <el-form-item
         label="字体"
@@ -457,7 +498,8 @@
         class="font"
         v-if="
           !['TreeMain', 'MultiTree'].includes(relateObj.compName) &&
-          activeObj.labelShowStyle !== 2
+          activeObj.labelShowStyle !== 2 &&
+          activeObj.dataSourceType !== 2
         "
       >
         <el-select v-model="activeObj.labelBg.style" class="m-r-8">
@@ -663,6 +705,16 @@ export default {
       this.activeObj.icon.color = obj.color;
       this.activeObj.icon.imageUrl = obj.imageUrl;
     },
+    clearRelate() {
+      this.activeObj.dataSource.relateName = '';
+      this.activeObj.dataSource.tableName = '';
+      this.activeObj.dataSource.alias = '';
+      this.activeObj.dataSource.id = 0;
+      this.activeObj.dataSource.columnName = '';
+      this.activeObj.dataSource.columnTypeDict = 0;
+      this.activeObj.dataSource.dictObj = null;
+      this.activeObj.dataSource.mainColumnInfo = null;
+    },
     // 关系选择切换
     relateChange(item) {
       this.tableArr = [];
@@ -710,6 +762,7 @@ export default {
       this.activeObj.dataSource.columnName = '';
       this.activeObj.dataSource.id = '';
     },
+
     // 字段选择结果
     selectColumnRes(table) {
       this.activeObj.dataSource.id = table.id;

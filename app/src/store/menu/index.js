@@ -461,7 +461,12 @@ export default {
         commit('setUserInfo', res);
         dispatch('getGlobalConfig', 'UREPORT_URL,WATER_MASK');
       }
-      if (homePageConfig.type === 3) {
+      if (homePageConfig.type === 2) {
+        uni.redirectTo({
+          url: '/Message/index?title=消息通知&isJump=0',
+          animationType: 'slide-in-right',
+        });
+      } else if (homePageConfig.type === 3) {
         const { pageConfig } = homePageConfig;
         uni.reLaunch({
           url: `/menuConfigure/index?id=${pageConfig.id}&title=分享地址`,

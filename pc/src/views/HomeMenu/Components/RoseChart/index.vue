@@ -21,7 +21,7 @@
 <script>
 // 引入基本模板
 import { getInfoById } from '@/api/design';
-import { supplementaryColor, returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
+import { supplementaryColor, returnChartPosition, getRequestParams } from '@/views/HomeMenuConfig/constants/common';
 import { isEqual } from 'lodash';
 import * as echarts from 'echarts/core';
 // 引入柱状图图表，图表后缀都为 Chart
@@ -64,6 +64,7 @@ export default {
       myChart: null,
       observer: null,
       instance: null,
+      timer: null,
       loading: false
     };
   },
@@ -143,6 +144,10 @@ export default {
             textStyle: {
               color: '#fff'
             },
+            formatter (params) {
+              const { marker, name, value, percent } = params;
+              return `${marker} ${name}</br> 数量:  ${value}</br> 占比: ${percent}%`;
+            },
             axisPointer: {
               type: 'cross',
               label: {
@@ -200,7 +205,7 @@ export default {
             formatter: labelShowType === 'type' ? labelValueType === 1 ? '{b}: {c}' : '{b}: {d}' + '%' : labelValueType === 1 ? '{c}' : '{d}' + '%'
           },
           labelLine: {
-            show: labelPosition === 'outer'
+            show: labelPosition === 'outside'
             // length: 120,
             // length2: 20,
           },
@@ -254,6 +259,9 @@ export default {
   mounted() {
     this.initDom();
   },
+  activated() {
+    this.initDom();
+  },
   watch: {
     config(val) { // 普通的watch监听
       if (this.myChart && val) {
@@ -275,11 +283,11 @@ export default {
       deep: true,
       immediate: true,
       handler(v, o) {
-        const params = this.getParameters();
+        // const params = this.getParameters();
         const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && isShow) {
           this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && isShow) {
           this.fetchData();
         }
       }
@@ -304,86 +312,12 @@ export default {
           option
         );
       }
-      if (dataType === 2) {
-        this.loading = true;
-        await this.getApi();
-        this.loading = false;
-      }
       if (dataType === 3) {
         this.loading = true;
         await this.getSQL();
         this.loading = false;
       }
       // getInfoById
-    },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = await getInfoById(params) || [];
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(async () => {
-            await this.getApi();
-            this.myChart.clear();
-            const option = this.getOption();
-            this.myChart.setOption(
-              option
-            );
-          }, time);
-        }
-        if (!enableApiFilter) {
-          this.content = JSON.parse(targetObj);
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(JSON.parse(targetObj));
-          this.content = result;
-          return;
-        }
-        this.content = JSON.parse(targetObj);
-      }
-    },
-    getParameters() {
-      const { id, componentId } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
-          }
-        });
-      }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
     },
     async getSQL() {
       const { SqlDataConfig } = this.config;
@@ -394,7 +328,13 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -424,6 +364,14 @@ export default {
     }
   },
   beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
   name: 'SingleLineText'
 };

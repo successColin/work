@@ -2,7 +2,7 @@
   <section class="dividing" :class="[{ isConfig: isConfig }]">
     <div
       :class="`dividing__detail dividing__detail${dividingType}`"
-      v-if="dividingType === 1"
+      v-if="dividingType === 1 && $route.query.isApp !== '1'"
     >
       <span class="dividing__detail--name" :class="[{ notShow: !showTitle }]">{{
         dividingName
@@ -10,7 +10,7 @@
     </div>
     <div
       :class="`dividing__detail dividing__detail${dividingType}`"
-      v-if="dividingType === 2"
+      v-if="dividingType === 2 && $route.query.isApp !== '1'"
     >
       <span class="dividing__detail--name" :class="[{ notShow: !showTitle }]">{{
         dividingName
@@ -18,7 +18,7 @@
     </div>
     <div
       :class="`dividing__detail dividing__detail${dividingType}`"
-      v-if="dividingType === 3"
+      v-if="dividingType === 3 && $route.query.isApp !== '1'"
     >
       <i class="iconfont icon-shujiantoushouqi"></i>
       <span
@@ -32,7 +32,31 @@
       :class="`dividing__detail dividing__detail${dividingType} ${
         showTitle ? '' : 'notShow'
       }`"
-      v-if="dividingType === 4"
+      v-if="dividingType === 4 && $route.query.isApp !== '1'"
+    >
+      <span class="dividing__detail--name" :class="[{ notShow: !showTitle }]">{{
+        dividingName
+      }}</span>
+    </div>
+    <div
+      :class="`dividing__detail isApp dividing__detail${dividingType}`"
+      v-if="dividingType === 1 && $route.query.isApp === '1'"
+    >
+      <span class="dividing__detail--name" :class="[{ notShow: !showTitle }]">{{
+        dividingName
+      }}</span>
+    </div>
+    <div
+      :class="`dividing__detail isApp dividing__detail${dividingType}`"
+      v-if="dividingType === 2 && $route.query.isApp === '1'"
+    >
+      <span class="dividing__detail--name" :class="[{ notShow: !showTitle }]">{{
+        dividingName
+      }}</span>
+    </div>
+    <div
+      :class="`dividing__detail isApp dividing__detail${dividingType}`"
+      v-if="dividingType === 3 && $route.query.isApp === '1'"
     >
       <span class="dividing__detail--name" :class="[{ notShow: !showTitle }]">{{
         dividingName
@@ -97,6 +121,12 @@ export default {
     margin-bottom: 12px;
     box-sizing: border-box;
     border-bottom: 1px solid #e9e9e9;
+    &.isApp {
+      border-bottom: 0px none;
+      height: 44px;
+      line-height: 44px;
+      margin-bottom: 0;
+    }
   }
   &__detail2 {
     height: 32px;
@@ -104,6 +134,23 @@ export default {
     margin-bottom: 12px;
     box-sizing: border-box;
     border-bottom: 1px dashed #e9e9e9;
+    &.isApp {
+      border-bottom: 0px none;
+      height: 44px;
+      line-height: 44px;
+      margin-bottom: 0;
+      position: relative;
+      padding-left: 10px;
+      &:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 15px;
+        width: 3px;
+        height: 13px;
+        background-color: $--color-primary;
+      }
+    }
   }
   &__detail3 {
     display: flex;
@@ -113,6 +160,26 @@ export default {
     i {
       font-size: 18px;
       color: $--color-primary;
+    }
+    &.isApp {
+      border-bottom: 0px none;
+      height: 44px;
+      line-height: 44px;
+      margin-bottom: 0;
+      position: relative;
+      &:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 26px;
+        width: 56px;
+        height: 3px;
+        background: linear-gradient(
+          270deg,
+          rgba(70, 137, 245, 0) 0%,
+          #4689f5 100%
+        );
+      }
     }
   }
   &__detail4 {

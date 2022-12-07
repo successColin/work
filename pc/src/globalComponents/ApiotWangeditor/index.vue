@@ -189,6 +189,7 @@ export default {
     .w-e-text-placeholder {
       position: absolute;
       top: 15px;
+      color: #aaaaaa;
     }
   }
 }

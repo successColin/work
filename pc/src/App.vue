@@ -45,6 +45,15 @@ export default {
     }
   },
   methods: {
+    // 退出登录清除弹窗
+    removeDialog() {
+      const body = document.querySelector('body');
+      const divs = document.querySelectorAll('body>.panel__dialog');
+      console.log(body, divs);
+      divs.forEach((div) => {
+        body.removeChild(div);
+      });
+    },
     async singleLoginSso() {
       if (+this.configs.ssoTypePc === 3) {
         const rsaToken = window.location.href.split('?uid=')[1];
@@ -141,6 +150,13 @@ export default {
           }
         }
       });
+    }
+  },
+  watch: {
+    $route(v) {
+      if (v.name === 'login') {
+        this.removeDialog();
+      }
     }
   }
 };

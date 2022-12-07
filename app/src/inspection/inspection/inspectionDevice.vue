@@ -264,6 +264,7 @@
 </template>
 
 <script>
+import ApiotTipPrompt from '../components/ApiotTipPrompt';
 import { mapState } from 'vuex';
 import {
   selectMoList,
@@ -281,7 +282,9 @@ import { readCardInit, readCard, closeReadCard } from '../js/bridge.js';
 import { ELEMENT_SCAN } from '../js/element.js';
 
 export default {
-  components: {},
+  components: {
+    ApiotTipPrompt
+  },
   onLoad(options) {
     this.id = options.id;
     this.inspectionDoName = options.inspectionDoName;

@@ -97,18 +97,22 @@ export default {
   },
   25: {
     compType: 25,
-    imgUrl: 'highComp/PapersUpload.svg',
+    imgUrl: 'highComp/Cascade.svg',
   },
   26: {
     compType: 26,
-    imgUrl: 'highComp/Image.svg',
+    imgUrl: 'baseComp/Carousel.svg',
   },
   27: {
     compType: 27,
-    imgUrl: 'highComp/Image.svg',
+    imgUrl: 'highComp/Steps.svg',
   },
   28: {
     compType: 28,
+    imgUrl: 'highComp/UserComp.svg',
+  },
+  29: {
+    compType: 29,
     imgUrl: 'highComp/Image.svg',
   },
 };

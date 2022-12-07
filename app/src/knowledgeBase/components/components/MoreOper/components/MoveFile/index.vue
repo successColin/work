@@ -50,6 +50,7 @@
 <script>
 // 接口
 import { listFiles, moveFolder } from '@/api/knowledgeBase';
+import ApiotPoint from '../../../../ApiotPoint';
 
 export default {
   inject: ['fileTypeImg'],
@@ -88,17 +89,19 @@ export default {
       ]
     };
   },
-  components: {},
+  components: {
+    ApiotPoint
+  },
   computed: {
     systemInfo() {
       return this.$store.state.base.systemInfo;
     },
     customHeight() {
       let height = 0;
-      // #ifdef MP-DINGTALK
+      // #ifdef MP-ALIPAY
       height = 0;
       // #endif
-      // #ifndef MP-DINGTALK
+      // #ifndef MP-ALIPAY
       height = this.systemInfo.customBar || 0;
       // #endif
       return `calc(100vh - ${height}px - 30rpx)`;

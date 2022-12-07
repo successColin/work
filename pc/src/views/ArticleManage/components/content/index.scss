@@ -107,5 +107,16 @@
       color: #10B98A;
       background: #EBFCF7;
     }
+    .el-table tr:hover {
+      .icon-zongxiangtuodong {
+        color: #4689F5;
+      }
+    }
+  }
+  .icon-zongxiangtuodong {
+    padding-right: 12px;
+    margin-right: 10px;
+    border-right: 1px solid #EBEBEB;
+    color: #AAAAAA;
   }
 }

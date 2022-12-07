@@ -33,6 +33,7 @@
             ref="compSearch"
             @getList="getTree"
             @blur="compSearchBlur"
+            @close="closeSearch"
             v-model="compName"
             class="compSearch"
           ></search-input>
@@ -98,24 +99,33 @@
           </el-tree>
           <div v-else>
             <el-tree
-              v-for="(data, index) in treeList"
-              :key="index"
+              v-for="data in treeList"
+              :key="data.id"
+              :data1="JSON.stringify(data)"
               :data="[data]"
               node-key="id"
               :lazy="true"
               class="formula__tree"
               :props="props"
               @node-click="sysNodeClick"
-              :filter-node-method="sysFilterNode"
-              :load="loadNode"
+              :load="loadNodeList"
               :expand-on-click-node="false"
             >
               <div
-                slot-scope="{ data }"
+                slot-scope="{ data, node }"
                 :key="data.compId || data.name"
                 class="formula__treeItem"
               >
-                <i :class="`iconfont ${getCurIcon}`"></i>
+                <i
+                  v-if="node.level === 1 && treeType === 3"
+                  class="icon-fenzuchangtai iconfont"
+                  style="color: #fab71c"
+                ></i>
+                <i
+                  v-else
+                  :class="`iconfont ${getCurIcon}`"
+                  :style="getCurColor"
+                ></i>
                 {{ data.name || data.roleName }}
               </div>
             </el-tree>
@@ -158,9 +168,7 @@
         </div>
       </div>
       <div class="formula__params--excle" v-if="isVariables">
-        <div class="formula__params--compHead">
-          变量
-        </div>
+        <div class="formula__params--compHead">变量</div>
         <div class="formula__params--formuTree formula__params--compTree">
           <el-tree
             v-if="showFormulaTree"
@@ -216,7 +224,7 @@ export default {
     },
     variables: {
       type: Array
-    },
+    }
   },
   data() {
     return {
@@ -246,7 +254,9 @@ export default {
             { name: 'GET_TABLE_VALUE', isFormula: true, type: 1 },
             { name: 'GET_TABLE_IS_NULL', isFormula: true, type: 1 },
             { name: 'GET_TIME_GAP', isFormula: true, type: 1 },
-            { name: 'GET_TIME_RES', isFormula: true, type: 1 }
+            { name: 'GET_TIME_RES', isFormula: true, type: 1 },
+            { name: 'BEFORE_IN_AFTER', isFormula: true, type: 1 },
+            { name: 'BEFORE_NOT_IN_AFTER', isFormula: true, type: 1 }
           ]
         },
         {
@@ -584,6 +594,18 @@ export default {
         }
         return '';
       });
+      parser.setFunction('BEFORE_IN_AFTER', (params) => {
+        if (params.length < 2) {
+          return new Error('获取列表值，需要至少2个参数');
+        }
+        return '';
+      });
+      parser.setFunction('BEFORE_NOT_IN_AFTER', (params) => {
+        if (params.length < 2) {
+          return new Error('获取列表值，需要至少2个参数');
+        }
+        return '';
+      });
     },
     // 初始化组件替换
     repalceCompMark() {
@@ -665,10 +687,7 @@ export default {
       const strArry = this.jsonEditor.getValue().split('\n'); // 一共几行
       for (let line = 0, len = strArry.length; line < len; line += 1) {
         // 提取出字符串中需要转化成标记的字符以及其所在的位置
-        const marTextArry = getChartsByEx(
-          strArry[line],
-          '\\$variable_+([a-zA-Z0-9]+)\\$'
-        );
+        const marTextArry = getChartsByEx(strArry[line], '\\$variable_+([a-zA-Z0-9]+)\\$');
         for (let col = 0, len1 = marTextArry.length; col < len1; col += 1) {
           const formulaName = marTextArry[col].result[1];
           // 开始标记
@@ -722,8 +741,10 @@ export default {
       if (sysReg.test(formulaStr)) {
         return true;
       }
-      if (this.jsonEditor.getValue().match(/variable_/g) &&
-        this.jsonEditor.getValue().match(/variable_/g).length === 1) {
+      if (
+        this.jsonEditor.getValue().match(/variable_/g) &&
+        this.jsonEditor.getValue().match(/variable_/g).length === 1
+      ) {
         return true;
       }
       let str = formulaStr.replace(/\$([A-Za-z0-9]{6})\$/g, () => '""');
@@ -800,6 +821,7 @@ export default {
     },
     // 获取组件树
     async getTree() {
+      this.treeList = [];
       if (this.treeType === 1) {
         this.showTree = false;
         this.$nextTick(() => {
@@ -810,7 +832,6 @@ export default {
         });
       } else if (this.treeType === 2 || this.treeType === 4) {
         if (this.compName) {
-          this.showSysTree = false;
           const data =
             this.treeType === 2
               ? await doFetchOrgTree({
@@ -827,23 +848,30 @@ export default {
             }
           });
           this.treeList = data;
+          this.showSysTree = false;
         } else {
           this.showSysTree = true;
         }
       } else if (this.treeType === 3) {
         if (this.compName) {
-          this.showSysTree = false;
           const data = await getRoleLiistById({
             roleName: this.compName
           });
           this.treeList = data;
+          this.showSysTree = false;
         } else {
           this.showSysTree = true;
         }
       }
+      console.log(this.treeList);
     },
     // 组件搜索失焦
     compSearchBlur() {
+      if (!this.compName) {
+        this.showCompTree = false;
+      }
+    },
+    closeSearch() {
       if (!this.compName) {
         this.showCompTree = false;
       }
@@ -1098,6 +1126,35 @@ export default {
     async loadNode(node, resolve) {
       if (node.level === 0) {
         resolve(this.sysTreeData);
+        return;
+      }
+      let data = [];
+      if (this.treeType === 2) {
+        data = await doFetchOrgTree({
+          parentId: node.data.id
+        });
+      } else if (this.treeType === 3) {
+        data = await getRoleLiistById({
+          groupId: node.data.id
+        });
+      } else if (this.treeType === 4) {
+        data = await getPostionTree({
+          parentId: node.data.id
+        });
+      }
+      data.forEach((item) => {
+        if (!item.childrenTotal) {
+          item.isLeaf = true;
+        } else {
+          item.isLeaf = false;
+        }
+      });
+      console.log(data);
+      resolve(data);
+    },
+    async loadNodeList(node, resolve) {
+      if (node.level === 0) {
+        resolve(node.data);
         return;
       }
       let data = [];

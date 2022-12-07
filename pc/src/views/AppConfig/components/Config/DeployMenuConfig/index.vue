@@ -19,6 +19,7 @@
         <el-option
           :value="item.compId"
           :label="item.name"
+          v-show="item.menuArr"
           v-for="item in configData.funcArea.groupArr"
           :key="item.compId"
         ></el-option>
@@ -490,6 +491,10 @@ export default {
         routeKey: this.activeObj.routeName || '',
         type: this.activeObj.type
       };
+
+      if ([100, 101].includes(params.sysMenu.id)) {
+        params.sysMenu.parentId = 0;
+      }
       // 区分首页跟我的
       if (this.parentKey === 'home') {
         params.sysAppInterfaceConfig = {

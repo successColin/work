@@ -84,6 +84,9 @@
     flex-shrink: 0;
   }
   ::v-deep {
+    .item{
+      padding-left: 10px;
+    }
     .edit{
       color: $--color-primary;
       cursor: pointer;
@@ -107,5 +110,17 @@
       color: #10B98A;
       background: #EBFCF7;
     }
+    
+    .icon-zongxiangtuodong {
+      color: #aaaaaa;
+    }
+    .el-table__body .el-table__row .icon-zongxiangtuodong:hover {
+      cursor: move;
+    }
+
+    .el-dialog__body {
+      padding: 0px 20px 0 20px !important;
+    }
+
   }
 }

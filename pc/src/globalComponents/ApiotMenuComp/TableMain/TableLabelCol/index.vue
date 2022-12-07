@@ -84,7 +84,9 @@
             :style="`color:${getDictInfo(item, 'icon').color}`"
           ></i>
           <span :style="getStyle">{{
-            getDictInfo(item, 'name') || (+item === 0 ? '' : item)
+            configData.enableDict
+              ? getDictInfo(item, 'name') || (+item === 0 ? '' : item)
+              : item
           }}</span>
           <span v-if="i !== getContentArr(scope.row).length - 1">{{
             configData.enableCascade ? '/' : ','

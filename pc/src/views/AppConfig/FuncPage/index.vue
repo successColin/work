@@ -228,6 +228,7 @@ export default {
                   configCompName: 'DeployMenuConfig',
                   menuName: '首页',
                   id: 100,
+                  parentId: 0,
                   routeName: '',
                   icon: {
                     icon: '',

@@ -6,7 +6,7 @@
  * @Desc: 消息liebiao
 -->
 <template>
-  <div class="messageItem" :class="{isRead: message.hasRead}">
+  <div class="messageItem" :class="{isRead: message.hasRead === 1}">
     <div class="messageItem__left">
       <i v-if="message.innerMailCategory === 2" class="iconfont icon-gongzuoliucheng"></i>
       <i v-if="message.innerMailCategory === 3" class="iconfont icon-xiaoxitongzhi1"></i>
@@ -42,7 +42,7 @@
         <span>{{message.sendTime}}</span>
       </div>
     </div>
-    <div v-if="!message.hasRead" class="markRead"
+    <div v-if="(message.hasRead === 2)" class="markRead"
       @click="markRead(message)">{{$t('messageShow.MarkRead')}}</div>
   </div>
 </template>
@@ -107,7 +107,7 @@ export default {
     },
     handleMessage(item) {
       this.$emit('fetchNodeInfo', item.variablesStr);
-      if (!item.hasRead) {
+      if (item.hasRead === 2) {
         this.markRead(item);
       }
     },
@@ -124,7 +124,7 @@ export default {
           window.open(item.jumpLink, '_blank');
         }
       }
-      if (!item.hasRead) {
+      if (item.hasRead === 2) {
         this.markRead(item);
       }
     },
@@ -135,7 +135,7 @@ export default {
       markMailRead(param).then((res) => {
         console.log(res);
         this.$emit('singleRead');
-        this.message.hasRead = true;
+        this.message.hasRead = 1;
       });
     },
     openNode(item) {

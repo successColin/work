@@ -29,21 +29,28 @@
       <apiot-table
         :tableData="tableData"
         row-key="id"
-        :isNeedRowDrop="false"
+        :isNeedRowDrop="true"
         :isNeedColumnDrop="false"
         @selection-change="selectTable"
+        v-on:row-drop-end="dropEnd"
+        v-on:row-drop-start="dropStart"
         ref="announceTable"
       >
         <el-table-column prop="title" :label="$t('announce.announcementTitle')">
           <template slot-scope="scope">
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="scope.row.title"
-              placement="top"
-            >
-              <div class="txt">{{ scope.row.title }}</div>
-            </el-tooltip>
+            <div style="display: flex">
+              <div style="padding-right: 10px; border-right: 1px solid #e9e9e9">
+                <span class="iconfont icon-zongxiangtuodong"></span>
+              </div>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="scope.row.title"
+                placement="top"
+              >
+                <div class="txt">{{ scope.row.title }}</div>
+              </el-tooltip>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -173,8 +180,9 @@
   </div>
 </template>
 <script>
-import { deleteAnnounce, getAnnounceList, modifyAnnounce } from '@/api/announceManage.js';
+import { deleteAnnounce, getAnnounceList, modifyAnnounce, switchAnnounceLocation } from '@/api/announceManage.js';
 import userAvatar from '@/views/orgManage/components/userAvatar/index';
+// import { log } from 'console';
 import accessRecords from '../accessRecords/index';
 import EditDrawer from '../EditDrawer/index';
 
@@ -369,7 +377,40 @@ export default {
     },
     releaseTime(time) {
       return time;
-    }
+    },
+    dropStart() {
+      const list = document.getElementsByClassName('el-table__row');
+      console.log(list);
+      // list.forEach((item) => {
+      //   item.classList.remove('hover-row');
+      //   item.classList.remove('animate__animated');
+      //   item.classList.remove('animate__fadeInRight');
+      //   item.style.opacity = 1;
+      // });
+    },
+    async dropEnd({ oldIndex, newIndex }) {
+      if (this.tableData.length < 2) return; // 如果列表数据少于2条，不做任何动作
+      const { sno, id, title } = this.tableData[oldIndex];
+      const { sno: switchSno } = this.tableData[newIndex];
+      const params = {
+        sno,
+        switchSno,
+        id,
+        tableName: 'sys_announce',
+        logData: {
+          operateType: 4,
+          name: '公告',
+          switchName: title
+        }
+      };
+      try {
+        console.log(params);
+        await switchAnnounceLocation(params);
+        // this.getListData();
+      } catch (e) {
+        this.getListData();
+      }
+    },
   }
 };
 </script>

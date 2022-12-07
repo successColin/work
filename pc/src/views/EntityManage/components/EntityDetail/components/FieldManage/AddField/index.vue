@@ -131,12 +131,29 @@
           ></apiot-input>
         </el-form-item>
       </div>
+      <div
+        class="form--line"
+        v-if="[1, 2, 5].includes(formData.columnTypeDict)"
+      >
+        <el-form-item label="字典表" class="form--child half">
+          <filterable-input
+            class="m-t-10"
+            ref="filterableInput"
+            placeholder="请选择字典"
+            :showInfo="dictObj"
+            :hasPagination="true"
+            :dialogType="3"
+            @selectRes="selectDict"
+          ></filterable-input>
+        </el-form-item>
+      </div>
     </el-form>
   </apiot-drawer>
 </template>
 
 <script>
 import { addColumns, listColumnsLength, modifyColumns } from '@/api/entityManage';
+import { getDictList } from '@/api/dictManage';
 import bus from '@/utils/bus';
 
 export default {
@@ -165,11 +182,15 @@ export default {
         columnLengthId: 0,
         typeDict: 2
       },
+      dictObj: {
+        dictKey: ''
+      },
       currentLength: '0',
       lengthArr: [],
 
       decimalPlace: 0, // 小数位数
-      noLimitArr: [3, 5, 6]
+      noLimitArr: [3, 5, 6],
+      dictArr: []
     };
   },
 
@@ -231,6 +252,21 @@ export default {
   },
 
   methods: {
+    // 初始话dict
+    async initDict(dictKey) {
+      this.dictObj.dictKey = dictKey;
+      if (this.dictArr.length === 0) {
+        this.dictArr = await getDictList({ keywords: '' });
+      }
+      this.dictObj = this.dictArr.find((item) => item.dictKey === dictKey);
+    },
+    // 字典选择结果
+    async selectDict(dict) {
+      if (this.dictObj && dict.id === this.dictObj.id) {
+        return;
+      }
+      this.dictObj = dict;
+    },
     // 初始化表单数据
     initFormData(row) {
       // console.log(row);
@@ -244,6 +280,7 @@ export default {
         columnLengthId: row.columnLengthId,
         typeDict: row.typeDict
       };
+      this.initDict(row.bindDictKey);
       this.listColumnsLength(row.columnLengthId);
     },
     validateDefault(rule, value, callback) {
@@ -313,6 +350,7 @@ export default {
       try {
         const params = {
           ...this.formData,
+          bindDictKey: [1, 2, 5].includes(this.formData.columnTypeDict) ? this.dictObj.dictKey : '',
           tableName: this.tableName,
           logData: {
             operateType: 1,
@@ -371,6 +409,7 @@ export default {
       try {
         const params = {
           ...this.formData,
+          bindDictKey: [1, 2, 5].includes(this.formData.columnTypeDict) ? this.dictObj.dictKey : '',
           tableName: this.tableName,
           logData: {
             operateType: 2,
@@ -477,6 +516,9 @@ export default {
         columnTypeDict: 1,
         defaultValue: '',
         columnLengthId: 0
+      };
+      this.dictObj = {
+        dictKey: ''
       };
       this.listColumnsLength();
       this.$refs.addColumn.resetFields();

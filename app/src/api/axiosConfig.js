@@ -1,8 +1,8 @@
 /*
  * @Author: sss
  * @Date: 2021-06-17 14:46:02
- * @Last Modified by: ytx
- * @Last Modified time: 2022-11-15 16:27:27
+ * @Last Modified by: sss
+ * @Last Modified time: 2022-11-23 10:03:47
  */
 import axios from 'axios';
 import axiosAdapterUniapp from 'axios-adapter-uniapp';
@@ -18,6 +18,7 @@ class FetchData {
         : `${baseUrl}${PREFIX}/${VERSION}/`; // 请求路径
     this.timeout = 300000000; // 设置超时时间
     this.withCredentials = true;
+    this.gotoErrorPage = false; // 是否需要跳转到错误界面
 
     // 需要记录token的结论
     this.setTokenApi = [
@@ -66,7 +67,7 @@ class FetchData {
             const name = tempObj.key || 'name';
 
             const index = tempObj.transFormArr.findIndex(
-              (item) => item[value] === data[key],
+              (item) => item[value] === data[key]
             );
             if (index !== -1) {
               str += `${tempObj.name}:${tempObj.transFormArr[index][name]},`;
@@ -139,7 +140,7 @@ class FetchData {
           config.headers['Cache-Control'] = 'no-cache';
           config.headers.Pragma = 'no-cache';
           // config.url = `${config.url}?${qs.stringify(config.params, {})}`;
-          config.paramsSerializer = function(params) {
+          config.paramsSerializer = function (params) {
             return qs.stringify(params, {
               arrayFormat: 'indices',
               allowDots: true,
@@ -150,6 +151,7 @@ class FetchData {
         if (whitePathName.indexOf(config.url) === -1) {
           config.headers.token = Decrypt(uni.getStorageSync('token') || '');
         }
+
         config.headers.menuId = uni.getStorageSync('curMenuId') || '';
         // 针对get类型 对于支付宝小程序需要做特殊的兼容
         // #ifdef MP-ALIPAY
@@ -160,7 +162,7 @@ class FetchData {
           config.url = buildURL(
             config.url,
             config.params,
-            config.paramsSerializer,
+            config.paramsSerializer
           );
           if (config.params) delete config.params;
         }
@@ -174,12 +176,24 @@ class FetchData {
 
         return config;
       },
-      (error) => Promise.reject(error),
+      (error) => Promise.reject(error)
     );
 
     instance.interceptors.response.use(
       (res) => {
-        const { config } = res;
+        const { config, statusText } = res;
+        // 无法连接服务器
+        console.log(res);
+        if (
+          statusText &&
+          statusText.toLowerCase().indexOf('request:fail abort') > -1
+        ) {
+          uni.setStorageSync('showErrorPage', true);
+          uni.reLaunch({
+            url: '/PagesError/501',
+          });
+          return;
+        }
         if (Array.isArray(res.header)) {
           // 兼容钉钉小程序返回的头信息，钉钉小程序返回的头信息为数组，需要将数组转换为对象
           res.header = Object.assign({}, ...res.header);
@@ -202,7 +216,6 @@ class FetchData {
         return Promise.reject(res.data);
       },
       (error) => {
-        console.error(`===================ERROR${error}`);
         let code = null;
         if (error && error.response) code = error.response.status;
 
@@ -217,8 +230,22 @@ class FetchData {
           });
           return;
         }
+        // 如果是网络有问题，需要跳转到报错界面
+        const showErrorPage = uni.getStorageSync('showErrorPage');
+        const errorPage501 = [408, 500, 501, 502, 503, 504];
+        if (
+          !showErrorPage &&
+          errorPage501.indexOf(code) !== -1 &&
+          this.gotoErrorPage
+        ) {
+          uni.setStorageSync('showErrorPage', true);
+          uni.reLaunch({
+            url: '/PagesError/501',
+          });
+          return;
+        }
         return Promise.reject(error);
-      },
+      }
     );
   }
 
@@ -244,6 +271,14 @@ class FetchData {
       timeout: this.timeout,
       withCredentials: this.withCredentials,
     };
+
+    this.gotoErrorPage = config.errorPage || false;
+    // 连接时间设置比较短的
+    // 短链接，指连接超时时间比较短的
+    const shortLinkName = ['system/global/getGlobalAppLogin'];
+    if (shortLinkName.indexOf(config.url) === -1) {
+      config.timeout = 60000;
+    }
 
     this.setInterceptor(instance);
 
@@ -272,7 +307,7 @@ class FetchData {
       config.header.menuId = uni.getStorageSync('curMenuId') || '';
       config.url = `${baseURL || this.baseURL}${config.url}`;
       config.name = config.name || 'files';
-      config.success = function(uploadFileRes) {
+      config.success = function (uploadFileRes) {
         let uploadData = uploadFileRes.data;
         if (uploadData && typeof uploadData === 'string') {
           uploadData = JSON.parse(uploadData);
@@ -289,7 +324,7 @@ class FetchData {
           reject(uploadData.data);
         }
       };
-      config.error = function(error) {
+      config.error = function (error) {
         reject(error);
       };
       uni.uploadFile(config);
@@ -322,7 +357,7 @@ class FetchData {
       config.url = `${request.isAddPrefix ? baseURL || this.baseURL : ''}${
         config.url
       }`;
-      config.success = function(res) {
+      config.success = function (res) {
         console.log(res);
         const codeNumber = res.statusCode;
         // 如果返回是非标准数据
@@ -335,7 +370,7 @@ class FetchData {
           resolve(path[0]);
         }
       };
-      config.fail = function(error) {
+      config.fail = function (error) {
         reject(error);
       };
       uni.downloadFile(config);

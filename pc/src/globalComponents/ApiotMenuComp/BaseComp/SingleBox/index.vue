@@ -202,6 +202,14 @@ export default {
             border-color: #dcdfe6;
           }
         }
+        &.is-disabled.is-checked {
+          .el-radio__inner {
+            border-color: $--hover-bgColor;
+            &:after {
+              background-color: $--hover-bgColor;
+            }
+          }
+        }
       }
     }
   }

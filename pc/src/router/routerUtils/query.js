@@ -37,7 +37,6 @@ export const stringifyQuery = (obj) => {
     res = Object.keys(obj)
       .map((key) => {
         const val = obj[key];
-
         if (val === undefined) {
           return '';
         }
@@ -96,5 +95,9 @@ export const parseQuery = (query) => {
       res[key] = [res[key], val];
     }
   });
+  // 菜单id多解密一次 菜单id不是数字说明加密过
+  if (Number.isNaN(+res.menuId)) {
+    res.menuId = Decrypt(res.menuId);
+  }
   return res;
 };

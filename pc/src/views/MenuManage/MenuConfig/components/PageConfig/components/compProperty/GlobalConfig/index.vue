@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import { Encrypt } from '@/utils/utils';
 import { shortLink } from '@/api/menuManage';
 import RelateGird from './components/RelateGird';
 import TriggerAction from './components/TriggerAction';
@@ -105,18 +106,16 @@ export default {
     async createShareUrl() {
       let shareUrl = '';
       if (this.$route.query.isApp === '1') {
-        shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}?isLink=1&flag=1&id=${
-          this.$route.params.id || this.$route.query.menuId
-        }`;
+        shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}?isLink=1&flag=1&id=${this.$route.params.id}`;
+        const data = await shortLink({
+          originalUrl: encodeURI(shareUrl)
+        });
+        this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/share/${data}`;
       } else {
-        shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/sharePage/1?menuId=${
-          this.$route.params.id || this.$route.query.menuId
-        }`;
+        this.shareUrl = `${
+          this.$store.state.globalConfig.ureportConfig.shareUrl
+        }/sharePage/1?menuId=${Encrypt(this.$route.params.id)}`;
       }
-      const data = await shortLink({
-        originalUrl: encodeURI(shareUrl)
-      });
-      this.shareUrl = `${this.$store.state.globalConfig.ureportConfig.shareUrl}/share/${data}`;
     },
     copyShareUrl() {
       // 创建输入框元素

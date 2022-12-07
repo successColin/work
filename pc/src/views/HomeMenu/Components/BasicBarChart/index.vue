@@ -47,7 +47,12 @@ import {
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from 'echarts/renderers';
 import { getInfoById } from '@/api/design';
-import { supplementaryColor, returnChartPosition, getXAxisByKey } from '@/views/HomeMenuConfig/constants/common';
+import {
+  supplementaryColor,
+  returnChartPosition,
+  getXAxisByKey,
+  getRequestParams
+} from '@/views/HomeMenuConfig/constants/common';
 // import parser1 from '_u/formula';
 import { formatDate } from '_u/utils';
 // import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
@@ -424,6 +429,9 @@ export default {
     this.initDom();
     this.initFunc();
   },
+  activated() {
+    this.initDom();
+  },
   watch: {
     otherParams: {
       deep: true,
@@ -460,49 +468,49 @@ export default {
         this.fetchData();
       });
     },
-    getParameters() {
-      const {
-        id,
-        SqlDataConfig: {
-          variableConfig
-        }
-      } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj)
-          .map((item) => ({
-            name: item,
-            value: obj[item]
-          }));
-
-      const { query, name } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          const currentVar = variableConfig.find((varObj) => varObj.name === item);
-          if (currentVar) {
-            satisfyParams[item] = this.otherParams[item];
-          }
-        });
-      }
-      let lastParams = {};
-      if (name !== 'appCustomPage') {
-        lastParams = {
-          ...satisfyParams,
-          ...this.params
-        };
-      } else {
-        lastParams = {
-          ...satisfyParams,
-          ...query,
-          ...this.params
-        };
-      }
-      const arr = reduce(lastParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
+    // getParameters() {
+    //   const {
+    //     id,
+    //     SqlDataConfig: {
+    //       variableConfig
+    //     }
+    //   } = this.config;
+    //   const reduce = (obj) => // 将Object 处理成 Array
+    //     Object.keys(obj)
+    //       .map((item) => ({
+    //         name: item,
+    //         value: obj[item]
+    //       }));
+    //
+    //   const { query, name } = this.$route;
+    //   const satisfyParams = {};
+    //   if (JSON.stringify(this.otherParams) !== '{}') {
+    //     Object.keys(this.otherParams).forEach((item) => {
+    //       const currentVar = variableConfig.find((varObj) => varObj.name === item);
+    //       if (currentVar) {
+    //         satisfyParams[item] = this.otherParams[item];
+    //       }
+    //     });
+    //   }
+    //   let lastParams = {};
+    //   if (name !== 'appCustomPage') {
+    //     lastParams = {
+    //       ...satisfyParams,
+    //       ...this.params
+    //     };
+    //   } else {
+    //     lastParams = {
+    //       ...satisfyParams,
+    //       ...query,
+    //       ...this.params
+    //     };
+    //   }
+    //   const arr = reduce(lastParams);
+    //   return {
+    //     id,
+    //     varJson: JSON.stringify(arr)
+    //   };
+    // },
     initDom() {
       const {
         componentId,
@@ -555,6 +563,7 @@ export default {
         if (interactionType === 2) {
           // 弹面板
           this.doSpringPanel(panelConfig);
+          return;
         }
         if (interactionType === 3 && skipMenuConfig.length) {
           // 跳菜单
@@ -613,14 +622,6 @@ export default {
         //   seriesIndex: 0
         // });
       }
-      // if (dataType === 2) {
-      //   await this.getApi();
-      //   const option = this.getOption();
-      //   // 绘制图表
-      //   this.instance.myChart.setOption(
-      //     option
-      //   );
-      // }
       if (dataType === 3) {
         await this.getSQL();
         const option = this.getOption();
@@ -633,53 +634,6 @@ export default {
         callback();
       }
     },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      this.loading = true;
-      const res = await getInfoById(params) || [];
-      this.loading = true;
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(async () => {
-            await this.getApi();
-            this.instance.myChart.clear();
-            const option = this.getOption();
-            // 绘制图表
-            this.instance.myChart.setOption(
-              option
-            );
-          }, time);
-        }
-        const list = JSON.parse(targetObj);
-        if (!enableApiFilter) {
-          this.list = list;
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(list);
-          if (!(Array.isArray(result) && result.length)) {
-            this.list = [];
-            return;
-          }
-          this.list = result;
-        }
-      }
-    },
     async getSQL() {
       const { SqlDataConfig } = this.config;
       const {
@@ -689,7 +643,13 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
       this.loading = true;
       const res = await getInfoById(params);
       this.loading = false;
@@ -791,15 +751,67 @@ export default {
       }
       return newFilterTermStr;
     },
-    reduceSqlFilter(filterTermSql) { // 处理sql过滤条件
+    reduceSqlFilter(filterTermSql) {
+      // 处理sql过滤条件
       let str = this.regProcess(filterTermSql);
       const reg = /GET_FIELD_VALUE\('[\w\d\s]+'\)/g;
       str = str.replace(reg, (text) => {
         const result = this.formulaConversion(text);
         return result ? `'${result}'` : '';
       });
+      // 获取当前用户
+      str = str.replace(/GET_USER_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户组织
+      str = str.replace(/GET_ORG_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户角色
+      str = str.replace(/GET_ROLES_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期
+      str = str.replace(/GET_DATE\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期时间
+      str = str.replace(/GET_DATETIME\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取年份
+      str = str.replace(/GET_YEAR\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取月份
+      str = str.replace(/GET_MONTH\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取星期
+      str = str.replace(/GET_WEEK\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取天
+      str = str.replace(/GET_DAY\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取时间撮
+      str = str.replace(/GET_TIMESTAMP\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
       return str;
     },
+
     doSpringPanel(panelConfig) {
       const { curPaneObj } = panelConfig;
       if (curPaneObj && curPaneObj.id) {
@@ -948,6 +960,11 @@ export default {
       clearTimeout(this.timer);
     }
     this.timer = null;
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
   name: 'SingleLineText'
 };

@@ -146,6 +146,7 @@ export default {
   methods: {
     // 是否初始化tab
     initTabsArr() {
+      if (!this.getTabsArr.length) return;
       const arr = [];
       this.getTabsArr.forEach((flag, i) => {
         if (flag) {

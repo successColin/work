@@ -122,7 +122,7 @@
               :key="index"
               :style="`
                   position: relative;
-                  white-space: break-spaces;
+                  white-space: pre-line;
                   vertical-align: bottom;
                   ${tdBorderFun(
                     contentShowRow(i, j),
@@ -179,11 +179,11 @@
                             ).cs,
                             everyWidth,
                             index
-                          ) + 'px'
+                          )
                         : '100%'
                     };
                     display: flex;
-                    height: 100%;
+                    height: calc(100% - 2px);
                     ${
                       tdValFun(contentShowRow(i, j), index, celldataList, 9) ===
                       '1'
@@ -209,7 +209,8 @@
                           ) === '2'
                         ? 'justify-content: end'
                         : 'justify-content: start'
-                    }
+                    };
+                    word-break: break-all
                     `"
               >
                 {{ tdValFun(contentShowRow(i, j), index, celldataList) }}
@@ -374,11 +375,11 @@ export default {
         for (let b = 0; b < widthtArr.length; b += 1) {
           if (b === i) {
             for (let j = 0; j < merge; j += 1) {
-              num += widthtArr[b + j] || 0;
+              num += widthtArr[b + j] - 20 || 0;
             }
           }
         }
-        return num;
+        return `${num}px; height: calc(100% - 1px) !import; position: absolute; z-index: 999; background: #fff;margin: 1px; margin-bottom: 0;`;
       };
     },
     mergeHeight() {
@@ -551,7 +552,7 @@ export default {
     );
     this.excelImg = imagesArr;
     this.borderInfo = borderInfo;
-
+    console.log(lastConst, celldataList);
     // 没页显示几行
     const contentHeight =
       this.areaHeight &&
@@ -573,6 +574,7 @@ export default {
         acceptArr.push(i);
       }
     }
+    let needPage = 1;
     acceptArr.forEach((val, i, arr) => {
       if (arr[i + 1]) {
         const value = arr[i + 1] - val;
@@ -580,9 +582,12 @@ export default {
           this.showCellArr.push(value);
         }
       }
+      if (lastConst.r >= val) {
+        console.log(i);
+        needPage = i + 1;
+      }
     });
-    console.log(this.showCellArr, acceptArr);
-    this.page = this.isConfig ? 1 : this.showCellArr.length || 1;
+    this.page = this.isConfig ? 1 : needPage;
     this.contentRow = (lastConst && lastConst.r) || 10;
   },
   methods: {

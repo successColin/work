@@ -139,7 +139,7 @@ export default {
         };
         this.loading = true;
         if (this.isOnlyUnread) {
-          param.hasRead = false;
+          param.hasRead = 2;
         }
         if (this.command) {
           param.sendTime = this.getSendTime(this.command);
@@ -200,7 +200,7 @@ export default {
         const arr = this.messageArr.map((item) => {
           const obj = {
             ...item,
-            hasRead: true
+            hasRead: 1
           };
           return obj;
         });

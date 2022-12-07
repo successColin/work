@@ -29,9 +29,24 @@
       >
         <apiot-select
           v-model="formData.class"
-          :options="platformOptions"
           :disabled="type === 'edit'"
-        ></apiot-select>
+        >
+          <el-option
+            v-for="item in platformOptions"
+            :value="item.value"
+            :key="item.value"
+            :label="item.name"
+          >
+            <img  style="width: 30px;margin-right: 10px"
+              v-if="item.value !== 'Local'"
+              :src="require(`@/assets/img/file_server/${item.value}.png`)"/>
+            <div v-else style="width: 30px;margin-right: 10px;text-align: center;">
+              <span style="font-size: 22px;color: #999;"
+                class="iconfont icon-PCduan"></span>
+            </div>
+            <span>{{item.name}}</span>
+          </el-option>
+        </apiot-select>
       </el-form-item>
       <el-form-item
         label="平台编码"
@@ -131,8 +146,8 @@
         <ApiotSwitch
           v-model="formData.enableStorage"
           @change="(value) => changeRadio(value, 'enableStorage')"
-          :activeValue="1"
-          :inactivevalue="2"
+          :activeValue="true"
+          :inactivevalue="false"
         ></ApiotSwitch>
       </el-form-item>
     </el-form>
@@ -140,7 +155,7 @@
 </template>
 
 <script>
-import { saveGlobal, updateFileStorageServers } from '@/api/globalConfig';
+import { commonUpdate, updateFileStorageServers } from '@/api/globalConfig';
 
 export default {
   props: {
@@ -185,10 +200,6 @@ export default {
           value: 'BaiduBos'
         },
         {
-          name: '华为云',
-          value: 'HuaweiObs'
-        },
-        {
           name: '本地',
           value: 'Local'
         },
@@ -199,6 +210,10 @@ export default {
         {
           name: '腾讯云',
           value: 'TencentCos'
+        },
+        {
+          name: '华为云',
+          value: 'HuaweiObs'
         },
         {
           name: '又拍云',
@@ -256,12 +271,11 @@ export default {
             fileStorages.splice(index, 1, this.formData);
             // fileStorages.push(this.formData);
           }
-          const param = {
-            parameterKey: 'FILE_SERVER',
-            attributeKey: 'fileStorages',
+          const params = {
+            ...this.configArr[0],
             attributeValue: JSON.stringify(fileStorages)
           };
-          await saveGlobal(param);
+          await commonUpdate({ list: [params] });
           await this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
           await updateFileStorageServers({ infos: JSON.stringify(fileStorages) });
           this.$emit('update:visible', false);
@@ -308,6 +322,15 @@ export default {
       float: left;
       padding: 0 10px;
       box-sizing: border-box;
+    }
+  }
+}
+::v-deep {
+  .el-select-dropdown__item{
+    color: red;
+    img {
+      height: 20px;
+      width: auto;
     }
   }
 }

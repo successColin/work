@@ -40,6 +40,7 @@
         @click.native="changeCurActiveObj(2, $event)"
         :btnTypesArr="[1, 2, 5, 15]"
         :isForm="true"
+        :canSearch="true"
       ></BtnsArea>
       <section
         ref="contentArea"
@@ -82,6 +83,7 @@
             :move="featDragMove"
             :disabled="!isConfig"
             :isForm="true"
+            :canSearch="false"
           >
             <transition-group class="menuMain__feature--compList" tag="ul">
               <component
@@ -663,7 +665,7 @@ export default {
     padding: 0 10px;
     cursor: pointer;
     &:hover {
-      background-color: #efefef;
+      background-color: #f5f7fa;
       color: $--color-primary;
       .icon-xialajiantou {
         color: $--color-primary;
@@ -673,6 +675,7 @@ export default {
       position: absolute;
       right: 10px;
       transition: all 0.2s linear;
+      color: #999;
       &.isHidden {
         transform: rotate(180deg);
       }

@@ -218,6 +218,14 @@ export default {
             border-color: #dcdfe6;
           }
         }
+        &.is-disabled.is-checked {
+          .el-checkbox__inner {
+            border-color: $--hover-bgColor;
+            &:after {
+              border-color: $--hover-bgColor;
+            }
+          }
+        }
       }
     }
   }

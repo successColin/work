@@ -116,7 +116,7 @@ module.exports = {
     },
     {
       label: '文章',
-      routeName: 'article',
+      routeName: 'MoreInfor',
     },
   ],
   approvalType: [

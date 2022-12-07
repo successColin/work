@@ -811,9 +811,10 @@ export default {
               this.selectKey = data[0].treeId;
               this.$refs.tree.getTree().setCurrentKey(this.selectKey);
               this.$nextTick(() => {
-                document
-                  .querySelector(`.tree${this.configData.compId} .is-current`)
-                  .firstChild.click();
+                const dom = document.querySelector(`.tree${this.configData.compId} .is-current`);
+                if (dom) {
+                  dom.firstChild.click();
+                }
               });
             }
           } else {

@@ -212,14 +212,6 @@
     >
     </apiot-prompt>
     <!-- 下载确认弹窗 -->
-    <!-- <apiot-confirm-modal
-      v-if="showDownloadConfirm"
-      :visible.sync="showDownloadConfirm"
-      @sure-click="handleBttomBtnClick"
-      :title="$t('common.tip')"
-      :tip="$t('inspection.inspection-isDownload')"
-      >
-    </apiot-confirm-modal> -->
     <apiot-modal ref="apiotModal"></apiot-modal>
     <!-- 下载确认弹窗 -->
     <apiot-tip-prompt
@@ -232,6 +224,7 @@
 </template>
 
 <script>
+import ApiotTipPrompt from '../components/ApiotTipPrompt';
 import { downloadInspectionTasks, inspectionSkip } from '@/api/inspection.js';
 import {
   readyDB,
@@ -249,7 +242,9 @@ import {
 } from '../js/DB.js';
 
 export default {
-  components: {},
+  components: {
+    ApiotTipPrompt
+  },
   data() {
     return {
       keywords: '',

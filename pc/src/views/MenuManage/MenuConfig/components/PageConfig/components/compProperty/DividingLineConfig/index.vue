@@ -41,7 +41,12 @@
           class="dividingType"
           popper-class="dividingTypeSelect"
         >
-          <el-option :label="item" :value="item" v-for="item in 4" :key="item">
+          <el-option
+            :label="item"
+            :value="item"
+            v-for="item in $route.query.isApp === '1' ? 3 : 4"
+            :key="item"
+          >
             <div class="typeBox">
               <DividingShow
                 :dividingName="activeObj.name"

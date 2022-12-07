@@ -1,8 +1,8 @@
 @font-face {
   font-family: "appIcon"; /* Project id 2808920 */
-  src: url('//at.alicdn.com/t/c/font_2808920_m35obqmz5z.woff2?t=1660613066486') format('woff2'),
-       url('//at.alicdn.com/t/c/font_2808920_m35obqmz5z.woff?t=1660613066486') format('woff'),
-       url('//at.alicdn.com/t/c/font_2808920_m35obqmz5z.ttf?t=1660613066486') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_2808920_fwvcrfq4v3m.woff2?t=1667522913151') format('woff2'),
+      url('//at.alicdn.com/t/c/font_2808920_fwvcrfq4v3m.woff?t=1667522913151') format('woff'),
+      url('//at.alicdn.com/t/c/font_2808920_fwvcrfq4v3m.ttf?t=1667522913151') format('truetype');
 }
 
 .appIcon-xuanzhong:before {
@@ -291,5 +291,9 @@
 
 .appIcon-mima:before {
   content: "\ea7d";
+}
+
+.appIcon-gonggao:before {
+  content: "\eb5e";
 }
 

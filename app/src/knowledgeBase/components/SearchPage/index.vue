@@ -7,7 +7,9 @@
 -->
 <template>
   <section class="searchPage">
+    <!-- #ifndef MP-ALIPAY -->
     <apiot-navbar :title="title"></apiot-navbar>
+    <!-- #endif -->
     <u-sticky :customNavHeight="customBar">
       <div class="searchPage__sticky">
         <!-- clearable -->
@@ -159,13 +161,12 @@ export default {
     },
     customBar() {
       let height = 0;
-      // #ifdef MP-DINGTALK
+      // #ifdef MP-ALIPAY
       height = 0;
       // #endif
-      // #ifndef MP-DINGTALK
+      // #ifndef MP-ALIPAY
       height = this.systemInfo.customBar || 0;
       // #endif
-      console.log(height);
       return height;
     }
   },
@@ -184,6 +185,11 @@ export default {
   mounted() {},
   onLoad(option) {
     this.classId = option.classId;
+    // #ifdef MP
+    uni.setNavigationBarTitle({
+      title: this.title
+    });
+    // #endif
   },
   methods: {
     // 筛选

@@ -86,6 +86,13 @@
             :menuId="htmlConfig.id"
             @change="fromDataChange"
           ></form-item-upload>
+          <form-item-upload-files
+            v-else-if="el.compType === 13"
+            :value="configForm[el.compId]"
+            :element="el"
+            :menuId="htmlConfig.id"
+            @change="fromDataChange"
+          ></form-item-upload-files>
           <form-item-uploadcers
             v-else-if="el.compType === 14"
             :value="configForm[el.compId]"
@@ -153,6 +160,20 @@
             :flagComp="getCompId"
             :configForm="configForm"
           ></form-item-step-bar>
+          <form-item-progress-bar
+              v-else-if="el.compType === 22"
+              :element="el"
+              :value="configForm[el.compId]"
+            ></form-item-progress-bar>
+          <!-- <view
+            class="hasBorder"
+            v-if="
+              funcConfig.layoutStyle === 2 &&
+              index !== currentElementList.length - 1 &&
+              topPosEl.indexOf(el.compType) === -1 &&
+              el.compType !== 20
+            "
+          ></view> -->
         </div>
       </div>
     </u-form>
@@ -189,8 +210,9 @@ import FormItemCascade from './FormItem/FormItemCascade';
 import FormItemSwiper from './FormItem/FormItemSwiper';
 import FormItemCheckbox from './FormItem/FormItemCheckbox';
 import FormItemStepBar from './FormItem/FormItemStepBar';
+import FormItemProgressBar from './FormItem/FormItemProgressBar';
 import FormItemUsers from './FormItem/FormItemUsers';
-
+import FormItemUploadFiles from './FormItem/FormItemUploadFiles';
 import compMixin from '../compMixin';
 import mpMixin from '@/mixin/mpMixin';
 
@@ -215,7 +237,9 @@ export default {
     FormItemSwiper,
     FormItemCheckbox,
     FormItemStepBar,
-    FormItemUsers
+    FormItemProgressBar,
+    FormItemUsers,
+    FormItemUploadFiles
   },
 
   mixins: [compMixin, mpMixin],
@@ -398,6 +422,7 @@ export default {
       }
     },
     async resolveFormData(formData = {}, type) {
+      console.log(JSON.stringify(formData));
       const { elementList } = this;
       const { form, compId } = this.functionArea;
       const { sourceFlagId } = this.htmlConfig;
@@ -411,7 +436,9 @@ export default {
         if (panelDataTrans[key]) curentData[key] = panelDataTrans[key];
 
         // 如果值为空
-        if (!`${curentData[key] || ''}`) {
+        let V = curentData[key];
+        if (typeof V === 'number') V = `${V}`;
+        if (!`${V || ''}`) {
           const { defaultValueType, formulaContent, defaultType, compType } = el;
           // 默认值是否为公式
           if (defaultValueType === 2 && formulaContent) {
@@ -431,6 +458,7 @@ export default {
         //   curentData[key] = curentData[key].replace('T', ' ');
         // }
       });
+      console.log(JSON.stringify(curentData));
       this.$emit('update:configData', this.getNewConfigData(curentData));
 
       await this.$emit('handleTrgger', {
@@ -475,8 +503,6 @@ export default {
           const comp = this.allComp[key];
           const { canShow, shouldRepeat } = comp;
 
-          // let ruleType
-          // if( compType === 10)
           rulesObj[key] = ruleArry.map((rule) => {
             if (rule.flag && rule.flag === 'maxAndMin') {
               let min = 0;
@@ -501,30 +527,6 @@ export default {
               },
               message: '不能重复'
             });
-
-            // const { dataSource, name } = comp;
-            // rulesObj[key].push({
-            //   trigger: ['blur'],
-            //   asyncValidator: (rule, value, callback) => {
-            //     getColumnUniqueness({
-            //       columnName: dataSource.columnName,
-            //       columnTypeDict: dataSource.columnTypeDict,
-            //       columnValue: value,
-            //       id: this.configForm[this.getCompId],
-            //       tableName: dataSource.tableName
-            //     })
-            //       .then((res) => {
-            //         if (res > 0) {
-            //           callback(new Error(`${name}已存在`));
-            //         } else {
-            //           callback();
-            //         }
-            //       })
-            //       .catch((error) => {
-            //         callback(new Error(error));
-            //       });
-            //   }
-            // });
           }
         });
         this.$refs.configForm.setRules(rulesObj);

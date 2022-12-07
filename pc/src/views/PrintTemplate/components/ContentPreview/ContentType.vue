@@ -1,5 +1,5 @@
 <!--
- * @Descripttion: 预览：打印类型为文档类
+ * @Descripttion: 预览：打印类型为内容类
  * @Author: ytx
  * @Date: 2022-07-19 15:43:54
  * @Last Modified by: ytx
@@ -112,7 +112,7 @@
               :key="index"
               :style="`
                   position: relative;
-                  white-space: break-spaces;
+                  white-space: pre-line;
                   vertical-align: bottom;
                   ${tdBorderFun(i, index)};
                   font-family: ${tdValFun(i, index, celldataList, 1) || ''};
@@ -140,11 +140,11 @@
                             tdValFun(i, index, celldataList, 7).cs,
                             everyWidth,
                             index
-                          ) + 'px'
+                          )
                         : '100%'
                     };
                     display: flex;
-                    height: 100%;
+                    height: calc(100% - 2px);
                     ${
                       tdValFun(i, index, celldataList, 9) === '1'
                         ? 'align-items: top'
@@ -191,7 +191,7 @@
               :key="index"
               :style="`
                   position: relative;
-                  white-space: break-spaces;
+                  white-space: pre-line;
                   vertical-align: bottom;
                   ${tdBorderFun(
                     contentShowRow(i, j),
@@ -246,11 +246,11 @@
                             ).cs,
                             everyWidth,
                             index
-                          ) + 'px'
+                          )
                         : '100%'
                     };
                     display: flex;
-                    height: 100%;
+                    height: calc(100% - 2px);
                     ${
                       tdValFun(contentShowRow(i, j), index, celldataList, 9) ===
                       '1'
@@ -279,7 +279,10 @@
                     }
                     `"
               >
-                <div v-if="tdValFun(contentShowRow(i, j), index, celldataList)">
+                <div
+                  v-if="tdValFun(contentShowRow(i, j), index, celldataList)"
+                  style="word-break: break-all"
+                >
                   {{ tdValFun(contentShowRow(i, j), index, celldataList) }}
                 </div>
               </div>
@@ -312,7 +315,7 @@
               :key="index"
               :style="`
                   position: relative;
-                  white-space: break-spaces;
+                  white-space: pre-line;
                   vertical-align: bottom;
                   ${tdBorderFun(buttonShowRow(i), index)};
                   font-family: ${
@@ -354,11 +357,11 @@
                               .cs,
                             everyWidth,
                             index
-                          ) + 'px'
+                          )
                         : '100%'
                     };
                     display: flex;
-                    height: 100%;
+                    height: calc(100% - 2px);
                     ${
                       tdValFun(buttonShowRow(i), index, celldataList, 9) === '1'
                         ? 'align-items: top'
@@ -552,14 +555,15 @@ export default {
     mergeWidth() {
       return function (merge, widthtArr, i) {
         let num = 0;
+        console.log(widthtArr);
         for (let b = 0; b < widthtArr.length; b += 1) {
           if (b === i) {
             for (let j = 0; j < merge; j += 1) {
-              num += widthtArr[b + j] || 0;
+              num += widthtArr[b + j] - 20 || 0;
             }
           }
         }
-        return num;
+        return `${num}px; position: absolute; z-index: 999; background: #fff;margin: 1px; margin-bottom: 0;`;
       };
     },
     mergeHeight() {
@@ -608,6 +612,8 @@ export default {
               trV <= item.row[1]
             ) {
               if (borderType === 'border-all') {
+                // console.log(item.row[0] <= trV && trV < item.row[1] && !state);
+                // console.log(item.row[0], trV, trV, item.row[1], !state);
                 borderVal = `border: 1px solid ${color};box-sizing: border-box; ${
                   item.column[0] <= tdv && tdv < item.column[1] ? 'border-right: 0' : ''
                 }; ${item.row[0] <= trV && trV < item.row[1] && !state ? 'border-bottom: 0' : ''}`;
@@ -734,7 +740,7 @@ export default {
       (item) => (item.v && item.v.m) || (item.v && item.v.ct && item.v.ct.s)
     );
     const topRow = fixedTop.r;
-    const bottomRow = lastConst.r - fixedBottom.r;
+    const bottomRow = lastConst.r - fixedBottom.r < 0 ? 0 : lastConst.r - fixedBottom.r;
     const removeTopIndex = fixedBottom.r + 1;
     const contentRow = fixedBottom.r - fixedTop.r + 1;
     this.contentOjb = {

@@ -124,6 +124,12 @@
           </div>
         </div>
       </el-upload>
+      <div
+        class="noData"
+        v-if="!isConfig && configData.canReadonly && fileList.length === 0"
+      >
+        无附件
+      </div>
       <image-zoom
         v-if="previewVisible"
         :previewObj="previewObj"
@@ -661,6 +667,10 @@ export default {
         }
       }
     }
+  }
+  .noData {
+    color: #aaa;
+    font-size: 12px;
   }
 }
 </style>

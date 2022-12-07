@@ -22,7 +22,7 @@
 // 引入基本模板
 import { isEqual } from 'lodash';
 import { getInfoById } from '@/api/design';
-import { getLiquidfillOption } from '@/views/HomeMenuConfig/constants/common';
+import { getLiquidfillOption, getRequestParams } from '@/views/HomeMenuConfig/constants/common';
 import 'echarts-liquidfill';
 
 // eslint-disable-next-line no-undef
@@ -57,6 +57,7 @@ export default {
       myChart: null,
       observer: null,
       instance: null,
+      timer: null,
       loading: false
     };
   },
@@ -77,6 +78,9 @@ export default {
     }
   },
   mounted() {
+    this.initDom();
+  },
+  activated() {
     this.initDom();
   },
   watch: {
@@ -100,11 +104,10 @@ export default {
       deep: true,
       immediate: true,
       handler(v, o) {
-        const params = this.getParameters();
         const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && isShow) {
           this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && isShow) {
           this.fetchData();
         }
       }
@@ -136,34 +139,6 @@ export default {
       }
       // getInfoById
     },
-    getParameters() {
-      const { id, componentId } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
-          }
-        });
-      }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
     async getSQL() {
       const { SqlDataConfig } = this.config;
       const {
@@ -173,7 +148,13 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -203,6 +184,14 @@ export default {
     }
   },
   beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
   name: 'SingleLineText'
 };

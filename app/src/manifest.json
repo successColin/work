@@ -1,8 +1,8 @@
 {
-    "name" : "V10",
+    "name" : "v10",
     "appid" : "__UNI__C408ADE",
     "description" : "",
-    "versionName" : "1.0.2.001",
+    "versionName" : "1.0.5",
     "versionCode" : 100,
     "transformPx" : false,
     "debug" : true,
@@ -78,7 +78,12 @@
                     "NSSpeechRecognitionUsageDescription" : "若不允许，将无法将语音转化为文字",
                     "NFCReaderUsageDescription" : ""
                 },
-                "dSYMs" : false
+                "dSYMs" : false,
+                "capabilities" : {
+                    "entitlements" : {
+                        "com.apple.developer.associated-domains" : [ "applinks:static-2ea287ed-827d-47c8-9263-9adffa421f42.bspapp.com" ]
+                    }
+                }
             },
             /* ios打包配置 */
             "sdkConfigs" : {
@@ -99,8 +104,8 @@
                 },
                 "share" : {
                     "weixin" : {
-                        "appid" : "1111",
-                        "UniversalLinks" : ""
+                        "appid" : "wxb6df33608c9f3e3e",
+                        "UniversalLinks" : "https://static-2ea287ed-827d-47c8-9263-9adffa421f42.bspapp.com/uni-universallinks/__UNI__C408ADE/"
                     }
                 },
                 "geolocation" : {},
@@ -122,7 +127,7 @@
                         "retina47" : "static/images/start/splash.png",
                         "retina40" : "static/images/start/splash.png"
                     },
-                    "storyboard" : "E:/公司信息/3-公司开发相关证书/标准版APP打包相关文件/APIoT v10/CustomStoryboard.zip"
+                    "storyboard" : "G:/标准版APP打包相关文件/APIoT v10/CustomStoryboard.zip"
                 },
                 "iosStyle" : "storyboard"
             },
@@ -179,7 +184,7 @@
         }
     },
     "mp-weixin" : {
-        "appid" : "wx53b82bf82de9b6f6",
+        "appid" : "wx41888c928ebfd1e5",
         "setting" : {
             "postcss" : true,
             "minified" : true,
@@ -195,7 +200,7 @@
             "subPackages" : true
         }
     },
-    "_spaceID" : "008abda2-faf9-48dd-a6aa-eb82940d9e18",
+    "_spaceID" : "2ea287ed-827d-47c8-9263-9adffa421f42",
     "mp-alipay" : {
         "appid" : "5000000001434316",
         "optimization" : {

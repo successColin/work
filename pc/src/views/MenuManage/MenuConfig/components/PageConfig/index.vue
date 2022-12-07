@@ -110,6 +110,7 @@
 import { getDesignTriggersLinkDiagram, getSysDesignMenu, saveLayout } from '@/api/menuConfig';
 import { createUnique } from '@/utils/utils';
 import CardMainConfig from './components/compProperty/CardMainConfig';
+import CardTableConfig from './components/compProperty/CardTableConfig';
 import CascadeConfig from './components/compProperty/CascadeConfig';
 import CodingConfig from './components/compProperty/CodingConfig';
 import ContentConfig from './components/compProperty/ContentConfig';
@@ -151,6 +152,7 @@ import WebviewConfig from './components/compProperty/WebviewConfig';
 import CarouselConfig from './components/compProperty/CarouselConfig';
 import StepsConfig from './components/compProperty/StepsConfig';
 import UserCompConfig from './components/compProperty/UserCompConfig';
+import ApiotPositionConfig from './components/compProperty/ApiotPositionConfig';
 import ConfigSidebar from './components/ConfigSidebar';
 import selData from './selData';
 
@@ -206,6 +208,7 @@ export default {
     ContentConfig,
     MenuMainConfig,
     CardMainConfig,
+    CardTableConfig,
     TreeMainConfig,
     MultiTreeConfig,
     DevicePosTreeConfig,
@@ -243,7 +246,8 @@ export default {
     CascadeConfig,
     CarouselConfig,
     StepsConfig,
-    UserCompConfig
+    UserCompConfig,
+    ApiotPositionConfig
   },
   provide() {
     return {
@@ -857,46 +861,46 @@ export default {
             }
             break;
           case 15:
-            if (!tempObj.dataSource.relateName) {
-              checkObj.flag = false;
-              checkObj.msg = `${tempObj.name} 未选择关系`;
-              break;
-            }
-            if (!tempObj.dataSource.columnName) {
-              checkObj.flag = false;
-              checkObj.msg = `${tempObj.name} 未选择字段`;
-              break;
-            }
-            if (tempObj.enableMultiColumn) {
-              if (tempObj.enableDict) {
+            if (tempObj.dataSourceType !== 2) {
+              if (!tempObj.dataSource.relateName) {
+                checkObj.flag = false;
+                checkObj.msg = `${tempObj.name} 未选择关系`;
+                break;
+              }
+              if (!tempObj.dataSource.columnName) {
+                checkObj.flag = false;
+                checkObj.msg = `${tempObj.name} 未选择字段`;
+                break;
+              }
+              if (tempObj.enableMultiColumn) {
+                if (tempObj.enableDict) {
+                  if (!tempObj.dataSource.dictObj) {
+                    checkObj.flag = false;
+                    checkObj.msg = `${tempObj.name} 未选择字典`;
+                    break;
+                  }
+                } else {
+                  if (!tempObj.multiTable.table.tableName) {
+                    checkObj.flag = false;
+                    checkObj.msg = `${tempObj.name} 未选择多选字段来源表`;
+                    break;
+                  }
+                  if (!tempObj.multiTable.column.columnName) {
+                    checkObj.flag = false;
+                    checkObj.msg = `${tempObj.name} 未选择多选字段来源字段`;
+                    break;
+                  }
+                }
+              } else if (tempObj.enableDict) {
                 if (!tempObj.dataSource.dictObj) {
                   checkObj.flag = false;
                   checkObj.msg = `${tempObj.name} 未选择字典`;
                   break;
                 }
-              } else {
-                if (!tempObj.multiTable.table.tableName) {
-                  checkObj.flag = false;
-                  checkObj.msg = `${tempObj.name} 未选择多选字段来源表`;
-                  break;
-                }
-                if (!tempObj.multiTable.column.columnName) {
-                  checkObj.flag = false;
-                  checkObj.msg = `${tempObj.name} 未选择多选字段来源字段`;
-                  break;
-                }
-              }
-            } else if (tempObj.enableDict) {
-              if (!tempObj.dataSource.dictObj) {
-                checkObj.flag = false;
-                checkObj.msg = `${tempObj.name} 未选择字典`;
-                break;
               }
             }
-
             break;
           case 27:
-            console.log(tempObj);
             if (!tempObj.relateDateId) {
               checkObj.flag = false;
               checkObj.msg = `${tempObj.name} 未选择关联组件`;

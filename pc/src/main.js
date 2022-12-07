@@ -10,6 +10,7 @@ import Vue from 'vue';
 // 元素尺寸变化 监听
 // import resize from 'vue-element-resize-detector';
 import waterfall from 'vue-waterfall2';
+import BaiduMap from 'vue-baidu-map';
 import App from './App.vue';
 import './assets/css/elementTheme.scss';
 import './assets/iconfont/iconfont.css';
@@ -23,6 +24,9 @@ Vue.config.productionTip = false;
 // Vue.component(Button.name, Button);
 Vue.use(ElementUI);
 // Vue.prototype.$message = Message;
+Vue.use(BaiduMap, {
+  ak: 'nuWah68S1WieW2AEwiT8T3Ro',
+});
 // 只出现一个提示，同一时间
 let messageInstance = null;
 

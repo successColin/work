@@ -316,6 +316,12 @@ $--font-family: PingFangSC-Regular, PingFang SC, Avenir, Microsoft YaHei,
   border-radius: 8px;
 }
 
+//自定义文章类型下拉框
+.articleType .el-select-dropdown__item {
+  height: 70px;
+  line-height: 70px;
+}
+
 // 输入框
 .el-input {
   vertical-align: top;

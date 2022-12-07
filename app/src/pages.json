@@ -21,19 +21,30 @@
         }
       ]
     },
-    // #ifdef MP-ALIPAY
     {
-      "root": "PagesDing", // 钉钉相关界面
-
+      "root": "PagesError",
       "pages": [
         {
-          "path": "associatedUser"
-        },
-        {
-          "path": "ex"
+          "path": "501",
+          "style": {
+            "backgroundColor": "#FFFFFF"
+          }
         }
       ]
     },
+    // #ifdef MP-ALIPAY
+    // {
+    //   "root": "PagesDing", // 钉钉相关界面
+
+    //   "pages": [
+    //     {
+    //       "path": "associatedUser"
+    //     },
+    //     {
+    //       "path": "ex"
+    //     }
+    //   ]
+    // },
     // #endif
     // #ifdef MP-WEIXIN
     {
@@ -60,6 +71,13 @@
         },
         {
           "path": "highSearch", // 筛选
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "components/MenuMain/SearchRelationpage/index", // 关联资料查询
           "style": {
             "backgroundColor": "#F6F6F8",
             "navigationBarTextStyle": "black"
@@ -193,13 +211,6 @@
           }
         },
         {
-          "path": "components/SearchRelationpage/index",
-          "style": {
-            "backgroundColor": "#F6F6F8",
-            "navigationBarTextStyle": "black"
-          }
-        },
-        {
           "path": "webViewTemplate/index"
         }
       ]
@@ -262,10 +273,10 @@
       "pages": [
         {
           "path": "index",
-					"style": {
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 120
-					}
+          "style": {
+            "enablePullDownRefresh": true,
+            "onReachBottomDistance": 120
+          }
         }
       ]
     },
@@ -287,6 +298,7 @@
       "packages": [
         "Login",
         "MenuHome",
+        "PagesError",
         "menuConfigure",
         "knowledgeBase",
         "PagesProcess",

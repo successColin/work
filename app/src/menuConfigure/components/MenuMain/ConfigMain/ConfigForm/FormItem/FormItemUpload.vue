@@ -3,7 +3,7 @@
  * @Date: 2022-01-22 09:20:36
  * @Last Modified by: sss
  * @Last Modified time: 2022-01-22 09:20:36
- * @Desc: 配置表单-文件上传
+ * @Desc: 配置表单-图片上传
 -->
 <template>
   <u-form-item :prop="element.compId" v-if="compShow">

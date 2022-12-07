@@ -49,6 +49,7 @@ export default {
     searchClearAndBlur(flag = true) {
       this.$refs.input.$el.children[0].value = '';
       this.$refs.input.$el.children[0].dispatchEvent(new Event('input'));
+      this.$emit('close');
       if (flag) {
         this.$parent.current = 1;
         this.$emit('getList', 1);

@@ -282,6 +282,10 @@ export default {
               }, 1000);
             }
           } else if (status === 201) {
+            this.checkInfo = {
+              ...this.checkInfo,
+              isCheckFinish: true
+            };
             if (this.timer) {
               clearTimeout(this.timer);
             }

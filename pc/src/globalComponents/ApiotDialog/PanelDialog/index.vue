@@ -226,6 +226,7 @@ export default {
             this.form.tagValue_ = '';
           }
           this.$broadcast('initTime', v);
+          this.$refs.menu.touchTab();
         });
       }
     },

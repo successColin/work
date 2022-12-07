@@ -84,14 +84,19 @@ export default {
 
   methods: {
     resolveHtml(html) {
-      const reg = /[$]\{([A-Za-z0-9]+)\}/g;
-      const str = html.replace(reg, (res) => {
-        if (this.featureArr.form[res.slice(2, 8)]) {
-          return this.featureArr.form[res.slice(2, 8)];
+      const reg = /<messageVar vartype=[$]([A-Za-z0-9]+)>[^<]{0,}<\/messageVar>/g;
+      const formData = this.getAllForm();
+
+      const str = html.replace(reg, (res, v) => {
+        console.log(res);
+        console.log(v);
+        console.log(this.featureArr);
+        if (formData[v]) {
+          return formData[v];
         }
         return '';
       });
-      return str;
+      return this.$apiot.htmlReplace(str);
     },
     async clickBtn(e) {
       this.btnInfo = e;
@@ -111,6 +116,25 @@ export default {
           return false;
         }
 
+        // 点击按钮前需要做的校验
+        const index = this.btnInfo.ruleArr.findIndex((rule) => {
+          const res = this.resolveFormula(true, rule.content);
+          if (res) {
+            return true;
+          }
+          return false;
+        });
+        if (index !== -1) {
+          const msg = this.btnInfo.ruleArr[index].ruleTip || `按钮第${index}条规则校验失败`;
+          this.isLoading = false;
+          this.$refs.uToast.show({
+            type: 'warning',
+            message: msg
+          });
+
+          return;
+        }
+
         const obj = {};
         obj[e.compId] = true;
         this.loadingList = { ...this.loadingList, ...obj };
@@ -123,9 +147,8 @@ export default {
             content: `是否${name}`
           });
         } else if (beforeSubmit.type === 3) {
-          const tipContent = this.$apiot.htmlReplace(beforeSubmit.html);
           await this.$refs.apiotModal.showAsyncModal({
-            content: this.resolveHtml(tipContent)
+            content: this.resolveHtml(beforeSubmit.html)
           });
         }
 
@@ -151,10 +174,9 @@ export default {
             message: `${name}成功`
           });
         } else if (afterSubmit.type === 3) {
-          const tipContent = this.$apiot.htmlReplace(afterSubmit.html);
           this.$refs.uToast.show({
             type: 'success',
-            message: this.resolveHtml(tipContent)
+            message: this.resolveHtml(afterSubmit.html)
           });
         }
 

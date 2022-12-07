@@ -108,7 +108,7 @@
                 </div>
               </div>
               <div class="common">
-                {{item.endPoint}}
+                <div class="path" :title="item.endPoint">{{item.endPoint}}</div>
               </div>
             </li>
           </el-col>
@@ -177,7 +177,7 @@
                 </div>
               </div>
               <div class="common">
-                {{item.domain}}
+                <div class="path" :title="item.domain">{{item.domain}}</div>
               </div>
             </li>
           </el-col>
@@ -209,8 +209,8 @@
                 <ApiotSwitch
                   v-model="item.enableStorage"
                   @change="(value) => changeRadio(value, 'enableStorage', item, i)"
-                  :activeValue="1"
-                  :inactivevalue="2"
+                  :activeValue="true"
+                  :inactivevalue="false"
                 ></ApiotSwitch>
               </div>
             </li>
@@ -225,7 +225,7 @@
 </template>
 
 <script>
-import { commonUpdate, deleteFileStorageVerify, saveGlobal, updateFileStorageServers } from '@/api/globalConfig';
+import { commonUpdate, deleteFileStorageVerify, updateFileStorageServers } from '@/api/globalConfig';
 import AddFileServer from './AddFileServer/index';
 
 export default {
@@ -326,12 +326,16 @@ export default {
         await deleteFileStorageVerify({ platform: item.platform });
         const fileStorages = [...this.fileStorages];
         fileStorages.splice(index, 1);
-        const param = {
-          parameterKey: 'FILE_SERVER',
-          attributeKey: 'fileStorages',
+        // const param = {
+        //   parameterKey: 'FILE_SERVER',
+        //   attributeKey: 'fileStorages',
+        //   attributeValue: JSON.stringify(fileStorages)
+        // };
+        const params = {
+          ...this.configArr[0],
           attributeValue: JSON.stringify(fileStorages)
         };
-        await saveGlobal(param);
+        await commonUpdate({ list: [params] });
         await this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
         await updateFileStorageServers({ infos: JSON.stringify(fileStorages) });
         this.$message({
@@ -371,12 +375,16 @@ export default {
           };
           fileStorages.splice(i, 1, data);
           console.log(fileStorages);
-          const param = {
-            parameterKey: 'FILE_SERVER',
-            attributeKey: 'fileStorages',
+          // const param = {
+          //   parameterKey: 'FILE_SERVER',
+          //   attributeKey: 'fileStorages',
+          //   attributeValue: JSON.stringify(fileStorages)
+          // };
+          const params = {
+            ...this.configArr[0],
             attributeValue: JSON.stringify(fileStorages)
           };
-          await saveGlobal(param);
+          await commonUpdate({ list: [params] });
           await this.$store.dispatch('fetchConfigFun', 'FILE_SERVER');
           await updateFileStorageServers({ infos: JSON.stringify(fileStorages) });
         })
@@ -393,7 +401,10 @@ $borderColor: 1px solid #e9e9e9;
   ::v-deep{
     .iconfont{
       margin-right: 4px;
-      color: #4689f5;
+      // color: #4689f5;
+    }
+    .el-input__inner{
+      color: #333333 !important;
     }
   }
   .list {
@@ -471,14 +482,20 @@ $borderColor: 1px solid #e9e9e9;
       }
 
       & > .common {
-        flex: 1;
-        margin-left: 20px;
-        margin-right: 20px;
+        width: calc(100% - 200px);
+        padding: 0 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         font-size: 13px;
         color: #333333;
+        box-sizing: border-box;
+        .path{
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
         .themeStyle {
           display: flex;
         }

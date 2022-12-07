@@ -40,9 +40,11 @@
 </template>
 
 <script>
+import { postLoginForm } from '@/api/login.js';
 import { getDesignMenu, operationTriggers, selectList } from '@/api/menuConfig';
+import { getPersonalCenterUser } from '@/api/userCenter';
 import parser from '@/utils/formula';
-import { createUnique, formatDate, isExistInObj } from '@/utils/utils';
+import { createUnique, formatDate, isExistInObj, Encrypt } from '@/utils/utils';
 import PrintCom from '@/views/ApiotMenu/PrintCom';
 
 let getAllPaneBack = null;
@@ -124,7 +126,8 @@ export default {
       const obj = {
         formObj: {},
         tabObj: {},
-        compObj: {}
+        compObj: {},
+        area: {}
       };
       if (this.configData && this.configData.children.length) {
         this.configData.children.forEach((bigArea) => {
@@ -143,6 +146,8 @@ export default {
                   } else if (area.children.length) {
                     // obj[area.compId] = JSON.parse(JSON.stringify(area));
                     // obj[area.compId].compType = 'AREA';
+                    obj.area[area.compId] = area;
+                    obj.area[area.compId].compType = 'AREA';
                     area.children.forEach((smallArea) => {
                       if (smallArea.areaType === 1) {
                         // 代表功能区
@@ -155,6 +160,9 @@ export default {
                           if (area.compName === 'TableMain') {
                             comp.isTable = true;
                           }
+                          if (area.compName === 'CardTable') {
+                            comp.isCardTable = true;
+                          }
                           if (area.isTree) {
                             comp.isTree = true;
                           }
@@ -163,6 +171,9 @@ export default {
                             comp.children.forEach((btn) => {
                               if (area.compName === 'TableMain') {
                                 btn.isTable = true;
+                              }
+                              if (area.compName === 'CardTable') {
+                                btn.isCardTable = true;
                               }
                               if (area.isTree) {
                                 btn.isTree = true;
@@ -229,7 +240,16 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
+    if (
+      this.$route.query.account &&
+      this.$route.query.psd &&
+      !this.panelObj &&
+      !localStorage.token
+    ) {
+      await this.loginSuccessFun();
+    }
+    await this.needUserInfo();
     this.getDesignMenu(this.$route.params.id || this.$route.query.menuId);
     this.initFunc();
     // 生成唯一标识
@@ -267,6 +287,29 @@ export default {
   },
 
   methods: {
+    // 需要用户登录之后的用户信息
+    async needUserInfo() {
+      const { name } = this.$route;
+      if (name === 'sharePage') {
+        // 如果是分享界面
+        const res = await getPersonalCenterUser();
+        this.$store.commit('setUserInfo', res);
+        await this.$store.dispatch('getRoute');
+        await this.$store.dispatch(
+          'fetchConfigFuns',
+          'THEME_AND_LOGO,THIRD_LINKS,MESSAGE_CONFIG,UREPORT_URL,FILE_SERVER,WATER_MASK'
+        );
+      }
+    },
+    // 登录成功需要做的事
+    async loginSuccessFun() {
+      this.params = {
+        password: Encrypt(this.$route.query.psd),
+        username: this.$route.query.account,
+        rememberMe: true
+      };
+      await postLoginForm(this.params);
+    },
     // 更改骨架屏状态
     changeShowSkeleton() {
       this.showSkeleton = false;
@@ -304,7 +347,6 @@ export default {
           return '';
         }
         const comp = getAllPaneBack.compObj[params[0]];
-        console.log(comp, 'ofVqXm', params[0]);
         if (comp && comp.selData) {
           if (comp.compType === 6 || comp.compType === 7) {
             if (params.length === 4 || params.length === 5) {
@@ -330,7 +372,7 @@ export default {
             const vArr = [];
             comp.selData.forEach((data) => {
               // 第一项是值
-              if (data[params[1]]) {
+              if (data[params[1]] != null) {
                 vArr.push(data[params[1]]);
               }
             });
@@ -382,6 +424,8 @@ export default {
       });
       // GET_TABLE_VALUE
       parser.setFunction('GET_TABLE_VALUE', (params) => {
+        // 1个或者2个参数 ，第一个参数就是控件，第二个参数，填2，取得显示值，其他的都是真实值
+        // GET_TABLE_VALUE(控件名称,2)
         const { formObj } = getAllPaneBack;
         const formId = Object.keys(formObj).find((key) => {
           if (Object.prototype.hasOwnProperty.call(formObj[key].form, params[0])) {
@@ -620,6 +664,42 @@ export default {
         }
         return this.$route.query.id;
       });
+      parser.setFunction('BEFORE_IN_AFTER', (params) => {
+        let before = params[0];
+        const after = [...params];
+        after.shift();
+        if (!Array.isArray(before)) {
+          before = before.toString().split(',');
+        }
+        const indexIn = before.findIndex((v) => {
+          if (!after.includes(v)) {
+            return true;
+          }
+          return false;
+        });
+        if (indexIn === -1) {
+          return true;
+        }
+        return false;
+      });
+      parser.setFunction('BEFORE_NOT_IN_AFTER', (params) => {
+        let before = params[0];
+        const after = [...params];
+        after.shift();
+        if (!Array.isArray(before)) {
+          before = before.toString().split(',');
+        }
+        const indexNotIn = after.findIndex((v) => {
+          if (before.includes(v)) {
+            return true;
+          }
+          return false;
+        });
+        if (indexNotIn === -1) {
+          return true;
+        }
+        return false;
+      });
     },
     reduceData(list = [], parentNode = {}) {
       const { checkFormConfig = [] } = this.nodeConfig;
@@ -706,7 +786,7 @@ export default {
       const isTrue =
         this.showType && JSON.stringify(this.showType) !== '{}' && this.showType.type === 'flow';
       // 代表分享的是面板的
-      if (+this.$route.params.flag === 2) {
+      if (+this.$route.params.flag === 2 && !this.panelObj) {
         this.panelObj = JSON.parse(this.$route.query.panelObj);
       }
       if (this.panelObj && this.panelObj.id) {
@@ -1344,7 +1424,7 @@ export default {
       affectingComponents.forEach((item) => {
         const comp = this.getAllPane.compObj[item.comp.compId];
         if (comp) {
-          if (comp.isTable || comp.isTree) {
+          if (comp.isTable || comp.isTree || comp.isCardTable) {
             if (!this.initComp[action.linkCode]) {
               this.initComp[action.linkCode] = {};
             }
@@ -1456,7 +1536,7 @@ export default {
         if (form) {
           const comp = this.getAllPane.compObj[key];
           // console.log(comp.isTable);
-          if (comp.isTable || comp.isTree) {
+          if (comp.isTable || comp.isTree || comp.isCardTable) {
             this.resolveLink(data, key);
             return;
           }
@@ -1626,6 +1706,12 @@ export default {
     // 获取个性化
     getDesignPersonal() {
       return this.getDesignPersonalObj;
+    },
+    // 触发tab显影
+    touchTab() {
+      setTimeout(() => {
+        this.$bus.$emit('tabHidden', this.onlyFlag);
+      });
     }
   },
 

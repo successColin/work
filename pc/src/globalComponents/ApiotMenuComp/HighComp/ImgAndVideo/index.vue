@@ -41,7 +41,11 @@
         :disabled="configData.canReadonly"
         list-type="picture-card"
       >
-        <i class="iconfont icon-jiahao"></i>
+        <div class="upload__btnBox">
+          <i class="iconfont icon-jiahao"></i>
+          <p>{{ configData.placeholder }}</p>
+        </div>
+
         <div
           slot="file"
           slot-scope="{ file }"
@@ -193,13 +197,7 @@
             <a
               class="file__operateBox--xiazai file__operateBox--line"
               :class="[{ isDisabled: configData.canReadonly }]"
-              @click.stop="
-                download(
-                  `${file.url}
-                  `,
-                  file.name
-                )
-              "
+              @click.stop="download(`${file.url}`, file.name)"
             >
               <i class="iconfont icon-xiazai"></i>
               下载
@@ -212,6 +210,22 @@
           </div>
         </div>
       </el-upload>
+      <p
+        class="imgAndVideo__tip"
+        v-if="configData.showType === 1 && !configData.canReadonly"
+      >
+        建议：{{ configData.compType === 12 ? '图片' : '视频' }}大小{{
+          configData.maxFileSize
+        }}M以内<span v-if="this.configData.maxFileCount"
+          >，数量{{ this.configData.maxFileCount }}张以下</span
+        >
+      </p>
+      <div
+        class="noData"
+        v-if="!isConfig && configData.canReadonly && fileList.length === 0"
+      >
+        无{{ configData.compType === 12 ? '图片' : '视频' }}
+      </div>
       <apiot-dialog
         :visible.sync="dialogVisible"
         class="previewDialog"
@@ -611,6 +625,9 @@ export default {
   &.active {
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.17);
   }
+  &__tip {
+    color: #aaa;
+  }
   .span-box {
     display: flex;
     align-items: center;
@@ -639,6 +656,22 @@ export default {
       }
     }
     .upload {
+      &__btnBox {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        i,
+        p {
+          line-height: 1;
+        }
+        p {
+          color: #aaa;
+          margin-top: 5px;
+        }
+      }
       .el-upload--picture-card {
         width: 104px;
         height: 104px;
@@ -918,6 +951,10 @@ export default {
         }
       }
     }
+  }
+  .noData {
+    color: #aaa;
+    font-size: 12px;
   }
 }
 </style>

@@ -29,13 +29,15 @@
       <apiot-table
         :tableData="tableData"
         row-key="id"
-        :isNeedRowDrop="false"
+        :isNeedRowDrop="true"
         :isNeedColumnDrop="false"
         @selection-change="selectTable"
         ref="announceTable"
+        @row-drop-end="handleRowDropEnd"
       >
         <el-table-column prop="title" :label="$t('announce.articleTitle')">
           <template slot-scope="scope">
+            <i :class="`iconfont icon-zongxiangtuodong`"></i>
             <el-tooltip
               class="item"
               effect="dark"
@@ -46,6 +48,7 @@
             </el-tooltip>
           </template>
         </el-table-column>
+        <!-- 是否置顶 -->
         <el-table-column
           prop="isPlacedTop"
           :label="$t('announce.topOrNot')"
@@ -61,20 +64,31 @@
             ></apiot-switch>
           </template>
         </el-table-column>
+        <!-- 评论设置 -->
+        <el-table-column label="是否控制评论" :width="130">
+          <template slot-scope="scope">
+            <apiot-switch
+              v-model="scope.row.audit"
+              :active-value="1"
+              :inactive-value="2"
+              class="passwordConfig__switch"
+              @change="changePlacedTop(scope.row)"
+            ></apiot-switch>
+          </template>
+        </el-table-column>
+        <!-- 发布人 -->
         <el-table-column :label="$t('announce.issuer')" :width="150">
           <template slot-scope="scope">
             <user-avatar :userItem="scope.row.userInfo"></user-avatar>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="createTime"
-          :label="$t('announce.enableTime')"
-          :width="150"
-        >
+        <!-- 发布时间 -->
+        <el-table-column prop="createTime" label="发布时间" :width="150">
           <template slot-scope="scope">
             <span>{{ scope.row.createTime }}</span>
           </template>
         </el-table-column>
+        <!-- 操作 -->
         <el-table-column :label="$t('common.operate')" :width="160">
           <template slot-scope="scope">
             <span
@@ -83,6 +97,9 @@
               @click.stop
             >
               {{ $t('common.edit', { name: '' }) }}
+            </span>
+            <span class="edit" @click="openDialog(scope.row)">
+              查看评论({{ scope.row.comment }})
             </span>
           </template>
         </el-table-column>
@@ -121,22 +138,35 @@
       @getTableList="getListData"
     >
     </edit-drawer>
+    <read-comments
+      v-if="commentsVisible"
+      :currentTableObj.sync="editData"
+      :visible.sync="commentsVisible"
+    ></read-comments>
   </div>
 </template>
 <script>
-import { pageArticle, modifyArticle, batchDeleteArticle } from '@/api/articleManage';
+import {
+  pageArticle,
+  modifyArticle,
+  batchDeleteArticle,
+  switchLocation
+} from '@/api/articleManage';
 import userAvatar from '@/views/orgManage/components/userAvatar/index';
 import EditDrawer from '../EditDrawer/index';
+import ReadComments from '../ReadComments';
 
 export default {
   name: 'announceManage',
   components: {
     EditDrawer,
     // detail,
-    userAvatar
+    userAvatar,
+    ReadComments
   },
   data() {
     return {
+      commentsVisible: false,
       // 组织列表数据
       tableData: [],
       // 是否显示新建组织弹窗
@@ -188,6 +218,27 @@ export default {
   },
 
   methods: {
+    async handleRowDropEnd({ oldIndex, newIndex }) {
+      console.log(this.tableData[oldIndex]);
+      const currentDictValue = this.tableData[oldIndex];
+      this.tableData.splice(oldIndex, 1);
+      this.tableData.splice(newIndex, 0, currentDictValue);
+      await switchLocation({
+        id: this.tableData[oldIndex].id,
+        sno: this.tableData[oldIndex].sno,
+        switchSno: this.tableData[newIndex].sno,
+        tableName: 'sys_article',
+        logData: {
+          operateType: 4,
+          name: '文章内容',
+          switchName: this.tableData[newIndex].title
+        }
+      });
+    },
+    openDialog(item = {}) {
+      this.commentsVisible = true;
+      this.editData = item;
+    },
     // 获取组织树
     async getListData() {
       const param = {

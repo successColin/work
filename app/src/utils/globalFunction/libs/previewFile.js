@@ -4,7 +4,7 @@ import { getComServeUrl, getComToken, getComUrlByToken } from './common';
 // 图片展示时，计算图片的偏移量
 // areaH:展示区域高度
 // imageH:图片高度
-const calculateOffset = function (areaH, imageH) {
+const calculateOffset = function(areaH, imageH) {
   const d = imageH - areaH;
   const x = Math.round(d / areaH);
   if (x <= 0.5) return 0;
@@ -77,13 +77,26 @@ const getFileIconName = function(name) {
 };
 
 // 图片预览
-const previewImage = function (images, index = 0) {
+const previewImage = function(images, index = 0) {
   if (images.length === 0) return;
   if (typeof images === 'string') images = [images];
   const urls = images.map((item) => item.url);
   uni.previewImage({
     current: index,
     urls,
+  });
+};
+
+const previewMP3 = function(url) {
+  const innerAudioContext = uni.createInnerAudioContext();
+  innerAudioContext.autoplay = true;
+  innerAudioContext.src = url;
+  innerAudioContext.onPlay(() => {
+    console.log('开始播放');
+  });
+  innerAudioContext.onError((res) => {
+    console.log(res.errMsg);
+    console.log(res.errCode);
   });
 };
 
@@ -184,7 +197,7 @@ const previewFile = function({
   });
   if (currentFileType === 'image') previewImage(fileList, currentIndex);
   else if (currentFileType === 'file') previewFileLoad(fileList);
-
+  else if (currentFileType === 'audio') previewMP3(fileList[0].url);
   if (openType === 'pdf') {
     previewFileLoad([
       {
@@ -209,7 +222,14 @@ const fileDownLoad = async ({ file, isWatermark = false }) => {
       const token = getComToken();
       url = `${serveURL}system/waterMark/addWaterMark?url=${url}&token=${token}`;
     } else url = getComUrlByToken(url);
-    const filePath = await downloadFile(file.url, false);
+    let fileUrl = '';
+    // #ifdef H5
+    fileUrl = file.url;
+    // #endif
+    // #ifndef H5
+    fileUrl = getComUrlByToken(file.url);
+    // #endif
+    const filePath = await downloadFile(fileUrl, false);
     const currentFileType = getFileType(currentFileSuffix) || 'image';
     // #ifdef H5
     if (window.navigator.msSaveOrOpenBlob) {
@@ -284,4 +304,5 @@ export default {
   previewFile,
   fileDownLoad,
   calculateOffset,
+  previewMP3,
 };

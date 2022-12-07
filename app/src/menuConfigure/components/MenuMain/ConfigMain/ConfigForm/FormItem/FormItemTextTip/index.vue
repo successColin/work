@@ -3,7 +3,7 @@
  * @Date: 2022-01-22 08:45:18
  * @Last Modified by: sss
  * @Last Modified time: 2022-01-22 08:45:18
- * @Desc: 配置表单控件-label
+ * @Desc: 配置表单控件-文本提示
 -->
 <template>
   <u-form-item :prop="element.compId" v-if="compShow">
@@ -13,7 +13,7 @@
         :iconName="iconName"
         :color="element.icon.color"
         :titleStyle="titleStyle"
-        :content="content"
+        :content="resolveHtml"
         :contentStyle="contentStyle"
         :bgStyle="bgStyle"
       ></text-tip>
@@ -46,18 +46,20 @@ export default {
     formValue() {
       return this.getAllForm();
     },
-    content() {
+    resolveHtml() {
       const { fixedContent, formulaContent, defaultValueType } = this.element;
       if (defaultValueType === 1) return fixedContent;
-      const reg = /[$]([A-Za-z0-9]+)[$]/g;
-      const form = this.formValue;
-      const str = formulaContent.replace(reg, (res) => {
-        if (form[res.slice(2, 8)]) {
-          return form[res.slice(2, 8)];
+
+      const reg = /\$([A-Za-z0-9]{6})\$/g;
+      const formData = this.getAllForm();
+      console.log(formulaContent);
+      const str = formulaContent.replace(reg, (res, v) => {
+        if (formData[v]) {
+          return formData[v];
         }
         return '';
       });
-      return str;
+      return this.$apiot.htmlReplace(str);
     },
     iconName() {
       const { enableIcon, icon } = this.element;
@@ -97,18 +99,7 @@ export default {
 
   watch: {},
 
-  methods: {
-    resolveHtml(html) {
-      const reg = /[$]\{([A-Za-z0-9]+)\}/g;
-      const str = html.replace(reg, (res) => {
-        if (this.featureArr.form[res.slice(2, 8)]) {
-          return this.featureArr.form[res.slice(2, 8)];
-        }
-        return '';
-      });
-      return str;
-    }
-  },
+  methods: {},
 
   mounted() {},
 

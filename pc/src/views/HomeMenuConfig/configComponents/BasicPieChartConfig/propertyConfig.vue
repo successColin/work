@@ -100,28 +100,39 @@
               ></c-select>
             </div>
           </div>
-          <div class="propsSetting">
-            <p class="setTitle">字体</p>
-            <c-select
-              :options="fontFamilyOptions"
-              :value="getComponentInfo.stylesObj.labelFontFamily"
-              @change="(value) => changeStyles(value, 'labelFontFamily')"
-            >
-            </c-select>
-            <div class="fontSizeWrap">
-              <c-select
-                style="flex: 0 0 155px"
-                :options="boldTypeOptions"
-                :value="getComponentInfo.stylesObj.labelFontWeight"
-                @change="(value) => changeStyles(value, 'labelFontWeight')"
-              ></c-select>
-              <el-input-number
-                controls-position="right"
-                :value="getComponentInfo.stylesObj.labelFontSize"
-                @change="(value) => changeStyles(value, 'labelFontSize')"
-              />
-            </div>
-          </div>
+          <TextStylesConfig
+              title="标注样式"
+              title1="标注颜色"
+              fontFamily="微软雅黑"
+              :fontFamilyValue="getComponentInfo.stylesObj.labelFontFamily"
+              :fontWeightValue="getComponentInfo.stylesObj.labelFontWeight"
+              :fontSizeValue="getComponentInfo.stylesObj.labelFontSize"
+              :colorValue="getComponentInfo.stylesObj.labelColor"
+              @change="({ value, key }) => changeStyles(value, `label${key}`)"
+          />
+<!--          <div class="propsSetting">-->
+<!--            <p class="setTitle">字体</p>-->
+<!--            <c-select-->
+<!--              :options="fontFamilyOptions"-->
+<!--              :value="getComponentInfo.stylesObj.labelFontFamily"-->
+<!--              @change="(value) => changeStyles(value, 'labelFontFamily')"-->
+<!--            >-->
+<!--            </c-select>-->
+<!--            <div class="fontSizeWrap">-->
+<!--              <c-select-->
+<!--                style="flex: 0 0 155px"-->
+<!--                :options="boldTypeOptions"-->
+<!--                :value="getComponentInfo.stylesObj.labelFontWeight"-->
+<!--                @change="(value) => changeStyles(value, 'labelFontWeight')"-->
+<!--              ></c-select>-->
+<!--              <el-input-number-->
+<!--                controls-position="right"-->
+<!--                :value="getComponentInfo.stylesObj.labelFontSize"-->
+<!--                @change="(value) => changeStyles(value, 'labelFontSize')"-->
+<!--              />-->
+<!--            </div>-->
+<!--            -->
+<!--          </div>-->
         </div>
       </el-collapse-item>
       <el-collapse-item title="扇形属性" name="4">
@@ -324,7 +335,7 @@ export default {
       labelOptions: [
         {
           label: '外部',
-          value: 'outer'
+          value: 'outside'
         },
         {
           label: '内部',

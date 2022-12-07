@@ -126,7 +126,7 @@ export default {
   computed: {
     showRes() {
       return (row) => {
-        let inputValue = row[this.configData.compId] ? `${row[this.configData.compId]}` : '';
+        let inputValue = `${row[this.configData.compId]}`;
         const index = inputValue.indexOf('.');
         if (index !== -1) {
           const intNum = inputValue.substring(0, index).replace(/\B(?=(?:\d{3})+$)/g, ',');

@@ -114,7 +114,7 @@ import { formatDate, getBlob, saveAs } from '@/utils/utils';
 import { cloneDeep } from 'lodash';
 import Bus from '@/utils/bus';
 import { getInfoById } from '@/api/design';
-import { validConditions } from '@/views/HomeMenuConfig/constants/common';
+import { getRequestParams, validConditions } from '@/views/HomeMenuConfig/constants/common';
 
 const FormulaParser = require('hot-formula-parser').Parser;
 
@@ -777,6 +777,56 @@ export default {
         const result = this.formulaConversion(text);
         return result ? `'${result}'` : '';
       });
+      // 获取当前用户
+      str = str.replace(/GET_USER_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户组织
+      str = str.replace(/GET_ORG_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户角色
+      str = str.replace(/GET_ROLES_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期
+      str = str.replace(/GET_DATE\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期时间
+      str = str.replace(/GET_DATETIME\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取年份
+      str = str.replace(/GET_YEAR\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取月份
+      str = str.replace(/GET_MONTH\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取星期
+      str = str.replace(/GET_WEEK\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取天
+      str = str.replace(/GET_DAY\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取时间撮
+      str = str.replace(/GET_TIMESTAMP\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
       return str;
     },
     doSkipMenu(skipMenuConfig) {
@@ -852,46 +902,6 @@ export default {
         });
       }
     },
-
-    getParameters() {
-      const { id, SqlDataConfig: {
-        variableConfig
-      } } = this.config;
-      const reduce = (
-        obj // 将Object 处理成 Array
-      ) =>
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query, name } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          const currentVar = variableConfig.find((varObj) => varObj.name === item);
-          if (currentVar) {
-            satisfyParams[item] = this.otherParams[item];
-          }
-        });
-      }
-      let lastParams = {};
-      if (name !== 'appCustomPage') {
-        lastParams = {
-          ...satisfyParams,
-        };
-      } else {
-        lastParams = {
-          ...satisfyParams,
-          ...query,
-        };
-      }
-      const arr = reduce(lastParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
     async init() {
       const {
         dataType,
@@ -930,9 +940,6 @@ export default {
         this.originList = JSON.parse(JSON.stringify(arr));
         this.initFunc();
       } else {
-        if (dataType === 2) {
-          await this.getApi();
-        }
         if (dataType === 3) {
           await this.getSQL();
         }
@@ -998,58 +1005,6 @@ export default {
         });
       }
     },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = (await getInfoById(params)) || [];
-      const setSnoZ = (list = []) =>
-        list.map((item, index) => ({
-          ...item,
-          snoZ: index + 1
-        }));
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          if (this.timerApi) {
-            clearTimeout(this.timerApi);
-          }
-          this.timerApi = setTimeout(() => {
-            this.getApi();
-          }, time);
-        }
-
-        if (!enableApiFilter) {
-          this.list = JSON.parse(targetObj);
-          this.originList = JSON.parse(JSON.stringify(targetObj));
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(JSON.parse(targetObj));
-          if (Array.isArray(result) && result.length) {
-            const arr = setSnoZ(result);
-            this.list = JSON.parse(JSON.stringify(arr));
-            this.originList = JSON.parse(JSON.stringify(arr));
-            return;
-          }
-          this.list = JSON.parse(JSON.stringify(result));
-          this.originList = JSON.parse(JSON.stringify(result));
-          return;
-        }
-        this.list = JSON.parse(targetObj);
-        this.originList = JSON.parse(JSON.stringify(targetObj));
-      }
-    },
     async getSQL() {
       const { SqlDataConfig } = this.config;
       const {
@@ -1064,7 +1019,13 @@ export default {
           ...item,
           snoZ: index + 1
         }));
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;

@@ -6,12 +6,13 @@
  * @Desc: 消息liebiao
 -->
 <template>
-  <div class="messageItem" @click="markRead(messageData)" :class="{isRead: messageData.hasRead}">
+  <div class="messageItem" @click="markRead(messageData)"
+    :class="{isRead: messageData.hasRead === 1}">
     <div class="messageItem__right" v-if="message.innerMailCategory === 2">
       <div class="message-top">
         <span class="title">
           <i class="appIcon appIcon-gongzuoliucheng"></i>
-          工作流程<i v-if="!messageData.hasRead" class="spot"></i></span>
+          工作流程<i v-if="(messageData.hasRead === 2)" class="spot"></i></span>
         <span v-if="messageData.variablesStr" @click.stop="handleNode(messageData)"
           class="messageLink">前往处理>></span>
       </div>
@@ -32,8 +33,8 @@
     <div class="messageItem__right" v-if="message.innerMailCategory === 3">
       <div class="message-top">
         <span class="title">
-          <i class="appIcon appIcon-xitongxiaoxi" :class="{isRead: messageData.hasRead}"></i>
-          系统消息<i v-if="!messageData.hasRead" class="spot"></i></span>
+          <i class="appIcon appIcon-xitongxiaoxi" :class="{isRead: messageData.hasRead === 1}"></i>
+          系统消息<i v-if="(messageData.hasRead === 2)" class="spot"></i></span>
         <span v-if="messageData.jumpLink || messageData.skipMenuConfigApp"
           @click.stop="handleMessage(messageData)"
           class="messageLink">前往处理>></span>
@@ -147,13 +148,13 @@ export default {
           // #endif
         }
       }
-      if (!item.hasRead) {
+      if (item.hasRead === 2) {
         this.markRead(item);
       }
     },
     markRead(item) {
       this.$emit('update:focusIndex', this.index);
-      if (item.hasRead) {
+      if (item.hasRead === 1) {
         setTimeout(() => {
           this.$emit('update:focusIndex', null);
         }, 300);
@@ -165,7 +166,7 @@ export default {
       markMailRead(param).then((res) => {
         this.messageData = {
           ...this.messageData,
-          hasRead: true
+          hasRead: 1
         };
       });
       setTimeout(() => {

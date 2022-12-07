@@ -75,7 +75,19 @@ export default {
     SearchButton,
     MoreOper
   },
-  computed: {},
+  computed: {
+    customBar() {
+      console.log(this.systemInfo);
+      let height = 0;
+      // #ifdef MP-ALIPAY
+      height = this.systemInfo.navbarHeight - 1;
+      // #endif
+      // #ifndef MP-ALIPAY
+      height = this.systemInfo.customBar + this.systemInfo.navbarHeight - 1 || 0;
+      // #endif
+      return height;
+    }
+  },
   watch: {},
   mounted() {
     this.getList();
@@ -86,7 +98,9 @@ export default {
 </script>
 <style lang='scss' scoped>
 .apiotknowledge {
+  width: 100%;
   &__sticky {
+    overflow-x: hidden;
     background: #fff;
     position: relative;
   }

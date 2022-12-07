@@ -543,7 +543,7 @@ export default {
   },
   mounted() {
     this.setCurLangIndex();
-    // this.getUserCenterInfo();
+    this.getUserCenterInfo();
     window.addEventListener('resize', debounce(this.pageResize));
     // if (this.$store.state.globalConfig.themeConfig.enableMessage === '1') {
     //   this.initMessage();
@@ -589,7 +589,7 @@ export default {
       // }, 5000);
     },
     async connection() {
-      await this.getUserCenterInfo();
+      // await this.getUserCenterInfo();
       // 建立连接对象
       const { socketUrl } = this.$store.state.globalConfig.messageConfig;
       if (!socketUrl) return;
@@ -624,9 +624,10 @@ export default {
                   window.vue.$router.push('/login');
                 });
               }
-              if (res.bizKey === 'NEW_INNER_MAIL ') {
+              if (res.bizKey === 'NEW_INNER_MAIL') {
                 that.allCount();
               }
+              that.allCount();
             },
             headers
           );

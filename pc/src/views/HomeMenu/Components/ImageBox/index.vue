@@ -17,7 +17,7 @@
 <script>
 import { isEqual } from 'lodash';
 import { getInfoById } from '@/api/design';
-import { IsURL } from '@/views/HomeMenuConfig/constants/common';
+import { getRequestParams, IsURL } from '@/views/HomeMenuConfig/constants/common';
 
 export default {
   props: {
@@ -103,8 +103,10 @@ export default {
       return '';
     }
   },
-  beforeMount() {},
   mounted() {
+    this.init();
+  },
+  activated() {
     this.init();
   },
   watch: {
@@ -112,11 +114,7 @@ export default {
       deep: true,
       immediate: false,
       handler(v, o) {
-        const params = this.getParameters();
-        const {
-          isShow,
-          stylesObj: { supportParameters }
-        } = this.config;
+        const { isShow, stylesObj: { supportParameters } } = this.config;
         if (supportParameters === 1) {
           let url = '';
           Object.keys(v).forEach((item) => {
@@ -125,51 +123,15 @@ export default {
           this.content = url;
           return;
         }
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && isShow) {
           this.init();
-        } else if (
-          JSON.stringify(v) === '{}' &&
-          JSON.stringify(o) !== '{}' &&
-          params.varJson === '[]' &&
-          isShow
-        ) {
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && isShow) {
           this.init();
         }
       }
     }
   },
   methods: {
-    getParameters() {
-      const { id, componentId } = this.config;
-      const reduce = (
-        obj // 将Object 处理成 Array
-      ) =>
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
-          }
-        });
-      }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
-
     async init() {
       const {
         stylesObj: { supportParameters }
@@ -184,48 +146,8 @@ export default {
         return;
       }
       const { dataType } = this.config;
-      if (dataType === 2) {
-        await this.getApi();
-      }
       if (dataType === 3) {
         await this.getSQL();
-      }
-    },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = (await getInfoById(params)) || [];
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiEffect,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(() => {
-            this.getApi();
-          }, time);
-        }
-        if (!apiEffect && !enableApiFilter) {
-          this.content = targetObj;
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(JSON.parse(targetObj));
-          this.content = result[apiEffect] || '';
-          return;
-        }
-        this.content = JSON.parse(targetObj)[apiEffect];
       }
     },
     async getSQL() {
@@ -238,7 +160,13 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -260,6 +188,16 @@ export default {
         return;
       }
       this.content = res[SQLEffect];
+    }
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
   },
   name: 'SingleLineText'

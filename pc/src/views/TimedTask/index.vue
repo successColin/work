@@ -86,7 +86,6 @@
       :title="$t('timedTask.taskHistory')"
       :visible.sync="dialogVisible"
       :isShow="dialogVisible"
-      :columnArr="historyColumnArr"
       :getList="getHistoryList"
       :paramsObj="paramsObj"
       :isShowRadio="false"
@@ -192,30 +191,6 @@ export default {
       ],
       // 查看历史
       dialogVisible: false, // 是否显示
-      historyColumnArr: [
-        {
-          label: 'timedTask.missionName',
-          prop: 'jobName',
-          compName: 'ElTableColumn'
-        },
-        {
-          label: 'timedTask.executionTime',
-          prop: 'executeTime',
-          width: 180,
-          compName: 'ElTableColumn'
-        },
-        {
-          label: 'timedTask.executionResult',
-          prop: 'executeResult',
-          typesPropName: 'JOB_EXECUTE_RESULT',
-          compName: 'StateColumn'
-        },
-        {
-          label: 'timedTask.failureDescription',
-          prop: 'errorMsg',
-          compName: 'ElTableColumn'
-        }
-      ],
       paramsObj: {}
     };
   },

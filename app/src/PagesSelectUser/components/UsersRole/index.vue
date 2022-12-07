@@ -9,11 +9,11 @@
   <view class="usersRole">
     <section class="usersRole__roleList" :class="{ hasOverflow: show }">
       <div class="roles__item" v-for="(item, index) in listData" :key="index">
-        <roles
+        <!-- <roles
           :group="item"
           :groupLoading="groupLoading"
           @click="clickRole"
-        ></roles>
+        ></roles> -->
       </div>
     </section>
     <roles-user-modal
@@ -26,11 +26,11 @@
 
 <script>
 import { getRoleGroup } from '@/api/pagesSelectUser.js';
-import Roles from './components/Roles';
+// import Roles from './components/Roles';
 import RolesUserModal from './components/RolesUserModal';
 
 export default {
-  components: { Roles, RolesUserModal },
+  components: { RolesUserModal }, // Roles,
 
   props: {},
 

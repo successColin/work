@@ -372,7 +372,7 @@ export default {
       this.detailId = this.$route.query.detailId;
       if (this.detailId) {
         const excelData = await getPrintDesign({ id: this.detailId });
-        const { globalConfig, excelArr, borderInfo, previewObj } = JSON.parse(excelData.desingJson);
+        const { globalConfig, excelArr, previewObj } = JSON.parse(excelData.desingJson);
         if (excelArr.length !== 0) {
           const fillExcelArr = [];
           excelArrData = [];
@@ -394,9 +394,7 @@ export default {
               order: item.order,
               celldata: item.celldata,
               images: { ...imagesArr },
-              config: {
-                borderInfo
-              },
+              config: previewObj.config,
               ...this.sheetObject
             });
             fillExcelArr.push(...item.celldata);
@@ -447,9 +445,9 @@ export default {
           paste: true, // 粘贴
           insertRow: true, // 插入行
           insertColumn: true, // 插入列
-          deleteRow: false, // 删除选中行
-          deleteColumn: false, // 删除选中列
-          deleteCell: false, // 删除单元格
+          // deleteRow: false, // 删除选中行
+          // deleteColumn: false, // 删除选中列
+          // deleteCell: false, // 删除单元格
           hideRow: false, // 隐藏选中行和显示选中行
           hideColumn: false, // 隐藏选中列和显示选中列
           rowHeight: false, // 行高
@@ -666,7 +664,8 @@ export default {
         maxHeight: this.maxHeight,
         celldataList: this.celldataList,
         excelImg: this.luckysheet.getImageOption(),
-        borderInfo: this.borderInfo
+        borderInfo: this.borderInfo,
+        config
       });
     },
     // 毫米转px

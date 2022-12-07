@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { insertAnnounceGroup, deleteAnnounceGroup, listAnnounceGroup, modifyAnnounceGroup, switchAnnounceLocation } from '@/api/announceManage';
+import { insertAnnounceGroup, deleteAnnounceGroup, listAnnounceGroup, modifyAnnounceGroup, switchAnnounceGroupLocation } from '@/api/announceManage';
 import { errorMessageProcessing } from '@/utils/utils';
 
 export default {
@@ -186,7 +186,7 @@ export default {
     },
     // 移动分组
     async changeGroupPos(params) {
-      await switchAnnounceLocation(params);
+      await switchAnnounceGroupLocation(params);
       this.groupList.forEach((item, index) => {
         item.sno = index + 1;
       });

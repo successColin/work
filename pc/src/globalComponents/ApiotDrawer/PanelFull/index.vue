@@ -95,6 +95,15 @@ export default {
 
   components: {
     ApiotMenu
+  },
+  watch: {
+    showPanel(v) {
+      if (v) {
+        this.$nextTick(() => {
+          this.$refs.menu.touchTab();
+        });
+      }
+    }
   }
 };
 </script>

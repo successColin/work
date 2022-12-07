@@ -8,7 +8,7 @@
 
 <template>
   <view class="content">
-    <!-- <view v-if="canRequestConfig === 2">获取配置失败,请检查网络(开发中)</view> -->
+    <apiot-toast v-if="isLoading" status="loading" :isFull="true"></apiot-toast>
     <!-- 密码过期确认弹窗 -->
     <apiot-modal ref="apiotModal"></apiot-modal
   ></view>
@@ -40,8 +40,14 @@ export default {
         isLink: null, // 是否为外联
         flag: null, // 外联为菜单还是面板
         id: null // 外联的唯一标识
-      }
+      },
+      isLoading: false
     };
+  },
+  computed: {
+    systemInfo() {
+      return this.$store.state.base.systemInfo;
+    }
   },
   watch: {
     canRequestConfig(status) {
@@ -64,10 +70,38 @@ export default {
     }
     this.pageConfig = { ...this.pageConfig, ...option };
     this.$store.commit('setMenuHomePageConfig', this.pageConfig);
-    this.getConfig();
+
+    // 如果是ios手机，且是第一次登录，需要延迟几秒钟，为了兼容ios的网络授权
+    this.isLoading = true;
+    let timeout = 0;
+    // #ifdef APP-PLUS
+    const isOpenedApp = uni.getStorageSync('isFirstOpenApp'); // 是否已经打开过app
+    const { platform } = uni.getSystemInfoSync();
+    if (!isOpenedApp && platform === 'ios') {
+      timeout = 15000;
+      uni.setStorageSync('isFirstOpenApp', true);
+    }
+    // #endif
+    if (+option.isLink === 999) {
+      this.verifyIsOnline();
+    } else {
+      setTimeout(() => {
+        this.getConfig();
+      }, timeout);
+    }
   },
   mounted() {},
   methods: {
+    async verifyIsOnline() {
+      const res = await verifyToken();
+      if (res) {
+        setTimeout(() => {
+          this.$store.dispatch('jumpHomePage', { setConfig: true, config: this.pageConfig });
+        }, 10);
+      } else {
+        this.getConfig();
+      }
+    },
     // 单点登录逻辑
     async ssoLogin() {
       // ssoType:1=正常 2=需要钉钉登录 3=标准单点登录
@@ -106,6 +140,8 @@ export default {
         this.canRequestConfig = 1;
       } catch (error) {
         this.canRequestConfig = 2;
+      } finally {
+        this.isLoading = false;
       }
     },
     // 钉钉登录
@@ -159,10 +195,10 @@ export default {
     },
     // #endif
 
-    // #ifndef MP-WEIXIN
     // 正常登录-H5/APP
     async loginNormal() {
       console.log('==============================login');
+      console.log(this.configs.enableDefaultLogin);
       if (this.configs.enableDefaultLogin === '1' || this.source === 'logout') {
         uni.reLaunch({ url: '/Login/index' });
         return;
@@ -239,7 +275,6 @@ export default {
         this.showLoading = false;
       }
     },
-    // #endif
     // 外联地址显示
     outLinkshow() {}
   }

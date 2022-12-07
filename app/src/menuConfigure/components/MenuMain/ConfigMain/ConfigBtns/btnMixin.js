@@ -76,14 +76,20 @@ export default {
 
   methods: {
     resolveHtml(html) {
-      const reg = /[$]\{([A-Za-z0-9]+)\}/g;
-      const str = html.replace(reg, (res) => {
-        if (this.featureArr.form[res.slice(2, 8)]) {
-          return this.featureArr.form[res.slice(2, 8)];
+      const reg =
+        /<messageVar vartype=[$]([A-Za-z0-9]+)>[^<]{0,}<\/messageVar>/g;
+      const formData = this.getAllForm();
+
+      const str = html.replace(reg, (res, v) => {
+        console.log(res);
+        console.log(v);
+        console.log(this.featureArr);
+        if (formData[v]) {
+          return formData[v];
         }
         return '';
       });
-      return str;
+      return this.$apiot.htmlReplace(str);
     },
     getDictStr(comp, columnValue) {
       const dictArr = this.$store.getters.getCurDict(
@@ -336,6 +342,32 @@ export default {
       try {
         const { propertyCompName } = this.funcConfig;
         const { compId, beforeSubmit, afterSubmit, name, refreshType } = e;
+
+        // 点击按钮前需要做的校验
+        const index = this.btnInfo.ruleArr.findIndex((rule) => {
+          const res = this.resolveFormula(true, rule.content);
+          console.log(res);
+          if (res) {
+            return true;
+          }
+          return false;
+        });
+        if (index !== -1) {
+          const msg =
+            this.btnInfo.ruleArr[index].ruleTip ||
+            `按钮第${index}条规则校验失败`;
+          this.isLoading = false;
+          this.$refs.uToast.show({
+            type: 'warning',
+            message: msg,
+          });
+          if (this.$refs.btnsRow) {
+            this.$refs.btnsRow.setLoading(e.compId, false);
+          }
+
+          return;
+        }
+
         let { buttonType } = e;
         // 为了兼容批量操作的逻辑，在批量操作中按确定按钮，是走正常的操作逻辑，例如批量删除走删除逻辑
         if (type) buttonType = type;
@@ -366,9 +398,8 @@ export default {
         }
 
         if (beforeSubmit.type === 3) {
-          const tipContent = this.$apiot.htmlReplace(beforeSubmit.html);
           await this.$refs.apiotModal.showAsyncModal({
-            content: this.resolveHtml(tipContent),
+            content: this.resolveHtml(beforeSubmit.html),
           });
         }
 
@@ -397,10 +428,9 @@ export default {
           }, 500);
         } else if (afterSubmit.type === 3) {
           // 自定义提示
-          const tipContent = this.$apiot.htmlReplace(afterSubmit.html);
           await this.$refs.apiotModal
             .showAsyncModal({
-              content: this.resolveHtml(tipContent),
+              content: this.resolveHtml(afterSubmit.html),
             })
             .finally(() => {
               setTimeout(() => {

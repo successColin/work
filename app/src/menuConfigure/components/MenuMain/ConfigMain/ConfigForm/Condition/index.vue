@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import PopSmall from '@/globalComponents/ApiotPop/PopSmall';
+import PopSmall from './PopSmall.vue';
 
 export default {
   components: { PopSmall },

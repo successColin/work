@@ -155,6 +155,49 @@
           </user-dialog>
         </el-form-item>
         <!-- 输入框 -->
+        <!-- <el-form-item
+          prop="group"
+          class="is-required leaders hlaf"
+          :label="$t('announce.receiverGroup')"
+        >
+          <div class="manage-wrap">
+            <div class="manage-item">
+              <span
+                class="add-manage m-r-6"
+                @click="showSelectUserGroupDialog('user')"
+              >
+                <i class="iconfont icon-jiahao"></i>
+              </span>
+              <span
+                class="manage-tag m-r-6"
+                v-for="item in curData.leaders || []"
+                :key="item.id"
+              >
+                <user-avatar :userItem="item"></user-avatar>
+                <i
+                  class="iconfont icon-guanbi m-l-6"
+                  @click="deleteLeader(item)"
+                ></i>
+              </span>
+            </div>
+          </div>
+          <div
+            v-if="showGroupRequired"
+            class="el-form-item__error leader-error"
+          >
+            {{ $t('org.pleaseSelectManager') }}
+          </div>
+          人员选择弹窗1
+          <group-dialog
+            ref="selectDialog"
+            v-if="userGroupDialogVisible"
+            :visible.sync="userDialogVisible"
+            :leaders="curData.leaders"
+            :title="$t('org.addManage')"
+            @updateUser="updateUser"
+          >
+          </group-dialog>
+        </el-form-item> -->
         <el-form-item
           prop="memo"
           :label="$t('importTemplate.remark')"
@@ -187,6 +230,7 @@ import { insertAnnounce, modifyAnnounce } from '@/api/announceManage.js';
 import { getUserPage } from '@/api/orgManage.js';
 import userDialog from '@/views/orgManage/components/detail/components/userDialog/index';
 import userAvatar from '@/views/orgManage/components/userAvatar/index';
+// import groupDialog from '../detail/components/userDialog/index';
 
 export default {
   props: {
@@ -229,7 +273,9 @@ export default {
       userDialogVisible: false,
       leaderKeywords: '',
       leaderList: [],
-      showLeadRequired: false
+      showLeadRequired: false,
+      showGroupRequired: false,
+      userGroupDialogVisible: true,
     };
   },
   computed: {
@@ -243,7 +289,8 @@ export default {
   },
   components: {
     userDialog,
-    userAvatar
+    userAvatar,
+    // groupDialog
   },
   watch: {
     // 赋值
@@ -266,6 +313,10 @@ export default {
     // 打开人员选择弹窗
     showSelectUserDialog() {
       this.userDialogVisible = !this.userDialogVisible;
+    },
+    // 打开人员分组选择弹窗
+    showSelectUserGroupDialog() {
+      this.userGroupDialogVisible = !this.userGroupDialogVisible;
     },
     handleComposition(e) {
       if (e.type === 'compositionend') {

@@ -26,5 +26,6 @@ export default {
     isShare: 'Is Share',
     isComment: 'Is Comment',
     articleCover: 'Article Cover',
+    receiverGroup: 'receiver group'
   },
 };

@@ -120,6 +120,7 @@
         @tableAreaDelete="tableAreaDelete"
         @btnPosChange="btnPosChange"
         @selectTreeNode="selectTreeNode"
+        @selectCardNode="selectCardNode"
         :showType="showType"
         :nodeConfig="nodeConfig"
         :tableShowColumn="tableShowColumn"
@@ -299,6 +300,9 @@ export default {
     },
     selectTreeNode() {
       this.$emit('selectTreeNode');
+    },
+    selectCardNode() {
+      this.$emit('selectCardNode');
     },
     btnPosChange(i) {
       const len = this.getBtnsArr.children.length;

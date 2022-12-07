@@ -10,29 +10,30 @@
 <template>
   <div class="singleTextWrap" :style="getContentStyles()">
     <div
-      class="singleTextContent"
-      :style="getTextStyles()"
-      :class="{ ellipsis: config.enableEllipsis }"
-      @click="hrefUrl"
-      :title="content"
+        class="singleTextContent"
+        :style="getTextStyles()"
+        :class="{ ellipsis: config.enableEllipsis }"
+        @click="hrefUrl"
+        :title="content"
     >
       <span>{{ content }}</span>
     </div>
     <component
-      :is="panelConfig.activeObj.dialogName || 'PanelDialog'"
-      :showPanel="visible"
-      :visible.sync="visible"
-      :panelObj="panelObj"
-      v-if="JSON.stringify(panelConfig) !== '{}'"
+        :is="panelConfig.activeObj.dialogName || 'PanelDialog'"
+        :showPanel="visible"
+        :visible.sync="visible"
+        :panelObj="panelObj"
+        v-if="JSON.stringify(panelConfig) !== '{}'"
     ></component>
   </div>
 </template>
 
 <script>
-import { isEqual } from 'lodash';
+// import { isEqual } from 'lodash';
 // import parser from '@/utils/formula';
 import { getInfoById } from '@/api/design';
-import { formatDate } from '@/utils/utils';
+import { formatDate, IsURL } from '@/utils/utils';
+import { getRequestParams } from '@/views/HomeMenuConfig/constants/common';
 
 let FIXED_OBJ = {}; // 保存
 const FormulaParser = require('hot-formula-parser').Parser;
@@ -43,7 +44,8 @@ export default {
   props: {
     config: {
       type: Object,
-      default: () => {}
+      default: () => {
+      }
     },
     otherParams: {
       type: Object,
@@ -51,12 +53,12 @@ export default {
         return {};
       }
     },
-    elementData: {
-      type: Object,
-      default() {
-        return {};
-      }
-    }
+    // elementData: {
+    //   type: Object,
+    //   default() {
+    //     return {};
+    //   }
+    // }
   },
   data() {
     return {
@@ -73,7 +75,10 @@ export default {
 
   computed: {
     panelObj() {
-      const { activeObj, curPaneObj } = this.panelConfig;
+      const {
+        activeObj,
+        curPaneObj
+      } = this.panelConfig;
       return {
         ...curPaneObj,
         ...activeObj,
@@ -108,13 +113,14 @@ export default {
         styles += enableEllipsis
           ? `line-height:${this.config.height}px;`
           : `line-height:${stylesObj.fontSize + 10}px;`;
-        Object.keys(rest).forEach((item) => {
-          let singStyle = `${item}:${stylesObj[item]}`;
-          if (item === 'fontSize' || item === 'letterSpacing') {
-            singStyle += 'px';
-          }
-          styles += `${singStyle}${singStyle ? ';' : ''}`;
-        });
+        Object.keys(rest)
+          .forEach((item) => {
+            let singStyle = `${item}:${stylesObj[item]}`;
+            if (item === 'fontSize' || item === 'letterSpacing') {
+              singStyle += 'px';
+            }
+            styles += `${singStyle}${singStyle ? ';' : ''}`;
+          });
         if (gradientType === 1 && color1 && color2) {
           // 左右渐变
           styles += `background-image: linear-gradient(to right, ${color1}, ${color2});`;
@@ -136,9 +142,22 @@ export default {
     },
     getContentStyles() {
       return function () {
-        const { stylesObj = {}, enableBackground, width, height, top, left } = this.config;
+        const {
+          stylesObj = {},
+          enableBackground,
+          width,
+          height,
+          top,
+          left
+        } = this.config;
         let styles = `width: ${width}px;height: ${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex}; `;
-        const { backgroundColor, borderRadius, borderColor, borderWidth, borderStyle } = stylesObj;
+        const {
+          backgroundColor,
+          borderRadius,
+          borderColor,
+          borderWidth,
+          borderStyle
+        } = stylesObj;
         if (enableBackground) {
           styles += ` backgroundColor:${backgroundColor}; borderRadius:${borderRadius}px;
           borderColor:${borderColor};borderWidth:${borderWidth}px;borderStyle:${borderStyle};`;
@@ -150,6 +169,9 @@ export default {
   mounted() {
     this.init();
     this.initFunc();
+  },
+  activated() {
+    this.init();
   },
   watch: {
     // otherParams: {
@@ -171,52 +193,30 @@ export default {
     //     }
     //   }
     // },
-    elementData: {
-      deep: true,
-      immediate: false,
-      handler(v, o) {
-        const { id, dataType } = this.config;
-        if (!isEqual(v, o) && dataType === 3) {
-          this.reduceDataFilter(v[id]);
-        }
-      }
-    }
+    // elementData: {
+    //   deep: true,
+    //   immediate: false,
+    //   handler(v, o) {
+    //     const {
+    //       id,
+    //       dataType
+    //     } = this.config;
+    //     if (!isEqual(v, o) && dataType === 3) {
+    //       this.reduceDataFilter(v[id]);
+    //     }
+    //   }
+    // }
   },
   methods: {
-    getParameters() {
-      const { id, componentId } = this.config;
-      const reduce = (
-        obj // 将Object 处理成 Array
-      ) =>
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
-          }
-        });
-      }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
-
     async init() {
-      const { dataType, dataConfig } = this.config;
-      const { takeEffect, staticValue } = dataConfig;
+      const {
+        dataType,
+        dataConfig
+      } = this.config;
+      const {
+        takeEffect,
+        staticValue
+      } = dataConfig;
       if (dataType === 1) {
         let obj = {};
         try {
@@ -228,61 +228,18 @@ export default {
         this.obj = obj;
         this.obj1 = { ...obj };
       }
-      if (dataType === 2) {
-        await this.getApi();
-      }
-      // if (dataType === 3) {
-      //   await this.getSQL();
-      // }
-    },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = (await getInfoById(params)) || [];
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiEffect,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(() => {
-            this.getApi();
-          }, time);
-        }
-        if (!apiEffect && !enableApiFilter) {
-          this.content = targetObj;
-          this.obj = targetObj;
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          let obj1 = {};
-          try {
-            obj1 = JSON.parse(targetObj);
-          } catch (e) {
-            obj1 = {};
-          }
-          const result = fun()(obj1);
-          this.obj = result;
-          this.content = result[apiEffect];
-          return;
-        }
-        this.content = JSON.parse(targetObj)[apiEffect];
+      if (dataType === 3) {
+        await this.getSQL();
       }
     },
     async reduceDataFilter(res) {
       const { SqlDataConfig } = this.config;
-      const { SQLFilterFun, enableSQLFilter, SQLEffect, SQLDataFilterId } = SqlDataConfig;
+      const {
+        SQLFilterFun,
+        enableSQLFilter,
+        SQLEffect,
+        SQLDataFilterId
+      } = SqlDataConfig;
       if (!SQLEffect && !enableSQLFilter) {
         this.content = JSON.stringify(res);
         return;
@@ -291,16 +248,30 @@ export default {
         // eslint-disable-next-line no-new-func
         const fun = new Function(`return ${SQLFilterFun}`);
         const result = fun()(res);
-        this.obj = result;
-        this.content = result[SQLEffect];
+        try {
+          this.obj = result;
+          this.content = result[SQLEffect];
+        } catch (e) {
+          this.obj = {};
+          this.content = null;
+        }
         return;
       }
       this.content = JSON.stringify(res[SQLEffect]);
     },
     async getSQL() {
       const { SqlDataConfig } = this.config;
-      const { enableSQLAutoUpdate, SQLUpdateTime = 1 } = SqlDataConfig;
-      const params = this.getParameters();
+      const {
+        enableSQLAutoUpdate,
+        SQLUpdateTime = 1
+      } = SqlDataConfig;
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -326,7 +297,11 @@ export default {
         config.menuVarObj = {};
         config.menuFilter.forEach((item, index) => {
           // 将公式值处理成固定值
-          const { filterTermStr, filterTermSql, filterTermType } = item;
+          const {
+            filterTermStr,
+            filterTermSql,
+            filterTermType
+          } = item;
           if (filterTermType === 1) {
             // 普通的过滤条件
             const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
@@ -340,9 +315,15 @@ export default {
         });
         return config;
       };
-      const { name, query = {} } = this.$route;
+      const {
+        name,
+        query = {}
+      } = this.$route;
       if (name === 'appCustomPage' && menuConfig) {
-        const { CSMUuid, CSMIsWebview } = query;
+        const {
+          CSMUuid,
+          CSMIsWebview
+        } = query;
         const newMenuConfig = commonReduce(menuConfig);
         newMenuConfig.operationType = 'menu';
         newMenuConfig.CSMUuid = CSMUuid;
@@ -401,7 +382,10 @@ export default {
       const { termArr = [] } = newFilterTermStr;
       termArr.forEach((termItem) => {
         termItem.forEach((term) => {
-          const { valueType, content } = term;
+          const {
+            valueType,
+            content
+          } = term;
           if (valueType === 2) {
             const result = this.formulaConversion(content);
             term.valueType = 1;
@@ -422,15 +406,71 @@ export default {
         const result = this.formulaConversion(text);
         return result ? `'${result}'` : '';
       });
+      // 获取当前用户
+      str = str.replace(/GET_USER_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户组织
+      str = str.replace(/GET_ORG_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户角色
+      str = str.replace(/GET_ROLES_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期
+      str = str.replace(/GET_DATE\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期时间
+      str = str.replace(/GET_DATETIME\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取年份
+      str = str.replace(/GET_YEAR\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取月份
+      str = str.replace(/GET_MONTH\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取星期
+      str = str.replace(/GET_WEEK\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取天
+      str = str.replace(/GET_DAY\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取时间撮
+      str = str.replace(/GET_TIMESTAMP\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
       return str;
     },
     doSpringPanel(panelConfig) {
-      const { curPaneObj, activeObj: { dialogTitle } } = panelConfig;
-      console.log(panelConfig, 'panelConfig');
+      const {
+        curPaneObj,
+        activeObj: { dialogTitle }
+      } = panelConfig;
       if (curPaneObj && curPaneObj.id) {
         curPaneObj.panelFilter.forEach((item, index) => {
           // 将公式值处理成固定值
-          const { filterTermStr, filterTermSql, filterTermType } = item;
+          const {
+            filterTermStr,
+            filterTermSql,
+            filterTermType
+          } = item;
           if (filterTermType === 1) {
             // 普通的过滤条件
             const newFilterTermStr = this.reduceNormalFilter(filterTermStr);
@@ -456,9 +496,15 @@ export default {
           });
         }
         curPaneObj.panelFixData = panelFixData;
-        const { name, query = {} } = this.$route;
+        const {
+          name,
+          query = {}
+        } = this.$route;
         if (name === 'appCustomPage') {
-          const { CSMUuid, CSMIsWebview } = query;
+          const {
+            CSMUuid,
+            CSMIsWebview
+          } = query;
           curPaneObj.operationType = 'pane';
           curPaneObj.CSMUuid = CSMUuid;
           curPaneObj.dialogTitle = dialogTitle || '';
@@ -513,6 +559,7 @@ export default {
     formulaConversion(formulaStr) {
       let str = this.regProcess(formulaStr);
       let res = parser.parse(`${str}`);
+      console.log(res);
       if (res.error) {
         str = str.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');
         res = parser.parse(`${str}`);
@@ -608,7 +655,11 @@ export default {
     },
     hrefUrl() {
       // 点击操作
-      const { interactionType, panelConfig, skipMenuConfig } = this.config;
+      const {
+        interactionType,
+        panelConfig,
+        skipMenuConfig
+      } = this.config;
       FIXED_OBJ = this.obj;
       // 1不需处理
       if (interactionType === 1) return;
@@ -621,6 +672,28 @@ export default {
       if (interactionType === 2) {
         this.doSpringPanel(panelConfig);
       }
+      if (interactionType === 4) {
+        this.doJumpUrl(panelConfig);
+      }
+    },
+    doJumpUrl() { // 跳转外部地址
+      const { stylesObj = {} } = this.config;
+      const { externalUrl } = stylesObj;
+      if (!externalUrl) return;
+      if (IsURL(externalUrl)) {
+        window.open(externalUrl);
+        // window.location.href = externalUrl;
+      }
+    }
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
   },
   name: 'SingleLineText'

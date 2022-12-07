@@ -4,7 +4,7 @@
       class="FilterTerm"
       v-on="$listeners"
       v-bind="$attrs"
-      title="设置筛选条件"
+      title="导入额外字段"
       :isShowSure="false"
       cancelBtnName="确认"
     >

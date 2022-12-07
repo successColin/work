@@ -78,6 +78,7 @@
 <script>
 import CommonUser from './components/CommonUser';
 import PassRole from './components/PassRole';
+import ApiotPoint from '../../../../ApiotPoint';
 // import PassOrg from './components/PassOrg';
 // import PassPosition from './components/PassPosition';
 // import SwitchPage from './SwitchPage';
@@ -141,7 +142,8 @@ export default {
   },
   components: {
     CommonUser,
-    PassRole
+    PassRole,
+    ApiotPoint
     // PassOrg,
     // PassPosition
     // SwitchPage
@@ -152,20 +154,20 @@ export default {
     },
     customHeight() {
       let height = 0;
-      // #ifdef MP-DINGTALK
+      // #ifdef MP-ALIPAY
       height = 0;
       // #endif
-      // #ifndef MP-DINGTALK
+      // #ifndef MP-ALIPAY
       height = this.systemInfo.customBar || 0;
       // #endif
       return `calc(100vh - ${height}px - 30rpx)`;
     },
     switchPageHeight() {
       let height = 0;
-      // #ifdef MP-DINGTALK
+      // #ifdef MP-ALIPAY
       height = 0;
       // #endif
-      // #ifndef MP-DINGTALK
+      // #ifndef MP-ALIPAY
       height = this.systemInfo.customBar || 0;
       // #endif
       return `calc(100vh - ${height}px - 30rpx)`;

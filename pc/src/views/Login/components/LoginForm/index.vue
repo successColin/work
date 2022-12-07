@@ -122,6 +122,7 @@
 </template>
 <script>
 import { postLoginForm, exchangeTokenLogin } from '@/api/login.js';
+// import { getPersonalCenterUser } from '@/api/userCenter';
 import { Encrypt, Decrypt } from '@/utils/utils';
 import SliderValidation from '../SliderValidation';
 import AccountSecurity from '../../../UserCenter/components/UserCenterTabs/components/AccountSecurity';
@@ -313,7 +314,9 @@ export default {
         sessionStorage.removeItem('delTabArr');
         const { homeArr } = this.$store.state.base;
         if (sessionStorage.shareUrl) {
-          this.$router.push(sessionStorage.shareUrl);
+          // const res1 = await getPersonalCenterUser();
+          // this.$store.commit('setUserInfo', res1);
+          await this.$router.push(sessionStorage.shareUrl);
           sessionStorage.shareUrl = '';
         } else if (homeArr.length) {
           const current = homeArr[0];

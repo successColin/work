@@ -12,7 +12,7 @@
     ]"
     v-if="showInput"
   >
-    <div class="cardUser" v-if="isCard">
+    <div class="cardUser" v-if="isCard" :style="getStyle">
       <div class="cardUser__title" v-if="configData.showLabelTitle">
         {{ configData.name }}
       </div>
@@ -160,7 +160,8 @@ export default {
       unwatch: null,
       flag: true,
       showSearch: false,
-      popoverWidth: 300
+      popoverWidth: 300,
+      curUserArr: [] // 当前取缓存用户
     };
   },
   mixins: [compMixin],
@@ -202,6 +203,22 @@ export default {
         arr[4] = false;
       }
       return arr;
+    },
+    getAllUser() {
+      return this.$store.state.userCenter.allUser;
+    },
+    getStyle() {
+      let style = '';
+      if (!this.isConfig) {
+        if (this.configData.alignStyle === 2) {
+          style += 'justify-content:flex-end;';
+        } else if (this.configData.alignStyle === 3) {
+          style += 'justify-content:center;';
+        } else {
+          style += 'justify-content:flex-start;';
+        }
+      }
+      return style;
     }
   },
 
@@ -226,10 +243,16 @@ export default {
             selectFrom: 'sys_user',
             selectWhere: `sys_user.id in (${this.cardData[this.configData.compId]})`
           };
-          const data = await selectList(params);
-          data.forEach((item) => {
-            item.icon = JSON.parse(item.icon);
-          });
+          let data = [];
+          if (this.isContainsAll(this.cardData[this.configData.compId])) {
+            data = this.curUserArr;
+          } else {
+            data = await selectList(params);
+            data.forEach((item) => {
+              item.icon = JSON.parse(item.icon);
+            });
+            this.setUserStore(data);
+          }
           this.formData.leaders = data;
         } else {
           this.formData.leaders = [];
@@ -244,10 +267,16 @@ export default {
                 selectFrom: 'sys_user',
                 selectWhere: `sys_user.id in (${v})`
               };
-              const data = await selectList(params);
-              data.forEach((item) => {
-                item.icon = JSON.parse(item.icon);
-              });
+              let data = [];
+              if (this.isContainsAll(v)) {
+                data = this.curUserArr;
+              } else {
+                data = await selectList(params);
+                data.forEach((item) => {
+                  item.icon = JSON.parse(item.icon);
+                });
+                this.setUserStore(data);
+              }
               this.formData.leaders = data;
             }
             if (!v) {
@@ -259,6 +288,31 @@ export default {
           }
         );
       }
+    },
+    setUserStore(arr) {
+      // console.log(arr);
+      arr.forEach((user) => {
+        this.$store.commit('setAllUser', user);
+      });
+    },
+    isContainsAll(ids) {
+      const arr = ids.split(',');
+      const keys = Object.keys(this.getAllUser);
+      const temp = [];
+      this.curUserArr = [];
+      arr.forEach((id) => {
+        const obj = keys.find((key) => +key === +id);
+        if (!obj) {
+          temp.push(obj);
+        } else {
+          this.curUserArr.push(this.getAllUser[id]);
+        }
+      });
+      if (temp.length === 0) {
+        return true;
+      }
+      this.curUserArr = [];
+      return false;
     },
     updateUser(rows) {
       this.formData.leaders = rows;
@@ -416,7 +470,7 @@ export default {
     &.noHover {
       padding: 0px;
       margin-top: 0;
-      margin-bottom: 4px;
+      // margin-bottom: 4px;
     }
   }
   &.active,

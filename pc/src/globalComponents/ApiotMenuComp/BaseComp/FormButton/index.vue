@@ -387,6 +387,11 @@ export default {
           // 选中当前删除的节点
           this.$emit('selectTreeNode');
         }
+        if (this.tableInfo.compName === 'CardTable') {
+          // 选中当前删除的节点
+          this.$emit('selectCardNode');
+        }
+        // 卡片列表按钮点击
         const index = this.configData.ruleArr.findIndex((rule) => {
           const res = this.resolveFormula(true, rule.content);
           console.log(res);
@@ -711,6 +716,9 @@ export default {
           // 去除修改系统字段的 并且 字段名不能重复
           if (!arr.includes(comp.dataSource.columnName)) {
             let columnValue = form[comp.compId] == null ? '' : form[comp.compId];
+            if (comp.compType === 29) {
+              columnValue = JSON.stringify(columnValue);
+            }
             if (Array.isArray(columnValue)) {
               columnValue = columnValue.join();
             }
@@ -1144,6 +1152,7 @@ export default {
       if (
         this.tableInfo.propertyCompName === 'MenuMainConfig' ||
         this.tableInfo.propertyCompName === 'TreeMainConfig' ||
+        this.tableInfo.propertyCompName === 'CardTableConfig' ||
         this.isTableBtn
       ) {
         params.batchInfo.push({
@@ -1757,8 +1766,8 @@ export default {
 
             const tableObjA = collectionArr.find((g) => g.table1 === table1) || {};
             const tableObjB = collectionArr.find((g) => g.table2 === table1) || {};
-            const tableObjC = collectionArr.find((g) => g.table1 === table2) || {};
-            const tableObjD = collectionArr.find((g) => g.table2 === table2) || {};
+            // const tableObjC = collectionArr.find((g) => g.table1 === table2) || {};
+            // const tableObjD = collectionArr.find((g) => g.table2 === table2) || {};
 
             let alias11 =
               mainTable === table1
@@ -1768,14 +1777,7 @@ export default {
                   : tableObjB.alias12
                     ? tableObjB.alias12
                     : '';
-            let alias12 =
-              mainTable === table2
-                ? 't1'
-                : tableObjC.alias11
-                  ? tableObjC.alias11
-                  : tableObjD.alias12
-                    ? tableObjD.alias12
-                    : '';
+            let alias12 = mainTable === table2 ? 't1' : '';
 
             console.log(alias11, alias12);
 
@@ -2019,7 +2021,7 @@ export default {
         }
         return '';
       });
-      return str;
+      return `<div class="btnTip">${str}</div>`;
     },
     mouseenter() {
       this.isHover = true;
@@ -2152,7 +2154,7 @@ export default {
     color: $--color-primary;
   }
   ::v-deep {
-    & > .el-button {
+    & > .el-button:not(.is-disabled) {
       width: 100%;
       vertical-align: top;
       color: #333;
@@ -2162,13 +2164,13 @@ export default {
         background-color: #edf3fe;
       }
     }
-    & > .el-button--primary {
+    & > .el-button--primary:not(.is-disabled) {
       color: #fff;
       &:hover {
         color: #fff !important;
       }
     }
-    & > .el-button--text {
+    & > .el-button--text:not(.is-disabled) {
       color: $--color-primary;
     }
   }
@@ -2184,6 +2186,22 @@ export default {
     line-height: 22px;
     font-size: 13px;
     // padding: 0 10px;
+  }
+}
+</style>
+<style lang='scss'>
+.btnTip {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  strong {
+    font-weight: bold;
+  }
+  em {
+    font-style: italic;
   }
 }
 </style>

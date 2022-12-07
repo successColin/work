@@ -48,10 +48,20 @@
       <span class="span-box__labelName" v-if="configData.showLabelTitle">
         {{ configData.name }}
       </span>
-      <span v-if="configData.showLabelTitle">：</span>
+      <span v-if="configData.showLabelTitle && configData.dataSourceType !== 2"
+        >：</span
+      >
       <span
         class="span-box__content"
-        v-for="(item, i) in getContentArr"
+        :class="[
+          {
+            font__ellipsis:
+              configData.ellipsis || configData.ellipsis !== false,
+          },
+        ]"
+        v-for="(item, i) in configData.dataSourceType !== 2
+          ? getContentArr
+          : []"
         :key="i"
         :style="getItemStyle(item)"
         :title="getDictInfo(item, 'name') || (+item === 0 ? '' : item)"
@@ -62,7 +72,9 @@
           :style="`color:${getDictInfo(item, 'icon').color}`"
         ></i>
         <span>{{
-          getDictInfo(item, 'name') || (+item === 0 ? '' : item)
+          configData.enableDict
+            ? getDictInfo(item, 'name') || (+item === 0 ? '' : item)
+            : item
         }}</span>
         <span v-if="i !== getContentArr.length - 1">,</span>
       </span>
@@ -76,7 +88,9 @@
     </span>
     <div class="table" v-else>
       <p class="table__name">{{ configData.name }}</p>
-      <p class="table__zw">数据占位</p>
+      <p class="table__zw" :class="[{ isId: configData.labelNotChange }]">
+        {{ configData.labelNotChange ? '自增组件' : '数据占位' }}
+      </p>
     </div>
     <config-manage
       v-if="isConfig && !configData.labelNotChange"
@@ -319,6 +333,19 @@ export default {
           }
         }
       }
+      if (!this.isConfig) {
+        if (this.configData.alignStyle === 2) {
+          style += 'justify-content:flex-end;';
+        } else if (this.configData.alignStyle === 3) {
+          style += 'justify-content:center;';
+        } else {
+          style += 'justify-content:flex-start;';
+        }
+        if (this.configData.ellipsis === false) {
+          style += 'height:auto;';
+        }
+      }
+
       return style;
     },
     getItemStyle() {
@@ -697,9 +724,9 @@ export default {
     &__content {
       // flex: 1;
       width: max-content;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      &:not(.font__ellipsis) {
+        white-space: pre-wrap;
+      }
     }
   }
 }
@@ -743,6 +770,9 @@ export default {
   p:nth-child(2) {
     color: #333;
     border-top: 1px solid #e9e9e9;
+    &.isId {
+      color: #999;
+    }
   }
 }
 </style>

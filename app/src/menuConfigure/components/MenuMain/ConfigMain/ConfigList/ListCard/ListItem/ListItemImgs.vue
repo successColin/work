@@ -34,7 +34,7 @@
           ></image>
         </div>
         <div class="subscript" v-if="images.length > 1">
-          +{{ images.length - 1 }}
+          {{ images.length }}
         </div>
       </div>
     </template>

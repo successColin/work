@@ -7,6 +7,8 @@ import {
 export default {
   data() {
     return {
+      current: 1,
+      size: 9999,
       pathArr: [
         {
           name: '全部',
@@ -20,17 +22,6 @@ export default {
   computed: {
     systemInfo() {
       return this.$store.state.base.systemInfo;
-    },
-    customBar() {
-      console.log(this.systemInfo);
-      let height = 0;
-      // #ifdef MP-DINGTALK
-      height = 0;
-      // #endif
-      // #ifndef MP-DINGTALK
-      height = this.systemInfo.customBar || 0;
-      // #endif
-      return height;
     },
   },
 
@@ -51,6 +42,7 @@ export default {
         relationTableId = this.formObj[relateBusiComp.compId];
       }
       if (isSearch) {
+        const obj = this.screenArr.find((item) => item.state);
         res = await materialsSearchFiles({
           parentId: this.parentId,
           relationTableId,
@@ -58,6 +50,9 @@ export default {
           tableId,
           tableName,
           keywords: this.keywords,
+          current: this.current,
+          size: this.size,
+          treeType: obj.id === 1 ? '' : obj.id,
         });
       } else {
         res = await materialsListFiles({
@@ -67,6 +62,8 @@ export default {
           tableId,
           tableName, // 表名
           keywords: '',
+          current: this.current,
+          size: this.size,
         });
       }
       this.sortFun(res);
@@ -81,8 +78,8 @@ export default {
         isFolder: 0, // 是否只显示文件夹(1是 0否)
         parentId: this.parentId,
         keywords: '',
-        current: 1,
-        size: 9999,
+        current: this.current,
+        size: this.size,
       });
       this.sortFun(res);
       this.loading = false;

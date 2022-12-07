@@ -105,6 +105,14 @@ export default {
     },
     // 删除
     deleteChild(i) {
+      const obj = this.activeObj.groupArr[i];
+      if (obj.menuArr && obj.menuArr.length !== 0) {
+        this.$message({
+          type: 'warning',
+          message: '该分组下面存在菜单，无法删除'
+        });
+        return false;
+      }
       this.activeObj.groupArr.splice(i, 1);
     },
     // 名字的失焦恢复

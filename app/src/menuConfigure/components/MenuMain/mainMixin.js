@@ -182,7 +182,7 @@ export default {
       const { selShowType } = designOverallLayout;
 
       // 数据选择框是否要进行切换3=列表，树；5=列表，多表树
-      const canShowSwitchType = [3, 5];
+      const canShowSwitchType = [2, 3, 4, 5];
       if (canShowSwitchType.indexOf(selShowType) !== -1) {
         // 列表和树进行切换
         const [children] = designOverallLayout.children;

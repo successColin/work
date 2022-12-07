@@ -289,6 +289,56 @@ export default {
         const result = this.formulaConversion(text);
         return result ? `'${result}'` : '';
       });
+      // 获取当前用户
+      str = str.replace(/GET_USER_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户组织
+      str = str.replace(/GET_ORG_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取用户角色
+      str = str.replace(/GET_ROLES_ID\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期
+      str = str.replace(/GET_DATE\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取日期时间
+      str = str.replace(/GET_DATETIME\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取年份
+      str = str.replace(/GET_YEAR\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取月份
+      str = str.replace(/GET_MONTH\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取星期
+      str = str.replace(/GET_WEEK\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取天
+      str = str.replace(/GET_DAY\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
+      // 获取时间撮
+      str = str.replace(/GET_TIMESTAMP\(\)/g, (text) => {
+        const result = this.formulaConversion(text);
+        return result ? `'${result}'` : '';
+      });
       return str;
     },
     regProcess(str = '', variablesStr) {

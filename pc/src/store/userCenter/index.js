@@ -8,12 +8,21 @@
 export default {
   state: {
     userInfo: {},
+    allUser: {},
   },
   mutations: {
     // 个人信息详情
     setUserInfo(state, userInfo) {
       // console.log(userInfo);
       state.userInfo = userInfo;
+    },
+    // 个人信息详情
+    setAllUser(state, userInfo) {
+      if (userInfo.id) {
+        state.allUser[userInfo.id] = userInfo;
+      } else {
+        state.allUser = {};
+      }
     },
   },
   actions: {},

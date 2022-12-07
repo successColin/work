@@ -1,6 +1,6 @@
 <template>
   <div class="config singleLineTextConfig">
-    <h1 class="config__h1">下拉框</h1>
+    <h1 class="config__h1">用户组件</h1>
     <el-form label-position="top" :model="activeObj">
       <el-form-item label="标题">
         <apiot-input
@@ -131,6 +131,19 @@
           >
           </el-switch>
         </p>
+      </el-form-item>
+      <el-form-item
+        label="对齐方式"
+        v-if="
+          ($route.query.isApp === '1' && relateObj.compName === 'CardMain') ||
+          relateObj.compName === 'CardTable'
+        "
+      >
+        <el-select v-model="activeObj.alignStyle" class="m-r-8">
+          <el-option label="居左对齐" :value="1"></el-option>
+          <el-option label="居右对齐" :value="2"></el-option>
+          <el-option label="居中对齐" :value="3"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="状态">
         <el-button-group>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- #ifndef MP-DINGTALK -->
+    <!-- #ifndef MP-ALIPAY -->
     <!-- 顶部 -->
     <apiot-navbar :title="title"></apiot-navbar>
     <!-- #endif -->

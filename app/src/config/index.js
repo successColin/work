@@ -23,6 +23,7 @@ module.exports = {
   ],
   // 白名单
   whitePathName: ['login', 'weChat/registerLogin', 'weChat/loginByOpenId'],
+
   // #ifdef H5
   baseUrl: '', // app地址
   // #endif
@@ -35,6 +36,7 @@ module.exports = {
   // baseUrl: 'http://120.26.220.36',
   // baseUrl: 'http://192.168.0.28:8080',
   // baseUrl: 'http://112.124.55.3',
+  // baseUrl: 'https://smrz.ywsoft.vip',
   // #endif
   PREFIX: '/api', // 前缀
   VERSION: 'v1', // 版本号，默认为1，后续有其他接口版本号是其他值
@@ -74,6 +76,11 @@ module.exports = {
       label: '用户登录管理',
       routeName: 'userloginManage',
       url: '/userloginManage/index',
+    },
+    {
+      label: '文章',
+      routeName: 'MoreInfor',
+      url: '/MoreInfor/index',
     },
   ],
 };

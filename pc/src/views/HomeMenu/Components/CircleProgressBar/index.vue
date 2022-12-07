@@ -24,7 +24,7 @@ import { TitleComponent, TooltipComponent, LegendScrollComponent, GraphicCompone
 import { CanvasRenderer } from 'echarts/renderers';
 import { toFixed } from '@/utils/utils';
 import { getInfoById } from '@/api/design';
-import { returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
+import { getRequestParams, returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
 
 // 引入基本模板
 // eslint-disable-next-line no-undef
@@ -65,7 +65,8 @@ export default {
     return {
       content: [],
       myChart: null,
-      observer: null
+      observer: null,
+      timer: null
     };
   },
 
@@ -282,6 +283,9 @@ export default {
   mounted() {
     this.initDom();
   },
+  activated() {
+    this.initDom();
+  },
   watch: {
     config(val) { // 普通的watch监听
       if (this.myChart && val) {
@@ -327,43 +331,6 @@ export default {
         this.fetchData();
       }
     },
-    getParameters() {
-      const { id, SqlDataConfig: {
-        variableConfig
-      } } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query, name } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          const currentVar = variableConfig.find((varObj) => varObj.name === item);
-          if (currentVar) {
-            satisfyParams[item] = this.otherParams[item];
-          }
-        });
-      }
-      let lastParams = {};
-      if (name !== 'appCustomPage') {
-        lastParams = {
-          ...satisfyParams,
-        };
-      } else {
-        lastParams = {
-          ...satisfyParams,
-          ...query,
-        };
-      }
-      const arr = reduce(lastParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
     initDom() {
       const { componentId } = this.config;
       this.myChart = echarts.init(document.getElementById(componentId));
@@ -382,54 +349,10 @@ export default {
           option
         );
       }
-      if (dataType === 2) {
-        await this.getApi();
-      }
       if (dataType === 3) {
         await this.getSQL();
       }
       // getInfoById
-    },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = await getInfoById(params) || [];
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(async () => {
-            await this.getApi();
-            this.myChart.clear();
-            const option = this.getOption();
-            this.myChart.setOption(
-              option
-            );
-          }, time);
-        }
-        if (!enableApiFilter) {
-          this.content = JSON.parse(targetObj);
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(JSON.parse(targetObj));
-          this.content = result;
-          return;
-        }
-        this.content = JSON.parse(targetObj);
-      }
     },
     async getSQL() {
       const { SqlDataConfig } = this.config;
@@ -440,7 +363,13 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -470,6 +399,14 @@ export default {
     }
   },
   beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
   name: 'SingleLineText'
 };

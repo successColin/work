@@ -255,6 +255,9 @@ export default {
         routeKey: this.activeObj.routeName || '',
         type
       };
+      if ([100, 101].includes(params.sysMenu.id)) {
+        params.sysMenu.parentId = 0;
+      }
       // 区分首页跟我的
       if (this.parentKey === 'home') {
         params.sysAppInterfaceConfig = {

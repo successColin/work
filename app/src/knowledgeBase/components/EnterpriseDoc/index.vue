@@ -260,10 +260,10 @@ export default {
     },
     customBar() {
       let height = 0;
-      // #ifdef MP-DINGTALK
+      // #ifdef MP-ALIPAY
       height = 0;
       // #endif
-      // #ifndef MP-DINGTALK
+      // #ifndef MP-ALIPAY
       height = this.systemInfo.customBar || 0;
       // #endif
       return height;

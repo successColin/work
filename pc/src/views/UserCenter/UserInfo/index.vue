@@ -131,6 +131,7 @@ export default {
         this.$router.push('/login');
         this.$bus.$off();
         this.$store.commit('setUserInfo', {});
+        this.$store.commit('setAllUser', {});
         await this.$store.dispatch('getLoginConfigFun');
       });
     }

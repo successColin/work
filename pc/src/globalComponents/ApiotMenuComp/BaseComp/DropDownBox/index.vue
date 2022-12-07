@@ -30,7 +30,27 @@
           <i class="iconfont icon-bangzhu" />
         </el-tooltip>
       </span>
+      <div
+        class="dropDownBox__res"
+        v-if="getResArr.length && configData.dropDownType !== 2"
+      >
+        <SelectRes
+          :configData="configData"
+          :item="item"
+          v-for="item in getResArr"
+          :key="item.value"
+        ></SelectRes>
+      </div>
       <el-select
+        class="dropDownBox__sel"
+        :class="[
+          {
+            hasRes:
+              !configData.canReadonly &&
+              getResArr.length &&
+              configData.dropDownType !== 2,
+          },
+        ]"
         v-model="parent.form[configData.compId]"
         :placeholder="configData.placeholder"
         :multiple="configData.dropDownType === 2"
@@ -45,31 +65,7 @@
           :label="item.name"
           :value="item.value"
         >
-          <div class="option" v-if="configData.dropDownStyle === 2">
-            <span class="option__bg" :style="getStyle(item)">{{
-              item.name
-            }}</span>
-          </div>
-          <div
-            class="option"
-            v-else-if="configData.dropDownStyle === 3 && item.icon"
-          >
-            <span class="option__self">
-              <img
-                :src="$parseImgUrl(item.icon.imgUrl)"
-                v-if="item.icon.imgUrl"
-              />
-              <i
-                v-else
-                :class="`iconfont ${item.icon.icon}`"
-                :style="`color:${item.icon.color}`"
-              ></i
-              >{{ item.name }}</span
-            >
-          </div>
-          <div class="option" v-else>
-            {{ item.name }}
-          </div>
+          <SelectRes :configData="configData" :item="item"></SelectRes>
         </el-option>
       </el-select>
     </el-form-item>
@@ -134,17 +130,19 @@ export default {
       return [];
     },
 
-    getStyle() {
-      return (item) => {
-        let style = '';
-        if (item.color) {
-          style += `background:${item.color};`;
-        }
-        if (item.fontColor) {
-          style += `color:${item.fontColor};`;
-        }
-        return style;
-      };
+    getResArr() {
+      if (this.parent.form[this.configData.compId]) {
+        const arr = this.parent.form[this.configData.compId].toString().split(',');
+        const tempArr = [];
+        arr.forEach((v) => {
+          const obj = this.optionsArr.find((item) => +item.value === +v);
+          if (obj) {
+            tempArr.push(obj);
+          }
+        });
+        return tempArr;
+      }
+      return [];
     }
   },
 
@@ -229,6 +227,9 @@ export default {
   ::v-deep {
     .el-form-item {
       margin-bottom: 0;
+      &__content {
+        position: relative;
+      }
       .el-form-item__label {
         padding-top: 0px;
         line-height: 18px;
@@ -259,30 +260,19 @@ export default {
       border-top: 1px solid #e9e9e9;
     }
   }
-}
-.option {
-  &__bg {
-    max-width: 100%;
-    box-sizing: border-box;
-    display: inline-block;
-    padding-left: 10px;
-    padding-right: 10px;
-    height: 24px;
-    background: $--color-primary;
-    line-height: 24px;
-    text-align: center;
-    border-radius: 4px;
-    color: #fff;
+  &__res {
+    padding: 0 31px 0 13px;
   }
-  &__self {
-    display: flex;
-    align-items: center;
-    img {
-      width: 24px;
-    }
-    i {
-      font-size: 24px;
-      margin-right: 4px;
+  &__sel {
+    position: absolute;
+    top: 0;
+    &.hasRes {
+      ::v-deep {
+        .el-input__inner {
+          background-color: rgba(0, 0, 0, 0);
+          color: rgba(0, 0, 0, 0);
+        }
+      }
     }
   }
 }

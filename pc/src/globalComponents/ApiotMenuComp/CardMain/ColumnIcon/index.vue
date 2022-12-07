@@ -5,10 +5,9 @@
     @mouseleave="showNum = false"
     @click.stop="showPreview"
   >
-    <img v-if="fileList.length" :src="fileList[0].url" alt="" />
-    <span class="imgBox__num" v-if="fileList.length > 1" v-show="showNum"
-      >+
-      {{ fileList.length - 1 }}
+    <img v-if="fileList.length" :src="$parseImgUrl(fileList[0].url)" alt="" />
+    <span class="imgBox__num" v-if="fileList.length > 1" v-show="showNum">
+      {{ fileList.length }}张
     </span>
   </div>
 </template>
@@ -49,7 +48,7 @@ export default {
         const data = await getFileList({
           ids: this.item[this.configData.iconColumn.compId]
         });
-        console.log(data);
+        // console.log(data);
         this.fileList = data;
       }
     },

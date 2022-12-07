@@ -226,13 +226,14 @@ export default {
       );
     },
     allTableFieldArr() {
-      return (
-        (this.dropObj &&
-          this.dropObj.children &&
-          this.dropObj.children[0] &&
-          this.dropObj.children[0].children) ||
-        []
-      );
+      const arr = (this.dropObj && this.dropObj.children) || [];
+      const installArr = [];
+      arr.forEach((item) => {
+        if (item.areaType === 1) {
+          installArr.push(...item.children);
+        }
+      });
+      return installArr;
     }
   },
 
@@ -350,6 +351,29 @@ export default {
         });
       }
     },
+    // 递归循环加数据
+    addDataFun(obj = {}) {
+      if (obj.children) {
+        console.log(obj);
+        obj.children.forEach((item) => {
+          if (item.compName !== 'TableMain') {
+            this.addDataFun(item);
+          } else {
+            item.children.forEach((v) => {
+              if (v.areaType === 1) {
+                v.children.unshift({
+                  areaType: 1,
+                  name: '序号',
+                  imgUrl: 'baseComp/Label.svg',
+                  compType: 27,
+                  compId: 'sequence'
+                });
+              }
+            });
+          }
+        });
+      }
+    },
     // 获取配置值
     async getSysDesignMenu() {
       this.detailId = this.$route.query.detailId;
@@ -358,6 +382,9 @@ export default {
       const data = await getSysDesignMenu({ sysMenuDesignId: this.menuId });
       this.configData = data &&
         data.designOverallLayout && [JSON.parse(JSON.stringify(data.designOverallLayout[0]))];
+      this.configData.forEach((item) => {
+        this.addDataFun(item);
+      });
     }
   }
 };

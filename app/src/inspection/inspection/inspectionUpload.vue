@@ -91,6 +91,7 @@
 </template>
 
 <script>
+import ApiotTipPrompt from '../components/ApiotTipPrompt';
 import {
   selectInspectionHistory,
   updateSql,
@@ -103,7 +104,9 @@ import {
 import { batchUpload, uploadInspectionTask } from '@/api/inspection.js';
 
 export default {
-  components: {},
+  components: {
+    ApiotTipPrompt
+  },
   async onShow() {
     await selectInspectionConfig((res) => {
       this.deviceLayer = JSON.parse(res[0].deviceLayer);

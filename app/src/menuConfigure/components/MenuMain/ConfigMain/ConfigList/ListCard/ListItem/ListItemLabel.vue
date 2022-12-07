@@ -125,6 +125,7 @@ export default {
       const { dataSource, enableMultiColumn } = this.element;
       let V = value;
       if (dataSource.mainColumnInfo || enableMultiColumn) V = showValue || V;
+      if (typeof V === 'number') V = `${V}`;
 
       // 如果是字典并且存在','，就认为是字典多选功能，需要分割
       const { isDict } = this;

@@ -64,6 +64,10 @@ export default {
     title: {
       type: String
     },
+    titlePosition: {
+      type: String,
+      default: ''
+    },
     // 顶部导航栏是否有下划线
     hasBottomLine: {
       type: Boolean,

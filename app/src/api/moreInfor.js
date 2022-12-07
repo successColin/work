@@ -2,7 +2,7 @@
  * @Author: ytx
  * @Date: 2021-06-17 18:40:09
  * @Last Modified by: ytx
- * @Last Modified time: 2022-11-18 09:08:09
+ * @Last Modified time: 2022-11-21 11:08:26
  * 更多资讯
  */
 import FetchData from './axiosConfig';
@@ -16,7 +16,7 @@ export function listGroup(params) {
   });
 }
 
-// 查询__首页文章列表
+// 查询__文章列表
 export function getPageArticle(params) {
   return FetchData.request({
     url: '/system/article/pageArticle',
@@ -25,7 +25,7 @@ export function getPageArticle(params) {
   });
 }
 
-// 查询__文章列表
+// 查询__首页文章列表
 export function getListArticle(params) {
   return FetchData.request({
     url: '/system/article/listArticle',

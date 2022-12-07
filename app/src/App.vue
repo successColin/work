@@ -60,14 +60,15 @@ export default {
           payload = JSON.parse(message.payload);
         }
         if (!payload) {
-          uni.navigateTo({
-            url: '/index/index?source=messageClick'
+          uni.reLaunch({
+            url: '/pages/index/index?source=messageClick&canShowNotification=1&isLink=999'
           });
         }
       }
+      console.log(clent, 'clent');
       if (clent === 'android') {
-        uni.navigateTo({
-          url: '/index/index?source=messageClick'
+        uni.reLaunch({
+          url: '/pages/index/index?source=messageClick&canShowNotification=1&isLink=999'
         });
       }
       console.log(message, 'push click');
@@ -133,9 +134,9 @@ export default {
 // @import '@/static/appFont/stylesheet.css';
 // #endif
 // #ifndef MP
-@import url('https://at.alicdn.com/t/c/font_2808920_i99j8z3ezj8.css'); // app独有
-@import url('http://at.alicdn.com/t/c/font_3736860_ttujc1jb0lo.css'); // 彩色
-@import url('http://at.alicdn.com/t/c/font_2808920_vdnc4h16qa.css'); //纯色
+@import url('https://at.alicdn.com/t/c/font_2808920_fwvcrfq4v3m.css'); // app独有
+// @import url('http://at.alicdn.com/t/c/font_3589590_oiiwz06t3.css'); // 彩色
+@import url('http://at.alicdn.com/t/c/font_3589589_lwag9mymt1.css'); //纯色
 // #endif
 // #ifdef MP
 @import '@/assets/css/iconfont/appIconfont.css'; // app独有

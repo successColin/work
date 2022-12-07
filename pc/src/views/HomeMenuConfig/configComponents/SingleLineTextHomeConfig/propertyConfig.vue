@@ -230,6 +230,7 @@
             <el-radio-button :label="1">无</el-radio-button>
             <el-radio-button :label="2">弹出面板</el-radio-button>
             <el-radio-button :label="3">跳转菜单</el-radio-button>
+            <el-radio-button :label="4">外部地址</el-radio-button>
           </el-radio-group>
         </div>
         <div class="btnWrap">
@@ -247,6 +248,11 @@
           >
             <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
           </apiot-button>
+          <apiot-input
+              v-if="getComponentInfo.interactionType === 4"
+              v-model="getComponentInfo.stylesObj.externalUrl"
+              @change="(value) => changeStyles(value, 'externalUrl')"
+          ></apiot-input>
         </div>
       </el-collapse-item>
     </el-collapse>
@@ -679,6 +685,7 @@ export default {
         flex: 1;
         .el-radio-button__inner {
           width: 100%;
+          padding: 7px;
         }
       }
     }

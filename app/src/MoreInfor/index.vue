@@ -6,42 +6,40 @@
  * @Last Modified time: 2022-11-12 11:59:49
 -->
 <template>
-  <!-- #ifndef MP-DINGTALK -->
   <view class="moreInfor">
     <!-- 顶部 -->
+    <!-- #ifndef MP-ALIPAY -->
     <apiot-navbar :title="title"></apiot-navbar>
     <!-- #endif -->
     <my-tabs :list="tabsList" @change="handleChangeTabs"></my-tabs>
     <!-- 内容 -->
-    <u-list @scrolltolower="scrolltolower" :height="computedHeight">
-      <u-list-item
-        v-for="(item, index) in articleArr"
-        :key="index"
-        class="moreInfor__content"
-      >
-        <navigator
-          :url="jumpUrl(item.id)"
-          hover-class="none"
-          class="tabnavHome__infor--more"
-        >
-          <!-- 风格一 -->
-          <info-Stylea
-            :valObj="item"
-            v-if="item.articleType === 1"
-          ></info-Stylea>
-          <!-- 风格二 -->
-          <info-Styleb
-            :valObj="item"
-            v-else-if="item.articleType === 2"
-          ></info-Styleb>
-          <!-- 风格三 -->
-          <info-Stylec
-            :valObj="item"
-            v-else-if="item.articleType === 3"
-          ></info-Stylec>
-        </navigator>
-      </u-list-item>
-    </u-list>
+    <view class="moreInfor__content" :style="{ height: computedHeight }">
+      <u-list @scrolltolower="scrolltolower" :height="computedHeight">
+        <u-list-item v-for="(item, o) in articleArr" :key="o">
+          <navigator
+            :url="jumpUrl(item.id)"
+            hover-class="none"
+            class="tabnavHome__infor--more"
+          >
+            <!-- 风格一 -->
+            <info-Stylea
+              :valObj="item"
+              v-if="item.articleType === 1"
+            ></info-Stylea>
+            <!-- 风格二 -->
+            <info-Styleb
+              :valObj="item"
+              v-else-if="item.articleType === 2"
+            ></info-Styleb>
+            <!-- 风格三 -->
+            <info-Stylec
+              :valObj="item"
+              v-else-if="item.articleType === 3"
+            ></info-Stylec>
+          </navigator>
+        </u-list-item>
+      </u-list>
+    </view>
   </view>
 </template>
 
@@ -49,9 +47,9 @@
 import { listGroup } from '@/api/moreInfor';
 import { getPageArticle } from '@/api/moreInfor';
 import MyTabs from './components/MyTabs';
-import InfoStylea from '@/MenuHome/components/SysTabnavHome/components/InfoStylea';
-import InfoStyleb from '@/MenuHome/components/SysTabnavHome/components/InfoStyleb';
-import InfoStylec from '@/MenuHome/components/SysTabnavHome/components/InfoStylec';
+import InfoStylea from './components/InfoStylea';
+import InfoStyleb from './components/InfoStyleb';
+import InfoStylec from './components/InfoStylec';
 import { Encrypt } from '@/utils';
 
 export default {
@@ -78,12 +76,20 @@ export default {
       };
     },
     computedHeight() {
-      const { windowHeight, navbarHeight } = this.$store.state.base.systemInfo;
-      const height = windowHeight - navbarHeight - 45;
+      const { windowHeight, navbarHeight, statusBar } = this.$store.state.base.systemInfo;
+      const height = windowHeight - navbarHeight - statusBar - 45;
       return height;
     }
   },
-  watch: {},
+  watch: {
+    title(v) {
+      // #ifdef MP-ALIPAY
+      uni.setNavigationBarTitle({
+        title: v
+      });
+      // #endif
+    }
+  },
   mounted() {
     this.getlistGroup();
   },
@@ -131,8 +137,12 @@ export default {
   width: 100%;
   height: 100vh;
   background: #ffffff;
+  display: flex;
+  flex-direction: column;
   &__content {
     margin: 0 30rpx;
+    flex: 1;
+    overflow: hidden;
   }
 }
 </style>

@@ -120,9 +120,19 @@ export default {
         this.visitRecordFun(v);
         // 预览
         const { name, url } = v.sysKlTree;
-        console.log(v.sysKlTree);
+        const imgArr = [];
+        let index = -1;
+        if (v.sysKlTree.treeType === 3) {
+          this.dataArr.forEach((item) => {
+            if (item.sysKlTree.treeType === 3) {
+              imgArr.push(item.sysKlTree);
+            }
+          });
+          index = imgArr.findIndex((item) => item.id === v.id) || -1;
+        }
         this.$apiot.preview.previewFile({
-          file: [v.sysKlTree],
+          file: imgArr.length === 0 ? [v.sysKlTree] : imgArr,
+          currentIndex: index,
           isWatermark: this.isWatermark,
           fileParamUrl: 'url',
           fileParamName: 'name'

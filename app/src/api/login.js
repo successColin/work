@@ -1,8 +1,8 @@
 /*
  * @Author: sss
  * @Date: 2021-06-17 18:40:09
- * @Last Modified by: ytx
- * @Last Modified time: 2022-10-29 15:44:56
+ * @Last Modified by: sss
+ * @Last Modified time: 2022-11-21 16:08:14
  */
 import FetchData from './axiosConfig';
 
@@ -65,6 +65,7 @@ export function getGlobalAppLogin() {
   return FetchData.request({
     url: '/system/global/getGlobalAppLogin',
     method: 'get',
+    errorPage: true,
   });
 }
 

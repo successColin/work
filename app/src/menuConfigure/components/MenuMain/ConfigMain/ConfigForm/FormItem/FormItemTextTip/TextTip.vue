@@ -14,7 +14,12 @@
         :color="color"
         :size="$apiot.rpx2px(iconSize)"
       ></label-icon>
-      <span class="title" :style="[titleStyle]">{{ title }}</span>
+      <span
+        class="title"
+        :class="[iconName ? 'hasMargin' : '']"
+        :style="[titleStyle]"
+        >{{ title }}</span
+      >
     </div>
     <div class="textTip__content" v-if="content">
       <label-icon
@@ -70,7 +75,10 @@ export default {
     display: flex;
 
     .title {
-      margin-left: 10rpx;
+      &.hasMargin {
+        margin-left: 10rpx;
+      }
+
       font-size: $form-el-fontSize;
       @include fontBlob(500);
       color: #333333;

@@ -29,7 +29,6 @@
         type="textarea"
         @input="input"
         :rows="configData.maxRow"
-        :maxlength="configData.maxlength"
         :placeholder="configData.placeholder"
         :disabled="configData.canReadonly"
         :readonly="configData.singleStatus === 3"

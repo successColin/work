@@ -69,6 +69,8 @@
 </template>
 
 <script>
+import MemoColumn from './MemoColumn';
+
 export default {
   props: {
     currentRadioObj: {
@@ -78,11 +80,6 @@ export default {
     hasPagination: {
       type: Boolean,
       default: true
-    },
-    // 当前的列表(必须)
-    columnArr: {
-      type: Array,
-      default: () => []
     },
     // 获取表数据方法(必须)
     getList: {
@@ -115,11 +112,35 @@ export default {
       curRadioObj: null,
       executeTimeRange: '',
       current: 1, // 当前页面
-      size: 10 // 当前一页数目
+      size: 10, // 当前一页数目
+      historyColumnArr: [
+        {
+          label: 'timedTask.missionName',
+          prop: 'jobName',
+          compName: 'ElTableColumn'
+        },
+        {
+          label: 'timedTask.executionTime',
+          prop: 'executeTime',
+          width: 180,
+          compName: 'ElTableColumn'
+        },
+        {
+          label: 'timedTask.executionResult',
+          prop: 'executeResult',
+          typesPropName: 'JOB_EXECUTE_RESULT',
+          compName: 'StateColumn'
+        },
+        {
+          label: 'timedTask.failureDescription',
+          prop: 'errorMsg',
+          compName: 'MemoColumn'
+        }
+      ]
     };
   },
 
-  components: {},
+  components: { MemoColumn },
 
   computed: {},
 
@@ -138,7 +159,7 @@ export default {
   methods: {
     async getDate() {
       this.curRadioObj = this.currentRadioObj;
-      this.dropColumnData = this.columnArr;
+      this.dropColumnData = this.historyColumnArr;
       this.getParentList();
     },
     async getParentList() {

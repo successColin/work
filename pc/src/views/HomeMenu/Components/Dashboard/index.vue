@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import { isEqual } from 'lodash';
 // 引入基本模板
 import * as echarts from 'echarts/core';
 // 引入柱状图图表，图表后缀都为 Chart
@@ -24,7 +23,7 @@ import { TitleComponent, TooltipComponent, LegendScrollComponent } from 'echarts
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from 'echarts/renderers';
 import { getInfoById } from '@/api/design';
-import { returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
+import { getRequestParams, returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
 // 引入基本模板
 // eslint-disable-next-line no-undef
 // const echarts = require('echarts');
@@ -70,6 +69,7 @@ export default {
         width: '0',
         height: '0'
       },
+      timer: null,
       supplementaryColor: [], // 补充色
       list: [],
       params: {},
@@ -485,6 +485,9 @@ export default {
   mounted() {
     this.initDom();
   },
+  activated() {
+    this.initDom();
+  },
   watch: {
     // otherParams: {
     //   deep: true,
@@ -502,55 +505,18 @@ export default {
     //     }
     //   }
     // }
-    elementData: {
-      deep: true,
-      immediate: false,
-      handler(v, o) {
-        const { id, dataType } = this.config;
-        if (!isEqual(v, o) && dataType === 3) {
-          this.reduceDataFilter(v[id]);
-        }
-      }
-    }
+    // elementData: {
+    //   deep: true,
+    //   immediate: false,
+    //   handler(v, o) {
+    //     const { id, dataType } = this.config;
+    //     if (!isEqual(v, o) && dataType === 3) {
+    //       this.reduceDataFilter(v[id]);
+    //     }
+    //   }
+    // }
   },
   methods: {
-    getParameters() {
-      const { id, componentId } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj).map((item) => ({
-          name: item,
-          value: obj[item]
-        }));
-
-      const { query, name } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams).forEach((item) => {
-          if (item.indexOf(componentId) > -1) {
-            const key = item.replace(`${componentId}_`, '');
-            satisfyParams[key] = this.otherParams[item];
-          }
-        });
-      }
-      let lastParams = {};
-      if (name !== 'appCustomPage') {
-        lastParams = {
-          ...satisfyParams,
-          ...this.params
-        };
-      } else {
-        lastParams = {
-          ...satisfyParams,
-          ...query,
-          ...this.params
-        };
-      }
-      const arr = reduce(lastParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
     initDom() {
       const { componentId } = this.config;
       // eslint-disable-next-line max-len
@@ -567,14 +533,6 @@ export default {
           option
         );
       }
-      if (dataType === 2) {
-        await this.getApi();
-        const option = this.getOption();
-        // 绘制图表
-        this.instance.myChart.setOption(
-          option
-        );
-      }
       if (dataType === 3) {
         // await this.getSQL();
         const option = this.getOption();
@@ -585,58 +543,19 @@ export default {
       }
       // getInfoById
     },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = await getInfoById(params) || [];
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(async () => {
-            await this.getApi();
-            this.instance.myChart.clear();
-            const option = this.getOption();
-            // 绘制图表
-            this.instance.myChart.setOption(
-              option
-            );
-          }, time);
-        }
-        const list = JSON.parse(targetObj);
-        if (!enableApiFilter) {
-          this.list = list;
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(list);
-          // if (!(Array.isArray(result) && result.length)) {
-          //   this.list = [];
-          //   return
-          // }
-          this.list = result;
-        }
-      }
-    },
     async getSQL() {
       const { SqlDataConfig } = this.config;
       const {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -681,6 +600,14 @@ export default {
 
   },
   beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
   name: 'SingleLineText'
 };

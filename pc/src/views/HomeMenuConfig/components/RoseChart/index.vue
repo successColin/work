@@ -210,7 +210,7 @@ export default {
             formatter: labelShowType === 'type' ? labelValueType === 1 ? '{b}: {c}' : '{b}: {d}' + '%' : labelValueType === 1 ? '{c}' : '{d}' + '%'
           },
           labelLine: {
-            show: labelPosition === 'outer'
+            show: labelPosition === 'outside'
             // length: 120,
             // length2: 20,
           },

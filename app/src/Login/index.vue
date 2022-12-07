@@ -204,9 +204,8 @@ export default {
               safeAreaInsetTop: true,
               fontSize: 18
             });
-            console.log(obj);
             this.$store.commit('setServerInfoAddress', obj);
-            // uni.reLaunch({ url: '/pages/index/index' });
+            uni.reLaunch({ url: '/pages/index/index' });
           }
         }
       } catch (error) {

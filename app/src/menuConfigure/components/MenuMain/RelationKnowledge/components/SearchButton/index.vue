@@ -39,7 +39,7 @@ export default {
     handleJump() {
       uni.navigateTo({
         animationType: 'pop-in',
-        url: `/knowledgeBase/components/SearchRelationpage/index?formObj=${this.getAllForm() &&
+        url: `/menuConfigure/components/MenuMain/SearchRelationpage/index?formObj=${this.getAllForm() &&
           JSON.stringify(this.getAllForm())}`
       });
     }

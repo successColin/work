@@ -237,7 +237,7 @@ export default {
     // 条件标题
     termTitle: {
       type: String,
-      default: '生效条件'
+      default: '过滤条件'
     },
     // 展示公式类型
     showType: {
@@ -258,7 +258,7 @@ export default {
     },
     variables: {
       type: Array
-    },
+    }
   },
   data() {
     return {

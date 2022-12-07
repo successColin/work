@@ -31,7 +31,7 @@ import {
 } from 'echarts/components';
 import { FunnelChart, GraphChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
-import { returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
+import { getRequestParams, returnChartPosition } from '@/views/HomeMenuConfig/constants/common';
 
 // import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
 // 引入基本模板
@@ -78,6 +78,7 @@ export default {
       },
       supplementaryColor: [], // 补充色
       list: [],
+      timer: null,
       loading: false
     };
   },
@@ -146,75 +147,6 @@ export default {
             left: `${avg * i}%`
           }));
         }
-        // if (n > cn) { // 数据大于配置
-        //   return chartData.map((item, i) => {
-        //     const currentConfig = config[i];
-        //     if (currentConfig) {
-        //       const {
-        //         width, // 宽
-        //         height, // 高
-        //         top, // 上边距
-        //         left, // 左边距
-        //         sort, // 排序
-        //         orient, // 漏斗图朝向
-        //         funnelAlign,
-        //         gap, // 图形间距
-        //         isShowLabel, // 是否显示文本标签
-        //         labelFontFamily,
-        //         labelFontWeight,
-        //         labelFontSize,
-        //         labelColor,
-        //         labelTextAlign,
-        //         labelPosition, // 标签位置
-        //
-        //         itemBorderColor, // 图形的描边颜色
-        //         itemBorderWidth, // 图形的描边宽度
-        //         itemBorderType, // 描边类型
-        //         itemShadowBlur, // 图形阴影的模糊大小
-        //         itemShadowColor, // 阴影颜色
-        //         itemShadowOffsetX, // 阴影水平方向上的偏移距离
-        //         itemShadowOffsetY, // 阴影垂直方向上的偏移距离
-        //         opacity
-        //       } = currentConfig;
-        //       return {
-        //         ...item,
-        //         type: 'funnel',
-        //         width: `${width}%`,
-        //         height: `${height}%`,
-        //         top: `${top}%`,
-        //         left: `${left}%`,
-        //         orient,
-        //         sort,
-        //         gap,
-        //         funnelAlign,
-        //         label: {
-        //           show: isShowLabel,
-        //           position: labelPosition,
-        //           color: labelColor,
-        //           fontFamily: labelFontFamily,
-        //           fontSize: labelFontSize,
-        //           fontWeight: labelFontWeight,
-        //           align: labelTextAlign
-        //         },
-        //         itemStyle: {
-        //           borderColor: itemBorderColor,
-        //           borderWidth: itemBorderWidth,
-        //           borderType : itemBorderType,
-        //           shadowBlur: itemShadowBlur,
-        //           shadowColor: itemShadowColor,
-        //           shadowOffsetX: itemShadowOffsetX,
-        //           shadowOffsetY: itemShadowOffsetY,
-        //           opacity
-        //         }
-        //       }
-        //     }
-        //     return {
-        //       ...item,
-        //       type: 'funnel'
-        //     }
-        //   })
-        // };
-
         return chartData.map((item, i) => {
           const currentConfig = config[i];
           if (currentConfig) {
@@ -321,7 +253,7 @@ export default {
           data: noTitleArr
         }] : [];
         const seriesArr = this.makeChart([...chartArr, ...noTitleArrChart], funnelsConfig);
-        const option = {
+        return {
           tooltip: {
             show: true,
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
@@ -361,11 +293,13 @@ export default {
           color: colorArr.map((item) => item.c1),
           series: seriesArr
         };
-        return option;
       };
     }
   },
   mounted() {
+    this.initDom();
+  },
+  activated() {
     this.initDom();
   },
   watch: {
@@ -373,49 +307,16 @@ export default {
       deep: true,
       immediate: true,
       handler(v, o) {
-        const params = this.getParameters();
         const { isShow } = this.config;
-        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && isShow) {
           this.fetchData();
-        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && isShow) {
           this.fetchData();
         }
       }
     }
   },
   methods: {
-    getParameters() {
-      const {
-        id,
-        componentId
-      } = this.config;
-      const reduce = (obj) => // 将Object 处理成 Array
-        Object.keys(obj)
-          .map((item) => ({
-            name: item,
-            value: obj[item]
-          }));
-      const { query } = this.$route;
-      const satisfyParams = {};
-      if (JSON.stringify(this.otherParams) !== '{}') {
-        Object.keys(this.otherParams)
-          .forEach((item) => {
-            if (item.indexOf(componentId) > -1) {
-              const key = item.replace(`${componentId}_`, '');
-              satisfyParams[key] = this.otherParams[item];
-            }
-          });
-      }
-      const currentParams = {
-        ...satisfyParams,
-        ...query
-      };
-      const arr = reduce(currentParams);
-      return {
-        id,
-        varJson: JSON.stringify(arr)
-      };
-    },
     initDom() {
       const { componentId } = this.config;
       const domWrap = `basicPie_${componentId}${this.designType}`;
@@ -441,14 +342,6 @@ export default {
         //   seriesIndex: 0
         // });
       }
-      if (dataType === 2) {
-        this.loading = true;
-        await this.getApi();
-        const option = this.getOption();
-        // 绘制图表
-        this.instance.myChart.setOption(option, true);
-        this.loading = false;
-      }
       if (dataType === 3) {
         this.loading = true;
         await this.getSQL();
@@ -459,49 +352,6 @@ export default {
       }
       // getInfoById
     },
-    async getApi() {
-      const { apiDataConfig } = this.config;
-      const params = this.getParameters();
-      const res = await getInfoById(params) || [];
-      if (res.length) {
-        const obj = res[0] || {};
-        const targetObj = obj.response || '{}';
-        const {
-          enableApiFilter,
-          enableApiAutoUpdate,
-          apiUpdateTime = 1,
-          apiFilterFun,
-          apiDataFilterId
-        } = apiDataConfig;
-        if (enableApiAutoUpdate) {
-          const time = apiUpdateTime * 1000;
-          // eslint-disable-next-line no-unused-expressions
-          this.timer && clearTimeout(this.timer);
-          this.timer = setTimeout(async () => {
-            await this.getApi();
-            this.instance.myChart.clear();
-            const option = this.getOption();
-            // 绘制图表
-            this.instance.myChart.setOption(option, true);
-          }, time);
-        }
-        const list = JSON.parse(targetObj);
-        if (!enableApiFilter) {
-          this.list = list;
-          return;
-        }
-        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
-          // eslint-disable-next-line no-new-func
-          const fun = new Function(`return ${apiFilterFun}`);
-          const result = fun()(list);
-          if (!(Array.isArray(result) && result.length)) {
-            this.list = [];
-            return;
-          }
-          this.list = result;
-        }
-      }
-    },
     async getSQL() {
       const { SqlDataConfig } = this.config;
       const {
@@ -511,7 +361,13 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const params = this.getParameters();
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: {}
+      });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
         const time = SQLUpdateTime * 1000;
@@ -543,6 +399,16 @@ export default {
         return;
       }
       this.list = res;
+    }
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
   },
   name: 'SingleLineText'

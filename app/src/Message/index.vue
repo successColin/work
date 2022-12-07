@@ -7,34 +7,12 @@
 -->
 <template>
   <div class="message">
-    <apiot-navbar :title="title">
+    <apiot-navbar :title="title" :backLevel="999" @navBack="navBack">
     </apiot-navbar>
-    <!-- <view class="message__tab">
-      <view class="tab" :class="{active: activeName === item.key}" v-for="item in tabsArr"
-        :key="item.key" @click="tabClick(item)">{{item.label}}</view>
-    </view> -->
     <view class="message__content">
       <!-- 为了兼容支付宝小程序不支持v-show -->
     <message-list
-      :sysMenuId="sysMenuId"
-      :compId="compId"
       type="WORK_FLOW" ref="Workflow"></message-list>
-    <!-- #ifdef MP-ALIPAY -->
-    <!-- <message-list v-if="activeName === 'SYSTEM'"
-      :sysMenuId="sysMenuId"
-      :compId="compId"
-      type="SYSTEM" ref="SystemMessage"></message-list> -->
-    <!-- #endif -->
-    <!-- #ifndef MP-ALIPAY -->
-    <!-- <message-list
-      :sysMenuId="sysMenuId"
-      :compId="compId"
-      type="WORK_FLOW" ref="Workflow"></message-list>
-    <message-list v-show="activeName === 'SYSTEM'"
-      :sysMenuId="sysMenuId"
-      :compId="compId"
-      type="SYSTEM" ref="SystemMessage"></message-list> -->
-    <!-- #endif -->
     </view>
   </div>
 </template>
@@ -74,8 +52,6 @@ export default {
         PLATFORM: null,
       },
       title: '消息',
-      sysMenuId: '',
-      compId: ''
     };
   },
 
@@ -103,6 +79,9 @@ export default {
       } catch (err) {
         console.log(err);
       }
+    },
+    navBack() {
+      uni.reLaunch({ url: '/MenuHome/index' });
     }
   },
 
@@ -113,10 +92,7 @@ export default {
     this.queryMailCount('SYSTEM');
   },
   onLoad(option) {
-    console.log(option);
     this.title = option.title;
-    this.sysMenuId = option.id;
-    this.compId = option.compId;
   },
 };
 </script>

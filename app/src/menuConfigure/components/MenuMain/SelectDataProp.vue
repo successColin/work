@@ -147,6 +147,7 @@ export default {
 
   data() {
     return {
+      showType: 2, // 当前展示类型 1=列表；2=树;只有数据选择弹出框时有用
       // 是否显示已经选中的列表
       canShowCheck: false,
       mainLoading: true,

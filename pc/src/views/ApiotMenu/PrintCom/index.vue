@@ -71,7 +71,7 @@ export default {
   methods: {
     handlerPringBtn(v) {
       this.tableConfigOjb = {};
-      this.$bus.$emit('getTableArr', (arr) => {
+      this.$bus.$emit('getPrintTableArr', (arr) => {
         this.tableData = arr;
       });
       const { previewObj, areaHeight, areaWidth, globalConfig } = v;
@@ -79,6 +79,7 @@ export default {
       console.log(JSON.parse(JSON.stringify(everyHeight)));
 
       this.$nextTick(() => {
+        console.log(this.tableData);
         const allForm = this.getAllForm();
         const newCelldataList = [];
         let num = 0;
@@ -102,8 +103,12 @@ export default {
             item.v.field = field;
             // eslint-disable-next-line no-loop-func
             this.tableData.forEach((g, p, arr) => {
+              let val = g[`${field}_`] || g[field];
+              if (field === 'sequence') {
+                val = p + 1;
+              }
               const obj = item;
-              obj.v.m = g[field];
+              obj.v.m = val;
               obj.r = r + p + tableNum * arr.length - tableNum;
               obj.oldR = r;
               newCelldataList.push(JSON.parse(JSON.stringify(obj)));
@@ -130,6 +135,7 @@ export default {
           }
           const { f = '' } = item.v;
           if (f) {
+            console.log(2222, f);
             // 求和
             if (f.indexOf('=SUM') !== -1) {
               const interval = f.substring(5, f.length - 1);
@@ -188,9 +194,8 @@ export default {
                         }
                       });
                     } else {
-                      sun +=
-                        (engOjb && engOjb.v && engOjb.v.m && +engOjb.v.m.replace(/[^\d]/g, '')) ||
-                        '';
+                      console.log(engOjb.v.m);
+                      sun += +(engOjb && engOjb.v && engOjb.v.m) || '';
                     }
                   }
                 }
@@ -213,7 +218,6 @@ export default {
                 const val1 = g.row[0];
                 const val2 = g.row[1];
                 tableRow.forEach((b) => {
-                  console.log(b, val1, val2);
                   if (val1 <= b && b <= val2) {
                     const value = this.tableData.length * borderNum;
                     g.row[0] = val1 + value - borderNum;

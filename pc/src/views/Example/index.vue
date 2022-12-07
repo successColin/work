@@ -1,11 +1,11 @@
 <template>
-  <div class="about">
+  <div class="about" style="width: 100%; height: 200px">
     <!-- <apiot-tabs></apiot-tabs> -->
-    <!-- <apiot-table
+    <apiot-table
       ref="multipleTable"
       :tableData="tableData"
       tooltip-effect="light"
-      style="width: 100%"
+      style="width: 100%; height: 300px"
       row-key="date"
       :isNeedRowDrop="true"
       :isNeedColumnDrop="true"
@@ -23,7 +23,7 @@
         :showInput="showInput"
         @blurInput="blurInput"
       ></component>
-    </apiot-table> -->
+    </apiot-table>
     <!-- <apiot-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -205,12 +205,12 @@ export default {
           label: '姓名',
           prop: 'name',
           width: '120',
-          compName: 'ColumnName'
+          compName: 'ElTableColumn'
         },
         {
           label: '地址',
           prop: 'address',
-          compName: 'ColumnAddress'
+          compName: 'ElTableColumn'
         },
         {
           label: '日期',
@@ -441,7 +441,7 @@ export default {
     this.initEcharts();
     // console.log(this.$route);
     const editor = new Wangeditor('.wangeditor');
-    editor.config.onCatalogChange = function(arr) {
+    editor.config.onCatalogChange = function (arr) {
       // 大纲回调
       const box = document.getElementById('catalogBox');
       box.innerHTML = '';
@@ -470,7 +470,7 @@ export default {
         const a = document.createElement('a');
         // a.href = 'javascript:void(0)';
         a.innerText = levelObj[level] + item.text;
-        a.onclick = function() {
+        a.onclick = function () {
           editor.scrollToHead(item.id);
         };
         p.appendChild(a);
@@ -508,7 +508,7 @@ export default {
     // editor.config.showLinkImgAlt = false;
     // // 配置超链接
     // editor.config.showLinkImgHref = false;
-    editor.config.customUploadImg = function(resultFiles, insertImgFn) {
+    editor.config.customUploadImg = function (resultFiles, insertImgFn) {
       // console.log('customUploadImg', resultFiles, insertImgFn);
       Array.from(resultFiles).forEach((file) => {
         // console.log(URL.createObjectURL(file));
@@ -521,7 +521,7 @@ export default {
         限制类型：mp4
         timeout 即上传接口等待的最大时间，默认是 5分钟
     */
-    editor.config.customUploadVideo = function(resultFiles, insertVideoFn) {
+    editor.config.customUploadVideo = function (resultFiles, insertVideoFn) {
       // resultFiles 是 input 中选中的文件列表
       // insertVideoFn 是获取视频 url 后，插入到编辑器的方法
       // 上传视频，返回结果，将视频地址插入到编辑器中
