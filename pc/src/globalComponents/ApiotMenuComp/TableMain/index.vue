@@ -503,7 +503,6 @@ export default {
       this.$bus.$on('getSelMultiArr', this.getSelMultiArr);
       this.$bus.$on('getAllTableData', this.getAllTableData);
       this.$bus.$on('getTableArr', this.getTableArr);
-      this.$bus.$on('getPrintTableArr', this.getPrintTableArr);
       this.$bus.$on('selectTableLine', this.selectTableLine);
     }
   },
@@ -534,34 +533,6 @@ export default {
     getTableArr(callback) {
       console.log(this.multiEntityArr);
       const arr = JSON.parse(JSON.stringify(this.tableData));
-      this.configData.children.forEach((item) => {
-        item.children.forEach((v) => {
-          const getDictKey = v.dataSource && v.dataSource.dictObj && v.dataSource.dictObj.dictKey;
-          const tempData = this.$store.getters.getCurDict(getDictKey) || [];
-          const tempDataCopy = JSON.parse(JSON.stringify(tempData));
-          const obj = {};
-          if (tempDataCopy.length) {
-            tempDataCopy.forEach((dict) => {
-              obj[dict.value] = dict;
-            });
-          }
-          arr.forEach((a) => {
-            if (v.enableDict && !this.isConfig) {
-              a[v.compId] = (obj[a[v.compId]] && obj[a[v.compId]].name) || a[v.compId];
-            }
-          });
-        });
-      });
-      callback(arr);
-    },
-    // 打印获取数据的逻辑
-    getPrintTableArr(callback) {
-      console.log(JSON.parse(JSON.stringify(this.multiEntityArr)));
-      console.log(JSON.parse(JSON.stringify(this.tableData)));
-      const arr =
-        JSON.parse(JSON.stringify(this.multiEntityArr)).length !== 0
-          ? JSON.parse(JSON.stringify(this.multiEntityArr))
-          : JSON.parse(JSON.stringify(this.tableData));
       this.configData.children.forEach((item) => {
         item.children.forEach((v) => {
           const getDictKey = v.dataSource && v.dataSource.dictObj && v.dataSource.dictObj.dictKey;
@@ -1632,7 +1603,6 @@ export default {
       this.$bus.$off('selectTableLine', this.selectTableLine);
     }
     this.$bus.$off('getTableArr');
-    this.$bus.$off('getPrintTableArr');
 
     if (this.defaultForm) {
       this.getFeatureArr.form = JSON.parse(JSON.stringify(this.defaultForm));

@@ -53,6 +53,12 @@ export default {
         return {};
       }
     },
+    filterParameter: { // 控件传给控件的参数集合
+      type: Object,
+      default() {
+        return {};
+      }
+    }
     // elementData: {
     //   type: Object,
     //   default() {
@@ -67,6 +73,7 @@ export default {
       content: '',
       obj: {}, // 文本对象
       timer: null,
+      params: {}, // 别的控件传过来的参数
       panelConfig: {} // 面板属性
     };
   },
@@ -167,32 +174,26 @@ export default {
     }
   },
   mounted() {
-    this.init();
+    this.checkFilterParameter(false);
     this.initFunc();
   },
   activated() {
-    this.init();
+    this.checkFilterParameter(false);
   },
   watch: {
-    // otherParams: {
-    //   deep: true,
-    //   immediate: false,
-    //   handler(v, o) {
-    //     const params = this.getParameters();
-    //     const { isShow } = this.config;
-    //     if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-    //       this.init();
-    //     } else if (
-    //       JSON.stringify(v) === '{}'
-    //         &&
-    //         JSON.stringify(o) !== '{}'
-    //         &&
-    //         params.varJson === '[]' && isShow
-    //     ) {
-    //       this.init();
-    //     }
-    //   }
-    // },
+    filterParameter: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          if (isShow) {
+            this.checkFilterParameter(true);
+          }
+        }
+      }
+    },
     // elementData: {
     //   deep: true,
     //   immediate: false,
@@ -208,6 +209,23 @@ export default {
     // }
   },
   methods: {
+    checkFilterParameter(flag) {
+      const paramsObj = {};
+      const { componentId } = this.config;
+      Object.keys(this.filterParameter).forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.split('_')[1];
+          paramsObj[key] = this.filterParameter[item];
+        }
+      });
+      this.params = paramsObj;
+      this.$nextTick(() => {
+        if (flag && JSON.stringify(paramsObj) === '{}') {
+          return;
+        }
+        this.init();
+      });
+    },
     async init() {
       const {
         dataType,
@@ -559,7 +577,6 @@ export default {
     formulaConversion(formulaStr) {
       let str = this.regProcess(formulaStr);
       let res = parser.parse(`${str}`);
-      console.log(res);
       if (res.error) {
         str = str.replace(/\$([A-Za-z0-9]{6})\$/g, () => '"0"');
         res = parser.parse(`${str}`);

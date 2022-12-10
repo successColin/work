@@ -169,6 +169,23 @@ const bulletCommonConfig = {
   toMenuConfig: {}, // 跳菜单配置
 };
 
+export const tabStylesConfig = {
+  cFontFamily: '微软雅黑', // 未激活状态字体
+  cFontWeight: 'normal', // 未激活状态文字粗细
+  cFontSize: 28, // 未激活状态文字大小
+  cPaddingTopAndBottom: 10, // 未激活状态上下内边距
+  cPaddingRightAndLeft: 10, // 未激活状态左右内边距
+  cColor: '#333', // 未激活状态左右内边距
+  cHoverColor: '#4689F5', // 未激活状态左右内边距
+  cBgUrl: '', // 背景图片
+  cHoverBgUrl: '', // 悬浮时的背景图片
+  cBgColor: '#fff', // 背景颜色
+  cHoverBgColor: '#fff', // 悬浮时的背景颜色
+  borderWidth: 1, // 边框大小
+  borderColor: '#fff', // 边框颜色
+  borderRadius: 0 // 边框倒角
+};
+
 export default {
   props: {},
   data() {
@@ -1477,7 +1494,94 @@ export default {
         {
           name: '高级组件',
           isClose: false,
-          children: []
+          children: [
+            {
+              imgUrl: 'homePage/pieChart.svg',
+              componentName: 'TabComponent',
+              name: 'tab组件',
+              width: 500,
+              height: 180,
+              minHeight: 20,
+              minWidth: 50,
+              left: 0,
+              top: 0,
+              isShow: true, // 是否显示，用于图层控制组件显示与否
+              isLock: false, // 是否锁定
+              dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+              stylesObj: {
+                zIndex: 1,
+                stylesType: 'styleOne',
+                tabMarginLeftAndRight: 10, // tab外边距
+                defaultShowTab: 'tab1_0', // 默认选中的tab
+                paramName: '' // 传递参数名称
+              },
+              styleOne: {
+                activeConfig: {
+                  ...tabStylesConfig,
+                  cColor: '#4689F5' // 激活状态
+                },
+                unActiveConfig: {
+                  ...tabStylesConfig
+                }
+              },
+              styleTwo: {
+                activeConfig: {
+                  ...tabStylesConfig,
+                  cColor: '#4689F5' // 激活状态
+                },
+                unActiveConfig: {
+                  ...tabStylesConfig,
+                  cBgColor: '#f5f7fa', // 背景颜色
+                }
+              },
+              styleThree: {
+                activeConfig: {
+                  ...tabStylesConfig,
+                  cColor: '#fff', // 激活状态
+                  cBgColor: '#4689F5', // 背景颜色
+                  borderColor: '#4689F5', // 边框颜色
+                  cHoverBgColor: '#4689F5', // 悬浮时的背景颜色
+                  cHoverColor: '#fff' // 未激活状态左右内边距
+                },
+                unActiveConfig: {
+                  ...tabStylesConfig,
+                  cColor: '#333', // 激活状态
+                  cBgColor: '#f5f7fa', // 背景颜色
+                  borderColor: '#e9e9e9', // 边框颜色
+                  cHoverBgColor: '#4689F5', // 悬浮时的背景颜色
+                  cHoverColor: '#fff' // 未激活状态左右内边距
+                }
+              },
+              tabConfig: [
+                {
+                  key: 1,
+                  name: 'tab1', // tab名称
+                  displayChartArray: [], // tab关联显示的图表，是空数组默认不处理
+                  activeIcon: '', // tab激活状态下的图标
+                  unActiveIcon: '', // tab非激活状态下的图标
+                  value: '', // 当前tab代表的参数，用于更新图标
+                  geChartArray: [] // 当前tab需要更新哪几个图表，配合value字段使用
+                },
+                {
+                  key: 2,
+                  name: 'tab2', // tab名称
+                  displayChartArray: [], // tab关联显示的图表，是空数组默认不处理
+                  activeIcon: '', // tab激活状态下的图标
+                  unActiveIcon: '', // tab非激活状态下的图标
+                  value: '', // 当前tab代表的参数，用于更新图标
+                  geChartArray: [] // 当前tab需要更新哪几个图表，配合value字段使用
+                },
+                {
+                  key: 3,
+                  name: 'tab3', // tab名称
+                  displayChartArray: [], // tab关联显示的图表，是空数组默认不处理
+                  activeIcon: '', // tab激活状态下的图标
+                  unActiveIcon: '', // tab非激活状态下的图标
+                  value: '', // 当前tab代表的参数，用于更新图标
+                  geChartArray: [] // 当前tab需要更新哪几个图表，配合value字段使用
+                }]
+            },
+          ]
         }
       ]
     };

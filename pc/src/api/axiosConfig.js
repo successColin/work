@@ -283,6 +283,9 @@ class FetchData {
         if (codeNumber === 'B0001') {
           return Promise.reject(res.data.data);
         }
+        if (codeNumber === 'DD002') {
+          return Promise.reject(res.data);
+        }
         if (!res.config.showMsg) {
           resetMessage.error({
             showClose: true,

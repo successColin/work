@@ -42,9 +42,16 @@
       </el-form-item>
       <el-form-item
         label="操作区域"
-        v-if="[2, 9, 10].includes(activeObj.buttonType) && activeObj.isTabBtn"
+        v-if="
+          [2, 9, 10, 15].includes(activeObj.buttonType) && activeObj.isTabBtn
+        "
       >
-        <el-select v-model="activeObj.deleteArea" placeholder="请选择删除区域">
+        <el-select
+          v-model="activeObj.deleteArea"
+          :placeholder="`${
+            15 === activeObj.buttonType ? '请选择打印区域' : '请选择删除区域'
+          }`"
+        >
           <el-option
             :label="item.name"
             :value="item.compId"
@@ -1207,7 +1214,7 @@ export default {
       // }
       // tab按钮区转为删除时，删除区域，默认第一个
       if (
-        this.activeObj.buttonType === 2 &&
+        (this.activeObj.buttonType === 2 || this.activeObj.buttonType === 15) &&
         this.activeObj.isTabBtn &&
         !this.activeObj.deleteArea
       ) {

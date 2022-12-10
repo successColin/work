@@ -37,11 +37,12 @@
               :transitionScaleY="transitionScaleY"
               :config="configItem"
               :is="configItem.componentName"
-              v-for="(configItem, i) in filterList"
-              :key="`${configItem.componentId}_${i}`"
+              v-for="(configItem) in filterList"
+              :key="`${configItem.componentId}`"
               :metaDataList="metaDataList"
               :updateState="updateState"
               :otherParams="otherParams"
+              :filterParameter="filterParameter"
           ></component>
         </div>
         <CScreenBullet
@@ -94,6 +95,7 @@ const Notice = () => import('./Components/Notice/index');
 const RoseChart = () => import('./Components/RoseChart/index');
 const Liquidfill = () => import('./Components/Liquidfill/index');
 const FunnelChart = () => import('./Components/FunnelChart/index');
+const TabComponent = () => import('./Components/TabComponent/index');
 
 // const TabComponent = () => import('./Components/TabComponent/index');
 // const TimeFiltering = () => import('./Components/TimeFiltering/index');
@@ -113,7 +115,7 @@ export default {
       }
     },
     otherParams: {
-      // 其他外部参数
+      // 其他外部参数, 用于菜单中传过来的
       type: Object,
       default() {
         return {};
@@ -145,6 +147,7 @@ export default {
   components: {
     // FullScreenBtn,
     // PopCloseButton,
+    TabComponent,
     FunnelChart,
     Liquidfill,
     RoseChart,

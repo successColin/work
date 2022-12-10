@@ -1041,40 +1041,6 @@ export default {
     .el-tabs__header {
       margin: 0;
     }
-    //.el-collapse {
-    //  border: none;
-    //}
-
-    //.el-collapse-item__arrow {
-    //  margin: 0 0px 0 auto;
-    //}
-
-    //.el-collapse-item__header {
-    //  height: 30px;
-    //  line-height: 30px;
-    //  background-color: #131E45;
-    //  color: #ffffff;
-    //  font-weight: bold;
-    //  border-bottom: none;
-    //
-    //  &:hover {
-    //    color: $component-borderFocus-color;
-    //  }
-    //}
-    //
-    //.el-collapse-item__content {
-    //  padding: 10px 0;
-    //  background-color: #131E45;
-    //
-    //  & .propsSetting:last-child {
-    //    margin-bottom: 10px;
-    //  }
-    //}
-    //
-    //.el-collapse-item__wrap {
-    //  background-color: #131E45;
-    //  border: none;
-    //}
   }
 
   .propsSetting {

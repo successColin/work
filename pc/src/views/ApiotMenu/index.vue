@@ -1,6 +1,5 @@
 <template>
   <div class="menu">
-    <print-com></print-com>
     <component
       v-if="
         show &&
@@ -45,7 +44,6 @@ import { getDesignMenu, operationTriggers, selectList } from '@/api/menuConfig';
 import { getPersonalCenterUser } from '@/api/userCenter';
 import parser from '@/utils/formula';
 import { createUnique, formatDate, isExistInObj, Encrypt } from '@/utils/utils';
-import PrintCom from '@/views/ApiotMenu/PrintCom';
 
 let getAllPaneBack = null;
 
@@ -118,7 +116,7 @@ export default {
     };
   },
 
-  components: { PrintCom },
+  components: {},
 
   computed: {
     // 获取所有单位

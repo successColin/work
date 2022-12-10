@@ -35,6 +35,8 @@
           :list="list"
           :scale="scale"
           :bgConfig="bgConfig"
+          v-on="$listeners"
+          v-bind="$attrs"
           :type="config.componentName === 'GeneralTable'?'design':''"
       ></component>
     </div>
@@ -62,6 +64,7 @@ const Notice = () => import('../../components/Notice/index');
 const RoseChart = () => import('../../components/RoseChart/index');
 const Liquidfill = () => import('../../components/Liquidfill/index');
 const FunnelChart = () => import('../../components/FunnelChart/index');
+const TabComponent = () => import('../../components/TabComponent/index');
 
 export default {
   props: {
@@ -116,7 +119,8 @@ export default {
     HorizontalProgressBar,
     RadarChart,
     AuxiliaryLine,
-    Notice
+    Notice,
+    TabComponent
   },
 
   computed: {},

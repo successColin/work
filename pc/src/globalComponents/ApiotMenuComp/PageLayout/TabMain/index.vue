@@ -372,7 +372,7 @@ export default {
     height: 100%;
     ::v-deep {
       .el-tabs__header {
-        height: 42px !important;
+        height: 42px; // 为了打印中头部去除
         line-height: 42px !important;
         margin-bottom: 0;
         .el-tabs__nav-scroll {

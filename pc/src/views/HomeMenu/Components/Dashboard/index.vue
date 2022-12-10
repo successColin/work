@@ -59,6 +59,12 @@ export default {
       default() {
         return {};
       }
+    },
+    filterParameter: { // 控件传给控件的参数集合
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -489,22 +495,33 @@ export default {
     this.initDom();
   },
   watch: {
-    // otherParams: {
-    //   deep: true,
-    //   immediate: true,
-    //   handler(v, o) {
-    //     const params = this.getParameters();
-    //     // eslint-disable-next-line no-warning-comments
-    //     // todo 逻辑有点问题，应该是这个控件的值发生改变，再去触发调用接口
-    //     const { isShow } = this.config;
-    //     if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
-    //       this.fetchData();
-    /* eslint-disable-next-line max-len */
-    //     } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
-    //       this.fetchData();
-    //     }
-    //   }
-    // }
+    otherParams: {
+      deep: true,
+      immediate: true,
+      handler(v, o) {
+        if (v && o) {
+          const { dataType, SqlDataConfig: {
+            enableDataManage, variableConfig = []
+          } } = this.config;
+          if (dataType === 3 && enableDataManage && variableConfig.length) {
+            this.checkParams(variableConfig);
+          }
+        }
+      }
+    },
+    filterParameter: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          if (isShow) {
+            this.checkFilterParameter(true);
+          }
+        }
+      }
+    },
     // elementData: {
     //   deep: true,
     //   immediate: false,
@@ -517,10 +534,44 @@ export default {
     // }
   },
   methods: {
+    getFilterParamsObj() {
+      const paramsObj = {};
+      const { componentId } = this.config;
+      Object.keys(this.filterParameter).forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.split('_')[1];
+          paramsObj[key] = this.filterParameter[item];
+        }
+      });
+      this.params = paramsObj;
+      return paramsObj;
+    },
+    checkFilterParameter(flag) {
+      const paramsObj = this.getFilterParamsObj();
+      this.$nextTick(() => {
+        if (flag && JSON.stringify(paramsObj) === '{}') {
+          return;
+        }
+        this.fetchData();
+      });
+    },
+    checkParams(variableConfig) {
+      const obj = {};
+      Object.keys(this.otherParams).forEach((item) => {
+        const currentVar = variableConfig.find((varObj) => varObj.name === item);
+        if (currentVar) {
+          obj[item] = this.otherParams[item];
+        }
+      });
+      if (JSON.stringify(obj) !== '{}') {
+        this.fetchData();
+      }
+    },
     initDom() {
       const { componentId } = this.config;
       // eslint-disable-next-line max-len
       this.instance = Object.freeze({ myChart: echarts.init(document.getElementById(componentId)) });
+      this.getFilterParamsObj();
       this.fetchData();
     },
     async fetchData() {
@@ -534,7 +585,7 @@ export default {
         );
       }
       if (dataType === 3) {
-        // await this.getSQL();
+        await this.getSQL();
         const option = this.getOption();
         // 绘制图表
         this.instance.myChart.setOption(
@@ -554,7 +605,7 @@ export default {
         config: this.config,
         routeQuery: name !== 'appCustomPage' ? {} : query,
         otherParams: this.otherParams,
-        elseParams: {}
+        elseParams: this.params || {}
       });
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {

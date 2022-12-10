@@ -94,6 +94,8 @@
       :paramsObj="paramsObj"
       :exportVisible="exportVisible"
     ></dialog-export>
+
+    <print-com :printParams="printParams"></print-com>
   </div>
 </template>
 
@@ -107,6 +109,7 @@ import { lighten } from '@/utils/varyColor';
 
 import query from '@/api/query';
 
+import PrintCom from './components/PrintCom';
 import compMixin from '../../compMixin';
 import DialogExport from './components/DialogExport';
 
@@ -193,12 +196,13 @@ export default {
       initForm: {}, // 初始值
       exportVisible: false, // 导出选择列
       tableData: [],
-      paramsObj: {}
+      paramsObj: {},
+      printParams: {}
     };
   },
   mixins: [compMixin],
 
-  components: { DialogExport },
+  components: { DialogExport, PrintCom },
 
   computed: {
     templateId() {
@@ -250,14 +254,12 @@ export default {
     // tab 按钮保存的最终提交数组
     getResArr() {
       const saveArr = this.configData.saveAreaArr ? JSON.parse(this.configData.saveAreaArr) : [];
-      // console.log(saveArr);
       let resArr = [];
       saveArr.forEach((comp) => {
         const index = this.featureArr.findIndex((child) => child.compId === comp.compId);
         if (index !== -1) {
           this.featureArr[index].relation = [];
           comp.relation.forEach((relate) => {
-            // console.log(relate);
             this.featureArr[index].relation.push({
               columnName: relate.columnInfo.columnName,
               columnType: relate.columnInfo.columnTypeDict,
@@ -320,14 +322,12 @@ export default {
     // tab按钮区保存的校验
     validateSave() {
       return new Promise((resolve, reject) => {
-        // console.log(this.getResArr);
         const { length } = this.getResArr;
         // let res = true;
         this.getResArr.forEach(async (area, index) => {
-          // console.log(index);
           try {
             if (area.propertyCompName === 'MenuMainConfig') {
-              // console.log(this.menuMain.$refs[area.compId]);
+              // //  console.log(this.menuMain.$refs[area.compId]);
               const feature = area.pageType === 2 ? area.children[1] : area.children[0];
               await this.menuMain.$refs[area.compId][0].$refs.form.validate();
               await this.checkFormUnique(feature.children);
@@ -339,7 +339,7 @@ export default {
               return resolve();
             }
           } catch (error) {
-            console.log(error);
+            //  console.log(error);
             this.resolveError(error);
             // res = false;
             if (error && typeof error !== 'object') {
@@ -373,15 +373,15 @@ export default {
       }
     },
     async btnClick() {
-      // console.log('点击');
+      // //  console.log('点击');
       // 表格里面的按钮点击触发行的点击
       if (this.isTableBtn) {
         this.$bus.$emit('selectTableLine', this.tableInfo.compId, this.rowData);
       }
       this.isLoading = true;
       try {
-        // // console.log(this.menuMain);
-        // console.log(this.configData);
+        // // //  console.log(this.menuMain);
+        // //  console.log(this.configData);
         // 树结点的选择
         if (this.tableInfo.isTree) {
           // 选中当前删除的节点
@@ -394,7 +394,7 @@ export default {
         // 卡片列表按钮点击
         const index = this.configData.ruleArr.findIndex((rule) => {
           const res = this.resolveFormula(true, rule.content);
-          console.log(res);
+          //  console.log(res);
           if (res) {
             return true;
           }
@@ -415,7 +415,7 @@ export default {
             await this.checkFormUnique(this.featureArr.children);
           }
           if (this.isTabBtn) {
-            // console.log('tab按钮区的校验');
+            // //  console.log('tab按钮区的校验');
             await this.validateSave();
           }
           if (this.isTable) {
@@ -508,7 +508,7 @@ export default {
           this.$bus.$emit('reloadArea', 'all', this.onlyFlag());
         } else if (this.configData.refreshType === 8) {
           const isAdd = this.getFatherPanel() && this.getFatherPanel().isAdd;
-          console.log(isAdd, this.curSaveRes);
+          //  console.log(isAdd, this.curSaveRes);
           // 为true的时候，对当前第一个表单
           if (isAdd && this.curSaveRes) {
             this.curSaveRes.batchInfo.forEach((info) => {
@@ -519,7 +519,7 @@ export default {
                   }
                   return false;
                 });
-                console.log(obj);
+                //  console.log(obj);
                 if (obj) {
                   this.$bus.$emit(
                     'reloadArea',
@@ -645,7 +645,7 @@ export default {
           }
         }
       } catch (error) {
-        console.log(error);
+        //  console.log(error);
         this.isLoading = false;
         if (error && typeof error !== 'object' && error !== 'cancel') {
           this.$message({
@@ -885,7 +885,7 @@ export default {
         logStr: []
       };
       const feature = area.pageType === 2 ? area.children[1] : area.children[0];
-      console.log(area);
+      //  console.log(area);
       if (area.tableData) {
         area.tableData.forEach((data) => {
           if (!data.notChange) {
@@ -898,7 +898,7 @@ export default {
           }
         });
       }
-      // console.log(params);
+      // //  console.log(params);
       return params;
     },
     // 表格区 批量删除接口
@@ -914,12 +914,12 @@ export default {
           params.listInfo.push(this.resolveSaveData(feature, area, data));
         }
       });
-      // console.log(params);
+      // //  console.log(params);
       return params;
     },
     // 批量保存参数设置
     resolveBatchParams(areaArr) {
-      // console.log(areaArr);
+      // //  console.log(areaArr);
       const { userInfo } = this.$store.state.userCenter;
       let logContent = `${userInfo.username}(${userInfo.account}):`;
       const params = {
@@ -983,7 +983,7 @@ export default {
         return;
       }
       const res = this.resolveFormula(true, this.configData.execFuncName);
-      // console.log(res);
+      // //  console.log(res);
       if (Array.isArray(res) && res.length) {
         params.batchInfo.forEach((area) => {
           if (area.areaType === 1 && area.saveInfo.isAdd) {
@@ -1017,7 +1017,7 @@ export default {
         return false;
       });
       if (i !== -1) {
-        // console.log(i, j);
+        // //  console.log(i, j);
         const obj = listInfo[i][j];
         const curData = listInfo[i];
         const valueArr = obj.columnValue.split(',');
@@ -1101,8 +1101,8 @@ export default {
       }
 
       if (this.isTabBtn) {
-        // console.log(this.featureArr);
-        console.log('tab按钮区的保存', this.getResArr);
+        // //  console.log(this.featureArr);
+        //  console.log('tab按钮区的保存', this.getResArr);
         const params = this.resolveBatchParams(this.getResArr);
         if (
           this.showType &&
@@ -1117,8 +1117,8 @@ export default {
         this.curSaveRes = await batchSave(params);
       }
       if (this.isTable) {
-        // console.log(this.tableInfo, this.featureArr);
-        // console.log('表格区的保存');
+        // //  console.log(this.tableInfo, this.featureArr);
+        // //  console.log('表格区的保存');
         const params = this.resolveBatchParams([this.tableInfo]);
         if (
           this.showType &&
@@ -1132,7 +1132,7 @@ export default {
     },
     // 处理删除接口参数
     resolveDeleteParams() {
-      // console.log(this.tableInfo);
+      // //  console.log(this.tableInfo);
       const params = {
         ids: '',
         tableName: this.tableInfo.tableInfo.tableName,
@@ -1238,7 +1238,7 @@ export default {
         const { form } = featureArr;
         featureArr.children.findIndex((comp) => {
           const columnValue = form[comp.compId] == null ? '' : form[comp.compId];
-          console.log(comp);
+          //  console.log(comp);
           if (comp.dataSource && comp.dataSource.columnName === 'id') {
             params.ids = columnValue;
             return true;
@@ -1261,7 +1261,7 @@ export default {
           }
         });
         params.ids = params.ids.slice(0, -1);
-        // // console.log('删除的id', params.ids);
+        // // //  console.log('删除的id', params.ids);
       }
       const { userInfo } = this.$store.state.userCenter;
       const logContent = `${userInfo.username}(${userInfo.account}):[删除表(${params.tableName})数据:id:${params.ids}]`;
@@ -1349,7 +1349,7 @@ export default {
         this.isLoading = false;
       } else {
         const params = this.resolveDeleteParams();
-        // console.log(params);
+        // //  console.log(params);
         this.deleteShouldReload = true;
 
         if (['TableMainConfig', 'TreeTableConfig'].includes(this.tableInfo.propertyCompName)) {
@@ -1556,7 +1556,7 @@ export default {
     },
     // 新增
     async singleInsert() {
-      // console.log(this.tableInfo);
+      // //  console.log(this.tableInfo);
       if (this.tableInfo.propertyCompName === 'TableMainConfig' && this.tableInfo.lineEditable) {
         this.$emit('addTableRow');
         return;
@@ -1590,7 +1590,7 @@ export default {
       }
 
       this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);
-      // console.log(this.panelObj);
+      // //  console.log(this.panelObj);
       if (this.panelObj && this.panelObj.panelName) {
         this.panelObj.isEdit = true;
         this.showPanel = true;
@@ -1670,14 +1670,14 @@ export default {
           return true;
         }
         const res = this.resolveFormula(true, menu.jumpTerm);
-        // console.log(res);
+        // //  console.log(res);
         if (res) {
           return true;
         }
         return false;
       });
       if (obj) {
-        console.log(obj);
+        //  console.log(obj);
         const menu = this.$store.getters.getCurMenu(obj.id);
         if (menu) {
           const curMenu = JSON.parse(JSON.stringify(menu));
@@ -1720,7 +1720,7 @@ export default {
     // 导入
     handlerImportFun() {
       this.importVisible = true;
-      // console.log(this.configData);
+      // //  console.log(this.configData);
     },
     importRefresh() {
       if (this.configData.refreshType === 1) {
@@ -1731,7 +1731,7 @@ export default {
     },
     // 导出
     async handleExport() {
-      // console.log(this.configData, this.multiEntityArr, this.menuMain, this.tableInfo);
+      // //  console.log(this.configData, this.multiEntityArr, this.menuMain, this.tableInfo);
       const { exportSetting, needField, templateInfo } = this.configData;
       // const { dropColumnData } = this.menuMain;
 
@@ -1745,10 +1745,10 @@ export default {
 
       const tempArr = []; // 选中转换
 
-      console.log(mainTable);
+      //  console.log(mainTable);
 
       const { relateTableArr } = this.tableInfo; // 关联关系
-      console.log(relateTableArr);
+      //  console.log(relateTableArr);
       let num = 1;
       // const alias = [
       //   {
@@ -1779,7 +1779,7 @@ export default {
                     : '';
             let alias12 = mainTable === table2 ? 't1' : '';
 
-            console.log(alias11, alias12);
+            //  console.log(alias11, alias12);
 
             if (!alias11) {
               num += 1;
@@ -1789,7 +1789,7 @@ export default {
               num += 1;
               alias12 = `t${num}`;
             }
-            // console.log(v, table2, key2);
+            // //  console.log(v, table2, key2);
             collectionArr.push({
               table1,
               key1,
@@ -1804,7 +1804,7 @@ export default {
       });
 
       const tableComp = this.menuMain.getFeatureArr.children;
-      // console.log(this.multiEntityArr, tableComp, this.tableShowColumn);
+      // //  console.log(this.multiEntityArr, tableComp, this.tableShowColumn);
       this.multiEntityArr.forEach((data) => {
         const obj = {};
         tableComp.forEach((comp) => {
@@ -1816,7 +1816,7 @@ export default {
       const dictMap = {};
       this.tableShowColumn.forEach((comp) => {
         if (comp.canShow && !comp.children) {
-          // console.log(comp);
+          // //  console.log(comp);
           const obj = {
             title: comp.name
             // isChecked: true
@@ -1943,10 +1943,8 @@ export default {
       const { exportType } = this.configData;
       this.$bus.$emit('queryExport', exportType);
     },
-    // 打印按钮
-    async handlePrintBtn() {
+    async printFun(tableArr) {
       const { printTemp = {} } = this.configData;
-      console.log(this.configData, this.multiEntityArr, this.menuMain, this.tableInfo);
       const { id = '' } = printTemp;
       if (!id) {
         return this.$message({
@@ -1954,20 +1952,106 @@ export default {
           message: '请配置关联打印模板'
         });
       }
-
       const excelData = await getPrintDesign({ id });
       const { globalConfig, previewObj } = JSON.parse(excelData.desingJson);
       const { paperHeight, paperWidth } = globalConfig;
 
       const areaHeight = `${paperHeight}mm`;
       const areaWidth = `${paperWidth}mm`;
-
-      this.$bus.$emit('pringBtn', {
+      const params = {
         previewObj,
         areaHeight,
         areaWidth,
-        globalConfig
-      });
+        globalConfig,
+        tableArr
+      };
+      //  console.log(params);
+      this.printParams = params;
+      // this.$bus.$emit('pringBtn', params);
+    },
+    // 打印数据转换
+    dataConversion(area, data) {
+      if (JSON.stringify(area) !== '{}') {
+        area.children.forEach((item) => {
+          if (item.areaType === 1) {
+            item.children.forEach((obj) => {
+              if (obj.dataSource.dictObj) {
+                const getDictKey = obj.dataSource.dictObj.dictKey;
+                const tempData = this.$store.getters.getCurDict(getDictKey) || [];
+                //  console.log(tempData, getDictKey);
+                if (tempData.length) {
+                  //  console.log(obj, data);
+                  data.forEach((v) => {
+                    if (obj.compId) {
+                      const dictObj = tempData.find((j) => j.value === v[obj.compId]);
+                      //  console.log(dictObj);
+                      v[`${obj.compId}_`] = dictObj.name;
+                    }
+                  });
+                }
+              }
+            });
+          }
+        });
+        this.printFun(data);
+      }
+    },
+    // 打印按钮
+    async handlePrintBtn() {
+      let tableArrData = [];
+      if (this.isTabBtn) {
+        if (this.getResArr.length === 0) {
+          return this.$message({
+            type: 'warning',
+            message: '无可打印区域'
+          });
+        }
+        // 找出删除区域的对象
+        const index = this.getResArr.findIndex(
+          (area) => area.compId === this.configData.deleteArea
+        );
+        let area = null;
+        if (index === -1) {
+          [area] = this.getResArr;
+        } else {
+          area = this.getResArr[index];
+        }
+        const params = this.resolveTabDeleteParams(area);
+        // 表格区按钮区的删除
+        if (area.propertyCompName === 'TableMainConfig') {
+          const table = this.menuMain.$refs[area.compId][0];
+          if (table.multiEntityArr.length === 0) {
+            this.$message({
+              type: 'warning',
+              message: '未选择打印数据'
+            });
+            return Promise.reject();
+          }
+          tableArrData = table.multiEntityArr;
+        }
+        //  有id先走删除接口
+        if (params.ids) {
+          this.dataConversion(area, tableArrData);
+        }
+      } else {
+        const params = this.resolveDeleteParams();
+        if (['TableMainConfig'].includes(this.tableInfo.propertyCompName)) {
+          if (this.multiEntityArr.length === 0 && !this.isTableBtn) {
+            this.$message({
+              type: 'warning',
+              message: '未选择打印数据'
+            });
+            return Promise.reject();
+          }
+          tableArrData = this.multiEntityArr;
+        }
+
+        //  有id先走删除接口
+        if (params.ids) {
+          this.dataConversion(this.tableInfo, tableArrData);
+        }
+      }
+      this.isLoading = false;
     },
     // 确认 数据选择框
     async dataSelect() {
@@ -2120,7 +2204,7 @@ export default {
     //   this.canShow = v;
     // },
     // 'configData.canReadonly': function (v) {
-    //   console.log(v);
+    //   //  console.log(v);
     // },
     exportVisible(v) {
       if (!v) {

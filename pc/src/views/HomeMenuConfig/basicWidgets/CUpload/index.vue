@@ -78,9 +78,9 @@
         :http-request="doUpload"
         :accept="accept"
       >
-        <c-button class="headerWrap__back">
+        <apiot-button class="headerWrap__back">
           <span class="icon-shangchuan iconfont"></span> 点击选择文件
-        </c-button>
+        </apiot-button>
         <slot name="tip"></slot>
       </el-upload>
       <div class="urlWrap" v-if="url" :title="url">
@@ -259,7 +259,8 @@ export default {
       }
 
       .headerWrap__back {
-        color: #ffffff;
+        color: #999999;
+        font-size: 12px;
 
         &:hover {
           .icon-shangchuan {
@@ -294,12 +295,12 @@ export default {
       font-size: 13px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color: #ffffff;
+      color: #999999;
       line-height: 20px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      border: 1px solid #2f437f;
+      border: 1px solid #e9e9e9;
       box-sizing: border-box;
 
       .icon-guanbi {

@@ -111,6 +111,7 @@
               v-for="(val, index) in maxWidth"
               :key="index"
               :style="`
+                  display: inline-block;
                   position: relative;
                   white-space: pre-line;
                   vertical-align: bottom;
@@ -143,8 +144,17 @@
                           )
                         : '100%'
                     };
+                    height: ${
+                      tdValFun(i, index, celldataList, 7) &&
+                      tdValFun(i, index, celldataList, 7).rs
+                        ? mergeHeight(
+                            tdValFun(i, index, celldataList, 7).rs,
+                            everyHeight,
+                            i
+                          )
+                        : '100%'
+                    };
                     display: flex;
-                    height: calc(100% - 2px);
                     ${
                       tdValFun(i, index, celldataList, 9) === '1'
                         ? 'align-items: top'
@@ -190,6 +200,7 @@
               v-for="(val, index) in maxWidth"
               :key="index"
               :style="`
+                  display: inline-block;
                   position: relative;
                   white-space: pre-line;
                   vertical-align: bottom;
@@ -249,8 +260,22 @@
                           )
                         : '100%'
                     };
+                    height: ${
+                      tdValFun(contentShowRow(i, j), index, celldataList, 7) &&
+                      tdValFun(contentShowRow(i, j), index, celldataList, 7).rs
+                        ? mergeHeight(
+                            tdValFun(
+                              contentShowRow(i, j),
+                              index,
+                              celldataList,
+                              7
+                            ).rs,
+                            everyHeight,
+                            i
+                          )
+                        : '100%'
+                    };
                     display: flex;
-                    height: calc(100% - 2px);
                     ${
                       tdValFun(contentShowRow(i, j), index, celldataList, 9) ===
                       '1'
@@ -314,6 +339,7 @@
               v-for="(val, index) in maxWidth"
               :key="index"
               :style="`
+                  display: inline-block;
                   position: relative;
                   white-space: pre-line;
                   vertical-align: bottom;
@@ -360,8 +386,18 @@
                           )
                         : '100%'
                     };
+                    height: ${
+                      tdValFun(buttonShowRow(i), index, celldataList, 7) &&
+                      tdValFun(buttonShowRow(i), index, celldataList, 7).rs
+                        ? mergeHeight(
+                            tdValFun(buttonShowRow(i), index, celldataList, 7)
+                              .rs,
+                            everyHeight,
+                            i
+                          )
+                        : '100%'
+                    };
                     display: flex;
-                    height: calc(100% - 2px);
                     ${
                       tdValFun(buttonShowRow(i), index, celldataList, 9) === '1'
                         ? 'align-items: top'
@@ -456,7 +492,8 @@ export default {
       aaa: '',
       bbb: '',
       allHeight: 0,
-      showCell: 10
+      showCell: 10,
+      mergeObj: {}
     };
   },
   components: {},
@@ -555,19 +592,19 @@ export default {
     mergeWidth() {
       return function (merge, widthtArr, i) {
         let num = 0;
-        console.log(widthtArr);
         for (let b = 0; b < widthtArr.length; b += 1) {
           if (b === i) {
             for (let j = 0; j < merge; j += 1) {
-              num += widthtArr[b + j] - 20 || 0;
+              num += widthtArr[b + j] || 0;
             }
           }
         }
-        return `${num}px; position: absolute; z-index: 999; background: #fff;margin: 1px; margin-bottom: 0;`;
+        return `${num * 0.9}px; !import; position: absolute; z-index: 999;`;
       };
     },
     mergeHeight() {
       return function (merge, heightArr, i) {
+        console.log(merge, heightArr, i);
         let num = 0;
         for (let b = 0; b < heightArr.length; b += 1) {
           if (b === i) {
@@ -576,7 +613,8 @@ export default {
             }
           }
         }
-        return num;
+        // console.log(`${num - merge}px`);
+        return `${num - merge}px`;
       };
     },
     widthValue() {
@@ -616,7 +654,7 @@ export default {
                 // console.log(item.row[0], trV, trV, item.row[1], !state);
                 borderVal = `border: 1px solid ${color};box-sizing: border-box; ${
                   item.column[0] <= tdv && tdv < item.column[1] ? 'border-right: 0' : ''
-                }; ${item.row[0] <= trV && trV < item.row[1] && !state ? 'border-bottom: 0' : ''}`;
+                }; ${item.row[0] <= trV && trV < item.row[1] && !state ? 'border-bottom: 0' : ''};`;
               }
               if (borderType === 'border-none') {
                 borderVal =
@@ -647,6 +685,27 @@ export default {
                 borderVal += `border-right: 1px solid ${color}; box-sizing: border-box;`;
               }
             }
+            Object.keys(this.mergeObj).forEach((g) => {
+              const obj = this.mergeObj[g];
+              if (
+                borderType === 'border-all' &&
+                obj.r <= trV &&
+                trV <= obj.r + obj.rs - 1 &&
+                obj.c < tdv &&
+                tdv <= obj.c + obj.cs - 1
+              ) {
+                borderVal += 'border-left: 0;';
+              }
+              if (
+                borderType === 'border-all' &&
+                obj.r < trV &&
+                trV <= obj.r + obj.rs - 1 &&
+                obj.c <= tdv &&
+                tdv <= obj.c + obj.cs - 1
+              ) {
+                borderVal += 'border-top: 0;';
+              }
+            });
           });
         });
         return borderVal;
@@ -711,9 +770,12 @@ export default {
       maxHeight,
       maxWidth,
       excelImg,
-      borderInfo = []
+      borderInfo = [],
+      config
     } = this.previewObj;
+    const { merge } = config;
     console.log(this.previewObj);
+    this.mergeObj = merge;
     this.celldataList = celldataList;
     this.everyHeight = everyHeight;
     this.everyWidth = everyWidth;
@@ -721,6 +783,7 @@ export default {
     this.maxWidth = maxWidth;
     // 处理图片token
     const imagesArr = [];
+    celldataList.sort((a, b) => a.r - b.r);
     if (excelImg) {
       Object.values(excelImg).forEach((item) => {
         if (item.src.indexOf('?') !== -1) {

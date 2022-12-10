@@ -2,19 +2,15 @@
   <div class="printClass">
     <!-- 文档类 -->
     <doc-type
-      v-bind="$attrs"
-      v-on="$listeners"
       ref="printPre"
-      v-if="globalConfig.type === 1"
-      :globalConfig="globalConfig"
+      v-if="type === 1"
+      :printParams="printParams"
     ></doc-type>
     <!-- 内容类 -->
     <content-type
-      v-bind="$attrs"
-      v-on="$listeners"
       ref="printPre"
-      v-if="globalConfig.type === 2"
-      :globalConfig="globalConfig"
+      v-if="type === 2"
+      :printParams="printParams"
     ></content-type>
   </div>
 </template>
@@ -25,7 +21,7 @@ import ContentType from './ContentType';
 
 export default {
   props: {
-    globalConfig: {
+    printParams: {
       type: Object,
       default: () => {}
     }
@@ -34,7 +30,12 @@ export default {
     return {};
   },
   components: { DocType, ContentType },
-  computed: {},
+  computed: {
+    type() {
+      const { type } = this.printParams.globalConfig;
+      return type;
+    }
+  },
   watch: {},
   mounted() {},
   methods: {}

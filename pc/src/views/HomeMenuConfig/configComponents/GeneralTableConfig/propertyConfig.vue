@@ -599,5 +599,35 @@ export default {
       }
     }
   }
+  ::v-deep {
+    .action__term--liChild {
+      width: 100px;
+    }
+    .dataTransfer__item--comp5 {
+      width: 100px;
+    }
+  }
+  .ToMenuConfig {
+    ::v-deep{
+      .ToMenuConfig__li--select{
+        width: 200px;
+      }
+      .el-collapse-item__arrow{
+        margin: 0 8px 0 auto;
+      }
+      .el-collapse-item__header {
+        position: relative;
+        background: #f1f7ff;
+        border-radius: 4px;
+        border: 1px solid #e9e9e9;
+        height: 38px;
+        line-height: 38px;
+      }
+      .el-collapse-item__content {
+        padding: 0 0 8px 0;
+        background-color: #fff;
+      }
+    }
+  }
 }
 </style>

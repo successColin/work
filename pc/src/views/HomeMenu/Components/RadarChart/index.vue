@@ -54,6 +54,12 @@ export default {
       default() {
         return {};
       }
+    },
+    filterParameter: { // 控件传给控件的参数集合
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -296,9 +302,43 @@ export default {
           }
         }
       }
-    }
+    },
+    filterParameter: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          if (isShow) {
+            this.checkFilterParameter(true);
+          }
+        }
+      }
+    },
   },
   methods: {
+    getFilterParamsObj() {
+      const paramsObj = {};
+      const { componentId } = this.config;
+      Object.keys(this.filterParameter).forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.split('_')[1];
+          paramsObj[key] = this.filterParameter[item];
+        }
+      });
+      this.params = paramsObj;
+      return paramsObj;
+    },
+    checkFilterParameter(flag) {
+      const paramsObj = this.getFilterParamsObj();
+      this.$nextTick(() => {
+        if (flag && JSON.stringify(paramsObj) === '{}') {
+          return;
+        }
+        this.fetchData();
+      });
+    },
     checkParams(variableConfig) {
       const obj = {};
       Object.keys(this.otherParams).forEach((item) => {
@@ -316,6 +356,7 @@ export default {
       this.instance = Object.freeze({
         myChart: echarts.init(document.getElementById(componentId))
       });
+      this.getFilterParamsObj();
       this.fetchData();
     },
     async fetchData() {

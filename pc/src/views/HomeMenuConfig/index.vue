@@ -131,6 +131,7 @@ const NoticeConfig = () => import('./configComponents/NoticeConfig/index');
 const RoseChartConfig = () => import('./configComponents/RoseChartConfig/index');
 const LiquidfillConfig = () => import('./configComponents/LiquidfillConfig/index');
 const FunnelChartConfig = () => import('./configComponents/FunnelChartConfig/index');
+const TabComponentConfig = () => import('./configComponents/TabComponentConfig/propertyConfig');
 
 export default {
   data() {
@@ -151,6 +152,7 @@ export default {
   },
 
   components: {
+    TabComponentConfig,
     FunnelChartConfig,
     LiquidfillConfig,
     RoseChartConfig,

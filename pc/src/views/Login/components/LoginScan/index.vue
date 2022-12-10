@@ -29,7 +29,7 @@
         />
         <iframe
           ref="Iframe"
-          v-else-if="zheZhengDingScan"
+          v-if="scanType === zheZhengDingScan && isSwitch"
           :src="zheSrc"
           :frameBorder="0"
           width="210"
@@ -70,7 +70,8 @@ export default {
     return {
       loading: true,
       appScan: 2,
-      zheZhengDingScan: 3
+      zheZhengDingScan: 3,
+      isSwitch: true // 显示浙政钉
     };
   },
   components: {
@@ -114,8 +115,19 @@ export default {
             sessionStorage.removeItem('delTabArr');
           });
         } catch (error) {
-          localStorage.setItem('zhezhengdingCode', code);
-          window.vue.$router.push('/AssociatedUser');
+          if (error.code === 'DD002') {
+            localStorage.setItem('zhezhengdingCode', code);
+            window.vue.$router.push('/AssociatedUser');
+            this.$message({
+              type: 'warning',
+              message: error.message
+            });
+          } else {
+            this.isSwitch = false;
+            this.$nextTick(() => {
+              this.isSwitch = true;
+            });
+          }
         }
       }
     }

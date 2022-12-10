@@ -75,6 +75,12 @@ export default {
       default() {
         return {};
       }
+    },
+    filterParameter: { // 控件传给控件的参数集合
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -237,9 +243,9 @@ export default {
               fontFamily: labelFontFamily
             }
           },
-          tooltip: {
-            position: 'top'
-          },
+          // tooltip: {
+          //   position: 'top'
+          // },
           type: 'pie'
         };
         if (cn) {
@@ -310,9 +316,66 @@ export default {
           }
         }
       }
-    }
+    },
+    filterParameter: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          if (isShow) {
+            this.checkFilterParameter(true);
+          }
+        }
+      }
+    },
   },
   methods: {
+    getFilterParamsObj() {
+      const paramsObj = {};
+      const { componentId } = this.config;
+      Object.keys(this.filterParameter).forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.split('_')[1];
+          paramsObj[key] = this.filterParameter[item];
+        }
+      });
+      this.params = paramsObj;
+      return paramsObj;
+    },
+    checkFilterParameter(flag) {
+      const paramsObj = this.getFilterParamsObj();
+      this.$nextTick(() => {
+        if (flag && JSON.stringify(paramsObj) === '{}') {
+          return;
+        }
+        this.initPath();
+        this.fetchData();
+      });
+    },
+    initPath() {
+      const {
+        interactionType,
+        drillDownConfig = {},
+        SqlDataConfig: { variableConfig }
+      } = this.config;
+      if (interactionType === 4) {
+        const pathObj = {};
+        const { pathColor } = drillDownConfig;
+        variableConfig.forEach((item) => {
+          const {
+            name,
+            value
+          } = item;
+          pathObj[name] = value;
+        });
+        pathObj.path_name = '全部';
+        this.color = pathColor || '#666666';
+        this.pathArr.push(pathObj);
+      }
+    },
+
     checkParams(variableConfig) {
       const obj = {};
       Object.keys(this.otherParams).forEach((item) => {
@@ -337,21 +400,10 @@ export default {
         componentId,
         dataType,
         drillDownConfig = {},
-        SqlDataConfig: { variableConfig }
       } = this.config;
       if (dataType === 3) {
-        const pathObj = {};
-        const { pathColor } = drillDownConfig;
-        variableConfig.forEach((item) => {
-          const {
-            name,
-            value
-          } = item;
-          pathObj[name] = value;
-        });
-        pathObj.path_name = '全部';
-        this.color = pathColor || '#666666';
-        this.pathArr.push(pathObj);
+        this.getFilterParamsObj();
+        this.initPath();
       }
       this.myChart = echarts.init(document.getElementById(componentId));
       this.fetchData();
