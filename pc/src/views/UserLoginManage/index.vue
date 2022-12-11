@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { getListPage, offlineUsers } from '@/api/userLoginManage';
+import { getListPage, offlineUsers } from '@/api/userloginManage';
 import OnlineTime from './components/OnlineTime';
 import LoginWay from './components/LoginWay';
 
