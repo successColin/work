@@ -59,7 +59,7 @@ export default {
   },
   watch: {
     printParams(v) {
-      console.log(v);
+      // // console.log(v);
       if (JSON.stringify(v) !== '{}') {
         this.showTabs = true;
         const { previewObj, tableArr } = this.printParams;
@@ -98,7 +98,7 @@ export default {
               obj.v.m = val;
               obj.r = r + p + tableNum * arr.length - tableNum;
               obj.oldR = r;
-              console.log(JSON.parse(JSON.stringify(obj)));
+              // console.log(JSON.parse(JSON.stringify(obj)));
               newCelldataList.push(JSON.parse(JSON.stringify(obj)));
             });
 
@@ -120,9 +120,9 @@ export default {
                 arr.push(34);
               });
               const everyVal = r - tableNum + tableNum * tableArr.length;
-              console.log(everyVal, r, tableNum, tableArr.length);
+              // console.log(everyVal, r, tableNum, tableArr.length);
               everyHeight.splice(everyVal, 1, ...arr);
-              // console.log(aaa);
+              // // console.log(aaa);
 
               tableNum += 1;
               num += tableArr.length - 1;
@@ -208,25 +208,25 @@ export default {
           });
         }
         newCelldataList.sort((a, b) => a.r - b.r);
-        console.log(newCelldataList);
+        // console.log(newCelldataList);
         this.printParams.previewObj.celldataList = newCelldataList;
-        // console.log(this.printParams);
-        // console.log(JSON.parse(JSON.stringify(newCelldataList)));
+        // // console.log(this.printParams);
+        // // console.log(JSON.parse(JSON.stringify(newCelldataList)));
         // 边框
-        console.log(tableRow);
+        // console.log(tableRow);
         if (borderInfo && borderInfo.length) {
           let markNum = 0;
-          borderInfo.forEach((item, index, arr) => {
+          borderInfo.forEach((item) => {
             if (item.range) {
               item.range.forEach((g) => {
                 const val1 = g.row[0];
                 const val2 = g.row[1];
-                console.log(index, arr);
+                // console.log(index, arr);
                 tableRow.forEach((b) => {
-                  console.log(val1, b, val2, markNum);
+                  // console.log(val1, b, val2, markNum);
                   if (b <= val2 && markNum !== val2) {
-                    console.log('=====================');
-                    console.log(markNum, val2);
+                    // console.log('=====================');
+                    // console.log(markNum, val2);
                     markNum = val2;
                     const value = tableArr.length * borderNum;
                     g.row[0] = val1 + value - borderNum;
@@ -237,9 +237,9 @@ export default {
               });
             }
           });
-          console.log(borderInfo);
+          // console.log(borderInfo);
         }
-        console.log(this.printParams);
+        // console.log(this.printParams);
       } else {
         this.showTabs = false;
       }

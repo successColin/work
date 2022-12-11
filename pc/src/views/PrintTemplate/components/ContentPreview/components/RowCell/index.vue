@@ -1,3 +1,10 @@
+<!--
+ * @Descripttion: 列宽
+ * @Author: ytx
+ * @Date: 2022-07-19 15:43:54
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-07-19 15:43:54
+-->
 <template>
   <div
     :style="`
@@ -15,7 +22,7 @@
         position: relative;
         white-space: pre-line;
         vertical-align: bottom;
-        ${tdBorderFun(showRowNum, index, pageRow - 1 === i)};
+        ${tdBorderFun(showRowNum, index, containPos)};
         font-family: ${tdValFun(showRowNum, index, celldataList, 1) || ''};
         font-size: ${tdValFun(showRowNum, index, celldataList, 2) || 12}px;
         font-weight: ${
@@ -79,6 +86,7 @@
 
 <script>
 export default {
+  inject: ['type'],
   props: {
     printParams: {
       type: Object,
@@ -100,14 +108,16 @@ export default {
       type: Number,
       default: 0
     },
-    isContain: {
+    // 是否需要计算高度
+    isNeedCalc: {
       type: Boolean,
       default: true
     }
   },
   data() {
     return {
-      isShow: true
+      isShow: true,
+      currentRow: -1 // 当前页最大的row
     };
   },
   components: {},
@@ -194,10 +204,10 @@ export default {
     },
     // 获取对应边框的值
     tdBorderFun() {
-      return function (trV, tdv) {
+      return function (trV, tdv, currentRow) {
         // console.log(trV, tdv, this.pageRowNum, this.pageRow);
-        // console.log(this.pageRow - 1, trV, state);
-        const state = this.pageRow - 1 === trV;
+        console.log(trV, currentRow);
+        const state = trV === currentRow - 1;
         let borderVal = '';
         this.borderInfo.forEach((v) => {
           const { range = [], borderType, color } = v; // style, rangeType
@@ -291,7 +301,9 @@ export default {
   },
   watch: {},
   mounted() {
-    this.heightCount();
+    if (this.isNeedCalc) {
+      this.heightCount();
+    }
   },
   methods: {
     async heightCount() {

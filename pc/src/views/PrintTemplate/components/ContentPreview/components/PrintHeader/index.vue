@@ -1,5 +1,11 @@
+<!--
+ * @Descripttion: 页眉
+ * @Author: ytx
+ * @Date: 2022-07-19 15:43:54
+ * @Last Modified by: ytx
+ * @Last Modified time: 2022-07-19 15:43:54
+-->
 <template>
-  <!-- 页眉 -->
   <div class="printHeader" v-html="html" :style="headerStyle"></div>
 </template>
 

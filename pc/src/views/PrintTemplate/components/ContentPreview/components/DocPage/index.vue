@@ -48,8 +48,7 @@
           margin: ${boxMargin};
         `"
       />
-      <section
-        class="contentPreview__content"
+      <div
         :style="`
           width: ${contentWidth};
           margin: 0 auto;
@@ -57,7 +56,6 @@
           overflow: hidden;
         `"
       >
-        <!-- 图片 -->
         <img
           v-for="(val, key) in excelImg"
           :key="key"
@@ -71,29 +69,61 @@
             z-index: 1;
           `"
         />
-        <!-- 高 -->
+        <!-- 固定头 -->
+        <div v-if="type === 2">
+          <!-- {{ pageRowTop }} -->
+          <template v-for="(item, i) in pageRowTop">
+            <row-cell
+              :i="i"
+              :key="`${i}_Top`"
+              :maxWidth="maxWidth"
+              :pageRowNum="pageRowTop"
+              :printParams="printParams"
+              :containPos="0"
+              :lastPos="0"
+            ></row-cell>
+          </template>
+        </div>
+        <!-- 内容 -->
         <template v-for="(item, i) in pageRowNum">
           <row-cell
             v-if="containPos === -1 || i < containPos"
             :i="i"
-            :key="i"
+            :key="`${i}_Content`"
             :maxWidth="maxWidth"
             :pageRowNum="pageRowNum"
             :printParams="printParams"
-            :containPos="containPos"
-            :lastPos="lastPos"
-            :isContain="isContain"
+            :containPos="firstcontainPos"
+            :lastPos="firstlastPos"
           ></row-cell>
         </template>
-      </section>
+        <!-- 固定尾 -->
+        <div v-if="type === 2" ref="pageRowBottomRef">
+          <template v-for="(item, i) in pageRowBottom">
+            <row-cell
+              :i="i"
+              :key="`${i}_Bottom`"
+              :maxWidth="maxWidth"
+              :pageRowNum="pageRowBottom"
+              :printParams="printParams"
+              :containPos="fixedBottomPos"
+              :lastPos="fixedBottomPos"
+              :isNeedCalc="false"
+            ></row-cell>
+          </template>
+        </div>
+      </div>
     </div>
     <template v-if="containPos !== -1">
       <doc-page
         :printParams="printParams"
-        :pageRowNum="pageRowNum - containPos + 1"
+        :pageRowNum="pageRowNum - containPos"
         :lastPos="containPos + lastPos"
         :contentHeightPx="contentHeightPx"
         :pageNum="pageNum + 1"
+        :fixedBottomPos="fixedBottomPos"
+        :pageRowBottom="pageRowBottom"
+        :pageRowTop="pageRowTop"
       ></doc-page>
     </template>
   </div>
@@ -104,10 +134,12 @@ import PrintHeader from '../PrintHeader';
 import PrintFooter from '../PrintFooter';
 import MarginBottom from '../MarginBottom';
 import MarginTop from '../MarginTop';
-import RowCell from './components/RowCell';
+import RowCell from '../RowCell';
+import printMixin from '../printMixin';
 
 export default {
   name: 'DocPage',
+  mixins: [printMixin],
   props: {
     printParams: {
       type: Object,
@@ -125,6 +157,18 @@ export default {
     pageNum: {
       type: Number,
       default: 1
+    },
+    fixedBottomPos: {
+      type: Number,
+      default: 0
+    },
+    pageRowBottom: {
+      type: Number,
+      default: 0
+    },
+    pageRowTop: {
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -132,101 +176,43 @@ export default {
       currentPage: 1,
       tableConfigArr: [],
       boxBorderTop: '60px',
-      currentPageHeader: '', // 页眉
-      currentPageFooter: '', // 页脚
       isContain: true, // 是否可以融入下
       containPos: -1, // 融入不下的位置
       eleHeight: 0 // 计算当前页高度
-      // splitNum: 0,
-      // showHeight: 0,
-      // blackHeight: 0
     };
   },
   components: { PrintHeader, PrintFooter, MarginBottom, MarginTop, RowCell },
   computed: {
-    excelImg() {
-      // 处理图片token
-      const imagesArr = [];
-      const img = this.printParams.previewObj.excelImg;
-      if (img) {
-        Object.values(img).forEach((item) => {
-          if (item.src.indexOf('?') !== -1) {
-            item.src = item.src.slice(0, item.src.indexOf('?'));
-            item.src = this.$parseImgUrl(item.src);
-          } else {
-            item.src = this.$parseImgUrl(item.src);
-          }
-          imagesArr.push(item);
-        });
+    // 第一次的最后位置
+    firstlastPos() {
+      let num = this.lastPos;
+      if (this.type === 2) {
+        num += this.pageRowTop;
       }
-      return imagesArr;
+      return num;
     },
-    celldataList() {
-      return this.printParams.previewObj.celldataList;
-    },
-    globalConfig() {
-      return this.printParams.globalConfig;
-    },
-    maxWidth() {
-      return this.printParams.previewObj.maxWidth;
-    },
-    contentWidth() {
-      return `calc(100% - ${this.globalConfig.marginRight}mm - ${this.globalConfig.marginLeft}mm)`;
-    },
-    contentHeight() {
-      return `calc(100% - ${this.globalConfig.marginBottom}mm - ${this.globalConfig.marginTop}mm)`;
-    },
-    tableStyle() {
-      return function (i, index, td) {
-        const obj = this.celldataList.find((item) => item.c === index + td && item.r === i);
-        return `color: ${obj && obj.v && obj.v.fc};`;
-      };
-    },
-    boxMargin() {
-      return `0mm ${this.globalConfig.marginRight}mm ${this.globalConfig.marginBottom}mm ${this.globalConfig.marginLeft}mm`;
-    },
-    imgbgUrl() {
-      return (
-        this.globalConfig.bgImgArr &&
-        this.globalConfig.bgImgArr[0] &&
-        this.globalConfig.bgImgArr[0].url
-      );
-    },
-    everyWidth() {
-      return this.printParams.previewObj.everyWidth;
+    firstcontainPos() {
+      let num = this.containPos;
+      if (this.type === 2) {
+        num += this.pageRowTop;
+      }
+      return num;
     }
   },
-  watch: {
-    'globalConfig.pageHeader': {
-      handler(html) {
-        console.log(html);
-        this.getCurrentDateTime(html, 'header');
-      },
-      deep: true,
-      immediate: true
-    },
-    'globalConfig.pageFooter': {
-      handler(html) {
-        console.log(html);
-        this.getCurrentDateTime(html, 'footer');
-      },
-      deep: true,
-      immediate: true
-    },
-    isContain(v) {
-      console.log(v);
+  watch: {},
+  mounted() {
+    if (this.$parent.getContentBottomHeight) {
+      this.$parent.getContentBottomHeight(this.$refs.pageRowBottomRef.offsetHeight);
     }
   },
-  mounted() {},
   methods: {
     // 当前页是否融入的下
     isContainFun(v, i) {
       this.eleHeight += v;
       const { contentHeightPx, eleHeight, containPos } = this;
-      if (contentHeightPx <= eleHeight && containPos === -1) {
+      if (contentHeightPx <= eleHeight && containPos === -1 && contentHeightPx !== -1) {
+        console.log(contentHeightPx, eleHeight, containPos, contentHeightPx, i);
         this.containPos = i;
-      } else {
-        console.log(this.currentPage);
       }
     },
     tableStateAndField(i, index, field) {
@@ -257,14 +243,6 @@ export default {
         this.forFun(v, trV, nowTdv, tableWidth, callback);
       } else if (callback) {
         callback(tableWidth);
-      }
-    },
-    getCurrentDateTime(html, type) {
-      if (type === 'header') {
-        this.currentPageHeader = html;
-      }
-      if (type === 'footer') {
-        this.currentPageFooter = html;
       }
     }
   }
