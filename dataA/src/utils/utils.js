@@ -1,4 +1,6 @@
 // 获取el当前位子
+import {hexify, setRgbTo16} from '@/utils/common';
+
 export function getElPos(element) {
   const rect = element.getBoundingClientRect();
   const top = document.documentElement.clientTop;
@@ -169,7 +171,7 @@ export function createUnique() {
 
 // 判断url是否正确
 export function IsURL(str_url = '') {
-  if (!str_url) return false;
+  if (!str_url) {return false;}
   const strRegex = '^((https|http|ftp|rtsp|mms)?://)'
     + '?(([0-9a-z_!~*\'().&=+$%-]+: )?[0-9a-z_!~*\'().&=+$%-]+@)?' //ftp的user@
     + '(([0-9]{1,3}.){3}[0-9]{1,3}' // IP形式的URL- 199.194.52.184
@@ -186,7 +188,7 @@ export function IsURL(str_url = '') {
 
 // 判断路径是否是图片路径
 export function CheckImgExists(imgurl = '') {
-  if (!imgurl) return false;
+  if (!imgurl) {return false;}
   let ImgObj = new Image(); //判断图片是否存在
   ImgObj.src = imgurl;
   return new Promise(function (resolve) {
@@ -411,3 +413,42 @@ export function makeUrl() {
   // const newPathName = `${origin}${arr.join('/')}/${this.$route.query.id}`;
   return `${origin}${arr.join('/')}/`;
 }
+
+/**
+ * 获取时间戳
+ * @param timeStr
+ * @returns {number|*}
+ */
+export function getTimestamp(timeStr) {
+  if (!timeStr) {return timeStr;}
+  return new Date(timeStr).getTime();
+}
+
+// rgba转16进制
+export function getHexColor(color) {
+  if (!color) {return null;}
+  if (/^rgb\(/.test(color)) { // rgb格式
+    return setRgbTo16(color)
+  }
+  if (/^rgba\(/.test(color)) { // rgba格式
+    return hexify(color);
+  }
+  if (/^#/.test(color)) { // rgba格式
+    return color;
+  }
+  let values = color
+    .replace(/rgba?\(/, '')
+    .replace(/\)/, '')
+    .replace(/[\s+]/g, '')
+    .split(',')
+  let a = parseFloat(values[3] || 1),
+      r = Math.floor(a * parseInt(values[0]) + (1 - a) * 255),
+      g = Math.floor(a * parseInt(values[1]) + (1 - a) * 255),
+      b = Math.floor(a * parseInt(values[2]) + (1 - a) * 255)
+  const colorStr = '#' +
+    ('0' + r.toString(16)).slice(-2) +
+    ('0' + g.toString(16)).slice(-2) +
+    ('0' + b.toString(16)).slice(-2);
+  return colorStr;
+}
+

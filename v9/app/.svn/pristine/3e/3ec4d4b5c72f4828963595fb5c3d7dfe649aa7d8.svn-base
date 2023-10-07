@@ -1,0 +1,651 @@
+<template name="myself">
+  <view class="myself" :class="[themeClass_]">
+    <view class="myself-header">
+      <m-back-bar backStyle="backStyleNoBack">
+        <block slot="barTitle">{{ barTitle }}</block>
+      </m-back-bar>
+      <navigator
+        hover-class="none"
+        :url="
+          enabledData.enabledAccountInformation == 1
+            ? '/pages/mine/userInfo'
+            : ''
+        "
+        class="user-info"
+      >
+        <view>
+          <!-- #ifdef MP -->
+          <open-data class="user-img" type="userAvatarUrl"></open-data>
+          <!-- #endif -->
+          <!-- #ifndef MP -->
+          <image class="user-img" :src="headImage"></image>
+          <!-- #endif -->
+          <view class="user-name-text">
+            <view class="user-name">{{ username }}</view>
+            <view class="user-wish">{{ personalSignal || '' }}</view>
+          </view>
+          <!-- <view class="arrow-right"><span></span></view> -->
+        </view>
+      </navigator>
+    </view>
+    <!-- 我的可配置区域 -->
+    <view class="bundle-list" v-if="myWorkSpace.length > 0">
+      <m-group-area
+        v-for="(group, index) in myWorkSpace"
+        :areaStype="2"
+        :name="group.showGroupName ? group.name : ''"
+        :key="index"
+        :style="{ marginBottom: 0 }"
+      >
+        <view v-if="group.styleType" class="bundle-group">
+          <view
+            hover-class="none"
+            class="bundle-item"
+            :class="[groupShowType[group.styleType]]"
+            v-for="(bundle, bundleindex) in group.list"
+            :key="bundleindex"
+            @click="handleNav(bundle)"
+            :style="group.styleType === 3 && !bundle.picpath ? 'padding:0' : ''"
+          >
+            <block v-if="group.styleType === 3">
+              <view v-if="bundle.picpath" class="bundle-item-image">
+                <image
+                  class="image"
+                  :src="bundle.picpath"
+                  mode="widthFix"
+                ></image>
+              </view>
+              <view v-else class="bundle-item-content">
+                <m-font-icon
+                  :icon="bundle.iconName"
+                  :iconSize="48"
+                  :color="bundle.colorCode"
+                  class="bundle-item-list-icon"
+                ></m-font-icon>
+                <view class="bundle-item-name">{{ bundle.bundleName }}</view>
+                <view class="arrow-right">
+                  <!-- <span></span> -->
+                  <m-font-icon
+                    icon="iconyuefenqiehuanhou"
+                    :iconSize="18"
+                    color="#9F9F9F"
+                    class="arrow"
+                  ></m-font-icon>
+                </view>
+              </view>
+            </block>
+            <block v-else-if="group.styleType === 2">
+              <view
+                v-if="!bundle.picpath"
+                class="bundle-item-content"
+                :style="{ backgroundColor: bundle.colorCode[2] }"
+              >
+                <m-font-icon
+                  :icon="bundle.iconName"
+                  :iconSize="50"
+                  :color="bundle.colorCode[0]"
+                ></m-font-icon>
+                <view
+                  class="bundle-item-name"
+                  :style="{ color: bundle.colorCode[1] }"
+                >
+                  {{ bundle.bundleName }}
+                  <!-- <i class="icon iconfont APP_47 iconbtn"></i> -->
+                </view>
+              </view>
+              <view v-else class="bundle-item-image">
+                <image
+                  class="image"
+                  :src="bundle.picpath"
+                  mode="widthFix"
+                ></image
+              ></view>
+            </block>
+            <block v-else-if="group.styleType === 4">
+              <view
+                v-if="!bundle.picpath"
+                class="bundle-item-content"
+                :style="{ backgroundColor: bundle.colorCode[1] }"
+              >
+                <m-font-icon
+                  :icon="bundle.iconName"
+                  :iconSize="64"
+                  :color="bundle.colorCode[0]"
+                ></m-font-icon>
+                <view class="bundle-item-right">
+                  <view class="bundle-item-name">{{ bundle.bundleName }}</view>
+                  <view class="bundle-item-subtext">
+                    <view>进入操作></view>
+                  </view>
+                </view>
+              </view>
+              <view v-else class="bundle-item-image">
+                <image
+                  class="image"
+                  :src="bundle.picpath"
+                  mode="widthFix"
+                ></image
+              ></view>
+            </block>
+            <block v-else>
+              <view v-if="!bundle.picpath" class="bundle-item-content">
+                <m-font-icon
+                  :icon="bundle.iconName"
+                  :iconSize="56"
+                  :color="bundle.colorCode"
+                ></m-font-icon>
+                <!-- #ifdef APP-PLUS-->
+                <i v-if="newBundle[bundle.id]" class="iconfont iconnew new"></i>
+                <!-- #endif -->
+                <view class="bundle-item-name">{{ bundle.bundleName }}</view>
+              </view>
+              <view v-else class="bundle-item-image">
+                <image
+                  class="image"
+                  :src="bundle.picpath"
+                  mode="widthFix"
+                ></image
+              ></view>
+            </block>
+          </view>
+        </view>
+      </m-group-area>
+    </view>
+    <view class="myself-content">
+      <view class="user-bundle-list">
+        <navigator
+          v-if="enabledData.enabledPersonalQualification == 1"
+          class="user-bundle"
+          open-type="navigate"
+          url="/pages/mine/userQualification"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_48"
+              color="#0AB050"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-userQualification') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+        <navigator
+          v-if="enabledData.enabledAccountSecuritySettings == 1"
+          class="user-bundle"
+          open-type="navigate"
+          url="/pages/mine/changePassword"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_49"
+              color="#FF5B34"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-changePassword') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+        <!-- #ifndef MP -->
+        <!-- <navigator class="user-bundle" v-if="enabledData.enabledFeedback == 1" open-type="navigate" url="/pages/mine/feedback">
+					<view class="font-icon">
+						<m-font-icon icon="APP_50" color="#0388FB" :iconSize="iconSize"></m-font-icon>
+					</view>
+					<view class="bundle-name">{{ $t('page-feedback') }}</view>
+					<view class="arrow-right"><span></span></view>
+				</navigator> -->
+        <view
+          class="user-bundle"
+          v-if="enabledData.enabledFeedback == 1"
+          v-on:click="openFeedBack()"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_51"
+              color="#0388FB"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-feedback') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </view>
+        <!-- #endif -->
+        <view
+          class="user-bundle"
+          v-if="enabledData.enabledClearCache == 1"
+          v-on:click="clearStorageInfo()"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_51"
+              color="#F79C1B"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-ClearCache') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+          <view class="storageInfo" v-show="storageInfo">{{
+            storageInfo
+          }}</view>
+        </view>
+        <navigator
+          class="user-bundle"
+          v-if="enabledData.enabledMyQRCode == 1"
+          open-type="navigate"
+          url="/pages/mine/qrcode"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_52"
+              color="#0AB050"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-qrcode') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+        <!-- #ifndef MP -->
+        <view
+          class="user-bundle"
+          v-if="enabledData.enabledLogout == 1"
+          v-on:click="loginOut()"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_53"
+              color="#FF5B34"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-LogoutLogin') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </view>
+        <!-- #endif -->
+        <navigator
+          v-if="enabledData.enabledSystemVersion == 1"
+          class="user-bundle"
+          open-type="navigate"
+          url="/pages/mine/versionInfo"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_54"
+              color="#0388FB"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-versionInformation') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+        <navigator
+          class="user-bundle"
+          v-if="enabledData.enabledLanguageSwitchButton == 1"
+          open-type="navigate"
+          url="/pages/mine/language"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_55"
+              color="#F79C1B"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-switchLanguage') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+        <navigator
+          class="user-bundle"
+          v-if="enabledData.enabledThirdPartyLinks == 1"
+          open-type="navigate"
+          url="/pages/mine/thirdPartyLinks"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="APP_56"
+              color="#FF5B34"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-otherweb') }}</view>
+          <view class="arrow-right">
+            <!-- <span></span> -->
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+		<view
+		  class="user-bundle"
+		  v-on:click="openUrl('https://v10.mingcloud.top/onlineApp/hybrid/html/web/viewer.html?file=https://v10.mingcloud.top:9000/app/%E9%9A%90%E7%A7%81%E5%8D%8F%E8%AE%AEv9.pdf')"  
+		  >
+		  <view class="font-icon">
+		    <m-font-icon
+		      icon="APP_56"
+		      color="#0AB050"
+		      :iconSize="48"
+		    ></m-font-icon>
+		  </view>
+		  <view class="bundle-name">{{ $t('page-privacy') }}</view>
+		  <view class="arrow-right">
+		    <!-- <span></span> -->
+		    <m-font-icon
+		      icon="iconyuefenqiehuanhou"
+		      :iconSize="18"
+		      color="#9F9F9F"
+		      class="arrow"
+		    ></m-font-icon>
+		  </view>
+		</view>
+        <!-- <view  class="user-bundle" >
+					<view class="font-icon">
+						<m-font-icon icon="iconyijianfankui" color="#EB6035" :iconSize="iconSize"></m-font-icon>
+					</view>
+					<view class="bundle-name">{{ $t('lang-myself-outLink') }}</view>
+					<view class="arrow-right"><span></span></view>
+				</view> -->
+        <!-- <view class="user-bundle" v-for="item in outLinkList" :key="item.id" @click="openOutView(item.url)">
+						<view class="font-icon">
+							<m-font-icon icon="iconyijianfankui" color="#6C82C5" :iconSize="iconSize"></m-font-icon>
+						</view>
+				        <view class="bundle-name">{{item.name}}</view>
+				        <view class="arrow-right"><span></span></view>
+				</view> -->
+        <!-- 读卡类型 -->
+        <!-- #ifdef APP-PLUS -->
+        <navigator
+          class="user-bundle"
+          open-type="navigate"
+          url="/pages/mine/readType"
+          v-if="enabledData.readType == 1"
+        >
+          <view class="font-icon">
+            <m-font-icon
+              icon="dukaleixing"
+              color="#0388FB"
+              :iconSize="48"
+            ></m-font-icon>
+          </view>
+          <view class="bundle-name">{{ $t('page-readType') }}</view>
+          <view class="arrow-right">
+            <m-font-icon
+              icon="iconyuefenqiehuanhou"
+              :iconSize="18"
+              color="#9F9F9F"
+              class="arrow"
+            ></m-font-icon>
+          </view>
+        </navigator>
+        <!-- #endif -->
+      </view>
+    </view>
+    <m-pop ref="pop"></m-pop>
+  </view>
+</template>
+
+<script>
+import { BUNDLE_SHOW_TYPE } from '@/common/constant/bundle.js';
+import { mapState, mapMutations } from 'vuex';
+import mGroupArea from '@/components/element/m-groupArea.vue';
+import $http from '@/common/utils/request/index.js';
+import defaultImage from '@/static/images/default_image.png';
+// import { getDingDingCode } from '@/utils/ddUtils';
+
+export default {
+  name: 'myself',
+  components: {
+    mGroupArea,
+  },
+  data() {
+    return {
+      iconSize: [56, 50, 0, 64],
+      storageInfo: '',
+      storageKeys: [],
+      outLinkList: [],
+      groupShowType: BUNDLE_SHOW_TYPE,
+    };
+  },
+  props: {
+    barTitle: {
+      type: String,
+      default: '我的',
+    },
+  },
+  computed: {
+    ...mapState([
+      'username',
+      'userId',
+      'userName',
+      'userImag',
+      'personalSignal',
+      'themeColor',
+      'userInfo',
+    ]),
+    ...mapState('home', ['enabledData', 'myWorkSpace', 'newBundle']),
+    themeClass_() {
+      //与主题she检修关联
+      const mainColor = ['mainColor', 'whiteColor'];
+      return this.themeColor !== 'red'
+        ? 'mainColor-' + this.themeColor
+        : 'mainColor';
+    },
+    headImage() {
+      return this.userImag || defaultImage;
+    },
+  },
+  methods: {
+    ...mapMutations(['SET_FRAMETYPE']),
+    openFeedBack() {
+      //打开反馈中心地址
+      const { companyKey, account } = this.userInfo;
+      console.log(
+        this.$EncryptionPSW({
+          userInfo: JSON.stringify({ companyKey, account }),
+        })
+      );
+      let url = `http://121.196.97.165/feedbackCenter/#/?userInfo=${
+        this.$EncryptionPSW({
+          userInfo: JSON.stringify({ companyKey, account }),
+        }).userInfo
+      }`;
+      // #ifdef H5
+      window.open(url);
+      // #endif
+      // #ifdef APP-PLUS
+      plus.runtime.openURL(url);
+      // #endif
+    },
+    openUrl(url) {
+      // #ifndef H5
+      plus.runtime.openURL(url);
+      //#endif
+      // #ifdef H5
+      window.open(url, name);
+      //#endif
+    },
+    clearStorageInfo() {
+      let _this = this;
+      uni.showModal({
+        title: _this.$t('basic-modalTip'),
+        content: _this.$t('choiceTip-isClearCache') + _this.storageInfo,
+        confirmText: _this.$t('basic-confirm'),
+        cancelText: _this.$t('basic-cancel'),
+        success: function (res) {
+          if (res.confirm) {
+            for (let i = 0; i < _this.storageKeys.length; i++) {
+              let key = _this.storageKeys[i];
+              if (
+                key != 'language' &&
+                key != 'baseUrl' &&
+                key != 'inTestServer' &&
+                key != 'formalServer' &&
+                key != 'outTestServer' &&
+                key != 'otherTestServer' &&
+                key != 'baseUrlIndex' &&
+                key != 'inspectionDownloadTime' &&
+                key != 'readCardTypeVal'
+              ) {
+                uni.removeStorageSync(key);
+              }
+            }
+            uni.showToast({
+              title: _this.$t('pageTip-cacheClearanceSuccessful'),
+              duration: 1000,
+            });
+            _this.storageInfo = 0;
+          }
+        },
+      });
+    },
+    loginOut() {
+      let _this = this;
+      uni.showModal({
+        title: _this.$t('basic-modalTip'),
+        content: _this.$t('choiceTip-isLoginOut'),
+        confirmText: _this.$t('basic-confirm'),
+        cancelText: _this.$t('basic-cancel'),
+        success: function (res) {
+          if (res.confirm) {
+            // const type = uni.getStorageSync('signOn').data;
+            // if (type === '4') {
+            //   getDingDingCode().then(async (code) => {
+            //     uni.reLaunch({
+            //       url: '/pages/associatedUser/index?code=' + code,
+            //     });
+            //   });
+            // } else {
+            //   uni.reLaunch({
+            //     url: '/pages/index/index',
+            //   });
+            // }
+
+            uni.reLaunch({
+              url: '/pages/index/index',
+            });
+          }
+        },
+      });
+    },
+    openOutView(url) {
+      uni.navigateTo({
+        url: '/pages/mine/outLinkShow?url=' + url,
+      });
+    },
+    handleNav(bundle) {
+      //如果没有框架信息，提示功能正在开发中
+      if (!bundle.template) {
+        const _this = this;
+        _this.Static_GlobalFucs.showModal(_this, {
+          title: _this.$t('basic-inquiry'),
+          content: _this.$t('pageTip-configuration'),
+          showCancel: false,
+        });
+        return;
+      }
+      const frameType = {
+        1: 'UBPFramework', //1-通用业务处理框架对应主页为列表
+        2: 'download', //2-数据下载框架 点巡检下载
+        3: 'Inspections', // 3-离线点巡检框架
+        4: 'FormFramework', //4-表单框架//5-统计框架TODO
+        6: 'systemFramework', //6-系统
+        7: 'echartFramework', //7-首页报表框架
+        8: 'ListFramework', //8-全列表控件
+      };
+      this.SET_FRAMETYPE(frameType[bundle.bundleFrameType]);
+      const url = `/pages/${bundle.template}?title=${bundle.bundleName}&bundleId=${bundle.id}&mainTab=1&V=${bundle.bundleVersion}`;
+      uni.navigateTo({
+        url: url,
+      });
+    },
+  },
+  mounted() {
+    console.log('mysel');
+    var _this = this;
+    uni.getStorageInfo({
+      success: function (res) {
+        _this.storageInfo =
+          res.currentSize > 1024
+            ? parseInt((res.currentSize * 10) / 1024) / 10 + 'MB'
+            : res.currentSize + 'KB';
+        _this.storageKeys = res.keys;
+      },
+    });
+    uni.setNavigationBarTitle({
+      title: _this.$t('page-mine'), // 中文：我的
+    });
+  },
+};
+</script>
+<style lang="scss" scoped>
+.haveStatusBar {
+  height: var(--status-bar-height);
+}
+.bundle-group {
+  margin-bottom: 20upx;
+}
+</style>

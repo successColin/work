@@ -20,10 +20,12 @@
 
 <script>
 // 引入基本模板
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import {getInfoById} from '@/services/design';
 import {returnChartPosition} from '@/utils/utils';
 import {supplementaryColor} from '@/utils/common';
 import {isEqual} from 'lodash';
+import {decrypt} from '@/utils/secret';
 
 // eslint-disable-next-line no-undef
 let echarts = require('echarts')
@@ -53,6 +55,7 @@ export default {
   },
   data() {
     return {
+      client: null,
       content: [],
       myChart: null,
       observer: null,
@@ -63,7 +66,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -106,7 +108,7 @@ export default {
     },
     getOption() {
       return function () {
-        const {stylesObj, enableLegend, dataType, dataConfig} = this.config;
+        const {stylesObj, enableLegend, dataType, dataConfig, enableTooltip} = this.config;
         const {staticValue} = dataConfig;
         const {
           legendPosition,
@@ -126,12 +128,28 @@ export default {
           borderRadius,
           pieHorizontal,
           pieVertical,
-          legendColor
+          legendColor,
+          enableLegendValue = false,
+          tipType = 1
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
+        let chartConfig = {};
+        const cn = colorArr.length; // 颜色长度
+        let supplementaryColorArr = [];
+        if (dataType === 1) {
+          const list = JSON.parse(staticValue);
+          const ln = list.length; // 数据长度
+          chartConfig.data = list;
+          supplementaryColorArr = supplementaryColor(ln, cn)
+        }
+        if ([2, 3, 4].includes(dataType)) {
+          const ln = this.content.length; // 数据长度
+          chartConfig.data = this.content;
+          supplementaryColorArr = supplementaryColor(ln, cn)
+        }
         let optionConfig = {
           tooltip: {
-            show: true,
+            show: enableTooltip ?? true,
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             borderWidth: 0,
             textStyle: {
@@ -139,6 +157,12 @@ export default {
             },
             formatter: function (params) {
               const { marker, name, value,percent } = params;
+              if (tipType === 3) {
+                return marker + ' ' + name + '</br> 占比: ' + percent + '%' ;
+              }
+              if (tipType === 2) {
+                return marker + ' ' + name + '</br> 数量:  ' + value ;
+              }
               return marker + ' ' + name + '</br> 数量:  ' + value + '</br> 占比: ' + percent + '%' ;
             },
             axisPointer: {
@@ -164,23 +188,15 @@ export default {
               fontWeight: legendFontWeight,
               fontSize: legendFontSize,
               fontFamily: legendFontFamily
+            },
+            formatter(params) {
+              if (!enableLegendValue) {return params;}
+              const current = chartConfig.data.find((item) => item.name === params) || {};
+              return `${params}   ${current.value || 0}`;
             }
           }
         };
-        let chartConfig = {};
-        const cn = colorArr.length; // 颜色长度
-        let supplementaryColorArr = [];
-        if (dataType === 1) {
-          const list = JSON.parse(staticValue);
-          const ln = list.length; // 数据长度
-          chartConfig.data = list;
-          supplementaryColorArr = supplementaryColor(ln, cn)
-        }
-        if (dataType === 3 || dataType === 2) {
-          const ln = this.content.length; // 数据长度
-          chartConfig.data = this.content;
-          supplementaryColorArr = supplementaryColor(ln, cn)
-        }
+
         chartConfig = {
           ...chartConfig,
           roseType: 'radius',
@@ -225,18 +241,16 @@ export default {
             //   shadowOffsetX: 0,
             //   shadowColor: 'rgba(0, 0, 0, 0.5)'
             // },
-            normal: {
-              borderRadius: borderRadius,
-              color: (params) => {
-                const colorList = [...colorArr, ...supplementaryColorArr];
-                return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
-                  offset: 0,
-                  color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
-                }, {
-                  offset: 1,
-                  color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
-                }])
-              }
+            borderRadius: borderRadius,
+            color: (params) => {
+              const colorList = [...colorArr, ...supplementaryColorArr];
+              return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
+                offset: 0,
+                color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
+              }, {
+                offset: 1,
+                color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
+              }])
             }
           }
         }
@@ -255,7 +269,7 @@ export default {
     config(val) { // 普通的watch监听
       if (this.myChart && val) {
         const options = this.getOption();
-        this.myChart.setOption(options);
+        this.myChart.setOption(options, true);
       }
     },
     content: {
@@ -264,7 +278,7 @@ export default {
       handler(val) {
         if (this.myChart && val) {
           const options = this.getOption();
-          this.myChart.setOption(options);
+          this.myChart.setOption(options, true);
         }
       }
     },
@@ -297,9 +311,7 @@ export default {
       if (dataType === 1) {
         const option = this.getOption();
         // 绘制图表
-        this.myChart.setOption(
-          option
-        );
+        this.myChart.setOption(option, true);
       }
       if (dataType === 2) {
         this.loading = true;
@@ -311,7 +323,74 @@ export default {
         await this.getSQL();
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
       // getInfoById
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) { return; }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.content = data;
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.content = result;
+        return;
+      }
+      this.content = data;
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -334,9 +413,7 @@ export default {
             await this.getApi();
             this.myChart.clear();
             const option = this.getOption();
-            this.myChart.setOption(
-              option
-            );
+            this.myChart.setOption(option, true);
           }, time);
         }
         if (!enableApiFilter) {
@@ -401,9 +478,7 @@ export default {
           await this.getSQL();
           const option = this.getOption();
           this.myChart.clear();
-          this.myChart.setOption(
-            option
-          );
+          this.myChart.setOption(option, true);
         }, time);
       }
       if (!enableSQLFilter) {
@@ -422,6 +497,15 @@ export default {
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

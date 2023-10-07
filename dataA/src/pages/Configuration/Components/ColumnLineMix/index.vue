@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -82,7 +82,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -147,6 +146,8 @@ export default {
         } = this.config;
         const {staticValue} = dataConfig;
         let {
+          showBackground = false,
+          backgroundColor = 'rgba(180, 180, 180, 0.2)',
           gridLeft,
           gridTop,
           gridRight,
@@ -241,24 +242,18 @@ export default {
           return ''
         }
         let supplementaryColorArr = [], legendData = [], series = [], list = [];
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
         }
         if (dataType === 2) {
           const {apiFilterResponse = '{}'} = apiDataConfig;
           list = JSON.parse(apiFilterResponse);
-          if (!(Array.isArray(list) && list.length)) {
-            list = [];
-          }
         }
         if (dataType === 3) {
           const {SQLFilterResponse = '{}'} = SqlDataConfig;
           list = JSON.parse(SQLFilterResponse);
-          // if (!(Array.isArray(list) && list.length)) {
-          //   list = [];
-          // }
         }
-        const {list: dataList, xAxis = []} = list;
+        const {list: dataList = [], xAxis = []} = list;
         legendData = dataList.map((item) => {
           return item.name
         }); // 确定图例
@@ -337,9 +332,9 @@ export default {
               name,
               data,
               type,
-              showBackground: false,
+              showBackground,
               backgroundStyle: {
-                color: 'rgba(180, 180, 180, 0.2)'
+                color: backgroundColor
               },
               label: {
                 show: enableLabel,
@@ -361,16 +356,14 @@ export default {
               },
               barWidth,
               itemStyle: {
-                normal: {
-                  borderRadius: [borderRadius, borderRadius, 0, 0],
-                  color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
-                    offset: 0,
-                    color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
-                  }, {
-                    offset: 1,
-                    color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
-                  }], false)
-                }
+                borderRadius: [borderRadius, borderRadius, 0, 0],
+                color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
+                  offset: 0,
+                  color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
+                }, {
+                  offset: 1,
+                  color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
+                }], false)
               },
               barCategoryGap: interGroupSpace,
               barGap: `${innerGroupSpace}%`,
@@ -630,14 +623,14 @@ export default {
   methods: {
     renderOpt() {
       const options = this.getOption();
-      this.instance.myChart.setOption(options);
+      this.instance.myChart.setOption(options, true);
     },
     initDom() {
       const {componentId} = this.config;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

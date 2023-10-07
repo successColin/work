@@ -1,0 +1,333 @@
+@charset "utf-8";
+/* 控制台 */
+.workbench {
+  $main-bundle-height: pxToREM(180) !default; //主体高度
+  $main-bundle-top: pxToREM(100) !default; //主体高度
+  $main-bundle-margin: pxToREM(72) !default; //主体高度
+  $main-bundle-text: pxToREM(28) !default; //bundle字体大小
+  $bundle-text: pxToREM(26) !default;
+  padding-bottom: $has-big-btn;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  font-family: PingFangSC-Regular, PingFang SC;
+  &-header {
+    position: relative;
+    width: 100%;
+    background-size: cover;
+    .header {
+      background-size: contain;
+      height: #{$index-Header-Height}rpx;
+    }
+  }
+  // 公告
+  &__announcement {
+    margin: 0 30rpx;
+    height: 80rpx;
+    box-shadow: 0px 0px 10rpx 0px rgba(0, 0, 0, 0.1);
+    border-radius: 43rpx;
+    margin-bottom: 10rpx;
+    display: flex;
+    align-items: center;
+    .workbench__icon {
+      color: #e65e4b;
+      margin-left: 14rpx;
+    }
+    .workbench__announcementContent {
+      flex: 1;
+      margin-left: 16rpx;
+      font-size: 26rpx;
+      font-family: PingFangSC-Regular, PingFang SC;
+      color: #333333;
+      .swiper {
+        width: 100%;
+        height: 60rpx;
+        .swiper-item {
+          line-height: 60rpx;
+          width: calc(100% - 14rpx);
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+  &-bottom {
+    //工作台底部提示语句
+    width: 100%;
+    height: $bottom-bar;
+  }
+  .topshow-status {
+    width: 100%;
+    background-color: transparent;
+    position: fixed;
+    top: 0;
+    z-index: 999;
+  }
+  .topshow-status.black {
+    background-color: #000000;
+  }
+  .topBtn {
+    position: fixed;
+    padding: 0 pxToREM(30);
+    display: flex;
+    width: 100%;
+    height: pxToREM(88);
+    line-height: pxToREM(88);
+    z-index: 999;
+    color: white;
+    background: rgba(198, 33, 39, 1);
+    .leftBtn,
+    .rightBtn {
+      flex: 1;
+    }
+    .rightBtn {
+      text-align: right;
+    }
+  }
+  .bundle-main {
+    position: absolute;
+    bottom: pxToREM(-48);
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 pxToREM(30);
+    height: $main-bundle-height;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0px 0px 6px 0px rgba(155, 155, 155, 0.3);
+    border-radius: pxToREM($main-radius);
+    &-item {
+      flex: 1;
+      position: relative;
+      text-align: center;
+      font-size: $main-bundle-text;
+      .new {
+        position: absolute;
+        top: pxToREM(-10);
+        left: 50%;
+        margin-left: 1rem;
+        color: #f02f36;
+        font-size: pxToREM(30);
+      }
+      .redBundle {
+        position: relative;
+      }
+      .cornerMarker {
+        position: absolute;
+        width: pxToREM(40);
+        height: pxToREM(40);
+        line-height: pxToREM(40);
+        border-radius: 50%;
+        background: #f02f36;
+        color: #fff;
+        top: 0;
+        left: 50%;
+        margin-left: pxToREM(20);
+        font-size: pxToREM(20);
+      }
+    }
+  }
+}
+.bundle-list {
+  $main-bundle-height: pxToREM(180) !default; //主体高度
+  $main-bundle-top: pxToREM(100) !default; //主体高度
+  $main-bundle-margin: pxToREM(72) !default; //主体高度
+  $main-bundle-text: pxToREM(28) !default; //bundle字体大小
+  $bundle-text: pxToREM(26) !default;
+  margin: 0 20rpx 0 30rpx;
+  .hasMainBundle {
+    width: 100%;
+    height: pxToREM(48);
+  }
+  .hasstatus {
+    width: 100%;
+  }
+  .bundle-group {
+    display: flex;
+    box-pack: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 30rpx;
+  }
+  .bundle-item {
+    font-size: $bundle-text;
+    color: rgba(17, 17, 17, 1);
+    font-weight: 400;
+    position: relative;
+    &.bundle-group-one {
+      flex: 0 0 100%;
+      padding: 0 10rpx 9rpx 0;
+      .bundle-item-image {
+        width: 100%;
+        .image {
+          width: 100%;
+        }
+      }
+      .bundle-item-content {
+        display: flex;
+        align-items: center;
+        .bundle-item-list-icon {
+          width: 105rpx;
+          text-align: center;
+        }
+        .bundle-item-name {
+          flex: 1;
+          text-align: left;
+          font-size: 30rpx;
+          font-family: PingFangSC-Regular, PingFang SC;
+          color: #222222;
+          height: 98rpx;
+          line-height: 98rpx;
+        }
+      }
+    }
+    &.bundle-group-two {
+      flex: 0 0 50%;
+      text-align: left;
+      padding: 0 10rpx 9rpx 0;
+      // ::v-deep {
+      //   .superscript {
+      //     left: 75%;
+      //   }
+      // }
+
+      .bundle-item-image {
+        position: relative;
+        width: 100%;
+        .image {
+          width: 100%;
+          border-radius: 6rpx;
+        }
+      }
+
+      .bundle-item-content {
+        position: relative;
+        padding-left: 30rpx;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 139rpx;
+        border-radius: 6rpx;
+      }
+      .bundle-item-right {
+        flex: 1;
+        margin-left: 20rpx;
+        font-size: 30rpx;
+        font-family: PingFangSC-Regular, PingFang SC;
+        .bundle-item-name {
+          margin-bottom: 6rpx;
+          color: #222222;
+          line-height: 37rpx;
+        }
+        .bundle-item-subtext {
+          display: flex;
+          align-items: center;
+          font-size: 24rpx;
+          color: rgba(136, 136, 136, 1);
+          line-height: 30rpx;
+          .count {
+            flex-shrink: 0;
+            height: pxToREM(22);
+            min-width: pxToREM(26);
+            background: #f02f36;
+            border-radius: pxToREM(14);
+            color: #fff;
+            line-height: pxToREM(22);
+            padding: 0 pxToREM(4);
+            font-size: pxToREM(14);
+            text-align: center;
+          }
+        }
+      }
+    }
+
+    &.bundle-group-three {
+      flex: 0 0 33%;
+      text-align: left;
+      padding: 0 10rpx 9rpx 0;
+      // ::v-deep {
+      //   .superscript {
+      //     left: 75%;
+      //   }
+      // }
+      .bundle-item-image {
+        position: relative;
+        width: 100%;
+        .image {
+          width: 100%;
+          border-radius: 6rpx;
+        }
+      }
+      .bundle-item-content {
+        position: relative;
+        height: 139rpx;
+        padding: 26rpx 30rpx 19rpx 30rpx;
+        border-radius: 6rpx;
+        .bundle-item-name {
+          margin-top: 11rpx;
+          font-size: 28rpx;
+          font-family: PingFangSC-Regular, PingFang SC;
+        }
+      }
+      .superscript {
+        top: pxToREM(18);
+        margin-left: pxToREM(-16);
+      }
+      .iconbtn {
+        font-size: pxToREM(18);
+        margin-left: pxToREM(8);
+      }
+    }
+
+    &.bundle-group-four {
+      flex: 0 0 25%;
+      padding: 0 10rpx 9rpx 0;
+
+      .bundle-item-content {
+        position: relative;
+        text-align: center;
+        .bundle-item-name {
+          margin-top: 22rpx;
+          font-size: 28rpx;
+          font-family: PingFangSC-Regular, PingFang SC;
+        }
+      }
+      .bundle-item-image {
+        position: relative;
+        width: 100%;
+        .image {
+          width: 100%;
+          border-radius: 6rpx;
+        }
+      }
+      .new {
+        position: absolute;
+        top: pxToREM(-15);
+        left: 50%;
+        margin-left: 1rem;
+        color: #f02f36;
+        font-size: pxToREM(30);
+      }
+      .cornerMarker {
+        position: absolute;
+        width: pxToREM(30);
+        height: pxToREM(30);
+        line-height: pxToREM(30);
+        border-radius: 50%;
+        background: #f02f36;
+        color: #fff;
+        top: 0;
+        left: 50%;
+        margin-left: pxToREM(15);
+        font-size: pxToREM(20);
+      }
+    }
+  }
+}
+.mainColor-blue {
+  .topBtn {
+    background: rgba(48, 162, 255, 1);
+  }
+}

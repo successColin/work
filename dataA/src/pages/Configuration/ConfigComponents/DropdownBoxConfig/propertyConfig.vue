@@ -83,7 +83,17 @@
         </div>
       </el-collapse-item>
       <el-collapse-item title="交互设置" name="4">
-        <div>
+        <div class="ellipsisWrap flex propsSetting">
+          <span class="setTitle">启用自定义下拉项</span>
+          <el-switch
+              :value="getComponentInfo.enableCustomItems"
+              @change="(value) => changeTitle(value, 'enableCustomItems')"
+              active-color="#4689F5"
+              inactive-color="#183472">
+          </el-switch>
+        </div>
+
+        <div v-if="getComponentInfo.enableCustomItems">
           <div class="addWrap">
             <c-button type="primary" icon="icon-xinzeng iconfont" @click="handleAdd">新增选项</c-button>
           </div>
@@ -632,20 +642,16 @@ export default {
     }
   }
 
-  .numberWrap {
-    display: flex;
+  .ellipsisWrap {
     justify-content: space-between;
-
-    .flexItem {
-      width: 123px;
-    }
+    align-items: center;
 
     ::v-deep {
-      .el-upload--picture-card {
-        height: 30px !important;
+      .el-slider {
+        width: 200px;
+        margin: 0 auto;
       }
     }
   }
-
 }
 </style>

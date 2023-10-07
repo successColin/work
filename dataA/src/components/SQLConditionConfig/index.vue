@@ -68,6 +68,16 @@
                   :numberValue="item.borderWidth"
                   @Input-Change="(value) => changeStyles(value, 'borderWidth', i, item)"/>
             </div>
+            <div class="propsSetting" v-if="item.enableConditions">
+              <div class="setTitle">动画类型</div>
+              <div>
+                <c-select
+                    :options="animationOption"
+                    v-model="item.animationTypeId"
+                    @change="(value) => changeStyles(value, 'animationTypeId', i, item)"
+                ></c-select>
+              </div>
+            </div>
             <ConditiinDetails
                 v-if="item.enableConditions"
                 :value="item.config"
@@ -99,7 +109,16 @@ export default {
     return {
       config: null,
       active: null,
-      predefineColors
+      predefineColors,
+      animationOption: [
+        {
+          label: '无',
+          value: 1
+        }, {
+          label: '闪烁',
+          value: 2
+        }
+      ]
     };
   },
 

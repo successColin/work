@@ -1,0 +1,75 @@
+.APP_upload{
+	display: flex;
+	flex-direction: column;
+	margin: pxToREM(-300) auto auto auto;
+	position: fixed;
+	top: 50%;
+	left: 0;
+	right: 0;
+	text-align: center;
+	width: 75%;
+	height: pxToREM(520);
+	background: #FFFFFF;
+	border-radius: pxToREM(10);
+	&-headerimg{
+		flex-shrink: 0;
+		width: 100%;
+	}
+	&-content{
+		flex: 1;
+		width: 100%;
+		text-align: left;
+		padding: 0 pxToREM(50);
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		.findVersion {
+			text-align: center;
+			line-height: pxToREM(80);
+			font-size:pxToREM(36);
+		}
+		.version{
+			text-align: center;
+			flex-shrink: 0;
+			font-size:pxToREM(28);
+			font-family:PingFangSC-Medium,PingFang SC;
+			font-weight:500;
+			color: #808080;
+		}
+		.version-content{
+			flex: 1;
+			width: 100%;
+			height: pxToREM(300);
+			font-size:pxToREM(28);
+			font-family:PingFangSC-Regular,PingFang SC;
+			font-weight:400;
+			color:rgba(128,128,128,1);
+			text-indent: 0;
+			.scroll-view-item{
+				padding: 0;
+			}
+		}
+	}
+	&-footer{
+		flex-shrink: 0;
+		width: 100%;
+		padding: pxToREM(40) pxToREM(50);
+		display: flex;
+		.btn-item{
+			flex:1;
+		}
+		::v-deep {
+			.btn {
+				height: pxToREM(80);
+				line-height: pxToREM(80);
+			}
+		}
+		button {
+			height: pxToREM(88);
+			border-radius:pxToREM(44);
+		}
+		.noupload{
+			button:after{border:none;}
+		}
+	}
+}

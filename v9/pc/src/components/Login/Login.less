@@ -1,0 +1,386 @@
+.box {
+  position: relative;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+
+  :global {
+    .ant-form-item-children svg {
+      margin-right: 5px;
+      margin-top: 2px;
+      font-size: 17px;
+    }
+
+    .ant-form-item-children input {
+      //margin-right: 5px;
+      //margin-top: 2px;
+      padding-left: 35px !important;
+      font-size: 14px;
+    }
+
+    .ant-form-item
+      .ant-form-item-control-wrapper
+      .ant-form-item-control.has-error
+      .ant-form-explain {
+      bottom: 1px;
+    }
+
+    .ant-form-item .ant-form-item-control-wrapper .ant-form-item-control.has-error .ant-form-item-children > span * {
+      border-color: #f5222d;
+    }
+  }
+}
+
+.loginBg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  //top: 50%;
+  top: 0;
+  width: 100%;
+  //height: 60%;
+  height: 100vh;
+  //transform: translateY(-50%);
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.loginForm {
+  position: absolute;
+  left: 50%;
+  right: 0;
+  top: 50%;
+  //width: 64%;
+  width: 874px;
+  //height: 67%;
+  height: 440px;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 1);
+  background-size: 100% 100%;
+  box-shadow: 0px 0px 8px #dad9d9;
+  overflow: hidden;
+}
+
+.formLeft {
+  float: left;
+  position: relative;
+  width: 38%;
+  height: 100%;
+  background: url('../../assets/form_bg.png') center no-repeat;
+  background-size: 100% 100%;
+}
+
+.formLeftBg {
+  background: none !important;
+}
+
+.formRight {
+  float: right;
+  width: 62%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.adLogin {
+  width: 100%;
+}
+
+.loginImg {
+  width: 100%;
+  height: 13.7%;
+  margin: 15% auto 2% auto;
+  text-align: center;
+
+  & > img {
+    width: 37%;
+  }
+}
+
+.welcome {
+  height: 56px;
+  font-size: 27px;
+  font-family: PingFangSC;
+  font-weight: 400;
+  text-align: center;
+  color: rgba(255, 255, 255, 1);
+  line-height: 56px;
+}
+
+.des {
+  width: 100%;
+  position: absolute;
+  bottom: 13%;
+  padding: 0 8%;
+  font-size: 12px;
+  font-family: PingFangSC;
+  font-weight: 400;
+  text-align: center;
+  color: rgba(255, 255, 255, 1);
+  line-height: 22px;
+  box-sizing: border-box;
+}
+
+.loginName {
+  width: 106px;
+  height: 56px;
+  //margin: 40px 0 0 55px;
+  //margin: 7% 0 0 55px;
+  margin: 40px 0 0 55px;
+  font-size: 27px;
+  font-family: PingFangSC;
+  font-weight: 500;
+  //color: rgba(198, 33, 39, 1);
+  line-height: 56px;
+}
+
+.commonInput {
+  height: 45px;
+  //margin-bottom: 35px;
+  margin-bottom: 5%;
+  line-height: 45px;
+}
+
+.commonInput1 {
+  height: 45px;
+  //margin-bottom: 35px;
+  margin-bottom: 1%;
+  line-height: 45px;
+}
+
+.FormDetial {
+  margin-top: 30px;
+  padding: 0 55px;
+}
+
+.forget {
+  //padding: 0 55px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 14px;
+}
+
+.forgetLeft {
+  text-align: left;
+  font-size: 14px !important;
+  color: #9b9b9b;
+}
+
+.forgetRight {
+  text-align: right;
+  font-size: 14px !important;
+  color: rgba(198, 33, 39, 1);
+}
+
+.chekboxSty {
+  margin-right: 8px;
+}
+
+.iconSty {
+  width: 22px;
+  height: 23px;
+  color: #c62127;
+  line-height: 23px;
+}
+
+.RecordNumber {
+  position: absolute;
+  width: 100%;
+  bottom: 20px;
+  text-align: center;
+
+  & > a {
+    color: #9b9b9b;
+    text-decoration: underline;
+  }
+}
+
+.imgSafe {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.changeColor {
+  position: absolute;
+  right: 50px;
+  top: 50px;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.loginWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.languageName {
+  width: 92px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  color: #4689f5;
+
+  & > i {
+    color: #a5b2c5;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+    border-radius: 6px;
+  }
+}
+
+.modal {
+  width: 600px !important;
+  min-width: unset !important;
+  min-height: 480px !important;
+  height: 480px;
+
+  :global {
+    .ant-modal-body {
+      padding-top: 20px;
+    }
+
+    .ant-modal-header {
+      border-bottom: none;
+    }
+    .ant-btn-primary:hover,
+    .ant-btn-primary:focus {
+      color: #ffffff;
+    }
+  }
+}
+
+.name {
+  margin: 0px 34px 30px 34px;
+  border-bottom: 1px dashed #e9e9e9;
+  padding-bottom: 20px;
+  text-align: center;
+
+  & > p {
+    font-size: 18px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+  }
+
+  & > div {
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #808080;
+    line-height: 18px;
+  }
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
+  display: inline-block;
+  background: #e5f0ff;
+  border-radius: 50%;
+  line-height: 28px;
+  color: #4689f5;
+  font-size: 14px;
+  text-align: center;
+}
+
+.scanCode {
+  overflow: hidden;
+  width: 180px;
+  height: 180px;
+  margin-top: 38px;
+  border: 1px solid #e9e9e9;
+  background: #f2f2f2;
+  position: relative;
+}
+
+.scanCode__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+.scanCode__iframe {
+  position: relative;
+  top: -98px;
+  left: -16px;
+}
+
+// 扫码登录容器
+.scanCodeContainer {
+  display: flex;
+  width: fit-content;
+  padding: 0 12px;
+  background: #f6f6f8;
+  border-radius: 16px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  color: #333333;
+  cursor: pointer;
+  height: 32px;
+  line-height: 32px;
+}
+.scanCodeContainer:hover {
+  background: #e5f0ff;
+  color: #4689f5;
+}
+
+.scanCodeContent {
+  margin: 0 auto;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.scanCodeContentTitle {
+  font-size: 24px;
+  font-family: PingFangSC-Medium, PingFang SC;
+  font-weight: 500;
+  color: #333333;
+  display: flex;
+  align-items: center;
+}
+
+.scanCodeContentDec {
+  font-size: 15px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  color: #333333;
+  margin-top: 30px;
+}
+
+.scanCodeContentDecVal {
+  color: #4689f5;
+  cursor: pointer;
+}
+
+.scanCodeContentDecVal:hover {
+  text-decoration: underline;
+}
+
+.scanCodeContentBack {
+  margin-top: 24px;
+  font-size: 15px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  color: #808080;
+  line-height: 20px;
+  cursor: pointer;
+}
+.scanCodeContentBack:hover {
+  color: #4689f5;
+}
+
+.scanCodeContentBackIcon {
+  margin-right: 7px;
+  font-size: 14px;
+}

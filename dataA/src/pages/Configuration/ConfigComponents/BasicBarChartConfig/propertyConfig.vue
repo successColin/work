@@ -119,7 +119,28 @@
                   @Input-Change="(value) => changeStyles(value, 'borderRadius')"/>
             </div>
           </div>
-
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">启用柱子背景色</span>
+            <el-switch
+                :value="getComponentInfo.stylesObj.showBackground"
+                @change="(value) => changeStyles(value, 'showBackground')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
+          <div class="propsSetting" v-show="getComponentInfo.stylesObj.showBackground">
+            <p class="setTitle">柱子背景色</p>
+            <div>
+              <c-color-picker
+                  style="margin-right: 10px;"
+                  size="small"
+                  v-model="getComponentInfo.stylesObj.backgroundColor"
+                  show-alpha
+                  @change="(value) => changeStyles(value, 'backgroundColor')"
+                  :predefine="predefineColors">
+              </c-color-picker>
+            </div>
+          </div>
           <div class="ellipsisWrap propsSetting">
             <span class="setTitle">自定义柱子颜色</span>
             <data-color

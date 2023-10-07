@@ -18,7 +18,6 @@
         class="singleTextContent"
         :style="getTextStyles()"
         :class="{ellipsis: config.enableEllipsis}"
-        @click="hrefUrl"
         :title="content"
     >
       <span :style="getLastStyles">{{ content }}</span>
@@ -27,9 +26,11 @@
 </template>
 
 <script>
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import Bus from '@/utils/bus';
 import {getInfoById} from '@/services/design';
 import {IsURL} from '@/utils/utils';
+import { decrypt } from '@/utils/secret';
 import {isEqual} from 'lodash';
 
 export default {
@@ -48,6 +49,7 @@ export default {
   },
   data() {
     return {
+      client: null,
       content: '',
       timer: null,
       loading: false
@@ -58,11 +60,13 @@ export default {
 
   computed: {
     getLastStyles() {
-      const { stylesObj: {
-        fontFamily,
-        fontSize,
-        fontWeight
-      }} = this.config;
+      const {
+        stylesObj: {
+          fontFamily,
+          fontSize,
+          fontWeight
+        }
+      } = this.config;
       let obj = {
         fontFamily,
         fontSize: `${fontSize}px`,
@@ -72,7 +76,17 @@ export default {
     },
     getTextStyles() {
       return function () {
-        const {stylesObj = {}, gradientType, enableBackground, width, height, url, interactionMode, bulletUrl, enableEllipsis } = this.config;
+        const {
+          stylesObj = {},
+          gradientType,
+          enableBackground,
+          width,
+          height,
+          url,
+          interactionMode,
+          bulletUrl,
+          enableEllipsis
+        } = this.config;
         const {
           color1,
           color2,
@@ -151,7 +165,10 @@ export default {
   },
   methods: {
     handleClick() {
-      const {bulletType, interactionMode, bulletUrl, bulletWidth, bulletHeight } = this.config;
+      const {bulletType = 1, interactionMode, bulletUrl, bulletWidth, bulletHeight} = this.config;
+      if (interactionMode === 1) {
+        return;
+      }
       if (interactionMode === 2 && bulletType === 1) {
         Bus.$emit('modalOpera', {
           visible: true,
@@ -162,6 +179,9 @@ export default {
           },
           otherParams: {}
         });
+      }
+      if (interactionMode === 3) {
+        this.hrefUrl();
       }
     },
     getParameters() {
@@ -213,6 +233,14 @@ export default {
         await this.getSQL();
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -249,6 +277,62 @@ export default {
         }
         this.content = JSON.parse(targetObj)[apiEffect];
       }
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) return;
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun, // 过滤器函数
+          mqttEffect
+        }
+      } = this.config;
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.content = result[mqttEffect];
+      } else {
+        this.content = data[mqttEffect];
+      }
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     async getSQL() {
       const {SqlDataConfig} = this.config;
@@ -299,6 +383,15 @@ export default {
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

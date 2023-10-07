@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -82,7 +82,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -177,7 +176,7 @@ export default {
           }
         };
         let contentObj = null;
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           const {staticValue = '{}'} = dataConfig;
           contentObj = JSON.parse(staticValue);
         }
@@ -467,7 +466,7 @@ export default {
           setTimeout(() => {
             const options = this.getOption();
             try {
-              this.instance.myChart.setOption(options);
+              this.instance.myChart.setOption(options, true);
             } catch (error) {
               this.instance.myChart.dispose();
               this.initDom();
@@ -491,7 +490,7 @@ export default {
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

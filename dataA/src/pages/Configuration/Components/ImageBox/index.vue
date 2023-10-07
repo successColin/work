@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,11 +35,10 @@
         </div>
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-// import VueDragResize from 'vue-drag-resize'
 
 import {screenConfig} from '@/constants/global';
 import {IsURL} from '@/utils/utils';
@@ -75,7 +74,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -93,6 +91,7 @@ export default {
     },
     getImageUrl() { // 获取图片路径
       return function (url) {
+        if (typeof url !== 'string') return '';
         if (!url) {return '';}
         const reg = /(http|https):\/\/([\w.]+\/?)\S*/ig;
         const result = url.match(reg);
@@ -144,11 +143,27 @@ export default {
           this.init()
         }
       }
+    },
+    'config.mqttDataConfig': {
+      deep: true,
+      handler(v, o) {
+        if (!isEqual(v, o)) {
+          this.init()
+        }
+      }
+    },
+    'config.dataType': {
+      deep: true,
+      handler(v, o) {
+        if (!isEqual(v, o)) {
+          this.init()
+        }
+      }
     }
   },
   methods: {
     init() {
-      const {dataType, apiDataConfig, SqlDataConfig} = this.config;
+      const {dataType, apiDataConfig, SqlDataConfig, mqttDataConfig} = this.config;
       if (dataType === 2) {
         const {apiEffect, apiFilterResponse} = apiDataConfig
         if (apiFilterResponse === '{}') {
@@ -162,6 +177,11 @@ export default {
         const {SQLEffect, SQLFilterResponse} = SqlDataConfig
         const obj = JSON.parse(SQLFilterResponse);
         this.content = obj[SQLEffect];
+      }
+      if (dataType === 4) {
+        const {mqttEffect, mqttFilterResponse} = mqttDataConfig
+        const obj = JSON.parse(mqttFilterResponse);
+        this.content = obj[mqttEffect];
       }
     },
 

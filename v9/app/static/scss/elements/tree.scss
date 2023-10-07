@@ -1,0 +1,67 @@
+.mTree {
+  line-height: 70rpx;
+  .tree-item-Child {
+    padding-left: 26rpx;
+  }
+  .tree-item-text {
+    position: relative;
+    font-size: 28rpx;
+    white-space: nowrap;
+    font-family: PingFangSC-Regular, PingFang SC;
+    color: #111111;
+		padding-right: 36rpx;
+		
+		
+    .tree-item-icon {
+      display: inline-block;
+      padding-right: 4rpx;
+			&.close{
+				position: relative;
+				top: -8rpx;
+			}
+      &.icontransform {
+				
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .tree-item-check {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 70rpx;
+    text-align: right;
+    color: #d9d9d9;
+		background: #fff;
+    &.checked {
+      color: $main-color;
+    }
+  }
+  .tree-item-check-yes,
+  .tree-item-check-no {
+    width: 46rpx;
+    height: 46rpx;
+    border-radius: 20%;
+    border: solid 1px #d9d9d9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .tree-item-check-yes {
+    border-color: $main-color;
+  }
+  .tree-item-check-yes-b {
+    width: 24rpx;
+    height: 24rpx;
+    border-radius: 20%;
+    background-color: $main-color;
+  }
+  .tree-item-check .radio {
+    border-radius: 50%;
+  }
+  .tree-item-check .radio .tree-item-check-yes-b {
+    border-radius: 50%;
+  }
+}

@@ -57,7 +57,7 @@ export const screenAppConfig = {
   showType: 2 // 展示类型， 默认按高低比例展示，1， 屏幕宽高展示； 2、 按屏幕宽比例展示； 3、按屏幕高比例展示； 4、 按根据设计图真实比例展示
 };
 
-export const apiDataConfig = {
+export const apiDataConfig = { // api 配置
   apiUrl: '', // 接口地址
   // apiType: 1, // 1：直连，2：代理
   requestType: 1, // get,post
@@ -72,7 +72,7 @@ export const apiDataConfig = {
   apiFilterResponse: '{}' // 数据库过滤后的数据
 }
 
-export const SqlDataConfig = {
+export const SqlDataConfig = { // sql配置
   SQL: 'select * from table1', // sql
   enableSQLFilter: false, // sql 是否需要过滤器
   SQLDataFilterId: null, // 数据过滤器id
@@ -86,7 +86,22 @@ export const SqlDataConfig = {
   variableConfig: [] // 变量数组
 }
 
-export const tabStylesConfig = {
+export const mqttDataConfig = { // mqtt配置
+  mqttSourceId: null,
+  sourceU: null, // mqttIP地址
+  sourceP: null, // mqtt端口
+  sourceA: null, // mqtt 帐号
+  sourceD: null, // mqtt 密码
+  topic: null, // 订阅主题
+  enableMqttFilter: false, // mqtt是否需要过滤器
+  mqttDataFilterId: null, // 数据过滤器id
+  mqttResponse: '{}', // mqtt返回值
+  mqttFilterResponse: '{}', // 数据库过滤后的数据
+  mqttFilterFun: null, // 过滤器函数
+  mqttEffect: '' // SQL生效字段
+}
+
+export const tabStylesConfig = { // tab组件配置
   cFontFamily: '微软雅黑', // 未激活状态字体
   cFontWeight: 'normal', // 未激活状态文字粗细
   cFontSize: 28, // 未激活状态文字大小
@@ -101,6 +116,18 @@ export const tabStylesConfig = {
   borderWidth: 1, // 边框大小
   borderColor: '#fff', // 边框颜色
   borderRadius: 0 // 边框倒角
+}
+
+export const infoComForEdit = { // 允许编辑时的属性
+  editRows: 2, // 输入框行数
+  editBorderRadius: 0, // 倒角
+  editBorderColor: '', // 边框颜色
+  editHoverBorderColor: '', // 悬浮边框颜色
+  editBgColor: '', // 背景颜色
+  editColor: '', // 字体颜色
+  editFontSize: 14, // 字体大小
+  editFontFamily: 'Arial', // 字体
+  editFontWeight: 'normal' // 字体加粗
 }
 
 // 取色器默认颜色
@@ -188,6 +215,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   DataSwitching: { // 数据切换
@@ -221,6 +251,169 @@ export const attributeCollection = { // 组件属性集合
     },
     beforeParamsConfig: [], // 初始化时的参数传递
     afterParamsConfig: [] // 切换后的参数传统
+  },
+  Iframe: { // 数据切换
+    componentName: 'Iframe',
+    thumbnail: require('@/assets/config/dataswitch.svg'),
+    name: 'Iframe',
+    width: 500,
+    height: 400,
+    minHeight: 20,
+    minWidth: 50,
+    left: 0,
+    top: 0,
+    isShow: true, // 是否显示，用于图层控制组件显示与否
+    isLock: false, // 是否锁定
+    dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+    controlledChart: [], // 受控图标
+    stylesObj: {
+      zIndex: 1,
+      url: ''
+    }
+  },
+  'ThreeDComponents': {
+    componentName: 'ThreeDComponents',
+    thumbnail: require('@/assets/config/3d.svg'),
+    name: '3D 模型',
+    width: 500,
+    height: 400,
+    minHeight: 20,
+    minWidth: 50,
+    left: 0,
+    top: 0,
+    isFixed: true, // 是否固定
+    isShow: true, // 是否显示，用于图层控制组件显示与否
+    isLock: false, // 是否锁定
+    dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+    stylesObj: {
+      zIndex: 1,
+      // 基础设置
+      url: '', // 模型地址
+      enableAuxiliaryLines: true, // 启用辅助线
+      bgColor: '', // 背景色
+      enableZoom: false, // 禁止縮放
+      zoomLevel: 1, // 模型初始化大小
+      modelPosX: 0, // 模型位置X
+      modelPosY: 0, // 模型位置Y
+      modelPosZ: 0, // 模型位置Z
+      minPolarAngle: 0, // 垂直旋转最小角度
+      maxPolarAngle: 180, // 垂直旋转最大角度
+      enableRotate: false, // 禁止旋转
+      enableRotateAnimate: false, // 启用旋转动画
+      rotationDirection: 'y', // 旋转方向
+      rotationSpeed: 0.005, // 旋转速度
+      enableEnterAnimate: false, // 启用入场动画
+      enablePan: true, // 禁止右键平移
+      // 相机视角
+      cameraX: 20, // x轴位置
+      cameraY: 20, // y轴位置
+      cameraZ: 20, // z轴位置
+      enableResetBtn: false, // 启用重置按钮
+      resetBtnBgColor: '', // 背景色
+      resetBtnBorderRadius: 0, // 倒角
+      resetBtnBgUrl: '', // 背景图片
+      bgUrlWidth: 30,
+      bgUrlHeight: 30,
+      resetBtnWidth: 50,
+      resetBtnHeight: 50,
+      resetBtnTop: 50,
+      resetBtnLeft: 50,
+
+      enableSysPresets: false, // 启用系统预设
+      presetGroupWidth: 100,
+      presetGroupHeight: 50,
+      presetGroupTop: 60,
+      presetGroupLeft: 60, //
+      presetBtnWidth: 80,
+      presetBtnHeight: 40,
+      presetGroupBorderRadius: 0,
+      presetGroupNormalBgColor: '',
+      presetGroupActiveBgColor: '',
+      presetGroupNormalBgUrl: '',
+      presetGroupActiveBgUrl: '',
+      presetFontFamily: '微软雅黑', // 未激活状态字体
+      presetFontWeight: 'normal', // 未激活状态文字粗细
+      presetFontSize: 28, // 未激活状态文字大小
+      presetColor: '#fff', // 未激活状态左右内边距
+      presetHoverColor: '#4689F5', // 未激活状态左右内边距
+
+
+      // 光源设置
+      enableAmbientLight: true, //  启用环境光
+      ambientLightColor: '#ffffff', // 环境光颜色
+      ambientLightIntensity: 1, // 环境光强度
+      // 半球光
+      enableHemisphereLight: false, //  启用半球光
+      hemisphereLightSkyColor: '#ffffff', // 天空颜色
+      hemisphereLightGroundColor: '#ffffff', // 地面颜色
+      hemisphereLightIntensity: 1, // 光照强度
+      // 平行光
+      enableDirectionLight: false, //  启用平行光
+      directionLightColor: '#ffffff', // 平行光颜色
+      directionLightIntensity: 1, // 平行光强度
+      directionLightX: 100, // 平行光光源X
+      directionLightY: 100, // 平行光光源Y
+      directionLightZ: 100, // 平行光光源Z
+      enableDirectionLightShadow: false, // 启用平行光阴
+
+      // 点状光
+      enablePointLight: false, //  启用点状光
+      pointLightColor: '#ffffff', // 点状光颜色
+      pointLightIntensity: 1, // 点状光强度
+      pointLightLightX: 100, // 点状光光源X
+      pointLightLightY: 100, // 点状光光源Y
+      pointLightLightZ: 100, // 点状光光源Z
+      enablePointLightShadow: false, // 启用点状光阴影
+
+
+      enableHoverEffects: false, // 启用外部阴影
+      visibleEdgeColor: null, // 显示物体描边颜色
+      hiddenEdgeColor: null, // 隐藏物品描边颜色
+      edgeStrength: 5, // 模糊度
+      edgeThickness: 1, // 发光强度
+      pulsePeriod: 0, // 光晕闪烁频率
+      edgeGlow: 0, // 光晕
+
+      enableGlowEffects: false, // 外发光
+      strength: 0, // 强度
+      threshold: 0, // 阈值
+      exposure: 1, // 暴光亮
+      radius: 1, // 半径
+      // 模型需要控制显影的模型
+      needShowOrHideModels: [],
+      enableCustomShowOrHideModels: false,
+      identifierValue: '', //  标识符值
+      identifier: '', // 标识符
+      customIdentifier: '', // 自定义标识符
+      // 模型需要控制动画
+      needControlAnimate: [], //
+      enableAllAnimate: true, // 是否启用动画
+      enableCustomOperationModels: false,
+      needOperationModels: [] // 需要交互的模型
+    },
+    systemPresetsConfig: [
+      { x: 0, y: 0, z: 50, name: '正视', enable: false },
+      { x: 0, y: 0, z: -50, name: '背视', enable: false },
+      { x: 50, y: 0, z: 0, name: '右视', enable: false },
+      { x: -50, y: 0, z: 0, name: '左视', enable: false },
+      { x: 0, y: 50, z: 0, name: '俯视', enable: false },
+      { x: 0, y: -50, z: 0, name: '仰视', enable: false }
+    ],
+    showOrHideModelsConfig: [],
+    animateConfig: [],
+    operationModelsConfig: [], // 交互配置
+    dataConfig: {
+      staticValue: '[{"id":1,"stateId":1},{"id":2,"stateId":1},{"id":3,"stateId":1},{"id":4,"stateId":1},{"id":5,"stateId":1},{"id":6,"stateId":1},{"id":7,"stateId":1}]' // 静态值
+    },
+    apiDataConfig: {
+      ...apiDataConfig
+    },
+    SqlDataConfig: {
+      ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
+    }
   },
   FullScreenBtn: { // 全屏按钮
     componentName: 'FullScreenBtn',
@@ -257,15 +450,78 @@ export const attributeCollection = { // 组件属性集合
     isFixed: false, // 是否固定
     dataType: 1, // 1：静态；2：接口获取；3：SQL获取
     enableAutoUpdate: false, // 是否自动更新
+    enableDragging: false, // 是否允许拖动
+    enableScaling: false, // 是否允许缩放
     stylesObj: {
       zIndex: 1,
       backgroundImage: '', // 画布背景
       drawType: null, // 热区类型
       drawUrl: '', // 热区图片路径
       type: 1,
-      updateTime: 15
+      updateTime: 15,
+      pathColor: '#FFFFFF', // 路径颜色
+      associatedControls: [], // 点击全部时管理的受控控件
+      dataSourceVar: 'varTableName', // 数据源变量
+      dataSourceValue: '', // 数据源明细
+      dataDetailVar: 'varDetailName', // 数据明细变量
+      dataDetailValue: '' // 数据明细值
     },
     designObject: '' // canvas配置
+  },
+  DigitalFlipper: {
+    componentName: 'DigitalFlipper',
+    thumbnail: require('@/assets/config/DigitalFlipper.svg'),
+    name: '数字翻牌器',
+    width: 300,
+    height: 50,
+    minHeight: 20,
+    minWidth: 50,
+    left: 0,
+    top: 0,
+    styleType: 1, // 风格类型
+    ...bulletCommonConfig,
+    isShow: true, // 是否显示，用于图层控制组件显示与否
+    isLock: false, // 是否锁定
+    enableBackgroundImage: false, // 是否启用数字背景图片
+    dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+    stylesObj: {
+      // 前缀设置
+      prefixContent: '',
+      prefixFontFamily: 'Arial,苹方,微软雅黑',
+      prefixFontSize: 16,
+      prefixColor: '#ffffff',
+      prefixFontWeight: 'normal',
+      // 后缀设置
+      suffixContent: '',
+      suffixFontFamily: 'Arial,苹方,微软雅黑',
+      suffixFontSize: 16,
+      suffixColor: '#ffffff',
+      suffixFontWeight: 'normal',
+      enableThousands: true,
+      FontFamily: 'Arial,苹方,微软雅黑',
+      FontSize: 30,
+      Color: '#ffffff',
+      FontWeight: 'normal',
+      distance: 0, // 间距
+      contentWidth: 40,
+      contentHeight: 48,
+      bgUrl: '',
+      textAlign: 'center',
+      zIndex: 1
+    },
+    dataConfig: {
+      staticValue: '{"text":"1234567890","value":"文本组件2"}', // 静态值
+      takeEffect: 'text' // 生效字段
+    },
+    apiDataConfig: {
+      ...apiDataConfig
+    },
+    SqlDataConfig: {
+      ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
+    }
   },
   SingleLineText: {
     componentName: 'SingleLineText',
@@ -313,6 +569,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   Marquee: {
@@ -445,6 +704,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   AuxiliaryLine: {
@@ -485,6 +747,8 @@ export const attributeCollection = { // 组件属性集合
     isLock: false, // 是否锁定
     dataType: 1, // 1：静态；2：接口获取；3：SQL获取
     enableLinesHighlighted: true, // 启用高亮
+    enableRowTopping: false, // 启用行置顶
+    rowToppingBg: null, // 置顶区域背景色
     enableHeader: true, // 是否启用表头
     enableSno: true, // 是否启用序号
     stylesObj: {
@@ -525,6 +789,7 @@ export const attributeCollection = { // 组件属性集合
         fieldFontWeight: 'normal',
         fieldFontSize: 16,
         fieldColor: '#fff',
+        fieldBgColor: '',
         fieldTextAlign: 'center',
         fieldPrefix: '', // 文字前缀
         fieldPrefixWidth: 20, // 文字前缀宽度
@@ -532,6 +797,7 @@ export const attributeCollection = { // 组件属性集合
         isEllipsis: true, // 默认开启省略
         enableConditions: false, // 是否启用字段条件
         fieldRelColor: '#fff', // 配置了启用条件及条件满足，则该字段生效
+        fieldRelBgColor: '', // 配置了启用条件及条件满足，则该字段生效
         isApplyPicture: false, // 是否应用与图片
         conditionsArr: [], // 条件数组，二维数组，子数组对象，包括状态 并且---或者
         ...bulletCommonConfig, // 弹框或者url跳转配置
@@ -566,7 +832,11 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
-    }
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
+    },
+    lineTopConditionConfig: {} // 行置顶条件数组，二维数组，子数组对象，包括状态 并且---或者
   },
   RadarChart: {
     componentName: 'RadarChart',
@@ -660,6 +930,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   FunnelChart: {
@@ -694,6 +967,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     },
     funnelsConfig: [
       {
@@ -740,8 +1016,10 @@ export const attributeCollection = { // 组件属性集合
     isLock: false, // 是否锁定
     dataType: 1, // 1：静态；2：接口获取；3：SQL获取
     enableLegend: true, // 是否启用图例
+    enableTooltip: true, // 是否启用悬浮提示
     stylesObj: {
       zIndex: 1,
+      enableLegendValue: false, // 是否在图例里面显示值
       legendPosition: 'lt', // 图例位置
       legendFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
       legendFontWeight: 'normal', // 图例文字粗细
@@ -761,6 +1039,7 @@ export const attributeCollection = { // 组件属性集合
       pieVertical: 50, // 竖向位置
       borderRadius: 18, // 扇形倒角
       roseType: 'radius',
+      tipType: 1, // 占比内容
       colorArr: [{c1: '#7381F8', c2: '#7381F8'}, {c1: '#4689F5', c2: '#4689F5'}, {c1: '#43DBFF', c2: '#43DBFF'}] // 扇形区域颜色
     },
     dataConfig: {
@@ -771,6 +1050,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   Liquidfill: {
@@ -825,6 +1107,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   Sankey: {
@@ -937,6 +1222,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   BasicPieChart: {
@@ -953,6 +1241,7 @@ export const attributeCollection = { // 组件属性集合
     isLock: false, // 是否锁定
     dataType: 1, // 1：静态；2：接口获取；3：SQL获取
     enableLegend: true, // 是否启用图例
+    enableTooltip: true, // 是否启用悬浮提示
     stylesObj: {
       zIndex: 1,
       legendPosition: 'lt', // 图例位置
@@ -960,6 +1249,13 @@ export const attributeCollection = { // 组件属性集合
       legendFontWeight: 'normal', // 图例文字粗细
       legendFontSize: 12, // 图例文字大小
       legendColor: '#FFF', // 图例字体颜色
+      // legendMarginLeft: 0, // 图例标题左边距
+      // legendMarginRight: 0, // 图例标题右边距
+      enableLegendValue: false, // 是否在图例里面显示值
+      // legendValueFontFamily: 'Arial,苹方,微软雅黑', // 图例值字体
+      // legendValueFontWeight: 'normal', // 图例值文字粗细
+      // legendValueFontSize: 12, // 图例值文字大小
+      // legendValueColor: '#FFF', // 图例值字体颜色
       legendOrient: 'horizontal', // 图例布局， 默认水平，选项水平， 垂直
       labelPosition: 'inside', // 标注位置，内部外部
       labelColor: 'rgba(255, 255, 255, 0.7)', // 标注字体颜色
@@ -968,8 +1264,11 @@ export const attributeCollection = { // 组件属性集合
       labelFontSize: 12, // 图例文字大小
       labelFontFamily: 'Arial,苹方,微软雅黑', // 图例字体
       labelFontWeight: 'normal', // 图例文字粗细
+      pieHorizontal: 50, // 水平位置
+      pieVertical: 50, // 竖向位置
       outerCircle: 70, // 外圆半径
       InnerCircle: 0, // 内圆半径
+      tipType: 1, // 占比内容
       colorArr: [{c1: '#7381F8', c2: '#7381F8'}, {c1: '#4689F5', c2: '#4689F5'}, {c1: '#43DBFF', c2: '#43DBFF'}] // 扇形区域颜色
     },
     dataConfig: {
@@ -980,6 +1279,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   BasicBarChart: {
@@ -1013,6 +1315,8 @@ export const attributeCollection = { // 组件属性集合
       interGroupSpace: 30, // 组间间距， 柱子和其他柱子的间隔
       barWidth: 25, // 柱子宽度
       borderRadius: 0, // 柱子顶部倒角
+      showBackground: false, // 是否显示柱子背景
+      backgroundColor: 'rgba(180, 180, 180, 0.2)',
       legendPosition: 'tc', // 图例位置
       legendFontFamily: '微软雅黑', // 图例字体
       legendFontWeight: 'normal', // 图例文字粗细
@@ -1066,6 +1370,93 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
+    }
+  },
+  TimeGanttChart: {
+    componentName: 'TimeGanttChart',
+    thumbnail: require('@/assets/config/timeGanttChart.svg'),
+    name: '时间区域甘特图',
+    width: 500,
+    height: 280,
+    minHeight: 20,
+    minWidth: 50,
+    left: 0,
+    top: 0,
+    isShow: true, // 是否显示，用于图层控制组件显示与否
+    isLock: false, // 是否锁定
+    dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+    enableLegend: true, // 是否启用图例
+    enableLabel: true, // 是否启用标注
+    enableGrid: false, // 是否启用容器布局
+    enableXAxis: true, // 启用x轴样式
+    enableYAxis: true, // 启用y轴样式
+    enableData: false, // 启用海量数据
+    stylesObj: {
+      zIndex: 1,
+      gridLeft: 30, // 距离容器左边
+      gridTop: 30, // 距离容器顶部
+      gridRight: 30, // 距离容器右边
+      gridBottom: 30, // 距离容器底部
+      graphHeightScale: 0.6, // 图形高度比例
+      legendPosition: 'tc', // 图例位置
+      legendFontFamily: '微软雅黑', // 图例字体
+      legendFontWeight: 'normal', // 图例文字粗细
+      legendFontSize: 12, // 图例文字大小
+      legendColor: '#FFF', // 图例字体颜色
+      labelField: 'y', // 标注字段
+      labelPrefix: '', // 标注前缀
+      labelSuffix: '', // 标注后缀
+      labelFontFamily: '微软雅黑', // 标注字体
+      labelFontWeight: 'normal', // 标注文字粗细
+      labelFontSize: 12, // 标注文字大小
+      labelColor: '#FFF', // 标注字体颜色
+      labelPosition: 'top', // 标注位置，顶部， 内部，底部
+      XLineColor: '#fff', // x轴轴颜色
+      XInterval: 1, // 强制设置坐标轴分割间隔。
+      // XDataType: 'category', // 轴类型
+      XName: '', // X轴 标题名称
+      XFontFamily: '微软雅黑', // x轴字体
+      XFontWeight: 'normal', // x轴文字粗细
+      XFontSize: 12, // x轴文字大小
+      XColor: '#FFF', // x轴字体颜色
+      XTickEnable: false, // x轴刻度
+      XTickColor: '#fff', // x轴刻度颜色
+      XTickLabelFontFamily: '微软雅黑', // x轴字体
+      XTickLabelFontWeight: 'normal', // x轴文字粗细
+      XTickLabelFontSize: 12, // x轴文字大小
+      XTickLabelColor: '#FFF', // x轴字体颜色
+      XTickLabelRotate: 0, // x轴字体旋转角度
+      YLineColor: '#fff', // x轴轴颜色
+      // YDataType: 'value',
+      YName: '', // X轴 标题名称
+      YFontFamily: '微软雅黑', // x轴字体
+      YFontWeight: 'normal', // x轴文字粗细
+      YFontSize: 12, // x轴文字大小
+      YColor: '#FFF', // x轴字体颜色
+      YTickEnable: false, // x轴刻度
+      YTickColor: '#fff', // x轴刻度颜色
+      YTickLabelFontFamily: '微软雅黑', // x轴字体
+      YTickLabelFontWeight: 'normal', // x轴文字粗细
+      YTickLabelFontSize: 12, // x轴文字大小
+      YTickLabelColor: '#FFF', // x轴字体颜色
+      YTickLabelRotate: 0, // Y轴字体旋转角度
+      customDataMappingField: 'typeName',
+      colorArr: [{c1: '#7381F8', value: '故障'}, {c1: '#4689F5', value: '换模'}, {c1: '#43DBFF', value: '换刀'}] // 区域颜色
+    },
+    dataConfig: {
+      staticValue: '{"startTimeAll":"2021-03-01 00:00:00","endTimeAll":"2021-03-04 00:00:00","list":[{"name":"设备A","typeName":"故障","startTime":"2021-03-01 08:00:00","endTime":"2021-03-01 18:00:00"},{"name":"设备A","typeName":"换刀","startTime":"2021-03-01 18:00:00","endTime":"2021-03-02 14:00:00"},{"name":"设备A","typeName":"换模","startTime":"2021-03-03 10:00:00","endTime":"2021-03-03 18:00:00"},{"name":"设备B","typeName":"故障","startTime":"2021-03-01 08:00:00","endTime":"2021-03-01 13:00:00"},{"name":"设备C","typeName":"故障","startTime":"2021-03-01 08:00:00","endTime":"2021-03-01 16:00:00"},{"name":"设备C","typeName":"换模","startTime":"2021-03-02 04:00:00","endTime":"2021-03-02 19:00:00"}]}' // 静态值
+    },
+    apiDataConfig: {
+      ...apiDataConfig
+    },
+    SqlDataConfig: {
+      ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   TransverseBarChart: {
@@ -1098,6 +1489,8 @@ export const attributeCollection = { // 组件属性集合
       interGroupSpace: 30, // 组间间距， 柱子和其他柱子的间隔
       barWidth: 25, // 柱子宽度
       borderRadius: 0, // 柱子顶部倒角
+      showBackground: false,
+      backgroundColor: 'rgba(180, 180, 180, 0.2)',
       legendPosition: 'tc', // 图例位置
       legendFontFamily: '微软雅黑', // 图例字体
       legendFontWeight: 'normal', // 图例文字粗细
@@ -1151,6 +1544,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   HorizontalProgressBar: {
@@ -1205,6 +1601,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   BasicLineChart: {
@@ -1291,6 +1690,62 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
+    }
+  },
+  BasicGraph: {
+    componentName: 'BasicGraph',
+    thumbnail: require('@/assets/config/BasicGraph.svg'),
+    name: '基础关系图',
+    width: 500,
+    height: 280,
+    minHeight: 20,
+    minWidth: 50,
+    left: 0,
+    top: 0,
+    isShow: true, // 是否显示，用于图层控制组件显示与否
+    isLock: false, // 是否锁定
+    dataType: 1, // 1：静态；2：接口获取；3：SQL获取; 4:mqtt
+    roam: true, // 鼠标缩放
+    animation: true, // 动画
+    draggable: true, // 节点拖动
+    enableLabel: true, // 是否显示标注
+    enableEdgeLabel: false, // 连接线标注
+    stylesObj: {
+      zIndex: 1,
+      zoomLevel: 2, // 缩放比例
+      lineWidth: 1, // 连线宽度
+      lineColor: '#FFFFFF', // 线颜色
+      lineType: 'solid', // 实线
+
+      labelFontFamily: '微软雅黑', // 标注字体
+      labelFontWeight: 'normal', // 标注文字粗细
+      labelFontSize: 12, // 标注文字大小
+      labelColor: '#fff', // 标注字体颜色
+      labelPosition: 'inside', // 标注位置，顶部， 内部，底部
+
+      labelEdgeFontFamily: '微软雅黑', // 标注字体
+      labelEdgeFontWeight: 'normal', // 标注文字粗细
+      labelEdgeFontSize: 12, // 标注文字大小
+      labelEdgeColor: '#fff', // 标注字体颜色
+      labelEdgePosition: 'middle', // 标注位置，顶部， 内部，底部
+      dataMappingField: 'type' //  标识字段
+    },
+    enableNodeConfig: false, // 启用节点配置
+    nodeConfig: [], // 节点配置
+    dataConfig: {
+      staticValue: '[{"name":"调配主控制柜","id":"0","type":1,"pid":null},{"id":"1","name":"PLC无输入和输出","type":2,"pid":0,"memo":"无"},{"id":"2","name":"中控PLC通讯报警","type":2,"pid":0,"memo":"无"},{"id":"3","name":"现场人机界面不能联线","pid":0,"type":2,"memo":"无"},{"id":"4","name":"机架坏","pid":1,"type":3,"memo":"无"},{"id":"5","name":"输入输出卡损坏","pid":1,"type":3,"memo":"无"},{"id":"6","name":"更换机架","pid":4,"type":4,"memo":"无"},{"id":"7","name":"更换输入输出卡","pid":5,"type":4,"memo":"无"},{"id":"8","name":"通讯线路没连上","pid":2,"type":3,"memo":"无"},{"id":"9","name":"检查通讯接头","pid":8,"type":4,"memo":"无"},{"id":"10","name":"现场有PLC分机断电","pid":2,"type":3,"memo":"无"},{"id":"11","name":"检查现场分机是否通电","pid":10,"type":4,"memo":"无"},{"id":"12","name":"网线断","pid":3,"type":3,"memo":"无"},{"id":"13","name":"更换线路","pid":12,"type":4,"memo":"无"},{"id":"14","name":"路由器接头松","pid":3,"type":3,"memo":"无"},{"id":"15","name":"重新连接","pid":14,"type":4,"memo":"无"}]' // 静态值
+    },
+    apiDataConfig: {
+      ...apiDataConfig
+    },
+    SqlDataConfig: {
+      ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   CircleProgressBar: {
@@ -1351,6 +1806,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   ColumnLineMix: {
@@ -1376,7 +1834,6 @@ export const attributeCollection = { // 组件属性集合
     enableFullArea: false, // 是否填充折线区域
     enableLabel: true, // 柱状标注
     stylesObj: {
-
       // 通用
       zIndex: 1,
       gridLeft: 30, // 距离容器左边
@@ -1415,6 +1872,8 @@ export const attributeCollection = { // 组件属性集合
       interGroupSpace: 30, // 组间间距， 柱子和其他柱子的间隔
       barWidth: 25, // 柱子宽度
       borderRadius: 0, // 柱子顶部倒角
+      showBackground: false,
+      backgroundColor: 'rgba(180, 180, 180, 0.2)',
 
       labelField: 'y', // 标注字段
       labelPrefix: '', // 标注前缀
@@ -1473,6 +1932,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   Dashboard: {
@@ -1558,6 +2020,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   TabComponent: { // tab组件
@@ -1577,7 +2042,7 @@ export const attributeCollection = { // 组件属性集合
       zIndex: 1,
       stylesType: 'styleOne',
       tabMarginLeftAndRight: 10, // tab外边距
-      defaultShowTab: 'tab1_0', // 默认选中的tab
+      defaultShowTab: '1', // 默认选中的tab
       paramName: '' // 传递参数名称
     },
     styleOne: {
@@ -1705,6 +2170,16 @@ export const attributeCollection = { // 组件属性集合
           label: '人员',
           value: '3'
         }]
+    },
+    enableCustomItems: true, // 启用自定义下拉项
+    dataConfig: {
+      staticValue: '[{"label":"时间","value":1},{"label":"地址","value":2},{"label":"人员","value":3}]' // 静态值
+    },
+    apiDataConfig: {
+      ...apiDataConfig
+    },
+    SqlDataConfig: {
+      ...SqlDataConfig
     }
   },
   DocExportBtn: {
@@ -1739,6 +2214,45 @@ export const attributeCollection = { // 组件属性集合
       activeBgColor: '#6CA3FD' // 悬浮背景颜色
     },
     config: [] // excel sheet配置
+  },
+  CrossSysBtn: {
+    componentName: 'CrossSysBtn',
+    thumbnail: require('@/assets/config/Export.svg'),
+    name: '跨系统交互按钮',
+    width: 300,
+    height: 80,
+    minHeight: 20,
+    minWidth: 50,
+    left: 0,
+    top: 0,
+    isShow: true, // 是否显示，用于图层控制组件显示与否
+    isLock: false, // 是否锁定
+    dataType: 1, // 1：静态；2：接口获取；3：SQL获取
+    stylesObj: {
+      zIndex: 1,
+      content: '保存',
+      normalFSize: 16, // 正常字体大小
+      normalColor: '#fff', // 正常字体颜色
+      normalBorderRadius: 4, // 正常倒角
+      normalBColor: '#fff', // 正常边框颜色
+      normalBWidth: 0, // 正常边框宽度
+      normalBStyle: 'solid', // 正常边框颜色
+      normalBgColor: '#4689F5', // 正常背景颜色
+      activeFSize: 16, // 悬浮字体大小
+      activeColor: '#fff', // 悬浮字体颜色
+      activeBorderRadius: 4, // 悬浮边框倒角
+      activeBColor: '#fff', // 悬浮边框颜色
+      activeBWidth: 0, // 悬浮边框宽度
+      activeBStyle: 'solid', // 悬浮边框颜色
+      activeBgColor: '#6CA3FD' // 悬浮背景颜色
+    },
+    config: {
+      apiUrl: '', // 接口地址
+      apiMethods: 'GET', // 接口请求地址
+      apiComponent: '', // 关联的组件
+      refreshType: '', //
+      apiParamsConfig: []
+    } // excel sheet配置
   },
   BasicMap: {
     componentName: 'BasicMap',
@@ -1863,6 +2377,9 @@ export const attributeCollection = { // 组件属性集合
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   NationalProvinceMap: {
@@ -1989,13 +2506,17 @@ export const attributeCollection = { // 组件属性集合
       fetchGeoJsonType: 1 // 1区域编码 2.geoJson url地址
     },
     dataConfig: {
-      staticValue: '[{"name": "海门","type": 1, "value": 9, "lon": 121.15, "lat": 31.89 }, {"name": "鄂尔多斯","type": 1, "lon": 109.781327, "lat": 39.608266, "value": 12}, {"name": "招远","type": 2, "lon": 120.38, "lat": 37.35, "value": 12 }, {"name": "舟山","type": 3,  "lon": 122.207216, "lat": 29.985295,  "value": 12 }, {"name": "齐齐哈尔","type": 2, "lon": 123.97, "lat": 47.33, "value": 14 }, {"name": "盐城","type": 1,"lon": 120.13, "lat": 33.38, "value": 15}, {"name": "赤峰","type": 1, "lon": 118.87, "lat": 42.28, "value": 16}, {"name": "青岛","type": 2, "lon": 120.33, "lat":36.07, "value":18}, {"name": "廊坊","type": 3, "lon": 116.7, "lat":39.53, "value": 193}]' // 静态值
+      // staticValue: '[{"name": "海门","type": 1, "value": 9, "lon": 121.15, "lat": 31.89 }, {"name": "鄂尔多斯","type": 1, "lon": 109.781327, "lat": 39.608266, "value": 12}, {"name": "招远","type": 2, "lon": 120.38, "lat": 37.35, "value": 12 }, {"name": "舟山","type": 3,  "lon": 122.207216, "lat": 29.985295,  "value": 12 }, {"name": "齐齐哈尔","type": 2, "lon": 123.97, "lat": 47.33, "value": 14 }, {"name": "盐城","type": 1,"lon": 120.13, "lat": 33.38, "value": 15}, {"name": "赤峰","type": 1, "lon": 118.87, "lat": 42.28, "value": 16}, {"name": "青岛","type": 2, "lon": 120.33, "lat":36.07, "value":18}, {"name": "廊坊","type": 3, "lon": 116.7, "lat":39.53, "value": 193}]' // 静态值
+      staticValue: '[{"name": "海门","type": 1, "value": 9, "lon": 121.15, "lat": 31.89 }, {"name": "鄂尔多斯","type": 1, "lon": 109.781327, "lat": 39.608266, "value": 12}, {"name": "舟山","type": 3,  "lon": 122.207216, "lat": 29.985295,  "value": 12 }, {"name": "齐齐哈尔","type": 2, "lon": 123.97, "lat": 47.33, "value": 14 }, {"name": "赤峰","type": 1, "lon": 118.87, "lat": 42.28, "value": 16}, {"name": "青岛","type": 2, "lon": 120.33, "lat":36.07, "value":18}]' // 静态值
     },
     apiDataConfig: {
       ...apiDataConfig
     },
     SqlDataConfig: {
       ...SqlDataConfig
+    },
+    mqttDataConfig: {
+      ...mqttDataConfig
     }
   },
   InfoPresentation: {
@@ -2017,6 +2538,7 @@ export const attributeCollection = { // 组件属性集合
       labelWidth: 80, // 标签宽度
       // 字段配置
       labelConfig: [{
+        ...infoComForEdit,
         col: 12,
         field: 'name',
         labelName: '地区名称',
@@ -2026,6 +2548,8 @@ export const attributeCollection = { // 组件属性集合
         labelFontSize: 16, // 标签文字大小
         labelColor: '#FFF', // 标签文字颜色
         isEllipsis: true, // 默认开启省略
+        isEdit: false, // 默认不开起编辑
+        isVisible: true, // 默认显示
         isApplyToPictures: false, // 是否应用于图片
         imgWidth: 50, // 图片宽度
         imgHeight: 50, // 图片高度
@@ -2033,23 +2557,26 @@ export const attributeCollection = { // 组件属性集合
         bgColor: 'rgba(31, 147, 255, 0.73)', // 背景色
         borderRadius: 5 // 背景倒角
       },
-      {
-        col: 12, // 比例， 24 = 1：1； 12 = 1:2; 8 = 1:3; 6 = 1:4;
-        field: 'areaCode', // 字段名称
-        labelName: '行政编码', // 标签名称
-        labelDefaultName: '110000', // 字段值为空时显示的内容
-        labelFontFamily: 'Arial,苹方,微软雅黑', //标签字体
-        labelFontWeight: 'normal', //标签文字粗细
-        labelFontSize: 16, // 标签文字大小
-        labelColor: '#FFF', // 标签文字颜色
-        isEllipsis: true, // 默认开启省略
-        isApplyToPictures: false, // 是否应用于图片
-        imgWidth: 50, // 图片宽度
-        imgHeight: 50, // 图片高度
-        isNeedBg: false, // 是否需要背景色
-        bgColor: '', // 背景色
-        borderRadius: 5 // 背景倒角
-      }],
+        {
+          ...infoComForEdit,
+          col: 12, // 比例， 24 = 1：1； 12 = 1:2; 8 = 1:3; 6 = 1:4;
+          field: 'areaCode', // 字段名称
+          labelName: '行政编码', // 标签名称
+          labelDefaultName: '110000', // 字段值为空时显示的内容
+          labelFontFamily: 'Arial,苹方,微软雅黑', //标签字体
+          labelFontWeight: 'normal', //标签文字粗细
+          labelFontSize: 16, // 标签文字大小
+          labelColor: '#FFF', // 标签文字颜色
+          isEllipsis: true, // 默认开启省略
+          isEdit: false, // 默认不开起编辑
+          isVisible: true, // 默认显示
+          isApplyToPictures: false, // 是否应用于图片
+          imgWidth: 50, // 图片宽度
+          imgHeight: 50, // 图片高度
+          isNeedBg: false, // 是否需要背景色
+          bgColor: '', // 背景色
+          borderRadius: 5 // 背景倒角
+        }],
       zIndex: 1
     },
     dataConfig: {
@@ -2068,6 +2595,7 @@ export const configGroup = [
   {name: '基础', id: 1, baseType: 1, icon: 'icon-jichu'},
   {name: '图表', id: 2, baseType: 2, icon: 'icon-tubiao'},
   {name: '地图', id: 3, baseType: 3, icon: 'icon-ditu'},
+  {name: '3D', id: 6, baseType: 6, icon: 'icon-ditu'},
   {name: '高级', id: 4, baseType: 4, icon: 'icon-gaoji'},
   {name: '辅助', id: 5, baseType: 5, icon: 'icon-gaoji'}
 ]
@@ -2082,7 +2610,7 @@ export const allowExportPictures = [
 export const allowExportData = [...allowExportPictures, 'GeneralTable'];
 
 // 允许导出汇总的组件
-export const allowExportsummaryData = ['SingleLineText'];
+export const allowExportsummaryData = ['SingleLineText', 'DigitalFlipper'];
 
 // 组件配置
 export const componentConfigs = [
@@ -2090,6 +2618,12 @@ export const componentConfigs = [
     name: '文本',
     componentName: 'SingleLineText',
     url: require('@/assets/config/text.svg'),
+    relationId: 1 //  关联分组
+  },
+  {
+    name: '数字翻牌器',
+    componentName: 'DigitalFlipper',
+    url: require('@/assets/config/DigitalFlipper.svg'),
     relationId: 1 //  关联分组
   },
   {
@@ -2159,6 +2693,12 @@ export const componentConfigs = [
     url: require('@/assets/config/baseLine.svg')
   },
   {
+    name: '基础关系图',
+    componentName: 'BasicGraph',
+    relationId: 2,
+    url: require('@/assets/config/BasicGraph.svg')
+  },
+  {
     name: '横向柱状图',
     componentName: 'TransverseBarChart',
     relationId: 2,
@@ -2213,6 +2753,12 @@ export const componentConfigs = [
     url: require('@/assets/config/Liquidfill.svg')
   },
   {
+    name: '时间区域甘特图',
+    componentName: 'TimeGanttChart',
+    relationId: 2,
+    url: require('@/assets/config/timeGanttChart.svg')
+  },
+  {
     name: 'tab组件',
     componentName: 'TabComponent',
     relationId: 4,
@@ -2261,6 +2807,12 @@ export const componentConfigs = [
     url: require('@/assets/config/Export.svg')
   },
   {
+    name: '跨系统交互按钮',
+    componentName: 'CrossSysBtn',
+    relationId: 5,
+    url: require('@/assets/config/Export.svg')
+  },
+  {
     name: '基础地图',
     componentName: 'BasicMap',
     relationId: 3,
@@ -2277,17 +2829,36 @@ export const componentConfigs = [
     componentName: 'InfoPresentation',
     relationId: 1,
     url: require('@/assets/config/npm.svg')
+  },
+  {
+    name: 'iframe',
+    componentName: 'Iframe',
+    relationId: 4,
+    url: require('@/assets/config/Tab.svg')
+  },
+  {
+    name: '3D 模型',
+    componentName: 'ThreeDComponents',
+    relationId: 6,
+    url: require('@/assets/config/3d.svg')
   }
 ];
 
 export const defaultChartColor = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc', '#131E45'];
 
-export const requestOptions = [{ // 请求方法类型设置
+export const requestOptions = [{ // 请求方法类型设置 用于api接口请求
   label: 'GET',
   value: 1
 }, {
   label: 'POST',
   value: 2
+}]
+export const requestOptionsCopy = [{ // 请求方法类型设置 用于按钮
+  label: 'GET',
+  value: 'GET'
+}, {
+  label: 'POST',
+  value: 'POST'
 }]
 
 // 文字位置

@@ -21,6 +21,13 @@ export default {
   DATA_FILTER_ADD: `${PREFIX}/v${V}/DvDataFiltersController/insertDvDataFilters`, // 新增数据过滤器列表
   DATA_FILTER_DELETE: `${PREFIX}/v${V}/DvDataFiltersController/deleteDvDataFilters`, // 删除数据过滤器列表
 
+  // mqtt 数据源
+  DATA_MQTT_LIST: `${PREFIX}/v${V}/DvMqttController/listDvMqtt`, // MQTT 列表
+  DATA_MQTT_ADD: `${PREFIX}/v${V}/DvMqttController/insertDvMqtt`, // 新增mqtt
+  DATA_MQTT_UPDATE: `${PREFIX}/v${V}/DvMqttController/modifyDvMqtt`, // 编辑mqtt
+  DATA_MQTT_DELETE: `${PREFIX}/v${V}/DvMqttController/deleteDvMqtt`, // 删除mqtt
+
+
   GET_HOME_LEFT_GROUP_LIST: `${PREFIX}/v${V}/DvScreenGroupController/listDvScreenGroup`, // 大屏分组列表接口
   ADD_HOME_LEFT_GROUP_LIST: `${PREFIX}/v${V}/DvScreenGroupController/insertDvScreenGroup`, // 大屏分组新增接口
   DEL_HOME_LEFT_GROUP_LIST: `${PREFIX}/v${V}/DvScreenGroupController/deleteDvScreenGroup`, // 大屏分组删除接口
@@ -44,6 +51,7 @@ export default {
   DESIGN_COMPONENT_DEL: `${PREFIX}/v${V}/DvElementController/deleteDvElement`, // 设计界面中控件列表删除
   DESIGN_COMPONENT_DATA: `${PREFIX}/v${V}/DvElementController/getDvElementData`, // 根据控件id获取控件数据
   DESIGN_COMPONENT_DATA_BY_TIME: `${PREFIX}/v${V}/DvElementController/getDvElementDynamicData`, // 动态获取数据
+  DESIGN_COMPONENT_DATA_BY_MQTT: `${PREFIX}/v${V}/DvMqttController/getMqttResponse`, // 动态获取数据
   DESIGN_ELEMENT_REAL_ADD: `${PREFIX}/v${V}/DvElementController/insertDvElementRealtime`, // 大屏控件实时新增接口
 
   GET_TABLES_LIST: `${PREFIX}/v${V}/DvHostPotController/pageTables`, // 获取数据源
@@ -61,5 +69,8 @@ export default {
   INTERFACE_PUBLISHING: `${PREFIX}/v${V}/DvScreenController/publishDvScreen`, // 界面发布
   GET_REALLY_HOME_LIST: `${PREFIX}/v${V}/DvElementController/formalListDvElement`, // 获取控件真实列表
   DO_DOWNLOAD_DATA: `${PREFIX}/v${V}/DvScreenController/export2Excel`, // 导出Excel
-  MENU_CHECK_OVERDUE: `${PREFIX}/v${V}/DvScreenController/resolve` // 校验分享出来的页面是否过期
+  DO_DOWNLOAD_ELEMENT_CONFIG: `${PREFIX}/v${V}/DvScreenController/exportDvScreen `, // 导出Excel
+  DO_UP_ELEMENT_CONFIG: `${PREFIX}/v${V}/DvScreenController/importDvScreen`,
+  MENU_CHECK_OVERDUE: `${PREFIX}/v${V}/DvScreenController/resolve`, // 校验分享出来的页面是否过期
+  DO_BTN_GET_METHOD: `${PREFIX}/v${V}/DvElementController/postApi` // 点击按钮调用接口
 }

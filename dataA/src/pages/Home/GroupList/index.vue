@@ -273,13 +273,14 @@ export default {
   z-index: auto;
   width: 240px;
   padding: 10px 15px 17px 30px;
-  height: 100%;
+  height: calc(100% - 10px - 17px);
   box-shadow: inset -1px 0px 0px 0px #2f437f;
+  //box-sizing: border-box;
 }
 
 .box6Wrap {
   width: 100%;
-  height: calc(100% - 110px);
+  height: calc(100% - 46px);
   overflow-y: auto;
   overflow-x: hidden;
 }

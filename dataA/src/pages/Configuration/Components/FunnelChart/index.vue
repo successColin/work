@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -81,7 +81,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -330,7 +329,7 @@ export default {
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
         let list = [];
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
 
         }

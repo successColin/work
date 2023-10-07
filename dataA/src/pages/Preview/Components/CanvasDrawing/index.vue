@@ -13,6 +13,7 @@
         <el-breadcrumb-item
             v-for="(item, i) in crumbsArr"
             :key="item.parentHost"
+            :style="getBreadStyles(i)"
         ><span @click="doBack(item,i)">{{ item.name }}</span>
         </el-breadcrumb-item>
       </el-breadcrumb>
@@ -98,6 +99,16 @@ export default {
   components: {},
 
   computed: {
+    getBreadStyles() {
+      return function (i) {
+        const {stylesObj: {pathColor}} = this.config;
+        const n = this.crumbsArr.length - 1;
+        return {
+          color: pathColor,
+          opacity: n === i ? 1 : 0.6
+        };
+      };
+    },
     getTipInfo() {
       if (!this.tipHtml) {
         return {opacity: 1, background: 'unset'};
@@ -139,7 +150,7 @@ export default {
         this.setCanvasSize();
       }
     })
-    window.addEventListener('resize', () => this.setCanvasSize())
+    window.addEventListener('resize', this.setCanvasSize)
   },
   watch: {},
   methods: {
@@ -154,16 +165,89 @@ export default {
     /**
      * js获取文本显示宽度
      * @param str: 文本
-     * @return number
+     * @return {w: number, h: number}
      */
-    getTextWidth(str) {
+    getTextWidth(str, fs) {
       let dom = document.createElement('span');
       dom.style.display = 'inline-block'
       dom.textContent = str;
+      dom.style.fontSize = `${fs}px`
       document.body.appendChild(dom);
       const w = dom.clientWidth;
+      const h = dom.clientHeight;
       document.body.removeChild(dom);
-      return w;
+      return {w, h};
+    },
+    // 设置文字位置
+    setTextPosition({
+      left,
+      top,
+      width,
+      height,
+      textConfig,
+      labelPosition,
+      offsetPosition = 0,
+      offsetRightPosition = 0,
+      scaleX, scaleY
+    }) {
+      const {w, h} = textConfig;
+      const rw = width * scaleX;
+      const rh = height * scaleY;
+      if (labelPosition === 'inside') { // 居中
+        return {
+          left: left + rw / 2 - w / 2 + offsetPosition,
+          top: top + rh / 2 - h / 2 + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'top') { // 顶部
+        return {
+          left: left + rw / 2 - w / 2 + offsetPosition,
+          top: top - h + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'left') { // 左边
+        return {
+          left: left - w + offsetPosition,
+          top: top + rh / 2 - h / 2 + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'right') { // 右边
+        return {
+          left: left + rw + offsetPosition,
+          top: top + rh / 2 - h / 2 + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'bottom') { // 底部
+        return {
+          left: left + rw / 2 - w / 2 + offsetPosition,
+          top: top + rh + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'insideLeft') { // 内左边
+        return {
+          left: left + offsetPosition,
+          top: top + rh / 2 - h / 2 + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'insideTop') { // 内顶部
+        return {
+          left: left + rw / 2 - w / 2 + offsetPosition,
+          top: top + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'insideRight') { // 右边
+        return {
+          left: left + rw + offsetPosition - w,
+          top: top + rh / 2 - h / 2 + offsetRightPosition
+        }
+      }
+      if (labelPosition === 'insideBottom') { // 底部
+        return {
+          left: left + rw / 2 - w / 2 + offsetPosition,
+          top: top + rh - h + offsetRightPosition
+        }
+      }
+      return {}
     },
     createText({
       objects,
@@ -171,18 +255,33 @@ export default {
       // FontWeight,
       FontSize,
       Color,
-      customShowInfo
+      customShowInfo,
+      labelPosition,
+      offsetPosition,
+      offsetRightPosition
       // blockConfigs
     }) { // 创建显示内容
-      const {left, top, width, height} = objects;
+      const {left, top, width, height, scaleX, scaleY} = objects;
       const text = customShowInfo;
-      const textWidth = this.getTextWidth(text);
+      const textConfig = this.getTextWidth(text, FontSize);
+      const positionConfig = this.setTextPosition({
+        left,
+        top,
+        width,
+        height,
+        textConfig,
+        labelPosition,
+        offsetPosition,
+        offsetRightPosition,
+        scaleX,
+        scaleY
+      });
       let itext = new fabric.IText(text, {
-        left: left + width / 2 - textWidth / 2,
-        top: top + height / 2 - FontSize / 2,
+        ...positionConfig,
         fontSize: FontSize,
         fill: Color,
-        zIndex: 1
+        zIndex: 1,
+        textId: objects.id
       });
       itext.hasBorders = false;
       itext.hasControls = false;
@@ -204,19 +303,37 @@ export default {
     },
     async fetchInfo({parentHost}) {
       if (!parentHost) { // 如果是根节点的情况， 获取控件里面canvas的配置属性
-        const {designObject} = this.config;
+        const {
+          designObject, stylesObj: {
+            dataSourceVar = '',
+            dataSourceValue = '',
+            dataDetailVar = '',
+            dataDetailValue = '',
+            associatedControls = []
+          }
+        } = this.config;
         if (designObject) {
           this.renderCanvas(designObject);
         }
         this.isFirst = true;
         const params = JSON.parse(JSON.stringify(this.otherParams));
-        let postData = {};
-        Object.keys(params).forEach((item) => {
-          const key = item.split('_')[0];
-          if (item.indexOf(key) === -1) {
-            postData[item] = params[item];
+        let postData = {
+          ...params
+        };
+        associatedControls.forEach((key) => {
+          if (dataSourceVar) {
+            postData[`${key}_${dataSourceVar}`] = dataSourceValue;
           }
-        })
+          if (dataDetailVar) {
+            postData[`${key}_${dataDetailVar}`] = dataDetailValue;
+          }
+        });
+        // Object.keys(params).forEach((item) => {
+        //   const key = item.split('_')[0];
+        //   if (item.indexOf(key) === -1) {
+        //     postData[item] = params[item];
+        //   }
+        // })
         this.updateState('filterParameter', postData);
         return
       }
@@ -268,7 +385,9 @@ export default {
           }
           const {id: blockId} = objects;
           const blockConfigs = res.find((item) => item.id === blockId) || {};
-          if (!blockConfigs) {return;}
+          if (!blockConfigs) {
+            return;
+          }
           const {filtersJson, designJson = '{}', customShowInfoSql = ''} = blockConfigs;
           objects.perPixelTargetFind = true; // 默认为true;
           if (filtersJson) {
@@ -278,7 +397,7 @@ export default {
               const arr = realJson.filter((item) => item.enableConditions);
               const result = validSqlConditions(arr);
               if (result) {
-                const {borderWidth, borderColor, fillColor} = result;
+                const {borderWidth, borderColor, fillColor, animationTypeId = 2} = result;
                 const arr = fillColor.split(',');
                 const n = arr.length;
                 if (n > 1 && arr[n - 1] === ' 0)') {
@@ -287,7 +406,9 @@ export default {
                 objects.strokeWidth = borderWidth;
                 objects.fill = fillColor;
                 objects.stroke = borderColor;
-                this.twinkle(objects, this.canvasObject);
+                if (animationTypeId === 2) {
+                  this.twinkle(objects, this.canvasObject);
+                }
               }
             }
           }
@@ -298,11 +419,22 @@ export default {
           objects.hoverCursor = 'pointer';
           objects.selectable = false;
           this.addBlockEvent(objects, blockConfigs);
-          if (realDesignObject.backgroundImage) {
-            this.setInitZoom(realDesignObject.backgroundImage);
-          }
+          // if (realDesignObject.backgroundImage) {
+          //   this.setInitZoom(realDesignObject.backgroundImage);
+          // }
           const newDesignJson = JSON.parse(designJson);
-          const {enableShowInfo, showInfoType, customShowInfo, FontFamily, FontWeight, FontSize, Color} = newDesignJson;
+          const {
+            enableShowInfo,
+            showInfoType,
+            customShowInfo,
+            FontFamily,
+            FontWeight,
+            FontSize,
+            Color,
+            labelPosition = 'inside',
+            offsetPosition = 0,
+            offsetRightPosition = 0
+          } = newDesignJson;
           if (
             (showInfoType === 1 && customShowInfo || showInfoType === 2 && customShowInfoSql)
               &&
@@ -317,7 +449,10 @@ export default {
                 FontWeight,
                 FontSize,
                 Color,
-                blockConfigs
+                blockConfigs,
+                labelPosition,
+                offsetPosition,
+                offsetRightPosition
               })
             }, 100)
           }
@@ -340,24 +475,26 @@ export default {
         const {parentHost} = this.isFirst ? this.crumbsArr[0] : this.crumbsArr[n - 1];
         getZoom({id, parentHost}).then((res = []) => {
           this.canvasObject.forEachObject(obj => {
-            let current = res.find((item) => item.id === obj.id); // 找到对应的热区配置
-            if (!current) { return; }
-            const {designJson = '{}', customShowInfoSql = ''} = current;
-            const newDesignJson = JSON.parse(designJson);
+            let current = res.find((item) => item.id === obj.id) || {}; // 找到对应的热区配置
+            let currentText = res.find((item) => item.id === obj.textId); // 找到对应的热区配置
             if (current && current.filtersJson) {
+              const {designJson = '{}' } = current;
+              const newDesignJson = JSON.parse(designJson);
               const {filtersJson = '{}'} = current;
               const realJson = JSON.parse(filtersJson);
               if (realJson.length) {
                 const arr = realJson.filter((item) => item.enableConditions);
                 const result = validSqlConditions(arr);
                 if (result) {
-                  const {borderWidth, borderColor, fillColor} = result;
+                  const {borderWidth, borderColor, fillColor, animationTypeId = 2} = result;
                   obj.strokeWidth = borderWidth;
                   obj.fill = fillColor;
                   obj.stroke = borderColor;
                   obj.set({'fill': fillColor, strokeWidth: borderWidth, stroke: borderColor});
                   obj.dirty = true;
-                  this.twinkle(obj, this.canvasObject);
+                  if (animationTypeId === 2) {
+                    this.twinkle(obj, this.canvasObject);
+                  }
                 } else {
                   const {borderWidth, fillColor, borderColor} = newDesignJson;
                   obj.strokeWidth = borderWidth;
@@ -368,32 +505,38 @@ export default {
                 }
               }
             }
-            const {
-              enableShowInfo,
-              showInfoType,
-              customShowInfo,
-              FontFamily,
-              FontWeight,
-              FontSize,
-              Color
-            } = newDesignJson;
 
-            if (
-              (showInfoType === 1 && customShowInfo || showInfoType === 2 && customShowInfoSql)
-                &&
-                enableShowInfo
-            ) {
-              const info = showInfoType === 1 ? customShowInfo : customShowInfoSql;
-              setTimeout(() => {
-                this.createText({
-                  objects: current,
-                  customShowInfo: info,
-                  FontFamily,
-                  FontWeight,
-                  FontSize,
-                  Color
-                })
-              }, 100)
+
+            if (currentText) {
+              const {designJson = '{}', customShowInfoSql } = currentText;
+              const newDesignJson = JSON.parse(designJson);
+              const {
+                enableShowInfo,
+                showInfoType,
+                customShowInfo
+              } = newDesignJson;
+              if (
+                ((showInfoType === 1 && customShowInfo) || (showInfoType === 2 && customShowInfoSql))
+                  &&
+                  enableShowInfo
+              ){
+                const info = showInfoType === 1 ? customShowInfo : customShowInfoSql;
+                obj.text = info;
+              }
+
+              // setTimeout(() => {
+              //   this.createText({
+              //     objects: current,
+              //     customShowInfo: info,
+              //     FontFamily,
+              //     FontWeight,
+              //     FontSize,
+              //     Color,
+              //     labelPosition,
+              //     offsetPosition,
+              //     offsetRightPosition
+              //   })
+              // }, 100)
             }
           });
           this.canvasObject.renderAll()
@@ -430,12 +573,13 @@ export default {
       if (designObject) {
         const realDesignObject = JSON.parse(designObject);
         if (realDesignObject.backgroundImage) {
-          this.setInitZoom(realDesignObject.backgroundImage);
+          // this.setInitZoom(realDesignObject.backgroundImage);
         }
       }
     },
     initDomEvent() { // 初始化画布
       let that = this;
+      const {enableDragging = false, enableScaling = false} = this.config;
       that.panning = false;
       let mouseForm = {x: 0, y: 0},
           mouseTo = {x: 0, y: 0},
@@ -448,6 +592,9 @@ export default {
           lastMouseMove = {x: e.e.layerX, y: e.e.layerY};
         },
         'mouse:move': (e) => {
+          if (!enableDragging) {
+            return;
+          }
           mouseMove = {x: e.e.layerX, y: e.e.layerY};
           if (this.panning && e && e.e) {
             let delta = new fabric.Point(e.e.movementX, e.e.movementY);
@@ -464,7 +611,9 @@ export default {
           // zoom = Math.min(3,zoom); //最大是原来的3倍
           // var zoomPoint = new fabric.Point(event.pageX, event.pageY);
           // this.canvasObject.zoomToPoint(zoomPoint, zoom);
-
+          if (!enableScaling) {
+            return;
+          }
           let canvasZoom = this.canvasObject.getZoom();
           let scale = 1.05;
           if (e.e.deltaY < 0 && canvasZoom <= 0.2) {
@@ -612,8 +761,11 @@ export default {
   beforeDestroy() {
     this.canvasObject = null;
     this.timer && clearTimeout(this.timer);
-    this.refreshTimer = null;
-    window && window.removeEventListener('resize');
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer)
+      this.refreshTimer = null;
+    }
+    window && window.removeEventListener('resize', this.setCanvasSize);
     this.timer = null;
   },
   name: 'SingleLineText'

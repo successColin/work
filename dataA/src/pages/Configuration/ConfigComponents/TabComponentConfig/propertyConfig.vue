@@ -96,9 +96,9 @@
               <div class="tabInterIcon">
                 <el-tooltip class="item" effect="dark" content="设为默认选中" placement="top">
                   <span
-                      @click="changeStyles(`${item.name}_${index}`, 'defaultShowTab')"
+                      @click="changeStyles(`${item.key}`, 'defaultShowTab')"
                       class="icon-sheweimoren iconfont"
-                      :class="{iconActive:getComponentInfo.stylesObj.defaultShowTab === `${item.name}_${index}`}"></span>
+                      :class="{iconActive:getComponentInfo.stylesObj.defaultShowTab === `${item.key}`}"></span>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="删除" placement="top">
                   <span class="icon-shanchu iconfont" @click="handleDel(index)"></span>
@@ -301,7 +301,7 @@ export default {
 
       let defaultShowTab = null;
       if (tabConfigArr.length) {
-        defaultShowTab = `${tabConfigArr[0].name}_0`
+        defaultShowTab = `${tabConfigArr[0].key}`
       }
       const newInfo = {
         ...info,
@@ -341,7 +341,7 @@ export default {
         geChartArray: [] // 当前tab需要更新哪几个图表，配合value字段使用
       })
       if (styleObj.length === 1) {
-        this.changeStyles('tab1_0', 'defaultShowTab');
+        this.changeStyles(`${lastKey}`, 'defaultShowTab');
       }
       const newInfo = {
         ...info,
@@ -364,20 +364,20 @@ export default {
         ...item,
         [key]: value
       }
-      let defaultShowTab = stylesObj.defaultShowTab;
-      if (key === 'name') {
-        const {defaultShowTab: defaultShowTabInfo} = stylesObj
-        const arr = defaultShowTabInfo.split('_');
-        const i = arr[1];
-        if (Number(i) === index) {
-          defaultShowTab = `${value}_${index}`;
-        }
-      }
+      // let defaultShowTab = stylesObj.defaultShowTab;
+      // if (key === 'name') {
+      //   const {defaultShowTab: defaultShowTabInfo} = stylesObj
+      //   const arr = defaultShowTabInfo.split('_');
+      //   const i = arr[1];
+      //   if (Number(i) === index) {
+      //     defaultShowTab = `${value}_${index}`;
+      //   }
+      // }
       const newInfo = {
         ...info,
         stylesObj: {
-          ...stylesObj,
-          defaultShowTab
+          ...stylesObj
+          // defaultShowTab
         },
         tabConfig: [...tabConfigArr]
       };

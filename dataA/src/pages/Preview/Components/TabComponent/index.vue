@@ -19,7 +19,7 @@
       >
         <div
             class="tabNameWrap"
-            :class="{'active':active===`${item.name}_${index}`}"
+            :class="{'active':active===`${item.key}`}"
             :style="getTabContentStyles(item, index)"
         >
           <img v-if="checkIconIsShow(item, index)" :style="getIconStyles(item, index)"
@@ -89,6 +89,7 @@ export default {
   },
   mounted() {
     this.active = this.config.stylesObj.defaultShowTab;
+    this.initList(this.config.tabConfig);
   },
 
   components: {},
@@ -105,9 +106,9 @@ export default {
           activeConfig, unActiveConfig
         } = realStylesConfig;
         let styles = null;
-        if (this.active === `${obj.name}_${i}`) {
+        if (this.active === `${obj.key}`) {
           styles = `width:${activeConfig.cFontSize}px;`;
-        } else if (this.active !== `${obj.name}_${i}`) {
+        } else if (this.active !== `${obj.key}`) {
           styles = `width:${unActiveConfig.cFontSize}px;`;
         }
         return styles;
@@ -115,8 +116,8 @@ export default {
     },
     checkIconIsShow() {
       return function (params, index) {
-        const {unActiveIcon, activeIcon, name} = params;
-        if (`${name}_${index}` === this.active) {
+        const {unActiveIcon, activeIcon, key} = params;
+        if (`${key}` === this.active) {
           return activeIcon;
         }
         return unActiveIcon;
@@ -129,9 +130,9 @@ export default {
           activeConfig, unActiveConfig
         } = realStylesConfig;
         let styles = null;
-        if (this.active === `${obj.name}_${i}`) {
+        if (this.active === `${obj.key}`) {
           styles = `color: ${activeConfig.cColor};fontSize:${activeConfig.cFontSize}px;fontWeight:${activeConfig.cFontWeight};`;
-        } else if (this.active !== `${obj.name}_${i}`) {
+        } else if (this.active !== `${obj.key}`) {
           styles = `color: ${unActiveConfig.cColor};fontSize:${unActiveConfig.cFontSize}px;fontWeight:${unActiveConfig.cFontWeight}`;
         }
         return styles;
@@ -146,30 +147,30 @@ export default {
         } = realStylesConfig;
         let styles = null;
         if (stylesType === 'styleOne') {
-          if (this.active === `${obj.name}_${i}`) {
+          if (this.active === `${obj.key}`) {
             styles = `margin:0 ${tabMarginLeftAndRight}px;borderBottom: 2px solid;borderBottomColor:${activeConfig.cColor};padding:${activeConfig.cPaddingTopAndBottom}px ${activeConfig.cPaddingRightAndLeft}px;`;
           }
-          if (this.active !== `${obj.name}_${i}`) {
+          if (this.active !== `${obj.key}`) {
             styles = `margin:0 ${tabMarginLeftAndRight}px;borderBottom: 2px solid;borderBottomColor: rgba(0,0,0,0);padding:${unActiveConfig.cPaddingTopAndBottom}px ${unActiveConfig.cPaddingRightAndLeft}px;`;
           }
         }
         if (stylesType === 'styleTwo') {
-          if (this.active === `${obj.name}_${i}`) {
+          if (this.active === `${obj.key}`) {
             styles = `padding:${activeConfig.cPaddingTopAndBottom}px ${activeConfig.cPaddingRightAndLeft}px;border-radius: 4px 4px 0px 0px;
 border: 1px solid #2F437F;margin:0 ${tabMarginLeftAndRight}px;borderBottomColor:transparent;`;
           }
-          if (this.active !== `${obj.name}_${i}`) {
+          if (this.active !== `${obj.key}`) {
             styles = `padding:${unActiveConfig.cPaddingTopAndBottom}px ${unActiveConfig.cPaddingRightAndLeft}px;background: #192757;
 border-radius: 4px 4px 0px 0px;margin:0 ${tabMarginLeftAndRight}px;border: 1px solid transparent;`;
           }
         }
         if (stylesType === 'styleThree') {
-          if (this.active === `${obj.name}_${i}`) {
+          if (this.active === `${obj.key}`) {
             styles = `padding:${activeConfig.cPaddingTopAndBottom}px ${activeConfig.cPaddingRightAndLeft}px;border-radius: ${activeConfig.borderRadius}%;
 margin:0 ${tabMarginLeftAndRight}px;borderWidth:${activeConfig.borderWidth}px;borderColor: ${activeConfig.borderColor};borderStyle: ${activeConfig.borderWidth ? 'solid' : 'none'};
  backgroundColor:${activeConfig.cBgUrl ? 'unset' : activeConfig.cBgColor};backgroundSize: 100% 100%;backgroundImage:url(${activeConfig.cBgUrl});`;
           }
-          if (this.active !== `${obj.name}_${i}`) {
+          if (this.active !== `${obj.key}`) {
             styles = `padding:${unActiveConfig.cPaddingTopAndBottom}px ${unActiveConfig.cPaddingRightAndLeft}px;
 border-radius: ${unActiveConfig.borderRadius}%;margin:0 ${tabMarginLeftAndRight}px;
 borderWidth:${unActiveConfig.borderWidth}px;borderColor: ${unActiveConfig.borderColor};borderStyle: ${unActiveConfig.borderWidth ? 'solid' : 'none'};
@@ -212,7 +213,8 @@ backgroundColor:${unActiveConfig.cBgUrl ? 'unset' : unActiveConfig.cBgColor};bac
       const newArr = this.getControlledArr(arr);
       // 所有受控的控件
       // 找到显示显示的是哪个tab
-      const index = this.active.split('_')[1];
+      // const index = this.active.split('_')[1];
+      const index = arr.findIndex((item) => item.key === +this.active);
       const {displayChartArray} = arr[+index]; // 需要显示的控件
       // 如果当前tab没有受控控件，不做反应
       if (!displayChartArray.length) {
@@ -222,20 +224,20 @@ backgroundColor:${unActiveConfig.cBgUrl ? 'unset' : unActiveConfig.cBgColor};bac
       const result = newArr.filter((item) => !displayChartArray.includes(item));
       let list = [...this.metaDataList];
       result.forEach((item) => {
-        const index = list.findIndex(items => items.componentId === item);
-        if (index !== -1) {
-          list[index].isShow = false;
+        const i = list.findIndex(items => items.componentId === item);
+        if (i !== -1) {
+          list[i].isShow = false;
         }
       })
       displayChartArray.forEach((item) => {
-        const index = list.findIndex(items => items.componentId === item);
-        if (index !== -1) {
-          list[index].isShow = true;
+        const i = list.findIndex(items => items.componentId === item);
+        if (i !== -1) {
+          list[i].isShow = true;
         }
       })
       await this.updateState('list', list);
     },
-    async handleActive(item, index) {
+    async handleActive(item) {
       const {geChartArray = [], value} = item;
       const {stylesObj = {}} = this.config;
       const {paramName} = stylesObj;
@@ -250,7 +252,7 @@ backgroundColor:${unActiveConfig.cBgUrl ? 'unset' : unActiveConfig.cBgColor};bac
         }
         await this.updateState('filterParameter', newParams);
       }
-      this.active = `${item.name}_${index}`;
+      this.active = `${item.key}`;
       await this.initList(this.config.tabConfig);
     },
     changeHover() {

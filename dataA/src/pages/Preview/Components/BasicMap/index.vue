@@ -110,10 +110,12 @@
 
 <script>
 import { BmlHeatmap } from 'vue-baidu-map';
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import { hexify } from '@/utils/common';
 import {screenConfig} from '@/constants/global';
 import {getInfoById} from '@/services/design';
 import baseUrl from '@/assets/triangle.svg';
+import {decrypt} from '@/utils/secret';
 
 const lyxz = require('@/assets/mapStylesManage/1.json');
 const ydfg = require('@/assets/mapStylesManage/2.json');
@@ -163,6 +165,7 @@ export default {
   },
   data() {
     return {
+      client: null,
       center_lng: 0,
       center_lat: 0,
       center: {}, // 中心点
@@ -1159,6 +1162,75 @@ export default {
       if (dataType === 3) {
         await this.getSQL();
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) {
+        return;
+      }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.points = data;
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.points = result;
+        return;
+      }
+      this.points = data;
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     getParameters() {
       const {id, componentId} = this.config;
@@ -1271,11 +1343,16 @@ export default {
       this.observer.takeRecords()
       this.observer = null
     }
-    const dom = document.querySelector(`#basicPie_${this.config.componentId}`);
-    if (dom) {
-      dom.removeEventListener('contextmenu', this.show)
-    }
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

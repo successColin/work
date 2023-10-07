@@ -20,14 +20,22 @@
               {{ item.labelName }}
             </div>
             <div class="valueWrap" :style="getValueStyles(item)">
-              <span v-if="!item.isApplyToPictures" :title="renderValue(item)"
-                    :style="getValueLastStyles(item)">{{ renderValue(item) }}</span>
+                <span v-if="!item.isApplyToPictures && !item.isEdit" :title="renderValue(item)"
+                      :style="getValueLastStyles(item)">{{ renderValue(item) }}</span>
               <el-image
                   v-if="item.isApplyToPictures"
                   :style="getImgStyles(item)"
+                  :preview-src-list="[renderValue(item)]"
                   :src="renderValue(item)"
-                  :preview-src-list="preList(item)"
                   fit="scale-down"></el-image>
+              <textarea
+                  class="textAreaWrap"
+                  v-if="!item.isApplyToPictures && item.isEdit"
+                  name="text"
+                  :rows="item.editRows"
+                  :style="getEditStyles(item)"
+                  @change="changeValue($event, item)"
+                  :value="renderValue(item)"/>
             </div>
           </div>
         </el-col>
@@ -69,6 +77,30 @@ export default {
   components: {},
 
   computed: {
+    getEditStyles() {
+      return function (params) {
+        const {
+          editBorderColor = '',
+          editHoverBorderColor = '',
+          editBgColor = '',
+          editColor = '',
+          editBorderRadius = 0,
+          editFontSize = 14,
+          editFontFamily = 'Arial',
+          editFontWeight = 'normal'
+        } = params;
+        return {
+          border: `1px solid ${editBorderColor || 'rgba(255, 255, 255, 0)'}`,
+          borderRadius: `${editBorderRadius}px`,
+          backgroundColor: editBgColor || 'rgba(255, 255, 255, 0)',
+          '--hover-color': editHoverBorderColor || 'rgba(255, 255, 255, 0)',
+          fontSize: `${editFontSize}px`,
+          color: editColor,
+          fontWeight: editFontWeight,
+          fontFamily: editFontFamily
+        };
+      }
+    },
     getContentStyles() {
       const {width, height, top, left, stylesObj} = this.config;
       return `width:${width}px;height:${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex};`;
@@ -97,10 +129,20 @@ export default {
         }
       }
     },
+    getPlaceholder() {
+      return function (item) {
+        const { labelDefaultName = '默认项目', isEdit} = item;
+        if (isEdit) {
+          return labelDefaultName;
+        }
+        return '';
+      }
+    },
     renderValue() {
       return function (params) {
-        const {field, isApplyToPictures} = params;
-        const value = this.renderContent[field] ?? '';
+        const {field, isApplyToPictures, labelDefaultName = '默认项目', isEdit} = params;
+        const areaContent = isEdit ? '' : labelDefaultName;
+        const value = this.renderContent[field] ?? (areaContent || '');
         if (isApplyToPictures && !CheckImgExists(value)) {
           return '';
         }
@@ -115,7 +157,7 @@ export default {
     },
     getFiledList() { // 获取真实有效的配置
       const {stylesObj: {labelConfig = []}} = this.config;
-      return labelConfig.filter((item) => item.field);
+      return labelConfig.filter((item) => item.field && item.isVisible);
     },
     getLabelClass() {
       const {stylesObj: {labelPosition}} = this.config;
@@ -215,6 +257,11 @@ export default {
     }
   },
   methods: {
+    changeValue($event, { field }) {
+      const v = $event.target.value;
+      this.resObj[field] = v;
+      console.log($event.target.value,  this.resObj);
+    },
     getParameters() {
       const {id, componentId} = this.config;
       const reduce = (obj) => { // 将Object 处理成 Array
@@ -401,6 +448,19 @@ export default {
       .right {
         text-align: right;
       }
+      .textAreaWrap{
+        width: 100%;
+        padding: 0 5px;
+        line-height: 1.5;
+        outline: none;
+        resize: vertical;
+        box-sizing: border-box;
+        transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+        &:hover{
+          border-color: var(--hover-color) !important;
+        }
+      }
+
     }
   }
 }

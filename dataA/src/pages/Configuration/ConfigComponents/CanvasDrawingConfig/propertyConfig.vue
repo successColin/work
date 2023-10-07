@@ -58,6 +58,24 @@
               </c-upload>
             </div>
           </div>
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">是否允许缩放</span>
+            <el-switch
+                :value="getComponentInfo.enableScaling"
+                @change="(value) => changeTitle(value, 'enableScaling')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">是否允许拖动</span>
+            <el-switch
+                :value="getComponentInfo.enableDragging"
+                @change="(value) => changeTitle(value, 'enableDragging')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
         </div>
       </el-collapse-item>
       <el-collapse-item title="热区绘制" name="1">
@@ -137,6 +155,69 @@
                 @change="() => changeStyles(1, 'type')"
             >是否允许url跳转
             </el-radio>
+          </div>
+          <div v-if="crumbsArr.length<2 && getType===2">
+            <div class="propsSetting">
+              <p class="setTitle">路径颜色</p>
+              <c-color-picker
+                  style="margin-right: 10px;"
+                  size="small"
+                  v-model="getComponentInfo.stylesObj.pathColor"
+                  show-alpha
+                  @change="(value) => changeStyles(value, 'pathColor')"
+                  :predefine="predefineColors">
+              </c-color-picker>
+            </div>
+
+            <div class="propsSetting">
+              <p class="setTitle">初始化关联更新图表</p>
+              <div>
+                <c-select
+                    multiple
+                    collapse-tags
+                    filterable
+                    :options="allComponentOptions"
+                    @change="changeStyles($event, 'associatedControls')"
+                    v-model="getComponentInfo.stylesObj.associatedControls"
+                ></c-select>
+              </div>
+            </div>
+            <div class="propsSetting">
+              <p class="setTitle">初始化数据源变量</p>
+              <div>
+                <c-input
+                    type="text"
+                    :value="getComponentInfo.stylesObj.dataSourceVar"
+                    @Input-Change="changeStyles($event, 'dataSourceVar')"/>
+              </div>
+            </div>
+            <div class="propsSetting">
+              <p class="setTitle">初始化数据源表名</p>
+              <div>
+                <c-input
+                    type="text"
+                    :value="getComponentInfo.stylesObj.dataSourceValue"
+                    @Input-Change="changeStyles($event, 'dataSourceValue')"/>
+              </div>
+            </div>
+            <div class="propsSetting">
+              <p class="setTitle">初始化数据明细变量</p>
+              <div>
+                <c-input
+                    type="text"
+                    :value="getComponentInfo.stylesObj.dataDetailVar"
+                    @Input-Change="changeStyles($event, 'dataDetailVar')"/>
+              </div>
+            </div>
+            <div class="propsSetting">
+              <p class="setTitle">初始化数据明细值</p>
+              <div>
+                <c-input
+                    type="text"
+                    :value="getComponentInfo.stylesObj.dataDetailValue"
+                    @Input-Change="changeStyles($event, 'dataDetailValue')"/>
+              </div>
+            </div>
           </div>
           <div class="ellipsisWrap flex propsSetting">
             <span class="setTitle">是否自动更新</span>
@@ -250,6 +331,13 @@ export default {
     this.changeHotNumber();
   },
   computed: {
+    allComponentOptions() {
+      const list = this.getList.filter((item) => item.componentId !== this.activeComponent.componentId);
+      return list.map((item) => ({
+        label: item.name,
+        value: item.componentId
+      }));
+    },
     getType() {
       if (this.crumbsArr.length < 2) {
         return this.getComponentInfo.stylesObj.type || 1;
@@ -480,6 +568,8 @@ export default {
     async doUpload(param) {
       const {file} = param;
       const formData = new FormData();
+      const {id} = this.$route.query;
+      formData.append('id', window.atob(id));
       formData.append('file', file);
       try {
         const res = await uploadFile(formData);

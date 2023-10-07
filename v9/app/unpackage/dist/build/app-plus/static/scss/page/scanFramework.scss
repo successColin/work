@@ -1,0 +1,32 @@
+.scanFramework{
+	.scanContent{
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+	.scanBg{
+		width: pxToREM(480);
+		height: pxToREM(480);
+	}
+	.sanTip{
+		font-size: pxToREM(28);
+		font-family: PingFangSC-Regular, PingFang SC;
+		font-weight: 400;
+		color: #808080;
+		line-height: pxToREM(40);
+	}
+	.footerBtn{
+		padding-top: pxToREM(210);
+		width: pxToREM(440);
+		button {
+			height: pxToREM(98);
+			border-radius: pxToREM(49);
+		}
+	}
+}

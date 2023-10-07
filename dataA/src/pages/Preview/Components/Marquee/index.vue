@@ -63,7 +63,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {

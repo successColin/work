@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+      var coverSupport =
+        'CSS' in window &&
+        typeof CSS.supports === 'function' &&
+        (CSS.supports('top: env(a)') || CSS.supports('top: constant(a)'));
+      document.write(
+        '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
+          (coverSupport ? ', viewport-fit=cover' : '') +
+          '" />',
+      );
+    </script>
+    <script
+      type="text/javascript"
+      src="https://assets.zjzwfw.gov.cn/assets/ZWJSBridge/1.0.1/zwjsbridge.js"
+    ></script>
+    <script src="https://g.alicdn.com/gdt/jsapi/1.9.18/index.js"></script>
+
+    <!-- 稳定性监控埋点 -->
+    <script
+      src="https://wpk-gate.zjzwfw.gov.cn/static/wpk-jssdk.1.0.2/wpkReporter.js"
+      crossorigin="true"
+    ></script>
+    <script>
+      try {
+        const config = {
+          bid: 'bid在上架申请通过后官方人员会发给你',
+          signkey: 'signkey在上架申请通过后官方人员会发给你',
+          gateway: 'https://wpk-gate.zjzwfw.gov.cn',
+        };
+        const wpk = new wpkReporter(config);
+        wpk.installAll();
+        window._wpk = wpk;
+      } catch (err) {
+        console.error('WpkReporter init fail', err);
+      }
+    </script>
+
+    <!-- 通用采集SDK -->
+    <script>
+      (function (w, d, s, q, i) {
+        w[q] = w[q] || [];
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s);
+        j.async = true;
+        j.id = 'beacon-aplus';
+        j.src = 'https://alidt.alicdn.com/alilog/mlog/aplus_cloud.js';
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'aplus_queue');
+
+      aplus_queue.push({
+        action: 'aplus.setMetaInfo',
+        arguments: ['aplus-rhost-v', 'alog.zjzwfw.gov.cn'],
+      });
+      aplus_queue.push({
+        action: 'aplus.setMetaInfo',
+        arguments: ['aplus-rhost-g', 'alog.zjzwfw.gov.cn'],
+      });
+
+      var u = navigator.userAgent;
+      var isAndroid = u.indexOf('Android') > -1;
+      var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+
+      aplus_queue.push({
+        action: 'aplus.setMetaInfo',
+        arguments: [
+          'appId',
+          isAndroid ? '28302650' : isIOS ? '28328447' : '47130293',
+        ],
+      });
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="<%= BASE_URL %>static/index.<%= VUE_APP_INDEX_CSS_HASH %>.css"
+    />
+  </head>
+  <body>
+    <noscript>
+      <strong>Please enable JavaScript to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

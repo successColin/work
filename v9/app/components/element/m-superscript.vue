@@ -1,0 +1,29 @@
+<template name="mSuperscript">
+  <view class="superscript">{{ count }}</view>
+</template>
+
+<script>
+export default {
+  name: 'mSuperscript',
+  props: {
+    count: { type: [Number, String], default: 0 }, //值
+    color: { type: String, default: '#ececec' },
+  },
+  methods: {},
+};
+</script>
+<style lang="scss" scoped>
+.superscript {
+  min-width: 26rpx;
+  background: #f02f36;
+  border-radius: 14rpx;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  right: 22rpx;
+  padding: 0 4rpx;
+  font-size: 26rpx;
+  text-align: center;
+  z-index: 100;
+}
+</style>

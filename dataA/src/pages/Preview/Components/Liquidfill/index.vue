@@ -20,10 +20,12 @@
 
 <script>
 // 引入基本模板
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import {getInfoById} from '@/services/design';
 import {supplementaryColor} from '@/utils/common';
 import {isEqual} from 'lodash';
 import 'echarts-liquidfill';
+import {decrypt} from '@/utils/secret';
 
 
 // eslint-disable-next-line no-undef
@@ -56,7 +58,7 @@ export default {
     return {
       content: [],
       myChart: null,
-      observer: null,
+      client: null,
       instance: null,
       timer: null,
       loading: false
@@ -64,7 +66,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -107,31 +108,32 @@ export default {
         if (dataType === 1) {
           lastData = JSON.parse(staticValue);
         }
-        if (dataType === 2 || dataType === 3) {
+        if ([2, 3, 4].includes(dataType)) {
           lastData = this.content;
         }
-        supplementaryColorArr = supplementaryColor(waveNum, cn)
         supplementaryColorArr = supplementaryColor(waveNum, cn)
         const per1 = lastData.value || 0;
         const colorList = [...colorArr, ...supplementaryColorArr];
         for (let i = 0; i < waveNum; i++) {
           seriesData.push(
-              {
-                value: per1,
-                itemStyle: {
-                  normal: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                      offset: 0,//0%时的颜色 从上往下看 最上面是0%
-                      color: colorList[i].c1 || colorList[i].c2 || '#fff'
-                    }, {
-                      offset: 1,//100%时的颜色 从上往下看 最上面是0%
-                      color: colorList[i].c2 || colorList[i].c1 || '#fff'
-                    }])
-                  }
-                }
+            {
+              value: per1,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,//0%时的颜色 从上往下看 最上面是0%
+                  color: colorList[i].c1 || colorList[i].c2 || '#fff'
+                }, {
+                  offset: 1,//100%时的颜色 从上往下看 最上面是0%
+                  color: colorList[i].c2 || colorList[i].c1 || '#fff'
+                }])
               }
+            }
           );
         }
+        const otherConfig = waveAnimation ? {} : {
+          animationDuration: 0,
+          animationDurationUpdate: 0
+        };
         let option = {
           series: [
             {
@@ -142,6 +144,7 @@ export default {
               waveLength,
               amplitude,
               waveAnimation,
+              ...otherConfig,
               direction: animationDuration,
               data: seriesData,
               outline: {
@@ -162,17 +165,15 @@ export default {
                 shadowBlur: bgShadowBlur
               },
               label: {
-                normal: {
-                  formatter: () => {
-                    return (lastData.value || 0) * 100 + '%';
-                  },
-                  show: labelShow,
-                  // color: labelColor,
-                  insideColor: labelColor,
-                  fontSize: labelFontSize,
-                  fontWeight: labelFontWeight,
-                  position: labelPosition
-                }
+                formatter: () => {
+                  return (lastData.value || 0) * 100 + '%';
+                },
+                show: labelShow,
+                // color: labelColor,
+                insideColor: labelColor,
+                fontSize: labelFontSize,
+                fontWeight: labelFontWeight,
+                position: labelPosition
               }
             }
           ]
@@ -188,7 +189,7 @@ export default {
     config(val) { // 普通的watch监听
       if (this.myChart && val) {
         const options = this.getOption();
-        this.myChart.setOption(options);
+        this.myChart.setOption(options, true);
       }
     },
     content: {
@@ -197,7 +198,7 @@ export default {
       handler(val) {
         if (this.myChart && val) {
           const options = this.getOption();
-          this.myChart.setOption(options);
+          this.myChart.setOption(options, true);
         }
       }
     },
@@ -230,9 +231,7 @@ export default {
       if (dataType === 1) {
         const option = this.getOption();
         // 绘制图表
-        this.myChart.setOption(
-          option
-        );
+        this.myChart.setOption(option, true);
       }
       if (dataType === 2) {
         this.loading = true;
@@ -244,7 +243,74 @@ export default {
         await this.getSQL();
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
       // getInfoById
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) { return; }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.content = data;
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.content = result;
+        return;
+      }
+      this.content = data;
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -265,11 +331,6 @@ export default {
           this.timer && clearTimeout(this.timer);
           this.timer = setTimeout(async () => {
             await this.getApi();
-            this.myChart.clear();
-            const option = this.getOption();
-            this.myChart.setOption(
-              option
-            );
           }, time);
         }
         if (!enableApiFilter) {
@@ -332,11 +393,6 @@ export default {
         this.timer && clearTimeout(this.timer);
         this.timer = setTimeout(async () => {
           await this.getSQL();
-          const option = this.getOption();
-          this.myChart.clear();
-          this.myChart.setOption(
-            option
-          );
         }, time);
       }
       if (!enableSQLFilter) {
@@ -355,6 +411,15 @@ export default {
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

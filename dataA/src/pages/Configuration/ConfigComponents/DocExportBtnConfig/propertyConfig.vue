@@ -92,6 +92,7 @@
                 <div class="borderWrap">
                   <c-input
                       type="number"
+                      :min="0"
                       :numberValue="Number(getComponentInfo.stylesObj.normalBWidth)"
                       @Input-Change="(value) => changeStyles(value, 'normalBWidth')"/>
                   <c-select
@@ -284,7 +285,7 @@
 </template>
 
 <script>
-import {allowExportPictures, allowExportData} from '@/constants/global';
+import {allowExportPictures, allowExportData, allowExportsummaryData} from '@/constants/global';
 
 export default {
   props: {
@@ -343,9 +344,9 @@ export default {
     summaryOptions() {
       return function () {
         const arr = this.getList.filter(item => {
-          const {componentName, componentId} = item;
-          return componentName === 'SingleLineText';
-        })
+          const {componentName} = item;
+          return allowExportsummaryData.includes(componentName);
+        });
         return arr.map((item) => ({...item, value: item.componentId, label: item.name}));
       }
     },

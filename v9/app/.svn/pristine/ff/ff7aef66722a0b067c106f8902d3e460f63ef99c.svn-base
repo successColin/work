@@ -1,0 +1,22 @@
+{
+  "name": "amsAPP",
+  "version": "1.0.0",
+  "description": "#### 介绍 uniapp基础框架",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cnchar": "^3.0.4",
+    "crypto-js": "^3.1.9-1",
+    "dingtalk-jsapi": "^2.13.68",
+    "js-md5": "^0.7.3",
+    "moment": "^2.29.1",
+    "qs-stringify": "^1.2.1",
+    "uview-ui": "^1.8.4",
+    "vue-i18n": "^8.12.0"
+  }
+}

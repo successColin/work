@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -83,7 +83,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -147,36 +146,23 @@ export default {
           labelColor,
           outerCircle,
           InnerCircle,
-          colorArr
+          pieHorizontal = 50,
+          pieVertical = 50,
+          colorArr,
+          enableLegendValue
+          // legendMarginLeft = 0, // 图例标题左边距
+          // legendMarginRight = 0, // 图例标题右边距
+          // enableLegendValue = false, // 是否在图例里面显示值
+          // legendValueFontFamily = 'Arial,苹方,微软雅黑', // 图例值字体
+          // legendValueFontWeight = 'normal', // 图例值文字粗细
+          // legendValueFontSize = 12, // 图例值文字大小
+          // legendValueColor = '#FFF' // 图例值字体颜色
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
-        let optionConfig = {
-          tooltip: {
-            trigger: 'item'
-          },
-          legend: {
-            ...legendPos,
-            show: enableLegend,
-            type: 'scroll',
-            pageIconColor: '#fff',
-            pageIconInactiveColor: '#4689F5',
-            pageTextStyle: {
-              color: '#fff'
-            },
-            itemWidth: 10,
-            itemHeight: 10,
-            textStyle: {
-              color: legendColor,
-              fontWeight: legendFontWeight,
-              fontSize: legendFontSize,
-              fontFamily: legendFontFamily
-            }
-          }
-        };
         let chartConfig = {};
         const cn = colorArr.length; // 颜色长度
         let supplementaryColorArr = [], list = [];
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
           const ln = list.length; // 数据长度
           supplementaryColorArr = supplementaryColor(ln, cn)
@@ -193,10 +179,12 @@ export default {
           const ln = list.length; // 数据长度
           supplementaryColorArr = supplementaryColor(ln, cn)
         }
+
         chartConfig.data = list;
         chartConfig = {
           ...chartConfig,
           radius: [`${outerCircle}%`, `${InnerCircle}%`],
+          center: [`${pieHorizontal}%`, `${pieVertical}%`],
           label: {
             show: labelPosition !== 'none',
             color: labelColor,
@@ -233,21 +221,47 @@ export default {
             //   shadowOffsetX: 0,
             //   shadowColor: 'rgba(0, 0, 0, 0.5)'
             // },
-            normal: {
-              color: (params) => {
-                const colorList = [...colorArr, ...supplementaryColorArr];
-                return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
-                  offset: 0,
-                  color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
-                }, {
-                  offset: 1,
-                  color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
-                }])
-              }
+            color: (params) => {
+              const colorList = [...colorArr, ...supplementaryColorArr];
+              return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
+                offset: 0,
+                color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
+              }, {
+                offset: 1,
+                color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
+              }])
             }
           }
         }
         let series = [chartConfig];
+        let optionConfig = {
+          tooltip: {
+            trigger: 'item'
+          },
+          legend: {
+            ...legendPos,
+            show: enableLegend,
+            type: 'scroll',
+            pageIconColor: '#fff',
+            pageIconInactiveColor: '#4689F5',
+            pageTextStyle: {
+              color: '#fff'
+            },
+            itemWidth: 10,
+            itemHeight: 10,
+            textStyle: {
+              color: legendColor,
+              fontWeight: legendFontWeight,
+              fontSize: legendFontSize,
+              fontFamily: legendFontFamily
+            },
+            formatter(params) {
+              if (!enableLegendValue) {return params;}
+              const current = list.find((item) => item.name === params) || {};
+              return `${params}   ${current.value || 0}`;
+            }
+          }
+        };
         return {
           ...optionConfig,
           series
@@ -255,8 +269,7 @@ export default {
       };
     }
   },
-  beforeMount() {
-  },
+  beforeMount() {},
   mounted() {
     this.initDom();
     let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
@@ -281,7 +294,7 @@ export default {
           setTimeout(() => {
             const options = this.getOption();
             try {
-              this.instance.myChart.setOption(options);
+              this.instance.myChart.setOption(options, true);
             } catch (error) {
               this.instance.myChart.dispose();
               this.initDom();
@@ -305,7 +318,7 @@ export default {
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

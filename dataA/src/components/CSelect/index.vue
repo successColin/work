@@ -14,8 +14,8 @@
       v-on="$listeners"
   >
     <el-option
-        v-for="item in options"
-        :key="item.value"
+        v-for="(item, i) in options"
+        :key="`${item.value}_${i}`"
         :label="item.label"
         :value="item.value">
     </el-option>

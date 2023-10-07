@@ -13,7 +13,7 @@
         <c-select
             :popper-class="`a${config.componentId}_selectPopper`"
             ref="timeSelect"
-            :options="config.stylesObj.selectOptions"
+            :options="getOptions"
             v-model="timeType"
             @change="change"
         >
@@ -25,6 +25,8 @@
 
 <script>
 import {screenConfig} from '@/constants/global';
+import {isEqual} from 'lodash';
+import {getInfoById} from '@/services/design';
 // import {isEqual} from 'lodash';
 
 export default {
@@ -75,7 +77,7 @@ export default {
       sticks: ['mr', 'ml'],
       timeValue: '',
       timeType: null,
-      isShow: false
+      list: []
     };
   },
   mounted() {
@@ -95,6 +97,18 @@ export default {
   },
 
   computed: {
+    getOptions() {
+      const {
+        enableCustomItems = true,
+        dataType,
+        stylesObj: {selectOptions = []}
+      } = this.config;
+      if (enableCustomItems) {return selectOptions;}
+      if ([2,3].includes(dataType) && !enableCustomItems) {
+        return this.list;
+      }
+      return []
+    },
     getContentStyles() {
       const {width, height, top, left, stylesObj} = this.config;
       return `width:${width}px;height:${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex};`;
@@ -104,8 +118,138 @@ export default {
     }
   },
   watch: {
+    otherParams: {
+      deep: true,
+      immediate: true,
+      handler(v, o) {
+        const params = this.getParameters();
+        const {isShow} = this.config;
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && params.varJson !== '[]' && isShow) {
+          this.fetchData();
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && params.varJson === '[]' && isShow) {
+          this.fetchData();
+        }
+      }
+    }
   },
   methods: {
+    async fetchData() {
+      const {dataType, enableCustomItems} = this.config;
+      if (!enableCustomItems && dataType === 2) {
+        this.loading = true;
+        await this.getApi();
+        this.loading = false;
+      }
+      if (!enableCustomItems && dataType === 3) {
+        this.loading = true;
+        await this.getSQL();
+        this.loading = false;
+      }
+    },
+    async getApi() {
+      const {apiDataConfig} = this.config;
+      const params = this.getParameters();
+      const res = await getInfoById(params) || [];
+      if (res.length) {
+        const obj = res[0] || {};
+        const targetObj = obj.response || '{}';
+        const {
+          enableApiFilter,
+          enableApiAutoUpdate,
+          apiUpdateTime = 1,
+          apiFilterFun,
+          apiDataFilterId
+        } = apiDataConfig;
+        if (enableApiAutoUpdate) {
+          const time = apiUpdateTime * 1000;
+          this.timer && clearTimeout(this.timer);
+          this.timer = setTimeout(async () => {
+            await this.getApi();
+          }, time);
+        }
+        const list = JSON.parse(targetObj);
+        if (!enableApiFilter) {
+          this.list = list;
+          return
+        }
+        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
+          // eslint-disable-next-line no-new-func
+          const fun = new Function(`return ${apiFilterFun}`);
+          const result = fun()(list);
+          if (!(Array.isArray(result) && result.length)) {
+            this.list = [];
+            return
+          }
+          this.list = result;
+        }
+      }
+    },
+    async getSQL() {
+      const {SqlDataConfig} = this.config;
+      const {
+        SQLFilterFun,
+        enableSQLFilter,
+        SQLDataFilterId,
+        enableSQLAutoUpdate,
+        SQLUpdateTime = 1
+      } = SqlDataConfig;
+      const params = this.getParameters();
+      const res = await getInfoById(params);
+      if (enableSQLAutoUpdate) {
+        const time = SQLUpdateTime * 1000;
+        this.timer && clearTimeout(this.timer);
+        this.timer = setTimeout(async () => {
+          await this.getSQL();
+        }, time);
+      }
+      if (!enableSQLFilter) {
+        this.list = res;
+        return
+      }
+      if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${SQLFilterFun}`);
+        const result = fun()(res);
+        if (!(Array.isArray(result) && result.length)) {
+          this.list = [];
+          return
+        }
+        this.list = result;
+        return;
+      }
+      this.list = res;
+    },
+    getParameters() {
+      const {id, componentId} = this.config;
+      const reduce = (obj) => { // 将Object 处理成 Array
+        return Object.keys(obj).map((item) => {
+          return {
+            name: item,
+            value: obj[item]
+          }
+        })
+      }
+      const query = this.$route.query
+      let satisfyParams = {};
+      if (JSON.stringify(this.otherParams) !== '{}') {
+        Object.keys(this.otherParams).forEach((item) => {
+          if (item.indexOf(componentId) > -1) {
+            const key = item.replace(`${componentId}_`, '');
+            satisfyParams[key] = this.otherParams[item];
+          }
+        })
+      }
+      const currentParams = {
+        ...satisfyParams,
+        ...query
+      }
+      const arr = reduce(currentParams);
+      return {
+        id,
+        varJson: JSON.stringify(arr)
+      };
+    },
+
     change(v){
       const {stylesObj: {
         updateChart = [],

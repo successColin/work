@@ -14,7 +14,7 @@
           referrerpolicy="no-referrer"
           :src="require('@/assets/zza.png')"
       />
-      <span class="text_1">您的页面已失效~，请联系管理员！</span>
+      <span class="text_1">软件授权已失效~，请联系管理员！</span>
     </div>
   </div>
 </template>

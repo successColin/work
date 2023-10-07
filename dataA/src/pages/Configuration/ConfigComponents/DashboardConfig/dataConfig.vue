@@ -156,8 +156,9 @@
               <el-tooltip
                   class="item"
                   effect="dark"
-                  content='如果sql条件值是文字，请添加双引号，例如:select * from user where name="${name}"'
+                  popper-class="sqlTooltip"
                   placement="top">
+                <SQLTooltipText slot="content"></SQLTooltipText>
                 <i class="el-icon-question"></i>
               </el-tooltip>
             </p>
@@ -226,6 +227,61 @@
           </div>
         </div>
       </el-collapse-item>
+      <el-collapse-item :name="4" v-if="getComponentInfo.mqttDataConfig">
+        <template slot="title">
+          <div class="bgSettingWrap">
+            <div class="title">MQTT获取</div>
+            <div class="switchWrap">
+              <el-switch
+                  @click.stop.native
+                  :value="getComponentInfo.dataType===4"
+                  @change="(value) => changeTitle(value ? 4:1, 'dataType')"
+                  active-color="#4689F5"
+                  inactive-color="#183472">
+              </el-switch>
+            </div>
+          </div>
+        </template>
+        <div class="apiContent">
+          <div class="propsSetting">
+            <span class="setTitle">MQTT配置</span>
+            <MQTT-filter
+                :activeComponent="activeComponent"
+                v-model="getComponentInfo.mqttDataConfig.mqttSourceId"
+                @change="(obj) => changeStyles(obj, 'mqttSourceId', 'mqttDataConfig') "
+            />
+          </div>
+          <div class="propsSetting">
+            <span class="setTitle">订阅主题</span>
+            <div>
+              <c-input
+                  type="text"
+                  :maxlength="16"
+                  :value="getComponentInfo.mqttDataConfig.topic"
+                  @Input-Change="changeStyles1($event, 'topic', 'mqttDataConfig')"
+                  @blur="(e) => changeStyles1(e.target.value, 'topic', 'mqttDataConfig')"/>
+            </div>
+          </div>
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">数据过滤器</span>
+            <el-switch
+                :value="getComponentInfo.mqttDataConfig.enableMqttFilter"
+                @change="(value) => changeStyles1(value, 'enableMqttFilter', 'mqttDataConfig')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.mqttDataConfig.enableMqttFilter">
+            <data-filter
+                :activeComponent="activeComponent"
+                v-model="getComponentInfo.mqttDataConfig.mqttDataFilterId"
+                :response="getComponentInfo.mqttDataConfig.mqttResponse"
+                @change="(obj) => changeStyles(obj, 'mqttDataFilterId', 'mqttDataConfig') "
+            />
+          </div>
+        </div>
+      </el-collapse-item>
+
     </el-collapse>
   </div>
 </template>
@@ -305,101 +361,25 @@ export default {
       list.splice(index, 1, newInfo);
       this.$store.dispatch('config/updateComponentList', list);
     },
+    async changeStyles1(value, key, objKey) { // 样式修改
+      const info = JSON.parse(JSON.stringify(this.getComponentInfo));
+      const list = [...this.getList];
+      const index = this.reduceIndex();
+      const newOObj = {
+        ...info[objKey],
+        [key]: value
+      }
+      const newInfo = {
+        ...info,
+        [objKey]: newOObj
+      };
+      list.splice(index, 1, newInfo);
+      await this.$store.dispatch('config/updateComponentList', list);
+    },
+
     async changeStyles(value, key, objKey) { // 样式修改
       const info = JSON.parse(JSON.stringify(this.getComponentInfo));
       const newOObj = await changeDataConfig({info, value, key, objKey, dataSourceId: this.$route.query.dataId});
-      // let dataConfig = JSON.parse(JSON.stringify(info[objKey])) || {};
-      // if (['apiDataFilterId', 'SQLDataFilterId'].includes(key) && ['apiDataConfig', 'SqlDataConfig'].includes(objKey)) {
-      //   const {id, response, filterFun} = value;
-      //   const isTrue = objKey === 'SqlDataConfig';
-      //   dataConfig = {
-      //     ...dataConfig,
-      //     [key]: id,
-      //     [isTrue ? 'SQLFilterResponse' : 'apiFilterResponse']: response,
-      //     [isTrue ? 'SQLFilterFun' : 'apiFilterFun']: filterFun,
-      //   }
-      // }
-      // // sql 或者apj 启用关闭数据过滤器
-      // if (key === 'enableApiFilter' && value && objKey === 'apiDataConfig' && dataConfig.apiDataFilterId && dataConfig.apiFilterFun) {
-      //   const fun = new Function(`'use strict';
-      //             return ${dataConfig.apiFilterFun}`);
-      //   const result = fun()(JSON.parse(dataConfig.apiResponse)) || '{}'
-      //   dataConfig.apiFilterResponse = JSON.stringify(result);
-      // } else if (key === 'enableApiFilter' && !value) { // 关闭api数据过滤器，数据还原
-      //   dataConfig.apiFilterResponse = dataConfig.apiResponse;
-      // } else if (key === 'enableSQLFilter' && !value) { // 关闭api数据过滤器，数据还原
-      //   dataConfig.SQLFilterResponse = dataConfig.SQLResponse;
-      // } else if (key === 'enableSQLFilter' && value && objKey === 'SqlDataConfig' && dataConfig.SQLDataFilterId && dataConfig.SQLFilterFun) {
-      //   const fun = new Function(`'use strict';
-      //             return ${dataConfig.SQLFilterFun}`);
-      //   const result = fun()(JSON.parse(dataConfig.SQLResponse)) || '{}'
-      //   dataConfig.SQLFilterResponse = JSON.stringify(result);
-      // }
-      // let newOObj = {};
-      // if ((key !== 'apiDataFilterId' && objKey === "apiDataConfig") || (key !== 'SQLDataFilterId' && objKey === "SqlDataConfig")) {
-      //   newOObj = {
-      //     ...dataConfig,
-      //     [key]: value,
-      //     dataSourceId: this.$route.query.dataId
-      //   };
-      // } else {
-      //   newOObj = {
-      //     ...dataConfig,
-      //     dataSourceId: this.$route.query.dataId
-      //   };
-      // }
-      // if (objKey === 'apiDataConfig' && ['apiUrl', 'requestType', 'requestParams', 'requestHeader'].includes(key)) {
-      //   const params = {
-      //     dataJson: JSON.stringify(newOObj),
-      //     dataType: 2
-      //   }
-      //   try {
-      //     const data = await dynamicGetData(params);
-      //     let res = data[0].response || '{}';
-      //     try {
-      //       JSON.parse(res);
-      //     } catch (e) {
-      //       res = JSON.stringify({
-      //         isErr: true,
-      //         message: res
-      //       })
-      //     }
-      //     newOObj.apiResponse = res || '{}';
-      //     newOObj.apiFilterResponse = res || '{}';
-      //     const {apiDataFilterId, enableApiFilter, apiFilterFun} = newOObj;
-      //     if (apiDataFilterId && enableApiFilter && apiFilterFun) {
-      //       const fun = new Function(`return ${apiFilterFun}`);
-      //       const result = fun()(JSON.parse(res));
-      //       newOObj.apiFilterResponse = JSON.stringify(result) || '{}';
-      //     }
-      //   } catch (e) {
-      //     const data = e.data;
-      //     console.log(e);
-      //     newOObj.apiResponse = JSON.stringify(data);
-      //   }
-      // }
-      // if (objKey === 'SqlDataConfig' && key === 'SQL') {
-      //   const params = {
-      //     dataJson: JSON.stringify(newOObj),
-      //     dataType: 3,
-      //   }
-      //   try {
-      //     const data = await dynamicGetData(params);
-      //     newOObj.SQLResponse = JSON.stringify(data) || '{}';
-      //     newOObj.SQLFilterResponse = JSON.stringify(data) || '{}';
-      //     const {SQLDataFilterId, enableSQLFilter, SQLFilterFun} = newOObj;
-      //     if (SQLDataFilterId && enableSQLFilter && SQLFilterFun) {
-      //       const fun = new Function(`return ${SQLFilterFun}`);
-      //       const result = fun()(data);
-      //       newOObj.SQLFilterResponse = JSON.stringify(result) || '{}';
-      //     }
-      //   } catch (e) {
-      //     const data = e.data;
-      //     console.log(e, 'errr');
-      //     newOObj.SQLResponse = JSON.stringify(data);
-      //   }
-      // }
-
       const list = [...this.getList];
       const index = this.reduceIndex();
       const newInfo = {

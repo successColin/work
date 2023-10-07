@@ -1,0 +1,22 @@
+.groupIcon {
+  color: #ffd256;
+}
+.nogroupIcon {
+  color: #4689f5;
+}
+.wrap {
+  margin-left: 10px;
+  :global {
+    // .ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected
+    .ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected, .ant-tree li .ant-tree-node-content-wrapper:hover {
+      background: none;
+    }
+    .ant-tree-title {
+      width: 700px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+    }
+  }
+}

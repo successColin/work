@@ -1,0 +1,13 @@
+import * as dd from 'dingtalk-jsapi';
+
+window.$dd = dd;
+
+// 钉钉设置 title
+export function ChangePageTitle(title) {
+  const ua = navigator.userAgent.toLowerCase();
+  if (ua.indexOf('dingtalk') > -1) {
+    window.$dd.biz.navigation.hideBar({
+      hidden: true, // true：隐藏，false：显示
+    });
+  }
+}

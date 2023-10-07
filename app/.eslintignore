@@ -1,5 +1,0 @@
-dist/*
-babel.config.js
-index.html
-*.nvue
-src/components/*

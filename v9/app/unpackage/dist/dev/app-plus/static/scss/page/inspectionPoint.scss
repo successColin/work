@@ -1,0 +1,194 @@
+.inspection-point{
+	width: 100%;
+	font-size: pxToREM(28);
+	.notdata{
+		position: fixed;
+		height: 100%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		.nodata-img{
+			width: pxToREM(300);
+			height: pxToREM(267);
+		}
+		.nodata-text{
+			color: #9B9B9B;
+			font-size: pxToREM(28);
+		}
+	}
+	.comBox{
+		padding-left: pxToREM(40);
+		height:pxToREM(90);
+		font-size:$input-label-fontsize;
+		font-family:PingFangSC-Regular,PingFangSC;
+		font-weight:400;
+		color:rgba(68,68,68,1);
+		line-height:pxToREM(90);
+		border-bottom: solid 1px #EBEBEB;
+	}
+	.inspection-point-list{
+		.point-item{
+			.point-title{
+				background: #fff;
+				height: pxToREM(88);
+				padding: 0 pxToREM(40) 0 pxToREM(30);
+				box-shadow:0px 1px 0px 0px rgba(245,245,245,1);
+				display: flex;
+				align-items:center;
+				.num{
+					flex: 0 1 pxToREM(40);
+					width: pxToREM(40);
+					height: pxToREM(40);
+					border-radius: 50%;
+					background: #D9D9D9;
+					color: #fff;
+					text-align: center;
+					line-height: pxToREM(40);
+					margin-right: pxToREM(18);
+				}
+				.normal{
+					background: #4BA5EA;
+				}
+				.fault{
+					background: #F0605D;
+				}
+				.shutdown{
+					background: #6B798D;
+				}
+				.point-name{
+					flex: 1 0 0;
+					font-size: pxToREM(30);
+				}
+				.arrow{
+					flex: 0 1 pxToREM(18);
+					line-height: pxToREM(45);
+					transition: all 0.3s;
+				}
+			}
+			.point-title.pointActive{
+				.arrow{
+					transform: rotate(90deg);
+				}
+			}
+			.point-detail{
+				padding:pxToREM(20) pxToREM(30);
+				.label-text{
+					width: pxToREM(194);
+					color: #9B9B9B;
+					display: inline-block;
+				}
+				.w-s{
+					word-spacing: pxToREM(49.3);
+				}
+				.detail-form{
+					background: #fff;
+					border-radius: pxToREM($main-radius);
+					padding:0 pxToREM(30);
+					.basic-info{
+						padding: pxToREM(35) 0 0;
+						.basic-info-item{
+							display:flex;
+							.label-text{
+								flex: 0 1 pxToREM(194);
+							}
+							.value-text{
+								flex: 1 0 0;
+							}
+							&:last-child{
+								padding-bottom:pxToREM(53);
+								box-shadow:0px 1px 0px 0px rgba(245,245,245,1);
+							}
+						}
+					}
+					.info-item{
+						height: pxToREM(84);
+						display: flex;
+						align-items: center;
+						box-shadow:0px 1px 0px 0px rgba(245,245,245,1);
+						.label-text{
+							flex-shrink: 1;
+						}
+						.value-text{
+							flex-grow: 1;
+						}
+						.uni-textarea{
+							height: pxToREM(145);
+							flex-grow: 1;
+							width: auto;
+						}
+					}
+					.info-textarea{
+						height: pxToREM(200);
+						align-items: flex-start;
+						padding-top: pxToREM(28);
+						position: relative;
+						box-shadow:none;
+						.textareaLength{
+							position: absolute;
+							right: 0;
+							top: pxToREM(145);
+							font-size: pxToREM(24);
+							color: #9B9B9B;
+						}
+					}
+					.img-files{
+						display: flex;
+						padding: pxToREM(15) 0;
+						.img-item{
+							width:23%;
+							margin: 0 1%;
+							height: pxToREM(120);
+							border: pxToREM(1) solid #EBEBEB;
+							position: relative;
+							.uploadImg{
+								width: 100%;
+								height: 100%;
+							}
+							.delImg{
+								position: absolute;
+								top: 0;
+								right: 0;
+							}
+						}
+						.upload-btn{
+							border: pxToREM(1) dashed #EBEBEB;
+							background: url("~@/static/images/upload.png") no-repeat center center / pxToREM(76);
+						}
+					}
+					.operation{
+						height: pxToREM(120);
+						justify-content: space-between;
+						align-items: center;
+						display:flex;
+						.btn{
+							color: #444444;
+							width: pxToREM(140);
+							height: pxToREM(60);
+							border-radius: pxToREM(60);
+							border: pxToREM(1) solid #D9D9D9;
+							line-height: pxToREM(60);
+							text-align: center;
+						}
+						.normal.active{
+							background: #4BA5EA;
+							border: pxToREM(1) solid #4BA5EA;
+							color: #fff;
+						}
+						.fault.active{
+							background: #F0605D;
+							border: pxToREM(1) solid #F0605D;
+							color: #fff;
+						}
+						.shutdown.active{
+							background: #6B798D;
+							border: pxToREM(1) solid #6B798D;
+							color: #fff;
+						}
+					}					
+				}
+			}
+		}
+	}
+}

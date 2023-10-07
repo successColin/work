@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -83,7 +83,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -125,7 +124,7 @@ export default {
         let lastData = {};
         let seriesData = [], supplementaryColorArr;
         const cn = colorArr.length; // 颜色长度
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           lastData = JSON.parse(staticValue);
         }
         if (dataType === 2) {
@@ -144,19 +143,21 @@ export default {
             {
               value: per1,
               itemStyle: {
-                normal: {
-                  color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                    offset: 0,//0%时的颜色 从上往下看 最上面是0%
-                    color: colorList[i].c1 || colorList[i].c2 || '#fff'
-                  }, {
-                    offset: 1,//100%时的颜色 从上往下看 最上面是0%
-                    color: colorList[i].c2 || colorList[i].c1 || '#fff'
-                  }])
-                }
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,//0%时的颜色 从上往下看 最上面是0%
+                  color: colorList[i].c1 || colorList[i].c2 || '#fff'
+                }, {
+                  offset: 1,//100%时的颜色 从上往下看 最上面是0%
+                  color: colorList[i].c2 || colorList[i].c1 || '#fff'
+                }])
               }
             }
           );
         }
+        const otherConfig = waveAnimation ? {} : {
+          animationDuration: 0,
+          animationDurationUpdate: 0
+        };
         let option = {
           series: [
             {
@@ -167,6 +168,7 @@ export default {
               waveLength,
               amplitude,
               waveAnimation,
+              ...otherConfig,
               direction: animationDuration,
               data: seriesData,
               outline: {
@@ -187,17 +189,15 @@ export default {
                 shadowBlur: bgShadowBlur
               },
               label: {
-                normal: {
-                  formatter: () => {
-                    return (lastData.value || 0) * 100 + '%';
-                  },
-                  show: labelShow,
-                  // color: labelColor,
-                  insideColor: labelColor,
-                  fontSize: labelFontSize,
-                  fontWeight: labelFontWeight,
-                  position: labelPosition
-                }
+                formatter: () => {
+                  return (lastData.value || 0) * 100 + '%';
+                },
+                show: labelShow,
+                // color: labelColor,
+                insideColor: labelColor,
+                fontSize: labelFontSize,
+                fontWeight: labelFontWeight,
+                position: labelPosition
               }
             }
           ]
@@ -264,14 +264,14 @@ export default {
   methods: {
     renderOpt() {
       const options = this.getOption();
-      this.instance.myChart.setOption(options);
+      this.instance.myChart.setOption(options, true);
     },
     initDom() {
       const {componentId} = this.config;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

@@ -8,30 +8,30 @@
 <!-- 页面 -->
 <template>
   <div class="propsSetting">
-    <p class="setTitle">位置属性</p>
+    <p class="setTitle">{{title}}</p>
     <div class="InputWrap">
       <c-input
           lable="宽:"
           type="number"
           :numberValue="widthValue"
-          @Input-Change="(value) => changeTitle(Number(value), 'width')"/>
+          @Input-Change="(value) => changeTitle(Number(value), widthKey)"/>
       <c-input
           lable="高:"
           type="number"
           :numberValue="heightValue"
-          @Input-Change="(value) => changeTitle(Number(value), 'height')"/>
+          @Input-Change="(value) => changeTitle(Number(value), heightKey)"/>
     </div>
     <div class="InputWrap">
       <c-input
           lable="左:"
           type="number"
           :numberValue="leftValue"
-          @Input-Change="(value) => changeTitle(Number(value), 'left')"/>
+          @Input-Change="(value) => changeTitle(Number(value), leftKey)"/>
       <c-input
           lable="上:"
           type="number"
           :numberValue="topValue"
-          @Input-Change="(value) => changeTitle(Number(value), 'top')"/>
+          @Input-Change="(value) => changeTitle(Number(value), topKey)"/>
     </div>
   </div>
 </template>
@@ -40,6 +40,26 @@
 export default {
   inheritAttrs: false,
   props: {
+    widthKey: {
+      type:String,
+      default: 'width'
+    },
+    heightKey: {
+      type:String,
+      default: 'height'
+    },
+    leftKey: {
+      type: String,
+      default: 'left'
+    },
+    topKey: {
+      type: String,
+      default: 'top'
+    },
+    title: {
+      type:String,
+      default: '位置属性'
+    },
     widthValue: {
       type: Number
     },

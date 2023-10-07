@@ -19,10 +19,11 @@
 
 <script>
 // 引入基本模板
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import {getInfoById} from '@/services/design';
 import {toFixed, returnChartPosition} from '@/utils/utils';
 import {isEqual} from 'lodash';
-
+import {decrypt} from '@/utils/secret';
 // eslint-disable-next-line no-undef
 let echarts = require('echarts')
 
@@ -55,7 +56,7 @@ export default {
     return {
       content: [],
       myChart: null,
-      observer: null,
+      client: null,
       instance: null,
       timer: null,
       loading: false
@@ -229,19 +230,15 @@ export default {
         chartConfig.data = [{
           value: value,
           itemStyle: {
-            normal: {
-              color: barColor,
-              borderRadius: 10
-            }
+            color: barColor,
+            borderRadius: 10
           }
         },
         //(maxValue进度条最大值 - value当前进度) + 颜色
         {
           value: total - value,
           itemStyle: {
-            normal: {
-              color: barBgColor
-            }
+            color: barBgColor
           }
         }];
 
@@ -279,7 +276,7 @@ export default {
     config(val) { // 普通的watch监听
       if (this.myChart && val) {
         const options = this.getOption();
-        this.myChart.setOption(options);
+        this.myChart.setOption(options, true);
       }
     },
     content: {
@@ -288,7 +285,7 @@ export default {
       handler(val) {
         if (this.myChart && val) {
           const options = this.getOption();
-          this.myChart.setOption(options);
+          this.myChart.setOption(options, true);
         }
       }
     },
@@ -353,9 +350,7 @@ export default {
         this.content = JSON.parse(staticValue);
         const option = this.getOption();
         // 绘制图表
-        this.myChart.setOption(
-          option
-        );
+        this.myChart.setOption(option, true);
       }
       if (dataType === 2) {
         this.loading = true;
@@ -367,7 +362,76 @@ export default {
         await this.getSQL();
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
       // getInfoById
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) {
+        return;
+      }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.content = data;
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.content = result;
+        return;
+      }
+      this.content = data;
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -388,11 +452,6 @@ export default {
           this.timer && clearTimeout(this.timer);
           this.timer = setTimeout(async () => {
             await this.getApi();
-            this.myChart.clear();
-            const option = this.getOption();
-            this.myChart.setOption(
-              option
-            );
           }, time);
         }
         if (!enableApiFilter) {
@@ -425,11 +484,6 @@ export default {
         this.timer && clearTimeout(this.timer);
         this.timer = setTimeout(async () => {
           await this.getSQL();
-          const option = this.getOption();
-          this.myChart.clear();
-          this.myChart.setOption(
-            option
-          );
         }, time);
       }
       if (!enableSQLFilter) {
@@ -448,6 +502,15 @@ export default {
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

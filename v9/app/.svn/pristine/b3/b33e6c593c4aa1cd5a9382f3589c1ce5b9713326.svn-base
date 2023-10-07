@@ -1,0 +1,184 @@
+<template name="mInputSearch">
+	<!-- 模糊搜索框 -->
+	<!-- #ifdef MP -->
+	<view class="mInputSearch" style="margin-top: 69px;" :class="[fixed ? 'fixed':'',top=='nofixed'?'nofixed':'']">
+	<!-- #endif -->
+	<!-- #ifndef MP -->
+	<view class="mInputSearch"  :class="[fixed ? 'fixed haveStatusTop':'',top=='nofixed'?'nofixed':'']">
+	<!-- #endif -->
+		<slot name="left"></slot>
+		<view class="mInputSearch-text" v-if="isQuickQuery" @click="showSearch">
+			<view class="placeholder" v-if="!searchText"> {{ $t("formTip-placeholder") }}</view> <!-- 中文：请输入关键字 -->
+			<view class="searchText" v-else> {{ searchText }}</view>
+		</view>
+		<view class="mInputSearch-btn" v-if="searchText && isQuickQuery" style="padding-right: 0;">
+			<m-button :isFontBtn="true" key="clearBtn" style="display: inline-block;"
+				@elementClick="handleClear()">
+				<block slot="buttonIcon">
+					<m-font-icon icon="iconqingchu" :iconSize="34"></m-font-icon>
+				</block>
+			</m-button>
+		</view>	
+		<view class="mInputSearch-btn searchBtn" v-if="isQuickQuery">
+			<m-button :isFontBtn="true" key="searchBtn" style="display: inline-block;"
+				:btnClass="searchText ? 'mainColor':'searchColor'" 
+				@elementClick="handleSearch()">
+				<block slot="buttonIcon">
+					<m-font-icon icon="iconsousuo" :iconSize="34"></m-font-icon>
+				</block>
+			</m-button>
+		</view>
+    <!-- 是否需要二维码 -->
+    <!-- #ifdef APP-PLUS -->
+    <view class="mInputSearch-btn searchBtn" v-if="isQuickQuery && quickQuery.isQRCode">
+    <!-- #endif -->
+    <!-- #ifndef APP-PLUS -->
+    <view class="mInputSearch-btn searchBtn" v-if="isQuickQuery && quickQuery.isQRCode && QRType !== '0'">
+    <!-- #endif -->
+			<m-button :isFontBtn="true" key="searchScanBtn" class="search-btn" style="display: inline-block;"
+				:btnClass="searchText ? 'mainColor':'searchColor'" 
+				@elementClick="handleScanSearch()">
+				<block slot="buttonIcon">
+					<m-font-icon icon="iconsaoma1" :iconSize="34"></m-font-icon>
+				</block>
+			</m-button>
+		</view>
+		<slot name="other"></slot>
+		<view class="mInputSearch-btn" v-if="isSeniorFilter">
+			<m-button :isFontBtn="true" key="filterBtn"  style="display: inline-block;"
+				@elementClick="openFilter()">
+				<block slot="buttonIcon">
+					<m-font-icon icon="iconshaixuan" :iconSize="30"></m-font-icon>
+				</block>
+			</m-button>
+		</view>
+	</view>
+</template>
+
+<script>
+import bus from '@/static/js/bus';
+import { mapState, mapMutations } from 'vuex';
+import { ELEMENT_SCAN } from '@/common/functions/element.js';
+export default {
+  name: 'mInputSearch',
+  props: {
+    fixed: {
+      type: Boolean,
+      default: true,
+    },
+    tabInfo: {
+      type: Object,
+      required: true,
+    },
+    top: String,
+    mobileTabId: Number, //面板id
+    isQuickQuery: {
+      type: Boolean,
+      default: false,
+    },
+    isSeniorFilter: {
+      type: Boolean,
+      default: false,
+    },
+    quickQuery: {
+      type: Object,
+      default: () => {},
+    },
+  },
+  data() {
+    return {
+      show: true,
+      searchText: '',
+      searchType: 1, //搜索类型：1-模糊搜索；2-高级搜索
+      seniorFilter: {},
+    };
+  },
+  watch: {
+    searchText(newValue, oldValue) {
+      if (newValue == oldValue) return;
+      this.doSearch();
+    },
+    seniorFilter(newValue, oldValue) {
+      if (newValue == oldValue) return;
+      this.doSearch(newValue);
+    },
+  },
+  computed: {
+    ...mapState(['QRType']),
+  },
+  methods: {
+    ...mapMutations('common', ['SET_TEMPLATE_PARAMS']),
+    handleScanSearch() {
+      ELEMENT_SCAN({}, (option) => {
+        const result = option.scancode;
+        if (result) {
+          this.searchType = 1;
+          this.searchText = result;
+        }
+      });
+    },
+    showSearch() {
+      let onKey = `search${this._uid}`;
+      this.searchType = 1;
+      uni.navigateTo({
+        url: `/pages/common/searchTemplate?onKey=${onKey}`,
+      });
+    },
+    handleClear() {
+      this.searchType = 1;
+      this.searchText = '';
+    },
+    handleSearch() {
+      this.searchType = 1;
+      this.doSearch();
+    },
+    doSearch(param) {
+      this.$emit('doSearch', {
+        searchText: param || this.searchText,
+        searchType: this.searchType,
+        tabInfo: this.tabInfo,
+      });
+    },
+    openFilter() {
+      //打开高级筛选界面
+      let onKey = `search${this._uid}`;
+      this.searchType = 2;
+      let tabParams = {
+        //设置下一个面板的参数
+        tabId: `advancedFilter_${this.mobileTabId}`,
+        params: {
+          relationTab: this.mobileTabId,
+          onkey: onKey,
+          bundleId: this.tabInfo.bundleId,
+          bundleName: this.tabInfo.bundleName,
+        },
+      };
+      this.SET_TEMPLATE_PARAMS(tabParams); //设置下一个面板的参数
+      uni.navigateTo({
+        url: `/pages/common/advancedFilter?relationTab=${this.mobileTabId}`,
+      });
+    },
+  },
+  created() {
+    const _this = this;
+    //设置监听
+    let onKey = `search${this._uid}`;
+    bus.$on(onKey, (params) => {
+      //获取传递的参数并进行操作
+      if (_this.searchType === 2) _this.seniorFilter = params;
+      else _this.searchText = params;
+    });
+    console.log(this.quickQuery);
+  },
+  beforeDestroy() {
+    //注销前先解绑监听
+    let onKey = `search${this._uid}`;
+    bus.$off(onKey);
+  },
+};
+</script>
+<style scoped>
+.haveStatusTop {
+  margin-top: var(--status-bar-height);
+}
+</style>

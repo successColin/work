@@ -10,6 +10,7 @@
   <div class="databaseWrap">
     <div class="opearWrap">
       <c-select
+          clearable
           filterable
           v-model="val"
           class="selectData"
@@ -71,7 +72,7 @@ const JsonEditor = () => import('@/pages/Configuration/ConfigComponents/JsonEdit
 export default {
   props: {
     value: {
-      type: Number
+      type: [Number, String]
     },
     response: {
       type: String,

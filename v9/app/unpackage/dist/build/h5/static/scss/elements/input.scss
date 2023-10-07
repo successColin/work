@@ -1,0 +1,56 @@
+.mInput {
+	&.input-label{
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		border-bottom: solid 1px #F5F5F5;
+		.text{
+			font-size:$input-label-fontsize;
+			color:$input-label-fontcolor;
+			.requisite{
+				color:$main-color;
+				font-size: pxToREM(36);
+				line-height:pxToREM(36);
+			}
+		}
+		.changeFlex{
+			display: flex;
+		}
+		input.input{
+			flex: 1;
+			height: $input-height;
+			font-size:$input-value-fontsize;
+			color:$input-value-fontcolor;
+			letter-spacing: 0;
+		}
+		.input-content{
+			flex: 1;
+			display: flex;
+			align-items: center;
+		}
+	}
+	&.left{
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		label{
+			width: $input-label-width;
+			text-align: left;
+			flex-shrink: 0;
+		}
+	}
+	&.inputFocus{
+		border-color: $main-color;
+		label{
+			color: $main-color;
+		}
+	} 
+	&.disabled{
+		background: rgba(217, 217, 217,0.1);
+	}
+	&.readonly{
+		.text,.input{
+			color: $readonly-color !important;
+		}
+	}
+}

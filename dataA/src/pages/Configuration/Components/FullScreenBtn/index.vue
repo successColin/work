@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -33,7 +33,7 @@
     <div class="singleTextWrap" @contextmenu.prevent="show">
       <span class="icon-quxiaoquanping iconfont fullScreen" :style="getStyles"></span>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -71,7 +71,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {

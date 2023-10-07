@@ -158,6 +158,34 @@
                 />
 <!--                <SQLEditor v-model="customShowInfoSQL"></SQLEditor>-->
               </div>
+              <div class="propsSetting">
+                <p class="setTitle">文字位置</p>
+                <div>
+                  <c-select
+                      :options="positionOptions"
+                      v-model="labelPosition"
+                  ></c-select>
+                </div>
+              </div>
+              <div class="propsSetting">
+                <div class="setTitle">文字左右偏移</div>
+                <c-input
+                    type="number"
+                    :numberValue="offsetPosition"
+                    @Input-Change="(value) => {
+                    this.offsetPosition = value;
+              }"/>
+              </div>
+              <div class="propsSetting">
+                <div class="setTitle">文字上下偏移</div>
+                <c-input
+                    type="number"
+                    :numberValue="offsetRightPosition"
+                    @Input-Change="(value) => {
+                    this.offsetRightPosition = value;
+              }"/>
+              </div>
+
               <TextStylesConfig
                   title="字体样式"
                   title1="字体颜色"
@@ -344,6 +372,9 @@ const obj = {
   varTableName: '', // 数据源变量
   varDetail: '', // 明细变量
   primaryKey: '', // 主键
+  offsetPosition: 0,
+  offsetRightPosition: 0,
+  labelPosition: 'inside', // 文字显示位置
   inverseField: '', // 反显字段
   tipInfoConfig: [] // 悬浮框配置
 };
@@ -393,6 +424,36 @@ export default {
         }
       ],
       fieldArrOptions: [],
+      positionOptions: [
+        {
+          label: '顶部',
+          value: 'top'
+        }, {
+          label: '左边',
+          value: 'left'
+        }, {
+          label: '右边',
+          value: 'right'
+        }, {
+          label: '底部',
+          value: 'bottom'
+        }, {
+          label: '内部',
+          value: 'inside'
+        }, {
+          label: '内左侧',
+          value: 'insideLeft'
+        }, {
+          label: '内右侧',
+          value: 'insideRight'
+        }, {
+          label: '内顶部',
+          value: 'insideTop'
+        }, {
+          label: '内底部',
+          value: 'insideBottom'
+        }
+      ],
       animationTypeArr: [{
         label: '无',
         value: 1
@@ -593,7 +654,10 @@ export default {
             FontFamily: this.FontFamily,
             FontWeight: this.FontWeight,
             FontSize: this.FontSize,
-            Color: this.Color
+            Color: this.Color,
+            labelPosition: this.labelPosition,
+            offsetPosition: this.offsetPosition,
+            offsetRightPosition: this.offsetRightPosition
           }),
           tableName: this.tableSource,
           detailColumn: JSON.stringify(this.fieldArr),
@@ -649,6 +713,9 @@ export default {
         FontWeight: this.FontWeight,
         FontSize: this.FontSize,
         Color: this.Color,
+        labelPosition: this.labelPosition,
+        offsetPosition: this.offsetPosition,
+        offsetRightPosition: this.offsetRightPosition,
         fillColor: this.fillColor,
         borderColor: this.borderColor,
         borderWidth: this.borderWidth,

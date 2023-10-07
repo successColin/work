@@ -156,8 +156,9 @@
               <el-tooltip
                   class="item"
                   effect="dark"
-                  content='如果sql条件值是文字，请添加双引号，例如:select * from user where name="${name}"'
+                  popper-class="sqlTooltip"
                   placement="top">
+                <SQLTooltipText slot="content"></SQLTooltipText>
                 <i class="el-icon-question"></i>
               </el-tooltip>
             </p>
@@ -226,6 +227,68 @@
           </div>
         </div>
       </el-collapse-item>
+      <el-collapse-item :name="4" v-if="getComponentInfo.mqttDataConfig">
+        <template slot="title">
+          <div class="bgSettingWrap">
+            <div class="title">MQTT获取</div>
+            <div class="switchWrap">
+              <el-switch
+                  @click.stop.native
+                  :value="getComponentInfo.dataType===4"
+                  @change="(value) => changeTitle(value ? 4:1, 'dataType')"
+                  active-color="#4689F5"
+                  inactive-color="#183472">
+              </el-switch>
+            </div>
+          </div>
+        </template>
+        <div class="apiContent">
+          <div class="propsSetting">
+            <span class="setTitle">MQTT配置</span>
+            <MQTT-filter
+                :activeComponent="activeComponent"
+                v-model="getComponentInfo.mqttDataConfig.mqttSourceId"
+                @change="(obj) => changeStyles(obj, 'mqttSourceId', 'mqttDataConfig') "
+            />
+          </div>
+          <div class="propsSetting">
+            <span class="setTitle">订阅主题</span>
+            <div>
+              <c-input
+                  type="text"
+                  :maxlength="16"
+                  :value="getComponentInfo.mqttDataConfig.topic"
+                  @Input-Change="changeStyles1($event, 'topic', 'mqttDataConfig')"
+                  @blur="(e) => changeStyles(e.target.value, 'topic', 'mqttDataConfig')"/>
+            </div>
+          </div>
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">数据过滤器</span>
+            <el-switch
+                :value="getComponentInfo.mqttDataConfig.enableMqttFilter"
+                @change="(value) => changeStyles(value, 'enableMqttFilter', 'mqttDataConfig')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
+          <div class="propsSetting" v-if="getComponentInfo.mqttDataConfig.enableMqttFilter">
+            <data-filter
+                :activeComponent="activeComponent"
+                v-model="getComponentInfo.mqttDataConfig.mqttDataFilterId"
+                :response="getComponentInfo.mqttDataConfig.mqttResponse"
+                @change="(obj) => changeStyles(obj, 'mqttDataFilterId', 'mqttDataConfig') "
+            />
+          </div>
+          <div class="propsSetting">
+            <p class="setTitle">响应结果（只读）</p>
+            <JsonEditor
+                v-if="activeName===4"
+                :config="apiResponse"
+                v-model="getComponentInfo.mqttDataConfig.mqttFilterResponse"/>
+          </div>
+        </div>
+      </el-collapse-item>
+
     </el-collapse>
   </div>
 </template>
@@ -277,16 +340,6 @@ export default {
     },
     getList() {
       return this.$store.getters.list;
-    },
-    fieldOptions() {
-      const staticValue = this.getComponentInfo.dataConfig.staticValue;
-      const obj = JSON.parse(staticValue);
-      return Object.keys(obj).map((label) => {
-        return {
-          label,
-          value: label
-        }
-      });
     }
   },
 
@@ -314,6 +367,21 @@ export default {
       };
       list.splice(index, 1, newInfo);
       this.$store.dispatch('config/updateComponentList', list);
+    },
+    async changeStyles1(value, key, objKey) { // 样式修改
+      const info = JSON.parse(JSON.stringify(this.getComponentInfo));
+      const list = [...this.getList];
+      const index = this.reduceIndex();
+      const newOObj = {
+        ...info[objKey],
+        [key]: value
+      }
+      const newInfo = {
+        ...info,
+        [objKey]: newOObj
+      };
+      list.splice(index, 1, newInfo);
+      await this.$store.dispatch('config/updateComponentList', list);
     },
     async changeStyles(value, key, objKey) { // 样式修改
       const info = JSON.parse(JSON.stringify(this.getComponentInfo));

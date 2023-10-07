@@ -1,0 +1,31 @@
+.banner {
+  height: 254rpx;
+  padding: 27rpx 30rpx;
+  .banner-wrap {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 8rpx;
+    box-shadow: 0 0 10rpx 0 rgba(0, 0, 0, 0.1);
+    .swiper {
+      width: 100%;
+      height: 100%;
+      .swiper-image {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .index-wrap {
+      position: absolute;
+      right: 20rpx;
+      bottom: 15rpx;
+      height: 28rpx;
+      line-height: 28rpx;
+      border-radius: 14rpx;
+      background: rgba(0, 0, 0, 0.22);
+      color: #fff;
+      font-size: 24rpx;
+      padding: 0 10rpx;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88px" height="54px" viewBox="0 0 88 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>甘特图</title>
+    <defs>
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id="linearGradient-1">
+            <stop stop-color="#4689F5" offset="0%"></stop>
+            <stop stop-color="#43DBFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="dataA模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="甘特图">
+            <rect id="矩形备份-28" fill="#4689F5" opacity="0.202892485" x="0" y="0" width="88" height="54"></rect>
+            <g id="编组-40" transform="translate(20.000000, 8.000000)">
+                <rect id="矩形" fill="url(#linearGradient-1)" x="0" y="0" width="48" height="38" rx="4"></rect>
+                <g id="甘特图" transform="translate(9.000000, 4.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                    <path d="M25.5,22.5 C26.3284271,22.5 27,23.1715729 27,24 L27,28.5 C27,29.3284271 26.3284271,30 25.5,30 L7.5,30 C6.67157288,30 6,29.3284271 6,28.5 L6,24 C6,23.1715729 6.67157288,22.5 7.5,22.5 L25.5,22.5 Z" id="路径"></path>
+                    <path d="M4.5,21 L4.5,29.25 C4.5,29.6642136 4.16421356,30 3.75,30 C3.33578644,30 3,29.6642136 3,29.25 L3,21 L4.5,21 Z" id="路径"></path>
+                    <path d="M19.5,11.275 C20.3284271,11.275 21,11.9465729 21,12.775 L21,17.275 C21,18.1034271 20.3284271,18.775 19.5,18.775 L1.5,18.775 C0.671572875,18.775 0,18.1034271 0,17.275 L0,12.775 C0,11.9465729 0.671572875,11.275 1.5,11.275 L19.5,11.275 L19.5,11.275 Z" id="路径" opacity="0.403956214"></path>
+                    <path d="M3.75,0 C4.16421356,0 4.5,0.335786438 4.5,0.75 L4.5,9 L3,9 L3,0.75 C3,0.335786438 3.33578644,0 3.75,0 L3.75,0 Z" id="路径"></path>
+                    <path d="M28.5,0 C29.3284271,0 30,0.671572875 30,1.5 L30,6 C30,6.82842712 29.3284271,7.5 28.5,7.5 L10.5,7.5 C9.67157288,7.5 9,6.82842712 9,6 L9,1.5 C9,0.671572875 9.67157288,0 10.5,0 L28.5,0 L28.5,0 Z" id="路径"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

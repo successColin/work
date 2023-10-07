@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -42,13 +42,21 @@
                 {{ item.labelName }}
               </div>
               <div class="valueWrap" :style="getValueStyles(item)">
-                <span v-if="!item.isApplyToPictures" :title="renderValue(item)"
+                <span v-if="!item.isApplyToPictures && !item.isEdit" :title="renderValue(item)"
                       :style="getValueLastStyles(item)">{{ renderValue(item) }}</span>
                 <el-image
                     v-if="item.isApplyToPictures"
                     :style="getImgStyles(item)"
                     :src="renderValue(item)"
                     fit="scale-down"></el-image>
+                <textarea
+                    class="textAreaWrap"
+                    v-if="!item.isApplyToPictures && item.isEdit"
+                    name="text"
+                    :rows="item.editRows"
+                    readonly
+                    :style="getEditStyles(item)"
+                    :value="renderValue(item)"/>
               </div>
             </div>
           </el-col>
@@ -58,11 +66,10 @@
       </el-row>
 
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-// import VueDragResize from 'vue-drag-resize'
 
 import {screenConfig} from '@/constants/global';
 import {CheckImgExists} from '@/utils/utils';
@@ -99,21 +106,28 @@ export default {
   components: {},
 
   computed: {
-    getItemClass() {
+    getEditStyles() {
       return function (params) {
-        console.log(params);
-        // const {isApplyToPictures, isEllipsis} = params;
-        // const {stylesObj: {labelPosition}} = this.config;
-        // if (labelPosition === 'top') {
-        //   return '';
-        // }
-        // if (labelPosition !== 'top' && !isApplyToPictures && isEllipsis) {
-        //   return 'flex';
-        // }
-        // if (labelPosition !== 'top' && (isApplyToPictures || !isEllipsis)) {
-        //   return 'normal';
-        // }
-        return '';
+        const {
+          editBorderColor = '',
+          editHoverBorderColor = '',
+          editBgColor = '',
+          editColor = '',
+          editBorderRadius = 0,
+          editFontSize = 14,
+          editFontFamily = 'Arial',
+          editFontWeight = 'normal'
+        } = params;
+        return {
+          border: `1px solid ${editBorderColor || 'rgba(255, 255, 255, 0)'}`,
+          borderRadius: `${editBorderRadius}px`,
+          backgroundColor: editBgColor || 'rgba(255, 255, 255, 0)',
+          '--hover-color': editHoverBorderColor || 'rgba(255, 255, 255, 0)',
+          fontSize: `${editFontSize}px`,
+          color: editColor,
+          fontWeight: editFontWeight,
+          fontFamily: editFontFamily
+        };
       }
     },
     getImgStyles() {
@@ -143,7 +157,7 @@ export default {
     },
     getFiledList() { // 获取真实有效的配置
       const {stylesObj: {labelConfig = []}} = this.config;
-      return labelConfig.filter((item) => item.field);
+      return labelConfig.filter((item) => item.field && item.isVisible);
     },
     getLabelClass() {
       const {stylesObj: {labelPosition}} = this.config;
@@ -335,6 +349,19 @@ export default {
 
       .right {
         text-align: right;
+      }
+
+      .textAreaWrap{
+        width: 100%;
+        padding: 0 5px;
+        line-height: 1.5;
+        outline: none;
+        resize: vertical;
+        box-sizing: border-box;
+        transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+        &:hover{
+          border-color: var(--hover-color) !important;
+        }
       }
     }
   }

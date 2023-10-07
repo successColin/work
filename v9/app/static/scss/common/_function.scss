@@ -1,0 +1,13 @@
+// px to em 1px =  1 ÷ $root-fize 750:
+//20/750
+//-------------------------------
+$baseSize:0.03;
+@function pxToEM($p:1,$base:16){
+    @return ($p / $base) + em;
+}
+@function pxToREM($p:1,$base:0.03){ 
+    @return $p + rpx; 
+}
+@function pxToREMInt($p:1,$base:16){
+    @return floor((20 / 750)*$p) + rem;
+}

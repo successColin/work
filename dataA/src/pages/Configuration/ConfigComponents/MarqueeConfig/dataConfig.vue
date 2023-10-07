@@ -169,8 +169,9 @@
               <el-tooltip
                   class="item"
                   effect="dark"
-                  content='如果sql条件值是文字，请添加双引号，例如:select * from user where name="${name}"'
+                  popper-class="sqlTooltip"
                   placement="top">
+                <SQLTooltipText slot="content"></SQLTooltipText>
                 <i class="el-icon-question"></i>
               </el-tooltip>
             </p>

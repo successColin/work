@@ -215,6 +215,19 @@ export function getDataFilterList(params = {}) {
 }
 
 /**
+ * 获取mqtt列表
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function getMqttList(params) {
+  return axios({
+    url: query.DATA_MQTT_LIST,
+    method: 'get',
+    params
+  })
+}
+
+/**
  * 新增数据过滤器
  * @param params
  * @returns {AxiosPromise}
@@ -227,6 +240,21 @@ export function insertDataFilter(params) {
     contentType: 'json'
   })
 }
+
+/**
+ * 新增mqtt
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function insertDataMqtt(params) {
+  return axios({
+    url: query.DATA_MQTT_ADD,
+    method: 'post',
+    params,
+    contentType: 'json'
+  })
+}
+
 /**
  * 新增数据过滤器
  * @param params
@@ -240,6 +268,21 @@ export function updateDataFilter(params) {
     contentType: 'json'
   })
 }
+
+/**
+ * 新增数据过滤器
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function updateMqtt(params) {
+  return axios({
+    url: query.DATA_MQTT_UPDATE,
+    method: 'post',
+    params,
+    contentType: 'json'
+  })
+}
+
 /**
  * 删除数据过滤器
  * @param params
@@ -248,6 +291,20 @@ export function updateDataFilter(params) {
 export function delDataFilter(params) {
   return axios({
     url: query.DATA_FILTER_DELETE,
+    method: 'post',
+    params,
+    contentType: 'json'
+  })
+}
+
+/**
+ * 删除数mqtt
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function delMqtt(params) {
+  return axios({
+    url: query.DATA_MQTT_DELETE,
     method: 'post',
     params,
     contentType: 'json'

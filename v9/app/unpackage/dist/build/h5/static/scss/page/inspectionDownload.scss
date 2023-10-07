@@ -1,0 +1,23 @@
+.inspection-download{
+	width: 100%;
+	.progress-box-parent{
+		padding-top: pxToREM(20);
+		margin: 0 pxToREM(30) pxToREM(20) pxToREM(30);
+		.progress-bg{
+			border-radius: pxToREM(8);
+			background: #fff;
+			padding: pxToREM(13.3) pxToREM(30) pxToREM(36.6);
+		}
+	}
+	.progress-title{
+		font-size: pxToREM(26.6);
+		color:$default-lable;
+		margin: pxToREM(19.3) 0;
+		display: block;
+	}
+	::v-deep{
+		.progress{
+			box-sizing: border-box;
+		}
+	}
+}

@@ -1,0 +1,76 @@
+.wrap {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  overflow-y: scroll;
+
+  .ColWrap {
+    text-align: right;
+  }
+
+  .rowWrap {
+    margin-bottom: 20px;
+  }
+
+  .position {
+    position: relative;
+    width: 104px;
+    height: 104px;
+
+    .down {
+      position: absolute;
+      right: 15px;
+      top: 5px;
+      color: #fff;
+    }
+  }
+
+  .borderBox {
+    width: 104px;
+    height: 104px;
+    margin-right: 8px;
+    text-align: center;
+    vertical-align: top;
+    border: 1px dashed #d9d9d9;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  & .fileWrap {
+    width: 100%;
+    height: 40px;
+    margin: 5px 0;
+    padding: 0 5px;
+    line-height: 40px;
+    background: #FFFFFF;
+    border-radius: 4px;
+    border: 1px solid #EBEBEB;
+
+    & > a {
+      display: inline-block;
+      width: calc(100% - 35px);
+      height: 100%;
+    }
+
+  }
+
+  & .iconWrap {
+    font-size: 24px;
+  }
+
+  & .fileName {
+    width: calc(100% - 10px - 45px);
+    margin-left: 10px;
+    height: 100%;
+    display: inline-block;
+    color: #111111;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    vertical-align: top;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}

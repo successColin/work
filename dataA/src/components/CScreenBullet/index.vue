@@ -10,7 +10,8 @@
   <div class="cModalWrap" v-if="visible" @click="handleCancel">
     <div
         @click="handleClick"
-        class="contentWrap" :style="`width:${width}px;height:${height}px;`"
+        class="contentWrap"
+        :style="`width:${width}px;height:${height}px;`"
     >
       <iframe :src="iframeUrl" :frameborder="0" :width="width" :height="height"></iframe>
     </div>
@@ -79,7 +80,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,.3);
+  background: rgba(0,0,0,.5);
   z-index: 99999999;
 
   .contentWrap {

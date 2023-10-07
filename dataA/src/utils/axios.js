@@ -9,6 +9,7 @@ import qs from 'qs';
 import axios from 'axios';
 import {message} from '@/utils/message';
 import {PREFIX, V} from '@/constants/config';
+import query from '@/constants/query';
 
 const headers = {
   'content-type': 'application/x-www-form-urlencoded', // 转换为key=value的格式必须增加content-type
@@ -43,12 +44,8 @@ instance.interceptors.request.use(config => {
     }
   }
   const {method, params = {}, contentType, headers} = config;
-  const {needShareToken = false, shareToken = '', ...rest} = params;
+  const {...rest} = params;
   if (method.toLowerCase() === 'get') {
-    // config.headers = {
-    //   ...headers,
-    //   token: localStorage.getItem('token') || ''
-    // }
     config.params = rest;
   } else if (contentType.toLocaleLowerCase() === 'json') {
     config.headers = {
@@ -62,7 +59,6 @@ instance.interceptors.request.use(config => {
       ...headers,
       'content-type': 'multipart/form-data'
     }
-    console.log(rest, params);
     config.data = params;
   } else if (contentType.toLowerCase() === 'form') {
     config.headers = {
@@ -73,12 +69,26 @@ instance.interceptors.request.use(config => {
     delete config.params;
   }
   config.headers.token = localStorage.getItem('screenToken') || '';
-  if (loginUrl === config.url) {
-    delete config.headers.token;
-  }
-  if (window.vue.$route.name === 'menu') {
-    config.headers.shareToken = localStorage.getItem('shareToken') || '';
+  if (window.vue.$route.name === 'menu' && window.vue.$route.query.designTypePreview !== 'APP') {
+    const { id } = window.vue.$route.params;
+    const loginPagesShareTokenMapString = localStorage.getItem('loginPagesShareTokenMap');
+    const loginPagesShareTokenMap = JSON.parse(loginPagesShareTokenMapString) || {};
+    config.headers.shareToken = loginPagesShareTokenMap[id] || '';
+
+    const loginPagesTokenMapString = localStorage.getItem('loginPagesTokenMap');
+    const loginPagesTokenMap = JSON.parse(loginPagesTokenMapString) || {};
+    if (loginPagesTokenMap[id]) {
+      config.headers.token = loginPagesTokenMap[id];
+    } else {
+      delete config.headers.token;
+    }
     // delete config.headers.token;
+    // if (query.MENU_CHECK_OVERDUE === config.url) {
+    //   delete config.headers.token;
+    // }
+  }
+  if (query.LOGIN_DO_LOGIN === config.url) {
+    delete config.headers.token;
   }
   return config
 }, error => {
@@ -88,8 +98,12 @@ instance.interceptors.request.use(config => {
 // 添加响应拦截器
 instance.interceptors.response.use(function (response) {
   // 对响应数据做点什么
-  const {status, data: {code, data, message: info}, config: {url}, headers: {token}} = response;
+  const {status, data: {code, data, message: info}, config: {url, noCheck}, headers: {token}} = response;
+  if (status === 200 && noCheck) {
+    return response.data;
+  }
   if (status === 200 && code === 'A0205') {
+    // alert(url);
     localStorage.removeItem('screenToken');
     window.vue.$router.push('/login');
     return Promise.reject(data);
@@ -98,8 +112,9 @@ instance.interceptors.response.use(function (response) {
   if (status === 200 && code === '00000') {
     if (loginUrl === url) {
       localStorage.setItem('screenToken', token);
+      return {token, ...data }
     }
-    return data
+    return data;
   }
   if (status === 200 && code === 'A0204') {
     /**todo

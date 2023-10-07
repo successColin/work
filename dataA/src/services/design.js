@@ -37,6 +37,36 @@ export function uploadFile(params) {
 }
 
 /**
+ * 导出配置
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function download(params) {
+  return axios({
+    noCheck: true,
+    url: query.DO_DOWNLOAD_ELEMENT_CONFIG,
+    method: 'post',
+    params,
+    responseType: 'blob',
+    contentType: 'form'
+  })
+}
+
+/**
+ * 导入配置
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function uploadConfig(params) {
+  return axios({
+    url: query.DO_UP_ELEMENT_CONFIG,
+    method: 'post',
+    params,
+    contentType: 'file'
+  })
+}
+
+/**
  * 设计界面的控件新增修改
  * @param params
  * @returns {AxiosPromise}
@@ -60,6 +90,18 @@ export function dynamicGetData(params) {
     url: query.DESIGN_COMPONENT_DATA_BY_TIME,
     method: 'post',
     contentType: 'json',
+    params
+  })
+}
+/**
+ * 动态获取数据
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function dynamicGetMqttData(params) {
+  return axios({
+    url: query.DESIGN_COMPONENT_DATA_BY_MQTT,
+    method: 'get',
     params
   })
 }
@@ -306,5 +348,19 @@ export function overdue(params) {
     method: 'post',
     params,
     contentType: 'form'
+  })
+}
+
+/**
+ * 通过按钮调用配置好的接口
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function btnPost(params) {
+  return axios({
+    url: query.DO_BTN_GET_METHOD,
+    method: 'post',
+    params,
+    contentType: 'json'
   })
 }

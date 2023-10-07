@@ -8,24 +8,25 @@
 <!-- 页面 -->
 <template>
   <el-popover
-      placement="bottom"
-      width="230"
-      trigger="click"
-      popper-class="userPopper"
+    placement="bottom"
+    width="230"
+    trigger="click"
+    popper-class="userPopper"
   >
     <div class="boxWrap">
       <div class="mainInfo">
         <p class="name">{{ userInfo.nickname }}</p>
-        <p class="tel"> {{ userInfo.telephone }}</p>
+        <p class="tel">{{ userInfo.telephone }}</p>
       </div>
       <div class="logout" @click="doLogout">退出登录</div>
     </div>
     <div class="box1 flex-row" slot="reference">
-      <div class="section1 flex-col" :style="getBgColor"><span class="info1">{{ getPrefix }}</span></div>
+      <div class="section1 flex-col" :style="getBgColor">
+        <span class="info1">{{ getPrefix }}</span>
+      </div>
       <span class="txt1">{{ userInfo.nickname }}</span>
     </div>
   </el-popover>
-
 </template>
 
 <script>
@@ -45,7 +46,7 @@ export default {
   computed: {
     getBgColor() {
       const colors = ['#FAB71C', '#FC8256', '#EE5E5E', '#5A80ED', '#34C7BE'];
-      const {nickname = ''} = this.userInfo;
+      const { nickname = '' } = this.userInfo;
       const len = nickname ? nickname.length : 0;
       const i = len ? len % 5 : 0;
       return {
@@ -53,9 +54,13 @@ export default {
       };
     },
     getPrefix() {
-      if (!this.userInfo.nickname) return '';
+      if (!this.userInfo.nickname) {return '';}
       const len = this.userInfo.nickname.length;
-      return cnchar.spell(this.userInfo.nickname.substring(len - 2), 'first', 'up');
+      return cnchar.spell(
+        this.userInfo.nickname.substring(len - 2),
+        'first',
+        'up'
+      );
     }
   },
 
@@ -69,9 +74,8 @@ export default {
   methods: {
     async doLogout() {
       await userLogout({});
-      localStorage.removeItem('token');
+      localStorage.removeItem('screenToken');
       await this.$router.push('/login');
-
     }
   },
   name: 'userName'
@@ -100,7 +104,7 @@ export default {
 
 .info1 {
   z-index: 41;
-  width: 13px;
+  //width: 13px;
   height: 13px;
   display: block;
   overflow-wrap: break-word;
@@ -145,7 +149,7 @@ export default {
     padding: 10px;
 
     .name {
-      color: #FFFFFF;
+      color: #ffffff;
       font-size: 16px;
       line-height: 28px;
     }
@@ -155,20 +159,18 @@ export default {
       font-size: 12px;
       line-height: 20px;
     }
-
   }
   .logout {
     height: 46px;
     text-align: center;
-    color: #FFFFFF;
+    color: #ffffff;
     line-height: 46px;
     border-top: 1px solid rgb(47, 67, 127);
     box-sizing: border-box;
     cursor: pointer;
-    &:hover{
+    &:hover {
       opacity: 0.8;
     }
   }
 }
-
 </style>

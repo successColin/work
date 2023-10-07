@@ -139,6 +139,45 @@
               </div>
             </el-collapse-item>
           </el-collapse>
+          <el-collapse >
+            <el-collapse-item name="13">
+              <template slot="title">
+                <div class="bgSettingWrap">
+                  <div class="title">行置顶</div>
+                  <div class="switchWrap">
+                    <el-switch
+                        @click.stop.native
+                        :value="getComponentInfo.enableRowTopping"
+                        @change="(value) => changeTitle(value, 'enableRowTopping')"
+                        active-color="#4689F5"
+                        inactive-color="#183472">
+                    </el-switch>
+                  </div>
+                </div>
+              </template>
+              <div v-if="getComponentInfo.enableRowTopping">
+                <div class="propsSetting">
+                  <p class="setTitle">置顶区背景色</p>
+                  <div>
+                    <c-color-picker
+                        size="small"
+                        v-model="getComponentInfo.rowToppingBg"
+                        show-alpha
+                        @change="(value) => changeTitle(value, 'rowToppingBg')"
+                        :predefine="predefineColors">
+                    </c-color-picker>
+                  </div>
+                </div>
+                <div class="propsSetting">
+                  <p class="setTitle">置顶条件配置</p>
+                  <ConditiinDetails
+                      :value="getComponentInfo.lineTopConditionConfig"
+                      @change="(value) => changeTitle(value, 'lineTopConditionConfig')"
+                  ></ConditiinDetails>
+                </div>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
         </div>
       </el-collapse-item>
       <el-collapse-item name="2">
@@ -286,6 +325,7 @@
 
 <script>
 import TextStylesConfig from '../TextStylesConfig/index';
+import ConditiinDetails from '@/components/ConditionConfig/Component/ConditionDetails/index';
 import {IsURL} from '@/utils/utils';
 import {predefineColors} from '@/constants/global'
 
@@ -332,7 +372,8 @@ export default {
   },
 
   components: {
-    TextStylesConfig
+    TextStylesConfig,
+    ConditiinDetails
   },
 
   computed: {

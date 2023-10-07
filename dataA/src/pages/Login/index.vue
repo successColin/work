@@ -22,22 +22,22 @@
         <div class="bd8 flex-col"></div>
       </div>
       <div class="bd9 flex-row">
-        <div class="main6 flex-col align-start" :class="{'focus': focus1}">
+        <div class="main6 flex-col align-start" :class="{ focus: focus1 }">
           <div class="section2 flex-row justify-between">
             <div class="layer1 flex-col justify-center align-center">
               <img
-                  class="icon1"
-                  referrerpolicy="no-referrer"
-                  :src="require('@/assets/account.svg')"
+                class="icon1"
+                referrerpolicy="no-referrer"
+                :src="require('@/assets/account.svg')"
               />
             </div>
             <!--              <span class="word1">请输入账号</span>-->
             <global-input
-                @focus="focus1=true"
-                @blur="focus1=false"
-                v-model="username"
-                class="word1"
-                placeholder="请输入账号"
+              @focus="focus1 = true"
+              @blur="focus1 = false"
+              v-model="username"
+              class="word1"
+              placeholder="请输入账号"
             ></global-input>
           </div>
         </div>
@@ -52,22 +52,22 @@
         <el-checkbox v-model="rememberMe" class="label1">记住密码</el-checkbox>
       </div>
       <div class="bd11 flex-row">
-        <div class="mod2 flex-col align-start" :class="{'focus': focus2}">
+        <div class="mod2 flex-col align-start" :class="{ focus: focus2 }">
           <div class="section3 flex-row justify-between">
             <div class="outer1 flex-col justify-center align-center">
               <img
-                  class="label2"
-                  referrerpolicy="no-referrer"
-                  :src="require('@/assets/pas.svg')"
+                class="label2"
+                referrerpolicy="no-referrer"
+                :src="require('@/assets/pas.svg')"
               />
             </div>
             <global-input
-                v-model="password"
-                class="info1"
-                placeholder="请输入密码"
-                show-password
-                @focus="focus2=true"
-                @blur="focus2=false"
+              v-model="password"
+              class="info1"
+              placeholder="请输入密码"
+              show-password
+              @focus="focus2 = true"
+              @blur="focus2 = false"
             ></global-input>
           </div>
         </div>
@@ -80,8 +80,13 @@
         <!--          >-->
         <!--            <span class="info2">登录</span>-->
         <!--          </div>-->
-        <el-button :loading="loading" :disabled="!(username&&password)" @click="doLogin" class="outer2"
-                   type="primary">登录
+        <el-button
+          :loading="loading"
+          :disabled="!(username && password)"
+          @click="doLogin"
+          class="outer2"
+          type="primary"
+          >登录
         </el-button>
       </div>
       <!--      <div class="bd13 flex-row">-->
@@ -90,12 +95,11 @@
       <span class="word3">登录</span>
       <span class="word4">Hi,欢迎登录数据分析可视化平台!</span>
     </div>
-
   </div>
 </template>
 
 <script>
-import {userLogin} from '@/services/login';
+import { userLogin } from '@/services/login';
 
 export default {
   data() {
@@ -114,7 +118,7 @@ export default {
   computed: {},
 
   mounted() {
-    localStorage.removeItem('token');
+    // localStorage.removeItem('token');
     const rememberMe = localStorage.getItem('cmVtZW1iZXJNZQ==');
     if (rememberMe && Boolean(window.atob(rememberMe))) {
       this.rememberMe = Boolean(window.atob(rememberMe));
@@ -148,7 +152,7 @@ export default {
         username: this.username,
         rememberMe: this.rememberMe,
         password: this.password
-      }
+      };
       this.loading = true;
       try {
         const res = await userLogin(params);
@@ -157,7 +161,7 @@ export default {
         if (this.rememberMe) {
           const toM = (str) => {
             return window.btoa(str);
-          }
+          };
           localStorage.setItem('cmVtZW1iZXJNZQ==', toM(this.rememberMe));
           localStorage.setItem('YQ==', toM(this.username));
           localStorage.setItem('cA==', toM(this.password));
@@ -186,7 +190,7 @@ export default {
   width: 100%;
   height: 100%;
   //background-color: rgba(1, 10, 43, 1);
-  background: url("~@/assets/gig.png") no-repeat center;
+  background: url('~@/assets/gig.png') no-repeat center;
   background-size: 100% 100%;
   overflow: hidden;
 }
@@ -265,7 +269,7 @@ export default {
   z-index: 7;
   height: 300px;
   //background: url(https://lanhu.oss-cn-beijing.aliyuncs.com/SketchPngd6d40a12ea11839823e41a590a1044b3e8e779a0983078d2df3c25210646f5cd) 100% no-repeat;
-  background: url("~@/assets/loginbg.png") no-repeat center;
+  background: url('~@/assets/loginbg.png') no-repeat center;
   width: 309px;
   position: absolute;
   //left: 565px;
@@ -349,7 +353,7 @@ export default {
   z-index: 10;
   height: 36px;
   border-radius: 2px;
-  border: 1px solid #61D8FF;
+  border: 1px solid #61d8ff;
   width: 222px;
 }
 
@@ -364,7 +368,7 @@ export default {
   z-index: 11;
   height: 36px;
   border-radius: 2px 0 0 2px;
-  border-right: 1px solid #61D8FF;
+  border-right: 1px solid #61d8ff;
   width: 38px;
 }
 
@@ -412,25 +416,25 @@ export default {
 
   ::v-deep {
     .el-checkbox__inner {
-      border: 1px solid #61D8FF;
+      border: 1px solid #61d8ff;
       background: none;
     }
 
     &.is-checked .el-checkbox__inner {
-      border-color: #61D8FF;
+      border-color: #61d8ff;
 
       &::after {
-        border-color: #61D8FF;
+        border-color: #61d8ff;
       }
     }
 
     .el-checkbox__label {
       padding-left: 5px;
-      color: #FFFFFF;
+      color: #ffffff;
     }
 
     &.is-checked > .el-checkbox__label {
-      color: #61D8FF;
+      color: #61d8ff;
     }
   }
 }
@@ -460,7 +464,7 @@ export default {
   z-index: 19;
   height: 36px;
   border-radius: 2px;
-  border: 1px solid #61D8FF;
+  border: 1px solid #61d8ff;
   width: 222px;
 }
 
@@ -474,7 +478,7 @@ export default {
   z-index: 20;
   height: 36px;
   border-radius: 2px 0 0 2px;
-  border-right: 1px solid #61D8FF;
+  border-right: 1px solid #61d8ff;
   width: 38px;
 }
 
@@ -506,11 +510,11 @@ export default {
     }
 
     .el-input__clear {
-      color: #61D8FF;
+      color: #61d8ff;
     }
 
     .el-input__clear:hover {
-      color: #61D8FF;
+      color: #61d8ff;
       opacity: 0.7;
     }
   }
@@ -528,7 +532,11 @@ export default {
   height: 36px;
   border-radius: 2px;
   background-size: 223px 36px;
-  background: linear-gradient(360deg, rgba(70, 137, 245, 1) 0%, rgba(67, 219, 255, 1) 100%);
+  background: linear-gradient(
+    360deg,
+    rgba(70, 137, 245, 1) 0%,
+    rgba(67, 219, 255, 1) 100%
+  );
   cursor: pointer;
   width: 222px;
   outline: none;
@@ -536,7 +544,11 @@ export default {
 }
 
 .outer2:hover {
-  background: linear-gradient(360deg, rgba(70, 137, 245, 0.7) 0%, rgba(67, 219, 255, 0.7) 100%);
+  background: linear-gradient(
+    360deg,
+    rgba(70, 137, 245, 0.7) 0%,
+    rgba(67, 219, 255, 0.7) 100%
+  );
 }
 
 .info2 {
@@ -608,23 +620,27 @@ export default {
   top: 244px;
   width: 300px;
   height: 318px;
-  background: url(https://lanhu.oss-cn-beijing.aliyuncs.com/SketchPng3c31f778d5d8887ba61fdd7152ac35058f07d657ece54c24187a40d10cf962e7) -1px -1px no-repeat;
+  background: url(https://lanhu.oss-cn-beijing.aliyuncs.com/SketchPng3c31f778d5d8887ba61fdd7152ac35058f07d657ece54c24187a40d10cf962e7) -1px -1px
+    no-repeat;
   background-size: 301px 320px;
 }
 
 .focus {
-  border-color: #00C0FF;
+  border-color: #00c0ff;
 
-  .layer1, .outer1 {
-    border-color: #00C0FF;
+  .layer1,
+  .outer1 {
+    border-color: #00c0ff;
   }
 }
 
-.mod2:hover, .main6:hover {
-  border-color: #00C0FF;
+.mod2:hover,
+.main6:hover {
+  border-color: #00c0ff;
 }
-.mod2:hover .outer1, .main6:hover .layer1 {
-  border-color: #00C0FF;
+.mod2:hover .outer1,
+.main6:hover .layer1 {
+  border-color: #00c0ff;
 }
 
 button {
@@ -693,5 +709,4 @@ button:active {
   display: flex;
   align-items: flex-end;
 }
-
 </style>

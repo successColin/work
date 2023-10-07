@@ -18,10 +18,14 @@
 </template>
 
 <script>
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
+
 import {returnChartPosition, getXAxisByKey} from '@/utils/utils';
 // import {supplementaryColor} from '@/utils/common';
 import {getInfoById} from '@/services/design';
 import {isEqual} from 'lodash';
+import {decrypt} from '@/utils/secret';
+
 // import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
 // 引入基本模板
 let echarts = require('echarts')
@@ -52,11 +56,7 @@ export default {
   data() {
     return {
       instance: null,
-      observer: null,
-      recordOldValue: { // 记录下旧的宽高数据，避免重复触发回调函数
-        width: '0',
-        height: '0'
-      },
+      client: null,
       supplementaryColor: [], // 补充色
       list: [],
       timer: null,
@@ -65,7 +65,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -78,9 +77,8 @@ export default {
         const { indicator, stylesObj,
           enableDimension, enableGlobalAxisLine,
           enableGlobalAxisTick, enableGlobalAxisLabel,
-          enableGlobalSplitLine,dataType, apiDataConfig,
-          enableGlobalSplitArea,enableLegend, dataConfig, customStyle = [],
-          SqlDataConfig
+          enableGlobalSplitLine,dataType,
+          enableGlobalSplitArea,enableLegend, customStyle = []
         } = this.config;
         const {
           centerX, centerY, radius, nameGap, shape, splitNumber, axisNameColor,
@@ -91,10 +89,6 @@ export default {
           legendColor, legendFontWeight, legendFontSize, legendFontFamily, dataField
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
-        if (dataType === 1) {
-          const { staticValue } = dataConfig;
-          this.list = JSON.parse(staticValue) || [];
-        }
         const seriesArr = getXAxisByKey(this.list, 'x'); // 先找出来有几个系列
         const indicatorArr = indicator.filter((item) => item.enable);
         let lastData = [];
@@ -211,7 +205,7 @@ export default {
           radar: {
             center: [`${centerX}%`, `${centerY}%`],
             radius: `${radius}%`,
-            nameGap,
+            axisNameGap: nameGap,
             splitNumber,
             shape,
             indicator: indicatorArr,
@@ -320,7 +314,7 @@ export default {
       };
     },
     initDom() {
-      const {componentId} = this.config;
+      const {componentId } = this.config;
       const domWrap = `basicPie_${componentId}${this.designType}`;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(domWrap))});
       this.fetchData();
@@ -329,11 +323,13 @@ export default {
       if (!this.instance) {
         return;
       }
-      const {dataType} = this.config;
+      const {dataType, dataConfig} = this.config;
       if (dataType === 1) {
+        const { staticValue } = dataConfig;
+        this.list = JSON.parse(staticValue) || [];
         const option = this.getOption();
         // 绘制图表
-        this.instance.myChart.setOption(option);
+        this.instance.myChart.setOption(option, true);
         // 自动轮播
         // autoToolTip(this.instance.myChart, option, {
         //   // 轮播间隔时间 默认2s
@@ -349,9 +345,7 @@ export default {
         await this.getApi();
         const option = this.getOption();
         // 绘制图表
-        this.instance.myChart.setOption(
-          option
-        );
+        this.instance.myChart.setOption(option, true);
         this.loading = false;
       }
       if (dataType === 3) {
@@ -364,7 +358,85 @@ export default {
         );
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
       // getInfoById
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) {
+        return;
+      }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.list = data;
+        this.renderChart();
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.list = result;
+        this.renderChart();
+        return;
+      }
+      this.list = data;
+      this.renderChart();
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
+    },
+    renderChart() {
+      this.instance.myChart.clear();
+      const option = this.getOption();
+      // 绘制图表
+      this.instance.myChart.setOption(option);
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -385,17 +457,12 @@ export default {
           this.timer && clearTimeout(this.timer);
           this.timer = setTimeout(async () => {
             await this.getApi();
-            this.instance.myChart.clear();
-            const option = this.getOption();
-            // 绘制图表
-            this.instance.myChart.setOption(
-              option
-            );
           }, time);
         }
         const list = JSON.parse(targetObj);
         if (!enableApiFilter) {
           this.list = list;
+          this.renderChart();
           return
         }
         if (enableApiFilter && apiFilterFun && apiDataFilterId) {
@@ -404,9 +471,11 @@ export default {
           const result = fun()(list);
           if (!(Array.isArray(result) && result.length)) {
             this.list = [];
+            this.renderChart();
             return
           }
           this.list = result;
+          this.renderChart();
         }
       }
     },
@@ -426,16 +495,11 @@ export default {
         this.timer && clearTimeout(this.timer);
         this.timer = setTimeout(async () => {
           await this.getSQL();
-          this.instance.myChart.clear();
-          const option = this.getOption();
-          // 绘制图表
-          this.instance.myChart.setOption(
-            option
-          );
         }, time);
       }
       if (!enableSQLFilter) {
         this.list = res;
+        this.renderChart();
         return
       }
       if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
@@ -444,16 +508,28 @@ export default {
         const result = fun()(res);
         if (!(Array.isArray(result) && result.length)) {
           this.list = [];
+          this.renderChart();
           return
         }
         this.list = result;
+        this.renderChart();
         return;
       }
       this.list = res;
+      this.renderChart();
     }
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

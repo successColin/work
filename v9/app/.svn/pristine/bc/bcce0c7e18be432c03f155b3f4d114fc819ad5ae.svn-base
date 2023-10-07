@@ -1,0 +1,929 @@
+<template name="mForm">
+  <view class="mForm animated fadeIn">
+    <block v-for="(element, index) in currentElements" :key="index">
+      <view
+        v-if="element.visiabled"
+        :class="{
+          splitline: element.type === 'splitLine',
+          'form-items':
+            element.type !== 'splitLine' &&
+            element.baseType !== 8 &&
+            element.baseType !== 32 &&
+            element.baseType !== 13 &&
+            showElementType.indexOf(element.baseType) !== -1,
+        }"
+      >
+				<!-- 汇总控件 -->
+				<m-summary
+				  class="item"
+				  v-if="showElement(element.baseType, [37])"
+				  :sourceType="sourceType"
+				  :element="element"
+				  :value="currentFormData | formValue(element)"
+					v-show="false"
+				  @changeValue="elementValueChang"
+				  @showRelationTab="showElementRelationTab(element)"
+				>
+				</m-summary>
+        <m-label
+          class="item"
+          v-if="showElement(element.baseType, [17])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+          @changeValue="elementValueChang"
+          @showRelationTab="showElementRelationTab(element)"
+        >
+        </m-label>
+        <m-inputLable
+          class="item"
+          v-else-if="showElement(element.baseType, [1])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+          @changeValue="elementValueChang"
+        >
+        </m-inputLable>
+        <m-textarea
+          class="item"
+          v-else-if="showElement(element.baseType, [10])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+          @changeValue="elementValueChang"
+        >
+        </m-textarea>
+        <m-searchSelect
+          class="item"
+          v-else-if="showElement(element.baseType, [3, 12, 25])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+          @select="selectSearchData(element)"
+          @selectScan="selectScan(element)"
+          @showRelationTab="showElementRelationTab(element)"
+        >
+        </m-searchSelect>
+        <m-select
+          class="item"
+          v-else-if="showElement(element.baseType, [2, 20, 21, 22])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element, 1)"
+					:color="getFontColor"
+          @select="selectData(element)"
+        >
+        </m-select>
+        <!-- 二维码 -->
+        <m-qrcode
+          class="item"
+          v-else-if="showElement(element.baseType, [50])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+        >
+        </m-qrcode>
+        <m-multiple-search-select
+          class="item"
+          v-else-if="showElement(element.baseType, [45])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+          @changeValue="elementValueChang"
+          @select="selectSearchData(element)"
+          @selectScan="selectScan(element)"
+        >
+        </m-multiple-search-select>
+        <m-radio
+          class="item"
+          v-else-if="showElement(element.baseType, [15])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element, 1)"
+          @changeValue="elementValueChang"
+        ></m-radio>
+        <block
+          v-else-if="showElement(element.baseType, [9, 31], element.dataFormat)"
+        >
+          <!-- dataFormat：1-区间-->
+          <m-datePicker-range
+            class="item"
+            v-if="element.dataFormat === 1 || element.baseType === 31"
+            :sourceType="sourceType"
+            :element="element"
+            :value="currentFormData | formValue(element, 3)"
+            @selectStart="selectData(element, 'rangeStart')"
+            @selectEnd="selectData(element, 'rangeEnd')"
+          >
+          </m-datePicker-range>
+          <m-datePicker
+            class="item"
+            v-else
+            :sourceType="sourceType"
+            :element="element"
+            :value="currentFormData | formValue(element)"
+            @select="selectData(element)"
+          >
+          </m-datePicker>
+        </block>
+        <m-image
+          v-else-if="showElement(element.baseType, [32])"
+          :sourceType="sourceType"
+          :element="element"
+          :relationId="formConfig.otherParams.id"
+					:currentFormData="currentFormData | formValue(element)"
+        >
+        </m-image>
+        <!-- 图片上传-->
+        <m-upload
+          v-else-if="showElement(element.baseType, [8, 13])"
+          :sourceType="sourceType"
+          :uploadNum="-1"
+          :element="element"
+          :base64Url="currentFormData | formValue(element)"
+          :imageConfig="imageConfig(element)"
+          :requestConfig="requestConfig(element)"
+          :relationMainTab="tabInfo.relationMainTab || tabInfo.mobileTabId"
+          :showType="element.baseType === 13 ? 'files' : 'pics'"
+          @onUpImg="upBasicData"
+          @onImgDel="delImgInfo"
+          @allImgs="elementValueChang"
+        >
+        </m-upload>
+        <m-rate
+          class="item"
+          v-else-if="showElement(element.baseType, [36])"
+          :sourceType="sourceType"
+          :element="element"
+          :size="pxToREM(48)"
+          :value="currentFormData | formValue(element)"
+          @changeValue="elementValueChang"
+        >
+        </m-rate>
+        <m-composite
+          class="item"
+          v-else-if="showElement(element.baseType, [47])"
+          :element="element"
+          :elementValue="currentFormData"
+        >
+        </m-composite>
+        <m-map
+          class="item"
+          v-else-if="showElement(element.baseType, [46])"
+          :sourceType="sourceType"
+          :element="element"
+          :value="currentFormData | formValue(element)"
+          @changeValue="elementValueChang"
+        >
+        </m-map>
+        <mni-rich
+          v-else-if="showElement(element.baseType, [39])"
+          :sourceType="sourceType"
+          :html="currentFormData | formValue(element)"
+        ></mni-rich>
+        <m-advanced-filter
+          class="advancedFilter-condition"
+          v-if="
+            sourceType === 'advancedFilter' &&
+            element.dataFormat !== 1 &&
+            element.baseType !== 31
+          "
+          :value="currentConditions | formValue(element)"
+          @select="selectData(element, 'advancedFilter')"
+        >
+        </m-advanced-filter>
+      </view>
+    </block>
+    <!-- 下拉控件 -->
+    <mpvue-picker
+      ref="selectPicker"
+      :mode="pickerMode"
+      :pickerValueDefault="selectValueDefault"
+      :pickerValueArray="selectValueArray"
+      @onConfirm="selectDataChoice"
+    />
+  </view>
+</template>
+
+<script>
+import bus from '@/static/js/bus';
+import { mapState, mapMutations } from 'vuex';
+import { commonApi } from '@/common/request/api.js';
+import { COMMON_FORMAT_DECIMAL } from '@/common/common.js';
+import formCom from './formCom.js';
+
+import mLabel from '@/components/element/m-label.vue';
+import mSummary from '@/components/element/m-summary.vue';
+import mSearchSelect from '@/components/element/m-searchSelect.vue';
+import mInputLable from '@/components/element/m-inputLable1.vue';
+import mSelect from '@/components/element/m-select.vue';
+import mRadio from '@/components/element/m-radio.vue';
+import mDatePicker from '@/components/element/m-datePicker.vue';
+import mDatePickerRange from '@/components/element/m-datePickerRange.vue';
+import mTextarea from '@/components/element/m-textarea.vue';
+import mpvuePicker from '@/components/mpvue-picker/mpvuePicker.vue';
+import mAdvancedFilter from '@/components/element/m-advancedFilter.vue';
+import mUpload from '@/components/mniUpload/MniUpload.vue';
+import mRate from '@/components/element/m-rate.vue';
+import mMap from '@/components/element/m-map.vue';
+import mImage from '@/components/element/m-image.vue';
+import mQrcode from '@/components/element/m-QRcode.vue';
+import mComposite from '@/components/element/m-composite.vue';
+import MniRich from '@/components/jyf-parser/jyf-parser.vue';
+import mMultipleSearchSelect from '@/components/element/multiple/m-multiple-searchSelect.vue';
+import { advancedFilterCondition } from '@/common/constant/constant.js';
+import EncryptionPSW from '@/static/js/encryptionPSW.js';
+let static_selectDatas = {};
+export default {
+  components: {
+    mImage,
+    mLabel,
+    mSearchSelect,
+    mInputLable,
+    mSelect,
+    mpvuePicker,
+    mDatePicker,
+    mDatePickerRange,
+    mAdvancedFilter,
+    mTextarea,
+    mUpload,
+    mRate,
+    MniRich,
+    mRadio,
+    mMap,
+    mMultipleSearchSelect,
+    mComposite,
+    mQrcode,
+		mSummary,
+  },
+  props: {
+    tabInfo: { type: Object, required: true },
+    advancedFilterConditions: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+    oldFormData: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+    tabStaticParams: {
+      type: Object,
+      default() {
+        return {};
+      },
+    }, //面板固定变量
+    formConfig: {
+      type: Object,
+      default() {
+        return {
+          baseParams: {
+            //基本参数
+            currentElements: [],
+            currentBottomBtns: [],
+            currentTopRightBtns: [],
+            currentComboBoxs: [],
+            tabElements: [],
+          },
+          otherParams: {},
+        };
+      },
+    },
+    showElementType: {
+      type: Array,
+      default: function () {
+        return [
+          1, 2, 3, 8, 9, 10, 12, 13, 15, 17, 20, 21, 22, 25, 36, 32, 39, 46, 45,
+          47, 50, 37
+        ];
+      },
+    },
+  },
+  computed: {
+    ...mapState('form', [
+      'filterSQLParams',
+      'currentBottomBtns',
+      'currentComboBoxs',
+      'filePassList',
+    ]),
+    ...mapState('common', ['tabsFormDatas', 'tabsElements']),
+    ...mapState('verificationRule', { rules: 'rules' }),
+    ...mapState(['scanningType']),
+    selectValueElement() {
+      return this.selectElement.elementId;
+    },
+    selectValueArray() {
+      const baseData = [{ value: '', label: this.$t('formTip-select') }]; // 中文："请选择数据"
+      let ary = [];
+      if (this.selectElement.static_advancedFilter)
+        ary = advancedFilterCondition;
+      else
+        ary = this.selectValueElement
+          ? static_selectDatas[this.selectValueElement] || baseData
+          : baseData;
+      return ary;
+    },
+    sourceType() {
+      return this.tabInfo.templateType || 'form';
+    },
+    imageConfig() {
+      return function (element = {}) {
+        return {
+          allImgsParam: {
+            element: element,
+            triggerBaseType: 'upImg',
+          },
+        };
+      };
+    },
+    requestConfig() {
+      return function (element = {}) {
+        let submitUrl = 'file/uploadFiles',
+          submitParam = {};
+        if (element.elementFormat === 2) {
+          submitUrl = 'file/textEditorUpload';
+        } else {
+          submitParam = EncryptionPSW({ tableName: element.relationTableName });
+        }
+
+        if (element.waterMarkId) submitParam.waterMarkId = element.waterMarkId; //是否加水印
+        return {
+          submitUrl: submitUrl,
+          submitParam: submitParam,
+          getPicParam: {
+            relationId: this.formConfig.otherParams.id,
+            relationTableName: element.relationTableName,
+            relationpriorityId: element.priorityId,
+            relationStateId: element.stateId,
+            relationTypeId: element.typeId,
+            element: element,
+          },
+        };
+      };
+    },
+		getFontColor() {
+			const arr = this.currentElements.find((item) => {
+				return item.baseType === 20
+			})
+			console.log(this.currentFormData[arr.elementId].color)
+			if (arr.elementId) {
+				return this.currentFormData[arr.elementId].color;
+			}
+			return '';
+		}
+  },
+  data() {
+    return {
+      currentElements: [],
+      currentFormData: {},
+      selectElement: '',
+      selectValueDefault: [0],
+      pickerMode: 'selector', //dateSelector-日期 datetimeSelector-时间
+      currentConditions: {},
+      fileIds: {},
+    };
+  },
+  filters: {
+    formValue(formData, element, type = 2) {
+      //type 1-显示id，2-显示name,3-返回对象
+      const { baseType, elementId } = element;
+      let value = formData[elementId] || '';
+      try {
+        value = JSON.parse(value);
+      } catch (e) {}
+      if (baseType === 45) {
+        //多选
+        let result = [];
+        const { id = '', name = '' } = value,
+          resultValue = `${id}` ? id.split(',') : [],
+          resultLabel = name.split(',');
+        for (let i = 0, len = resultValue.length; i < len; i++) {
+          let label = '';
+          if (i < resultLabel.length) label = resultLabel[i];
+          result.push({
+            value: resultValue[i],
+            label: label,
+          });
+        }
+        return result;
+      } else {
+        if (type === 1)
+          value = typeof value !== 'object' ? value : value.id || '';
+        else if (type === 3) value = value || {};
+        else value = typeof value !== 'object' ? value : value.name || '';
+        //如果字段类型为4：decimal去除后面无用的点
+        if (element.relationColumnType === 4 && value)
+          value = COMMON_FORMAT_DECIMAL(value);
+        return value;
+      }
+    },
+  },
+  methods: {
+    ...mapMutations('form', [
+      'SET_ALLBTNS',
+      'SET_FORM_OPTIONS',
+      'SET_FILEPASSLIST',
+    ]),
+    ...mapMutations('common', [
+      'SET_TABS_FORMDATAS',
+      'SET_TABS_SUBFORMDATAS',
+      'SET_TEMPLATE_PARAMS',
+      'SET_PANEL_PARAMS',
+      'SET_COM_TABCHILD',
+    ]),
+    ...mapMutations('verificationRule', ['CHECKED_FLAG', 'SET_VER_RULES']),
+    ...mapMutations('advanceFilter', ['SET_CONNECTORS']),
+    ...mapMutations(['STATE_formElementFocus']),
+    submitFormData(type = 1) {
+      const formData = this.currentFormData || {};
+      formData.static_fileIds = this.fileIds;
+      const config = {
+        triggers: this.tabInfo.trigger,
+        mobileTabId: this.tabInfo.mobileTabId,
+        otherTabId: this.tabInfo.relationMainTab,
+      };
+      if (type === 1)
+        return formCom.getFormData(this.currentElements, formData, config, this)
+          .formDatas;
+      else
+        return formCom.getFormData(
+          this.currentElements,
+          formData,
+          config,
+          this
+        );
+    },
+    verificationRule() {
+      //验证
+      const formInfo = this.submitFormData(2),
+        formData = formInfo.formDatas,
+        rules = formInfo.rules;
+      return formCom.verificationForm(
+        rules,
+        formData,
+        this.tabInfo.mobileTabId,
+        this
+      );
+    },
+    // 删除图片
+    async delImgInfo(e) {
+      if (e in this.fileIds) delete this.fileIds[e];
+    },
+    async upBasicData(e) {
+      const _this = this;
+      const uploadPics = e.uploadPics,
+        otherParam = e.getPicParam;
+      // 上传图片但未绑定的图片数组
+      let arrImg = [];
+      for (let i = 0, len = uploadPics.length; i < len; i++) {
+        try {
+          if (uploadPics[i].id != '') {
+            // 将未上传的图片信息保存到fileIds数组
+            const fileId = uploadPics[i].id;
+            this.fileIds[fileId] = {
+              typeId: otherParam.relationTypeId,
+              stateId: otherParam.relationStateId,
+              priorityId: otherParam.relationpriorityId,
+            };
+          }
+        } catch (err) {
+          console.log('上传失败...');
+        }
+      }
+    },
+    showElement(elementType, type, dataFormat) {
+      if (elementType === 9 && dataFormat === 1) elementType = 31; //如果是时间控件但数据格式是区间
+      return (
+        type.indexOf(elementType) !== -1 &&
+        this.showElementType.indexOf(elementType) !== -1
+      );
+    },
+    /**
+     * @param {Object} element 控件属性
+     * @description 数据选择框点击按钮时触发的事件，这个事件中获取控件的参数。
+     */
+    selectSearchData(element) {
+      //数据框选择
+      const { isMultiple, elementId, selectListTabId, mainColumnName } =
+        element;
+      //获取控件当前的地址，目的为了弹出面板时可以勾选之前选中的值
+      let value = this.currentFormData[elementId] || '';
+      try {
+        value = JSON.parse(value);
+      } catch (e) {}
+
+      const {
+        relationMainTab,
+        mobileTabId,
+        jumpTag,
+        bundleParams,
+        bundleId,
+        bundleName,
+      } = this.tabInfo;
+      let param = {
+        //设置下一个面板的参数
+        relationMainTab,
+        mobileTabId,
+        element,
+        jumpTag,
+        bundleParams,
+        bundleId,
+        bundleName,
+        showColumn: mainColumnName, //数据选择框弹出面板中顶部显示的字段
+        onKey: `searchSelect${mobileTabId}`,
+      };
+      if (!isMultiple)
+        param.checkId = typeof value !== 'object' ? value : value.id;
+      else {
+        //是多选,需要将外面已经选中的数据组成list装到弹出面板中
+        let result = [];
+        const { id = '', name = '' } = value,
+          resultValue = `${id}` ? id.split(',') : [],
+          resultLabel = name.split(',');
+        for (let i = 0, len = resultValue.length; i < len; i++) {
+          let label = '';
+          if (i < resultLabel.length) label = resultLabel[i];
+          result.push({
+            id: resultValue[i],
+            name: label,
+          });
+        }
+        param.checkId = id;
+        param.checkedList = result;
+      }
+      if (selectListTabId) param.selectListTabId = selectListTabId;
+      else {
+        const filterSQLTab = this.filterSQLParams[param.mobileTabId] || {},
+          filterSQLParams = filterSQLTab[element.elementId] || [];
+        param.filterSQLParams = filterSQLParams;
+        param.elementFilterParams = element.elementFilterParams;
+      }
+      formCom.selectSearchData(element, param, this);
+    },
+    //数据框扫描
+    selectScan(element) {
+      const filterSQLTab = this.filterSQLParams[this.tabInfo.mobileTabId] || {},
+        { isMultiple, elementId, elementFilterParams } = element,
+        filterSQLParams = filterSQLTab[elementId] || [];
+      let param = {
+        //设置下一个面板的参数
+        relationMainTab: this.tabInfo.relationMainTab,
+        mobileTabId: this.tabInfo.mobileTabId,
+        elementFilterParams: elementFilterParams,
+        filterSQLParams: filterSQLParams,
+      };
+      console.log('==================================================');
+      if (isMultiple) {
+        //是否多选
+        const valueObj = this.currentFormData[elementId] || {};
+        param.elementValue = valueObj.id || '';
+      }
+      console.log('==================================================2');
+      formCom.scanSearchData(element, param, this);
+    },
+    //下拉框选择
+    selectData(element = {}, type) {
+      //如果是高级筛选条件下拉框
+      if (type === 'advancedFilter') {
+        const advancedFilterValue =
+          this.currentConditions[element.elementId] || 3;
+        const index = advancedFilterCondition.findIndex(
+          (item) => item.value == advancedFilterValue
+        );
+        this.pickerMode = 'selector';
+        this.selectValueDefault = index === -1 ? [0] : [index];
+        this.selectElement = { ...element, ...{ static_advancedFilter: true } };
+        this.$refs.selectPicker.show();
+        return;
+      }
+      this.selectElement = { ...element, ...{ rangeType: type } };
+      let elementValue = this.currentFormData[element.elementId] || '';
+      //如果为时间类型
+      if (element.baseType === 9 || element.baseType === 31) {
+        const elementFormat = element.elementFormat || 1; //时间类型：1-yyyy-MM-dd hh:mm:ss 2-yyyy-MM-dd
+        this.pickerMode =
+          elementFormat === 1 ? 'datetimeSelector' : 'dateSelector';
+        if (type === 'rangeStart' && elementValue)
+          this.selectValueDefault = elementValue.start
+            ? elementValue.start.split('-')
+            : [];
+        else if (type === 'rangeEnd' && elementValue)
+          this.selectValueDefault = elementValue.end
+            ? elementValue.end.split('-')
+            : [];
+        else
+          this.selectValueDefault = elementValue.id
+            ? elementValue.id.split('-')
+            : [];
+      } else {
+        let checked = elementValue.id,
+          selectValueArray = this.selectValueArray || [];
+        //排除为0的情况
+        if (typeof checked === 'undefined' || typeof checked === 'object')
+          checked = '';
+        const checkedIndex = selectValueArray.findIndex(
+          (item) => item.value == checked
+        );
+        this.pickerMode = 'selector';
+        this.selectValueDefault = checkedIndex === -1 ? [0] : [checkedIndex];
+      }
+      this.$refs.selectPicker.show();
+    },
+    selectDataChoice(e) {
+      const elementArry = [9, 31];
+      let value = { id: e.value[0], name: e.label };
+      if (
+        elementArry.indexOf(this.selectElement.baseType) !== -1 &&
+        !this.selectElement.static_advancedFilter
+      )
+        value = e.label;
+      this.elementValueChang({
+        element: this.selectElement,
+        value: value,
+        triggerBaseType: 2,
+        static_advancedFilter: this.selectElement.static_advancedFilter,
+        rangeType: this.selectElement.rangeType,
+      });
+    },
+    jsFnc(param, jsFncList) {
+      //js触发器逻辑
+      const jsFunctionList = jsFncList[0].jsFunctionList || [],
+        jsFunctionListType =
+          jsFunctionList.length > 0 ? jsFunctionList[0].functionType : '';
+
+      param.jsFunctionList = jsFunctionList;
+      param.mobileTabId = this.tabInfo.mobileTabId;
+      if (jsFunctionListType === 1) {
+        //时间区间
+        return formCom.checkedDateRange(param, this);
+      } else if (jsFunctionListType === 2) {
+        //数字区间
+        return formCom.checkedNumberRange(param, this);
+      }
+    },
+    //控件的关联面板
+    showElementRelationTab(element) {
+      const relationTabId = element.relationTabId,
+        mobileTabsBYRelation = this.tabInfo.mobileTabs[relationTabId];
+
+      const params = {
+        mobileTabId: this.tabInfo.mobileTabId,
+        bundleId: this.tabInfo.bundleId,
+        mobileTabShowType: mobileTabsBYRelation.mobileTabShowType,
+        jumpTag: this.tabInfo.jumpTag,
+        bundleParams: this.tabInfo.bundleParams,
+        mobileTabsBYRelation,
+      };
+      formCom.elementRelationTab(element, params, this);
+    },
+    //表单控件值发生改变
+    async elementValueChang(param) {
+      if (param.static_advancedFilter) {
+        //筛选条件
+        this.advancedFilterConditions[param.element.elementId] = param.value.id;
+        return;
+      }
+      if (param.rangeType === 'rangeStart') {
+        //时间区级控件
+        this.currentFormData[param.element.elementId] = {
+          ...this.currentFormData[param.element.elementId],
+          ...{ start: param.value },
+        };
+        return;
+      } else if (param.rangeType === 'rangeEnd') {
+        this.currentFormData[param.element.elementId] = {
+          ...this.currentFormData[param.element.elementId],
+          ...{ end: param.value },
+        };
+        return;
+      }
+      //js触发器
+      const triggers = this.tabInfo.trigger[param.element.elementId] || [],
+        jsFncList =
+          triggers.filter(
+            (item) => item.basetype === 5 && item.triggerType === 4
+          ) || [];
+      if (jsFncList.length > 0 && !this.jsFnc(param, jsFncList)) {
+        //如果存在js触发器，并且js触发器器返回false不进行前端触发器
+        this.STATE_formElementFocus(false);
+        return;
+      }
+      let currentFormData = this.currentFormData,
+        selcetInfo = {};
+      const isSearchSelectById = [3, 45],
+        { triggerBaseType } = param,
+        { mainTableName, mainColumnName, baseType, elementId } = param.element;
+      if (triggerBaseType === 3 && param.value) {
+        //赋值
+        let mainColumnValue = {},
+          isMultiple = false;
+        const key = `${mainTableName}_${param.value}`;
+        if (baseType === 45) isMultiple = true; //是否是多选数据
+        await commonApi
+          .getSearchSelectById(
+            this,
+            {
+              //单条数据
+              id: param.value,
+              tabSource: mainTableName,
+            },
+            isMultiple
+          )
+          .then((value) => {
+            selcetInfo[key] = value;
+            let result = {};
+            //如果不是是多选
+            if (!isMultiple)
+              result = { id: value.id, name: value[mainColumnName] || '' };
+            else {
+              let resultLabel = [],
+                resultValue = [];
+              value.map((item) => {
+                resultValue.push(item.id);
+                resultLabel.push(item[mainColumnName] || '');
+              });
+              result = {
+                id: resultValue.join(','),
+                name: resultLabel.join(','),
+              };
+            }
+            mainColumnValue = result;
+          });
+        currentFormData[elementId] = mainColumnValue;
+      } else if (triggerBaseType === 'upImg') {
+        currentFormData[elementId] = param.value;
+        // 图片变量
+        const key = param.element.parameter;
+        if (param.element.elementFormat === 2) return;
+        if (key) {
+          let fileParams = this.filePassList || {};
+          const relationMainTab = `${this.tabInfo.mobileTabId}`;
+          // if(!fileParams[this.tabInfo.mobileTabId]) fileParams[this.tabInfo.mobileTabId] = {}
+          let fileParamsValue = fileParams[relationMainTab]
+            ? fileParams[relationMainTab]
+            : {};
+          fileParamsValue[key] = param.value;
+          fileParams[relationMainTab] = fileParamsValue;
+          this.SET_FILEPASSLIST(fileParams);
+        }
+        if (param.element.defaultValue) {
+          for (let i = 0, len = param.value.length; i < len; i++) {
+            try {
+              if (param.value[i].id != '') {
+                // 将未上传的图片信息保存到fileIds数组
+                const fileId = param.value[i].mainId || param.value[i].id;
+                this.fileIds[fileId] = {
+                  typeId: param.element.typeId,
+                  stateId: param.element.stateId,
+                  priorityId: param.element.priorityId,
+                };
+              }
+            } catch (err) {
+              console.log('上传失败...');
+            }
+          }
+        }
+      } else {
+        let data = param.value;
+        //如果不是下拉框
+        if ([2, 20, 21, 22].indexOf(baseType) === -1)
+          data = { id: param.value, name: param.value };
+        currentFormData[elementId] = data;
+      }
+      // if(param.element.parameter){
+      // 	const ele = this.currentElements.filter(item=>item.defaultValue == param.element.parameter)
+      // 	if(ele.length){
+      // 		ele.forEach(item=>{
+      // 			currentFormData[item.elementId].name = currentFormData[param.element.elementId].name
+      // 			// console.log(this.formValue(param.element))
+      // 			console.log(this.$options.filters['formValue'](param.element))
+      // 		})
+      // 	}
+      // }
+      this.SET_TABS_FORMDATAS({
+        //设置表单数据
+        tabId: this.tabInfo.mobileTabId,
+        formData: currentFormData,
+      });
+
+      const triggerConfig = {
+        eventType: triggerBaseType,
+        triggerList: this.tabInfo.trigger,
+        relationMainTab: this.tabInfo.relationMainTab,
+        mobileTabId: this.tabInfo.mobileTabId,
+        triggerElements: [param.element],
+        oldElements: this.formConfig.baseParams.tabElements,
+        currentElements: this.currentElements,
+        currentBottomBtns: this.formConfig.baseParams.currentBottomBtns || [],
+        currentTopRightBtns:
+          this.formConfig.baseParams.currentTopRightBtns || [],
+        currentComboBoxs: this.formConfig.baseParams.currentComboBoxs || [],
+        currentTabsChilds: this.formConfig.baseParams.currentTabsChilds || [],
+        formData: currentFormData,
+        oldFormData: { ...this.oldFormData },
+        searchSelectInfo: selcetInfo,
+        rules: this.rules[this.tabInfo.mobileTabId],
+        searchSelects: [],
+        selecShasCanModify: [], //是否需要重新更新
+        tabStaticParams: this.tabStaticParams, //面板固定变量
+      };
+      this.Static_GlobalFucs.formElementsTrigger(
+        { ...triggerConfig },
+        this
+      ).then((tabParams) => {
+        this.currentFormData = {
+          ...this.currentFormData,
+          ...tabParams.formData,
+        };
+        //设置按钮、下拉菜单
+        this.SET_ALLBTNS({
+          tabId: this.tabInfo.mobileTabId,
+          comboBoxs: tabParams.currentComboBoxs,
+          bottomBtns: tabParams.currentBottomBtns,
+          topRightBtns: tabParams.currentTopRightBtns,
+        });
+        this.SET_TABS_FORMDATAS({
+          //设置表单数据
+          tabId: this.tabInfo.mobileTabId,
+          formData: tabParams.formData,
+        });
+        this.SET_COM_TABCHILD({
+          //设置子面板
+          tabId: this.tabInfo.mobileTabId,
+          tabsChilds: tabParams.currentTabsChilds,
+        });
+        if (tabParams.updateElement && tabParams.updateElement.length > 0) {
+          this.$emit('childRelod', tabParams.updateElement);
+        }
+        this.SET_VER_RULES({
+          //设置校验规则
+          tabId: this.tabInfo.mobileTabId,
+          rules: tabParams.rules,
+        });
+        this.STATE_formElementFocus(false);
+      });
+    },
+  },
+  created() {
+    if (this.tabInfo.templateType === 'advancedFilter')
+      this.currentConditions = this.advancedFilterConditions;
+    this.currentFormData = { ...this.oldFormData };
+    this.currentElements = this.formConfig.baseParams.currentElements;
+    //请求下拉框数据
+    const param = {
+      dropDownList: [
+        ...this.tabInfo.cascadeSelects,
+        ...this.tabInfo.commonSelects,
+      ],
+      relationMainTab: this.tabInfo.relationMainTab,
+      mobileTabId: this.tabInfo.mobileTabId,
+      filterParams: this.tabInfo.selectsFilterParams,
+    };
+    if (param.dropDownList.length > 0) {
+      formCom.getSelectValues(param, this).then((value) => {
+        for (let key in value) {
+          let dropDownValue = value[key].map((item) => {
+            return { value: item.id, label: item.name, colorcode: item.colorcode, };
+          });
+          let static_down = [...dropDownValue];
+          static_down.unshift({ value: '', label: this.$t('formTip-select') });
+          static_selectDatas[key] = static_down;
+          this.SET_FORM_OPTIONS({
+            elementId: key,
+            options: dropDownValue,
+          });
+        }
+      });
+    }
+    //设置数据选择框监听
+    let onKey = `searchSelect${this.tabInfo.mobileTabId}`;
+    bus.$on(onKey, (params) => {
+      //获取传递的参数并进行操作
+      let param = {
+        id: params.id,
+        tabSource: params.element.mainTableName,
+      };
+      const triggerBaseType = params.triggerBaseType || 3;
+      let changeParam = {
+        element: params.element,
+        value: params.id,
+        triggerBaseType: triggerBaseType,
+      };
+      this.elementValueChang(changeParam); //赋值
+    });
+    if (this.filePassList && this.filePassList[this.tabInfo.mobileTabId]) {
+      let fileParams = this.filePassList;
+      fileParams[this.tabInfo.mobileTabId] = {};
+      this.SET_FILEPASSLIST(fileParams);
+    }
+  },
+  beforeDestroy() {
+    //注销前先解绑监听
+    let onKey = `searchSelect${this.tabInfo.mobileTabId}`;
+    bus.$off(onKey);
+  },
+};
+</script>

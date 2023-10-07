@@ -40,7 +40,7 @@
               <div>
                 <c-input
                     type="text"
-                    :maxlength="16"
+                    :maxlength="36"
                     :value="item.field"
                     @Input-Change="(value) => changeStyles(value, 'field', i, item)"/>
               </div>
@@ -54,6 +54,16 @@
                     :value="item.labelName"
                     @Input-Change="(value) => changeStyles(value, 'labelName', i, item)"/>
               </div>
+            </div>
+            <div class="propsSetting flex around">
+              <p class="setTitle">是否显示</p>
+              <el-switch
+                  @click.stop.native
+                  :value="item.isVisible"
+                  @change="(value) => changeStyles(value, 'isVisible', i, item)"
+                  active-color="#4689F5"
+                  inactive-color="#183472">
+              </el-switch>
             </div>
             <div class="propsSetting flex around">
               <p class="setTitle">值是否应用于图片</p>
@@ -91,6 +101,16 @@
                   @change="({value,key}) => changeStyles(value, `label${key}`, i, item)"
               />
               <div class="propsSetting flex around">
+                <p class="setTitle">是否允许编辑</p>
+                <el-switch
+                    @click.stop.native
+                    :value="item.isEdit"
+                    @change="(value) => changeStyles(value, 'isEdit', i, item)"
+                    active-color="#4689F5"
+                    inactive-color="#183472">
+                </el-switch>
+              </div>
+              <div class="propsSetting flex around" v-if="!item.isEdit">
                 <p class="setTitle">值是否超出省略</p>
                 <el-switch
                     @click.stop.native
@@ -100,7 +120,7 @@
                     inactive-color="#183472">
                 </el-switch>
               </div>
-              <div class="propsSetting flex around">
+              <div class="propsSetting flex around" v-if="!item.isEdit">
                 <p class="setTitle">值是否启用背景</p>
                 <el-switch
                     @click.stop.native
@@ -110,7 +130,7 @@
                     inactive-color="#183472">
                 </el-switch>
               </div>
-              <div v-if="item.isNeedBg">
+              <div v-if="item.isNeedBg && !item.isEdit">
                 <div class="propsSetting">
                   <p class="setTitle">背景颜色</p>
                   <div>
@@ -137,7 +157,7 @@
 
               </div>
             </div>
-
+            <!-- 图片配置 -->
             <div class="propsSetting" v-if="item.isApplyToPictures">
               <p class="setTitle">图片宽度</p>
               <c-input
@@ -157,6 +177,75 @@
                   :numberValue="item.imgHeight"
                   @Input-Change="(value) => changeStyles(value, 'imgHeight', i, item)"
               ></c-input>
+            </div>
+            <!-- 输入框编辑配置 -->
+            <div v-if="item.isEdit">
+              <div class="propsSetting">
+                <p class="setTitle">输入框行数</p>
+                <c-input
+                    type="number"
+                    :step="1"
+                    :min="1"
+                    :numberValue="item.editRows"
+                    @Input-Change="(value) => changeStyles(value, 'editRows', i, item)"
+                ></c-input>
+              </div>
+              <div class="propsSetting">
+                <p class="setTitle">边框颜色</p>
+                <div>
+                  <c-color-picker
+                      size="small"
+                      v-model="item.editBorderColor"
+                      show-alpha
+                      @change="(value) => changeStyles(value, 'editBorderColor', i, item)"
+                      :predefine="predefineColors">
+                  </c-color-picker>
+                </div>
+              </div>
+              <div class="propsSetting">
+                <p class="setTitle">悬浮边框颜色</p>
+                <div>
+                  <c-color-picker
+                      size="small"
+                      v-model="item.editHoverBorderColor"
+                      show-alpha
+                      @change="(value) => changeStyles(value, 'editHoverBorderColor', i, item)"
+                      :predefine="predefineColors">
+                  </c-color-picker>
+                </div>
+              </div>
+              <div class="propsSetting">
+                <p class="setTitle">边框倒角</p>
+                <c-input
+                    type="number"
+                    :step="1"
+                    :min="0"
+                    :numberValue="item.editBorderRadius"
+                    @Input-Change="(value) => changeStyles(value, 'editBorderRadius', i, item)"
+                ></c-input>
+              </div>
+              <div class="propsSetting">
+                <p class="setTitle">背景颜色</p>
+                <div>
+                  <c-color-picker
+                      size="small"
+                      v-model="item.editBgColor"
+                      show-alpha
+                      @change="(value) => changeStyles(value, 'editBgColor', i, item)"
+                      :predefine="predefineColors">
+                  </c-color-picker>
+                </div>
+              </div>
+              <TextStylesConfig
+                  title="内容样式"
+                  title1="内容字体颜色"
+                  fontFamily="微软雅黑"
+                  :fontFamilyValue="item.editFontFamily"
+                  :fontWeightValue="item.editFontWeight"
+                  :fontSizeValue="item.editFontSize"
+                  :colorValue="item.editColor"
+                  @change="({value,key}) => changeStyles(value, `edit${key}`, i, item)"
+              />
             </div>
           </div>
         </el-tab-pane>

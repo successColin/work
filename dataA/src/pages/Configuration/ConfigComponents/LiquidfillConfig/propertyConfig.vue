@@ -257,7 +257,7 @@
               <el-switch
                   @click.stop.native
                   :value="getComponentInfo.stylesObj.labelShow"
-                  @change="(value) => changeTitle(value, 'labelShow')"
+                  @change="(value) => changeStyles(value, 'labelShow')"
                   active-color="#4689F5"
                   inactive-color="#183472">
               </el-switch>

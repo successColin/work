@@ -1,0 +1,138 @@
+//prefixer
+//------------------------------------
+@mixin prefixer($property, $value, $prefixes){
+    @each $prefix in $prefixes {
+        @if $prefix == webkit and $prefix-for-webkit == true{
+            -webkit-#{$property}: $value;
+        }
+        @else if $prefix == moz and $prefix-for-mozilla == true{
+            -moz-#{$property}: $value;
+        }
+        @else if $prefix == ms and $prefix-for-microsoft == true{
+            -ms-#{$property}: $value;
+        }
+        @else if $prefix == opera and $prefix-for-opera == true{
+            -opera-#{$property}: $value;
+        }
+        @else if $prefix == spec and $prefix-for-spec == true{
+            #{$property}: $value;
+        }
+        @else {
+            @warn "Unrecognized prefix: #{$prefix}";
+        }
+    }
+}
+
+//webkit spec
+@mixin box-shadow($shadow...) { @include prefixer(box-shadow, $shadow, webkit spec); } 
+@mixin display-flex($flexconfig) { 
+    @each $key, $value in $flexconfig {
+        @if $value == flex or $value == inline-flex{
+            @include prefixer($key, $value, webkit spec);
+        }
+        @else {
+            #{$key}:$value
+        }
+    }
+} 
+@mixin display-grid($config) { 
+    @each $key, $value in $config {
+        @include prefixer($key, $value, webkit ms spec);
+    }
+}
+//box-sizing webkit moz
+@mixin box-sizing($type:border-box) { @include prefixer(box-sizing, $type, webkit moz spec); } 
+//transform webkit moz o spec
+@mixin transform($property...) { @include prefixer(transform, $property, webkit moz o spec); }
+//border-radius webkit moz spec
+@mixin border-radius($property...) { @include prefixer(border-radius, $property, webkit moz spec); }
+//appearance webkit moz spec
+@mixin appearance($property...) { @include prefixer(appearance, $property, webkit moz spec); }
+//transition: property duration timing-function delay;
+@mixin transform($property) { @include prefixer(transform, $property, webkit spec); }
+//transition: property duration timing-function delay;
+@mixin transition($property) { @include prefixer(transition, $property, webkit spec); }
+//scrollbar
+//------------------------------------
+@mixin scrollbar{
+    &::-webkit-scrollbar {
+        width: $scrollbar-w;     
+        height: $scrollbar-h;
+    }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 2px;
+        @include box-shadow($scrollbar-box-shadow...);
+        background: $scrollbar-thumbbackground;
+    }
+    &::-webkit-scrollbar-track {
+        @include box-shadow($scrollbar-box-shadow...);
+        border-radius: 0;
+        background: $scrollbar-trackbackground;
+    }
+}
+
+//buttons
+//------------------------------------
+@mixin buttons($color:#EEE,$fontcolor:#fff){
+    @if $color == #EEE {$fontcolor:#CCC}
+    background-color: $color;
+    border-color: $color;
+    color: $fontcolor;
+    &:visited{
+        color: $fontcolor;
+    }
+    &:hover,&:focus{
+        background-color: lighten($color,20%);
+        border-color: lighten($color,20%);
+        color: $fontcolor;
+    }
+    &:active{
+        background-color: darken($color,10%);
+        border-color: darken($color,10%);
+        text-shadow: 0 -1px -1px white;
+        color: darken($color,20%);
+    }
+}
+
+//iconbtns
+//------------------------------------
+@mixin iconbtns($fontcolor:#fff){
+    color: $fontcolor;
+    &:visited{
+        color: $fontcolor;
+    }
+    &:hover,&:focus{
+        color: $fontcolor;
+    }
+    &:active{
+        color: darken($fontcolor,20%);
+    }
+}
+//toolbtns
+//------------------------------------
+@mixin toolbtns($fontcolor:#fff){
+    .showInner{
+        background-color: $fontcolor;
+    }
+    .icon-content{
+        color: $fontcolor;
+        &:visited{
+            color: $fontcolor;
+        }
+        &:hover,&:focus{
+            color: $fontcolor;
+        }
+        &:active{
+            color: darken($fontcolor,20%);
+        }
+    }
+}
+
+@mixin alpha($opacity){
+    @if $opacity>1{
+        $opacity : $opacity/100;
+    }
+    $filter:$opacity*100;
+    opacity: $opacity;
+    filter: alpha(opacity=$filter);
+}

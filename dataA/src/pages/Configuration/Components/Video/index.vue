@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -41,7 +41,7 @@
         ></video>
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -83,7 +83,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -130,7 +129,7 @@ export default {
   },
   methods: {
     init() {
-      const {dataType, apiDataConfig, SqlDataConfig, stylesObj} = this.config;
+      const {dataType, apiDataConfig, SqlDataConfig, stylesObj, mqttDataConfig} = this.config;
       if (dataType === 2) {
         const {apiEffect, apiFilterResponse} = apiDataConfig
         if (apiFilterResponse === '{}') {
@@ -146,6 +145,14 @@ export default {
         const {SQLEffect, SQLFilterResponse} = SqlDataConfig
         const obj = JSON.parse(SQLFilterResponse);
         const url = obj[SQLEffect];
+        this.content = url;
+        this.handelVideoUrl(url);
+        return;
+      }
+      if (dataType === 4) {
+        const {mqttEffect, mqttFilterResponse} = mqttDataConfig
+        const obj = JSON.parse(mqttFilterResponse);
+        const url = obj[mqttEffect];
         this.content = url;
         this.handelVideoUrl(url);
         return;

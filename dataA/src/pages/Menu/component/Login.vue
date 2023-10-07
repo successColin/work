@@ -120,9 +120,9 @@ export default {
       }
       this.loading = true;
       try {
-        await userLogin(params);
+        const res = await userLogin(params);
         this.loading = false;
-        this.$emit('close');
+        this.$emit('close', res.token);
       } catch (e) {
         this.loading = false;
       }

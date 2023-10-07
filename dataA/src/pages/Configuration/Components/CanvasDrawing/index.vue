@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :isDraggable="!config.isFixed"
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
@@ -42,7 +42,7 @@
       </div>
       <canvas :id="`canvas_${config.componentId}`" :width="config.width" :height="config.height"></canvas>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -265,7 +265,7 @@ export default {
         objects.transparentCorners = false;
         this.addBlockEvent(objects);
         if (realDesignObject.backgroundImage) {
-          this.setInitZoom(realDesignObject.backgroundImage);
+          // this.setInitZoom(realDesignObject.backgroundImage);
         }
       });
     },
@@ -281,6 +281,7 @@ export default {
     initDomEvent() { // 初始化画布
       let that = this;
       that.panning = false;
+      const { enableDragging = false, enableScaling = false} = this.config;
       let mouseForm = {x: 0, y: 0},
           mouseTo = {x: 0, y: 0},
           mouseMove = {x: 0, y: 0},
@@ -311,6 +312,7 @@ export default {
           }
         },
         'mouse:move': e => {
+          if (!enableDragging) return;
           mouseMove = {x: e.e.layerX, y: e.e.layerY};
           if (!this.blockPanning && !that.drawType && this.panning && e && e.e) {
             let delta = new fabric.Point(e.e.movementX / this.scale, e.e.movementY / this.scale);
@@ -327,6 +329,7 @@ export default {
           }
         },
         'mouse:wheel': e => {
+          if (!enableScaling) return;
           let corsurPoint = new fabric.Point(e.e.layerX / this.scale, e.e.layerY / this.scale);
           let canvasZoom = that.canvasObject.getZoom();
           let scale = 1.05;
@@ -648,17 +651,46 @@ export default {
         });
       }
     },
-    setCanvasBackGround(url) { // 设置底图
+    async setCanvasBackGround(url) { // 设置底图
       if (!url) {
         delete this.canvasObject.backgroundImage;
         this.canvasObject.renderAll();
         this.changeCanvas();
         return;
       }
+      const { width: boxWidth, height: boxHeight } = this.canvasObject;
+      const { width: imgWidth, height: imgHeight } = await this.getImageWidth(url);
+      const option = this.getBackgroundImageOptions({
+        boxWidth, boxHeight, imgWidth, imgHeight
+      });
       this.canvasObject.setBackgroundImage(url, () => {
         this.canvasObject.renderAll();
         this.changeCanvas();
+      }, option);
+    },
+    getImageWidth(url) {
+      //  图片的宽高
+      const img = new Image();
+      img.src = url;
+      return new Promise((resolve) => {
+        img.onload = () => {
+          resolve({ width: img.width, height: img.height });
+        };
       });
+    },
+    getBackgroundImageOptions({ boxWidth, boxHeight, imgWidth, imgHeight }) {
+      const scaleX = boxWidth / imgWidth;
+      const scaleY = boxHeight / imgHeight;
+      // 计算通用比例
+      const realScale = scaleX >= scaleY ? scaleY : scaleX;
+      const diffWidth = boxWidth - imgWidth * realScale;
+      const diffHeight = boxHeight - imgHeight * realScale;
+      return {
+        left: diffWidth > 0 ? Math.ceil(diffWidth / 2) : 0,
+        top: diffHeight > 0 ? Math.ceil(diffHeight / 2) : 0,
+        scaleX: realScale,
+        scaleY: realScale
+      };
     },
     changeCanvas(obj = {}) { // 更新canvas配置
       const n = this.crumbsArr.length;

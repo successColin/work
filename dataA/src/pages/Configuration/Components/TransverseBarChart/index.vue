@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -82,7 +82,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -196,12 +195,14 @@ export default {
           YTickLabelColor,
           YTickLabelRotate = 0,
           XTickLabelRotate = 0,
+          showBackground = false,
+          backgroundColor = 'rgba(180, 180, 180, 0.2)',
           colorArr
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
         const cn = colorArr.length; // 颜色长度
         let supplementaryColorArr = [], YAxis, legendData = [], series = [], list = [];
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
 
         }
@@ -238,9 +239,9 @@ export default {
             name: item,
             data: data,
             type: 'bar',
-            showBackground: false,
+            showBackground,
             backgroundStyle: {
-              color: 'rgba(180, 180, 180, 0.2)'
+              color: backgroundColor
             },
             label: {
               show: enableLabel,
@@ -262,16 +263,14 @@ export default {
             },
             barWidth,
             itemStyle: {
-              normal: {
-                borderRadius: [0, borderRadius, borderRadius, 0],
-                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
-                  offset: 0,
-                  color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
-                }, {
-                  offset: 1,
-                  color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
-                }], false)
-              }
+              borderRadius: [0, borderRadius, borderRadius, 0],
+              color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                offset: 0,
+                color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
+              }, {
+                offset: 1,
+                color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
+              }], false)
             },
             barCategoryGap: interGroupSpace,
             barGap: `${innerGroupSpace}%`,
@@ -462,14 +461,14 @@ export default {
   methods: {
     renderOpt() {
       const options = this.getOption();
-      this.instance.myChart.setOption(options);
+      this.instance.myChart.setOption(options, true);
     },
     initDom() {
       const {componentId} = this.config;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

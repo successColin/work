@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :isDraggable="!config.isFixed"
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
@@ -38,7 +38,7 @@
     <div class="zoomWrap" :style="getDialog" v-if="visible">
       <div v-html="renderPointText(pointData)"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -219,27 +219,23 @@ export default {
           symbolSize,
           hoverAnimation: true,
           label: {
-            normal: {
-              formatter: function ({ data: { name, value} }) {
-                if (!labelShowType) return name;
-                if (labelShowType === 1) return name;
-                if (labelShowType === 2) return value[2];
-                if (labelShowType === 3) return '';
-                return '';
-              },
-              position: labelPosition,
-              show: enableShowLabel,
-              color: labelColor,
-              fontSize: labelSize
-            }
+            formatter: function ({ data: { name, value} }) {
+              if (!labelShowType) return name;
+              if (labelShowType === 1) return name;
+              if (labelShowType === 2) return value[2];
+              if (labelShowType === 3) return '';
+              return '';
+            },
+            position: labelPosition,
+            show: enableShowLabel,
+            color: labelColor,
+            fontSize: labelSize
           },
           itemStyle: {
-            normal: {
-              color: scatterColor,
-              shadowBlur: 10,
-              shadowColor: '#333',
-              borderColor: scatterBorderColor
-            }
+            color: scatterColor,
+            shadowBlur: 10,
+            shadowColor: '#333',
+            borderColor: scatterBorderColor
           },
           emphasis: {
             scale,
@@ -339,7 +335,6 @@ export default {
           imageHeight = 20
         } = config;
         const symbol = customUrl ? `image://${customUrl}` : 'circle';
-        console.log(shadowHorizontalOffset, shadowVerticalOffset);
         return {
           type: 'effectScatter',
           coordinateSystem: 'geo',
@@ -352,20 +347,18 @@ export default {
           symbolSize: [imageWidth, imageHeight],
           hoverAnimation: true,
           label: {
-            normal: {
-              formatter: function ({ data: { name, value} }) {
-                if (!labelShowType) return name;
-                if (labelShowType === 1) return name;
-                if (labelShowType === 2) return value[2];
-                if (labelShowType === 3) return '';
-                return '';
-              },
-              offset: [shadowHorizontalOffset, shadowVerticalOffset],
-              position: labelPosition,
-              show: enableShowLabel,
-              color: labelColor,
-              fontSize: labelSize
-            }
+            formatter: function ({ data: { name, value} }) {
+              if (!labelShowType) return name;
+              if (labelShowType === 1) return name;
+              if (labelShowType === 2) return value[2];
+              if (labelShowType === 3) return '';
+              return '';
+            },
+            offset: [shadowHorizontalOffset, shadowVerticalOffset],
+            position: labelPosition,
+            show: enableShowLabel,
+            color: labelColor,
+            fontSize: labelSize
           },
           zlevel: 2
         }
@@ -506,7 +499,7 @@ export default {
     async init() {
       const {componentId, dataType, dataConfig: { staticValue }, enableTooltip, apiDataConfig, SqlDataConfig} = this.config;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(`basicPie_${componentId}`))});
-      if (dataType === 1) {
+      if ( [1,4].includes(dataType)) {
         this.list = JSON.parse(staticValue);
       }
       if (dataType === 2) {
@@ -622,31 +615,25 @@ export default {
           roam: roam,
           zoom,
           label: {
-            normal: {
-              show: enableShow,
-              textStyle: {
-                color: textColor
-              }
-            },
-            emphasis: {
-              show: enableShow,
-              textStyle: {
-                color: highlightTextColor
-              }
-            }
+            show: enableShow,
+            color: textColor
           },
           itemStyle: {
-            normal: {
-              shadowOffsetX: shadowHorizontalOffset,
-              shadowOffsetY: shadowVerticalOffset,
-              areaColor: areaDefaultColor, // 区域颜色
-              borderColor: adminBoundaryColor, // 边界颜色
-              borderWidth: adminBoundaryBorderWidth, // 边界宽度
-              shadowBlur: adminBoundaryShadowSize, // 阴影大小
-              shadowColor: adminBoundaryShadowColor // 阴影颜色
-            },
-            emphasis: {
+            shadowOffsetX: shadowHorizontalOffset,
+            shadowOffsetY: shadowVerticalOffset,
+            areaColor: areaDefaultColor, // 区域颜色
+            borderColor: adminBoundaryColor, // 边界颜色
+            borderWidth: adminBoundaryBorderWidth, // 边界宽度
+            shadowBlur: adminBoundaryShadowSize, // 阴影大小
+            shadowColor: adminBoundaryShadowColor // 阴影颜色,
+          },
+          emphasis:{
+            itemStyle: {
               areaColor: areaHighlightColor
+            },
+            label: {
+              show: enableShow,
+              color: highlightTextColor
             }
           },
           select: {

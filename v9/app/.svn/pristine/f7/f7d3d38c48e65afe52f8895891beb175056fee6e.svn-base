@@ -1,0 +1,88 @@
+@charset "utf-8";
+.formElemets {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: solid 1px #f5f5f5;
+  &.form-upimg {
+    margin: 0 23rpx 0 30rpx;
+  }
+  .text {
+    padding: 19rpx 0;
+    font-size: $input-label-top-fontsize;
+    color: $input-label-fontcolor;
+    .requisite {
+      color: $main-color;
+      font-size: 26rpx;
+      line-height: 26rpx;
+    }
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    &.column {
+      flex-direction: column;
+    }
+    .input {
+      flex: 1;
+
+      &.hasrelationTab {
+        //如果存在弹出框，字体颜色为蓝色
+        color: $hasrelationTab-color;
+      }
+      &.placeholder {
+        color: rgba(128, 128, 128, 1);
+      }
+    }
+    input {
+      height: $input-height;
+      font-size: $input-value-fontsize;
+      color: $input-value-fontcolor;
+      letter-spacing: 0;
+      line-height: $input-height !important;
+      caret-color: #268af1;
+    }
+    .textarea {
+      flex: 1;
+      min-height: $input-height;
+      font-size: $input-value-fontsize;
+      color: $input-value-fontcolor;
+      letter-spacing: 0;
+    }
+    .radio {
+      display: flex;
+      align-items: center;
+      padding: pxToREM(20) 0;
+      font-size: pxToREM(28);
+      color: #444444;
+      font-weight: 400;
+    }
+  }
+  &.left {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    .text {
+      width: $input-label-width;
+      text-align: left;
+      flex-shrink: 0;
+      padding: pxToREM(19) 0;
+    }
+  }
+  &.inputFocus-red {
+    border-color: $main-color;
+  }
+  &.inputFocus-blue {
+    border-color: $main-color-blue;
+  }
+  &.readonly {
+    .text,
+    .input,
+    .content,
+    .textarea,
+    .radio {
+      color: $readonly-color;
+    }
+  }
+}

@@ -54,7 +54,7 @@
 <script>
 import {cloneDeep} from 'lodash';
 import Bus from '@/utils/bus';
-
+const TimeGanttChart = () => import('./Components/TimeGanttChart/index');
 const BackgroundBox = () => import('./Components/BackgroundBox/index');
 const SingleLineText = () => import('./Components/SingleLineText/index');
 const ImageBox = () => import('./Components/ImageBox/index');
@@ -87,7 +87,11 @@ const FunnelChart = () => import('./Components/FunnelChart/index');
 const Liquidfill = () => import('./Components/Liquidfill/index');
 const Sankey = () => import('./Components/Sankey/index');
 const InfoPresentation = () => import('./Components/InfoPresentation/index');
-
+const CrossSysBtn = () => import('./Components/CrossSysBtn/index');
+const Iframe = () => import('./Components/Iframe/index');
+const ThreeDComponents = () => import('./Components/ThreeDComponents/index');
+const BasicGraph = () => import('./Components/BasicGraph/index');
+const DigitalFlipper = () => import('./Components/DigitalFlipper/index');
 
 export default {
   props: {
@@ -114,6 +118,11 @@ export default {
     };
   },
   components: {
+    Iframe,
+    BasicGraph,
+    ThreeDComponents,
+    TimeGanttChart,
+    CrossSysBtn,
     FunnelChart,
     RoseChart,
     BasicMap,
@@ -122,6 +131,7 @@ export default {
     BackgroundBox,
     ImageBox,
     BasicPieChart,
+    DigitalFlipper,
     BasicBarChart,
     BasicLineChart,
     GeneralTable,
@@ -195,6 +205,7 @@ export default {
     Bus.$off('modalOpera').$on('modalOpera', ({ visible, singleConfig }) => {
       this.visible = visible;
       this.singleConfig = singleConfig;
+      console.log(singleConfig, visible);
     })
     Bus.$off('previewOpera').$on('previewOpera', ({ visible, imageFileName, imageFileUrl }) => {
       this.imageFileVisible = visible;
@@ -292,8 +303,9 @@ export default {
     setDrawContent() { //  计算画布大小
       let { width: availWidth, height: availHeight } = document.querySelector('.contentWrap').getBoundingClientRect();
       if (this.designType === 'APP') {
-        availWidth = document.querySelector('.previewDialogWrap').getBoundingClientRect().width;
-        availHeight = document.querySelector('.previewDialogWrap').getBoundingClientRect().height;
+        const previewDialogWrapConfig = document.querySelector('.previewDialogWrap').getBoundingClientRect()
+        availWidth = previewDialogWrapConfig.width;
+        availHeight = previewDialogWrapConfig.height;
       }
       const {showType, width: dWidth, height: dHeight } = this.bgConfig;
       const widthScalc = availWidth / (dWidth || 1920);

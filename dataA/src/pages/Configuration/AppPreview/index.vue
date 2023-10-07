@@ -17,7 +17,7 @@
     </div>
     <div class="qrContent">
       <div class="qrWrap">
-        <qrcode-vue :value="`${preUrl}?designTypePreview=APP`"></qrcode-vue>
+        <qrcode-vue :value="preAppUrl"></qrcode-vue>
       </div>
       <div class="qrDes">手机扫码</div>
       <div class="qrDes">预览效果</div>
@@ -47,7 +47,12 @@ export default {
     QrcodeVue
   },
 
-  computed: {},
+  computed: {
+    preAppUrl() {
+      const token = localStorage.getItem('screenToken');
+      return `${this.preUrl}?designTypePreview=APP&token=${token}`;
+    }
+  },
 
   mounted() {
   },

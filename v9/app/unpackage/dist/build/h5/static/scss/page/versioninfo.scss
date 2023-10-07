@@ -1,0 +1,92 @@
+.versioninfo{
+	&.content{
+		width: 100%;
+		background: #FAFAFA;
+	}
+	.head-logo{
+		height: pxToREM(331);
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		line-height:pxToREM(84);
+		font-size: pxToREM(42);
+	}
+	.version-logo{
+		width: pxToREM(120);
+		height: pxToREM(120);
+	}
+	.update-list{
+		width: 100%;
+		background: #fff;
+		padding: 0 pxToREM(30);
+		.version-title{
+			height: pxToREM(88);
+			line-height: pxToREM(88);
+			font-size: pxToREM(28);
+			border-bottom: 1px solid #EBEBEB;
+			span{
+				display: inline-block;
+				line-height: pxToREM(88);
+				color: #444;
+			}
+			span.upgradeTime{
+				float: right;
+				color: #808080;
+			}
+		}
+		.version-info{
+			height: pxToREM(66);
+			line-height: pxToREM(66);
+			font-size: pxToREM(28);
+		}
+		.history-version{
+			padding: pxToREM(10) 0;
+			color: #808080;
+			font-size: pxToREM(24);
+			line-height:pxToREM(40);
+		}
+	}
+	.current-version{
+		margin-bottom: pxToREM(30);
+	}
+	.update-list>p{
+		font-size:pxToREM(26);
+		color:rgba(128,128,128,1);
+		line-height:pxToREM(40);
+	}
+	.history-version-title{
+		height: pxToREM(88);
+		line-height: pxToREM(88);
+		font-size: pxToREM(28);
+		border-bottom: 1px solid #EBEBEB;
+		padding: 0 pxToREM(30);
+		background: #fff;
+		span{
+			display: inline-block;
+			line-height: pxToREM(88);
+			color: #444;
+		}
+		view.arrow-right{
+			width: pxToREM(43);
+			text-align: right;
+			float: right;
+			span{
+				width: pxToREM(14);
+				height: pxToREM(14);
+				border-top: pxToREM(2) solid #dcdcdc;
+				border-right: pxToREM(2) solid #dcdcdc;
+				border-bottom: pxToREM(2) solid transparent;
+				border-left: pxToREM(2) solid transparent;
+				transform: rotate(45deg);
+				display: inline-block;
+				vertical-align: middle;
+			}
+			span.opened{
+				transform: rotate(135deg);
+			}
+		}
+	}
+	
+}

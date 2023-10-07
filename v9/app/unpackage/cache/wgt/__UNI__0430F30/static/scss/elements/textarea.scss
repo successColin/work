@@ -1,0 +1,31 @@
+.mTextarea{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border-bottom: solid 1px #F5F5F5;
+	.text{
+		height: $textarea-label-height;
+		font-size:$input-label-fontsize;
+		color:$input-label-fontcolor;
+		line-height: $textarea-label-height;
+		.requisite{
+			color:$main-color;
+			font-size: pxToREM(36);
+			line-height:pxToREM(36);
+		}
+	} 
+	.content{
+		flex: 1;
+		font-size:$input-value-fontsize;
+		color:$input-value-fontcolor;
+	}
+	textarea.textarea{
+		flex: 1;
+		height: 200upx;
+	}
+	&.readonly{
+		.text,textarea{
+			color: $readonly-color !important;
+		}
+	}
+}

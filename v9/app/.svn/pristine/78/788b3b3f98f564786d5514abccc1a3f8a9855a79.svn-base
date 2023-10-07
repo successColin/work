@@ -1,0 +1,244 @@
+<script>
+// import { ChangePageTitle, hidddleDingDingTitle } from '@/utils/ddUtils';
+import { mapState, mapMutations } from 'vuex';
+export default {
+  methods: {
+    ...mapMutations(['SET_SCREEN_HEIGHT']),
+  },
+  onLaunch: function () {
+    // #ifdef APP-PLUS
+    plus.screen.lockOrientation('portrait-primary'); //锁定竖屏正方向
+    // #endif
+    const res = uni.getSystemInfoSync();
+    this.SET_SCREEN_HEIGHT(res.screenHeight);
+	
+	// #ifdef APP-PLUS
+	plus.push.addEventListener('click', (message) => {
+	  console.log(message, 'push click');
+	  const clent = uni.getSystemInfoSync().platform;
+	 //  if (clent === 'ios') {
+		// // 如果是IOS
+		// let { payload } = message;
+		// if (message.type !== 'click') {
+		//   // APP离线点击包含click属性，这时payload是JSON对象
+		//   payload = JSON.parse(message.payload);
+		// }
+		// if (!payload) {
+		//   uni.reLaunch({
+		// 	url: '/pages/index/index?source=messageClick&canShowNotification=1&isLink=999'
+		//   });
+		// }
+	 //  }
+	  console.log(clent, 'clent');
+	 //  if (clent === 'android') {
+		// uni.reLaunch({
+		//   url: '/pages/index/index?source=messageClick&canShowNotification=1&isLink=999'
+		// });
+	 //  }
+	  console.log(message, 'push click');
+	});
+	plus.push.addEventListener('receive', (message) => {
+	  console.log(message, 'push receive');
+	  const clent = uni.getSystemInfoSync().platform;
+	  console.log(clent, 'clent');
+	  if (clent === 'ios') {
+		// 如果是IOS
+		const { payload } = message;
+		// 【APP离线】收到消息，但没有提醒（发生在一次收到多个离线消息时，只有一个有提醒，但其他的没有提醒）
+		// 【APP在线】收到消息，不会触发系统消息,需要创建本地消息，但不能重复创建。必须加msg.type验证去除死循环
+		if (message.aps == null && message.type === 'receive') {
+		  const { title, body } = payload;
+		  // 创建本地消息,发送的本地消息也会被receive方法接收到，但没有type属性，且aps是null
+		  plus.push.createMessage(body, JSON.stringify(payload), { title });
+		}
+	  }
+	  if (clent === 'android') {
+		const { payload } = message;
+		const { title, body } = payload;
+		// 创建本地消息,发送的本地消息也会被receive方法接收到，但没有type属性，且aps是null 1
+		plus.push.createMessage(body, JSON.stringify(payload), { title });
+	  }
+	});
+	plus.push.getClientInfoAsync(
+	  (info) => {
+		const cid = info.clientid;
+		console.log(info, '1111111111111111111111')
+		uni.setStorageSync('cid', cid);
+	  },
+	  (err) => {
+		console.log(err, 'err');
+	  }
+	);
+	// #endif
+  },
+  onShow: function () {
+    console.log('App Show');
+  },
+  onHide: function () {
+    console.log('App Hide');
+  },
+  // watch: {
+  //   $route(to, from) {
+  //     ChangePageTitle();
+  // 	hidddleDingDingTitle();
+  //   },
+  // },
+};
+</script>
+
+<style>
+/* @import "colorui/main.css"; */
+@import url('static/iconfont/iconfont.css');
+@import url('static/css/animate.min.css');
+@import url('static/css/style.css');
+@import url('components/feng-parse/parse.css');
+/*每个页面公共css */
+
+/* ==================
+	        初始化
+	 ==================== */
+html {
+  font-size: 20px;
+}
+html,
+body,
+input,
+button {
+  padding: 0;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html,
+body,
+uni-page-body {
+  width: 100%;
+  min-height: 100%;
+  font-family: PingFangSC-Regular, PingFang SC;
+}
+body,
+page {
+  /* background-color: #fafafa; */
+  background-color: #f6f6f8;
+  min-height: 100%;
+  display: flex;
+  font-family: PingFangSC-Regular, PingFang SC;
+}
+view,
+scroll-view,
+swiper,
+button,
+input,
+textarea,
+label,
+navigator,
+image {
+  box-sizing: border-box;
+  font-weight: 400;
+}
+input,
+textarea {
+  user-select: text !important;
+}
+input [disabled],
+textarea [disabled] {
+  opacity: 1;
+  -webkit-text-fill-color: currentcolor;
+}
+ul,
+li {
+  padding: 0;
+  margin: 0;
+}
+li {
+  list-style-type: none;
+}
+.round {
+  border-radius: 5000upx;
+}
+
+.radius {
+  border-radius: 6upx;
+}
+
+/* 富文本框图片错乱问题，兼容小程序 */
+::v-deep {
+  .image-wrap {
+    width: 100% !important;
+  }
+}
+
+/* ==================
+	          图片
+	 ==================== */
+
+image {
+  max-width: 100%;
+  display: inline-block;
+  position: relative;
+  z-index: 0;
+}
+
+image.loading::before {
+  content: '';
+  background-color: #f5f5f5;
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+image.loading::after {
+  content: '\e7f1';
+  font-family: 'cuIcon';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32upx;
+  height: 32upx;
+  line-height: 32upx;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  font-size: 32upx;
+  margin: auto;
+  color: #ccc;
+  -webkit-animation: cuIcon-spin 2s infinite linear;
+  animation: cuIcon-spin 2s infinite linear;
+  display: block;
+}
+/*每个页面公共css */
+.app-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.content {
+  flex: 1;
+}
+.app-statusBar {
+  height: var(--status-bar-height);
+  width: 100%;
+  /* #ifndef MP */
+  background-color: #fff;
+  /* #endif */
+  /* #ifdef MP */
+  background-color: $main-color;
+  /* #endif */
+  flex-shrink: 0;
+}
+.app-statusBar .top_view {
+  height: var(--status-bar-height);
+  width: 100%;
+  position: fixed;
+  /* #ifndef MP */
+  background-color: #fff;
+  /* #endif */
+  /* #ifdef MP */
+  background-color: $main-color;
+  /* #endif */
+  top: 0;
+  z-index: 999;
+}
+</style>

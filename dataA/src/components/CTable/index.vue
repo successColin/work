@@ -335,8 +335,4 @@ export default {
     max-height: 300px;
   }
 }
-
-::v-deep {
-
-}
 </style>

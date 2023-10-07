@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -37,7 +37,7 @@
           :takeEffect="takeEffect"
       ></c-marquee>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -76,7 +76,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {

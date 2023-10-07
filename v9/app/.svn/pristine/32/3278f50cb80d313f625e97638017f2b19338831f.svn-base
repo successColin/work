@@ -1,0 +1,77 @@
+/*form*/
+.mForm{
+	margin-bottom: $button-Height;
+	background: #fff;
+	input {
+		padding: 0;
+		height:64upx;
+		font-size:32upx;
+		line-height:64upx;
+	}
+	.groupArea{
+		margin-top: 18upx;
+		padding: 0 18upx 0 20upx;
+		border-radius: 0;
+		& .form-item:last-child .input-labeltop{
+			border: none
+		}
+	}
+	.splitline{
+		height: $splitline-height;
+		background: $splitline-bgColor;
+	}
+	.button,.normalbutton{
+		position: relative;
+		display: inline-block;
+		width: $searchSelect-btnWidth;
+		height: $input-height;
+		line-height: $input-height;
+		text-align: center;
+	}
+	.button{
+		&:last-child:before{
+			position: absolute;
+			left: 0;
+			top: pxToREM(28);//($input-height(80)-38) /2
+			display: inline-block;
+			content: "";
+			width: 1px;
+			height:pxToREM(38);
+			background: #D9D9D9;
+		}
+	}
+	.form-items{
+		display: flex;
+		margin: 0 23upx 0 30upx;
+		.item{flex:1}
+		.advancedFilter-condition{
+			display: flex;
+			align-items: center; 
+			width: $searchSelect-btnWidth;
+			font-size:pxToREM(28);
+			font-family:PingFangSC-Regular,PingFang SC;
+			font-weight:400;
+			color:rgba(68,68,68,1);
+			text-align: center;
+			flex-shrink: 0;
+			border-bottom: solid 1px #F5F5F5;
+			.input{
+				position: relative;
+				height: $input-height;
+				font-family: PingFangSC-Regular,PingFang SC !important; 
+				font-size:$input-value-fontsize;
+				letter-spacing: 0; 
+				&:before{
+					position: absolute;
+					left: 0;
+					top: pxToREM(28);//($input-height(80)-38) /2
+					display: inline-block;
+					content: "";
+					width: 1px;
+					height:pxToREM(38);
+					background: #D9D9D9;
+				}
+			}
+		}
+	}
+}

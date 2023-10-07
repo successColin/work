@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "35755380",
+      "name": "导入",
+      "font_class": "daoru",
+      "unicode": "eb90",
+      "unicode_decimal": 60304
+    },
+    {
+      "icon_id": "35755381",
+      "name": "导出",
+      "font_class": "daochu",
+      "unicode": "eb91",
+      "unicode_decimal": 60305
+    },
+    {
       "icon_id": "30344472",
       "name": "更多操作",
       "font_class": "gengduocaozuo1",

@@ -12,7 +12,7 @@
          :class="{ equalWidthRatio: bgConfig.showType === 2, design:  bgConfig.showType === 4}"
          :style="getBGStyle"
     >
-      <div class="previewWrap" :style="getStylesBgUrl()">
+      <div class="previewWrap" :style="getStylesBgUrl()" :key="reFreshKey">
         <div class="contentBox">
           <component
               :transitionScaleX="transitionScaleX"
@@ -25,6 +25,7 @@
               :updateState="updateState"
               :otherParams="filterParameter"
               @handleActive="handleActive"
+              @refreshPage="refreshPage"
           ></component>
         </div>
         <CScreenBullet
@@ -91,6 +92,12 @@ const FunnelChart = () => import('@/pages/Preview/Components/FunnelChart/index')
 const Liquidfill = () => import('@/pages/Preview/Components/Liquidfill/index');
 const Sankey = () => import('@/pages/Preview/Components/Sankey/index');
 const InfoPresentation = () => import('@/pages/Preview/Components/InfoPresentation/index');
+const CrossSysBtn = () => import('@/pages/Preview/Components/CrossSysBtn/index');
+const Iframe = () => import('@/pages/Preview/Components/Iframe/index');
+const TimeGanttChart = () => import('@/pages/Preview/Components/TimeGanttChart/index');
+const ThreeDComponents = () => import('@/pages/Preview/Components/ThreeDComponents/index');
+const BasicGraph = () => import('@/pages/Preview/Components/BasicGraph/index');
+const DigitalFlipper = () => import('@/pages/Preview/Components/DigitalFlipper/index');
 
 export default {
   props: {
@@ -103,6 +110,9 @@ export default {
   },
   data() {
     return {
+      M_shareToken: '', // 每个屏幕得shareToken不一样
+      M_loginToken: '', // 每个屏幕得登录token不一样
+      reFreshKey: 0, // 强制刷新界面
       loginVisible: false, // 是否需要登录
       imageFileName: '',
       imageFileUrl: '',
@@ -123,6 +133,12 @@ export default {
 
   components: {
     Login,
+    DigitalFlipper,
+    BasicGraph,
+    ThreeDComponents,
+    TimeGanttChart,
+    Iframe,
+    CrossSysBtn,
     Liquidfill,
     FunnelChart,
     RoseChart,
@@ -160,7 +176,6 @@ export default {
   computed: {
     makeId() { // jiemi
       return function (id) {
-        console.log(id);
         return window.atob(id)
       }
     },
@@ -224,10 +239,16 @@ export default {
       if (e.data.message === 'doExport') {
         this.handleActive();
       }
+      if (e.data.message === 'refreshPage') {
+        this.refreshPage();
+      }
     }, false);
   },
 
   methods: {
+    refreshPage() { // 强制刷新界面
+      this.reFreshKey += 1;
+    },
     checkIsOverdued() { // 校验页面是否已经过期
       if (this.timer) clearTimeout(this.timer);
       this.timer = setTimeout(async () => {
@@ -240,37 +261,62 @@ export default {
         }
       }, 60 * 1000);
     },
-    async hideLogin() { // 登录成功
+    async hideLogin(token) { // 登录成功
       const {params: {id}} = this.$route;
       try {
+        await this.setLoginPagesTokenMap(token, 'loginPagesTokenMap');
         // 登录成功之后，通过这个接口到获取分享的配置信息
         const res = await overdue({screenId: this.makeId(id)});
-        // const {publish} = res;
-        if (res && typeof res === 'string') {
-          this.isShow = true;
-          this.loginVisible = false;
-          await this.init();
-        }
+        const { shareToken } = res;
+        this.isShow = true;
+        this.loginVisible = false;
+        console.log(token, 'token');
+        await this.setLoginPagesTokenMap(shareToken, 'loginPagesShareTokenMap');
+        await this.init();
       } catch (e) {
         this.isShow = false;
         this.loginVisible = true;
       }
     },
+    setLoginPagesTokenMap(token, key) { // 设置页面得登录token
+      const {params: {id}} = this.$route;
+      let loginPagesTokenMapStr = localStorage.getItem(key) || '{}';
+      let loginPagesTokenMap = JSON.parse(loginPagesTokenMapStr);
+      loginPagesTokenMap = {
+        ...loginPagesTokenMap,
+        [id]: token
+      }
+      localStorage.setItem(key, JSON.stringify(loginPagesTokenMap));
+    },
     async doCheck() { // 校验是否需要登录
       const {params: {id}} = this.$route;
       const res = await overdue({screenId: this.makeId(id)});
-      console.log(res, '        console.log(res)\n');
-
-      const {publish, code} = res;
-      if (typeof res === 'object' && publish === 4) {
-        this.isShow = false;
-        this.loginVisible = true;
-      } else if ( typeof res === 'string' && res ) {
-        localStorage.setItem('shareToken', res);
-        await this.init();
+      const {publish, code, shareToken} = res;
+      if (publish === 2) { // 停止发布
+        await this.$router.push('/expired');
       } else if ( typeof res === 'object' && code === 'SH004' ) {
         await this.$router.push('/expired');
+      } else if ( publish === 1 ) {
+        await this.setLoginPagesTokenMap(shareToken, 'loginPagesShareTokenMap');
+        await this.setLoginPagesTokenMap('', 'loginPagesTokenMap');
+        await this.init();
+      } else if (publish === 4) {
+        this.isShow = false;
+        this.loginVisible = true;
+      } else if (publish === 3) {
+        await this.setLoginPagesTokenMap(shareToken, 'loginPagesShareTokenMap');
+        await this.init();
       }
+
+      // if (typeof res === 'object' && publish === 4) {
+      //   this.isShow = false;
+      //   this.loginVisible = true;
+      // } else if ( typeof res === 'string' && res ) {
+      //   localStorage.setItem('shareToken', res);
+      //   await this.init();
+      // } else if ( typeof res === 'object' && code === 'SH004' ) {
+      //   await this.$router.push('/expired');
+      // }
       // if (publish === 3) {
       //   this.isShow = true;
       //   this.loginVisible = false;
@@ -283,7 +329,10 @@ export default {
     async init(otherParams) {
       const {params: {id}, query} = this.$route;
       const api = query.designTypePreview === 'APP' ? getDesignList : fetchComList;
-      delete query.designTypePreview;
+      if (query.token && query.designTypePreview === 'APP') {
+        localStorage.setItem('screenToken', query.token);
+      }
+      // delete query.designTypePreview;
       try {
         const data = await api({id: this.makeId(id), ...otherParams});
         const {screenDesignJson = '{}', list = []} = data;
@@ -542,7 +591,6 @@ export default {
     },
     getDataList(com) {
       let lastList = [];
-      console.log(com);
       const {list, config} = com;
       const {componentName, dataType, dataConfig: {staticValue}} = config;
       let arr = [];
@@ -605,7 +653,7 @@ export default {
       if (component) {
         config = component.config || [];
       } else {
-        const current = this.metaDataList.find((item) => item.componentName === 'DocExportBtn');
+        const current = this.metaDataList.find((item) => item.componentName === 'DocExportBtn') || {};
         config = current.config || [];
       }
       const paramsList = [];
@@ -632,13 +680,17 @@ export default {
           paramsList.push(obj);
         }
       }
+      const { id } = window.vue.$route.params;
+      const loginPagesShareTokenMapString = localStorage.getItem('loginPagesShareTokenMap');
+      const loginPagesShareTokenMap = JSON.parse(loginPagesShareTokenMapString) || {};
       await axios({
         method: 'post',
         url: `${query.DO_DOWNLOAD_DATA}`,
         data: {sheets: paramsList},
         responseType: 'blob',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
+          'Content-Type': 'application/json;charset=UTF-8',
+          shareToken: loginPagesShareTokenMap[id]
         }
       }).then((res) => {
         const blob = new Blob([res.data], {type: 'application/vnd.ms-excel'})

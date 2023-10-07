@@ -1,0 +1,310 @@
+.relationFileTab{
+	padding-bottom: $has-big-btn;
+	width: 100%;
+	height: 100%;
+	&-header{
+		position: relative;
+		width: 100%;
+		background: none;
+		.header{
+			height: pxToREM(185);
+		}
+	}
+	.backBar{
+		width: 100%;
+		height: pxToREM(125);
+	}
+	.list-search{
+		width:100%;
+		height: pxToREM(95);
+		display: flex;
+	}
+	.search-wrap{
+		width:100%;
+		height: pxToREM(88);
+		display: flex;
+		z-index: 99;
+		position: relative;
+		.search-view{
+			width: 100%;
+			input{
+				width: 100%;
+				height: 100%;
+				background: #FFFFFF;
+				padding: 0 pxToREM(30);
+			}
+		}
+		.sousuo{
+			position: absolute;
+			right:  pxToREM(50);
+			top:  pxToREM(30);
+			z-index: 11;
+		}
+	}
+	.filepath{
+		width: 100%;
+		height: pxToREM(80);
+	}
+	.path-wrap{
+		width: 100%;
+		height: pxToREM(80);
+		display: block;
+		padding: 0 pxToREM(32);
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: pxToREM(185);
+		background:#FAFAFA;
+		z-index: 100;
+		z-index: 99;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+	.path-wrap p{
+		margin-left: pxToREM(8);
+		font-size: pxToREM(28);
+		height: pxToREM(80);
+		line-height: pxToREM(80);
+		color: #333;
+		display: inline-block;
+		.m-fonticon{ 
+			display: inline-block !important;
+			margin-right: pxToREM(8);
+			.icon{
+				width: pxToREM(28);
+				display: contents;
+			}
+		}
+		&:nth-last-child(1){
+			color: #808080;
+		}
+	}
+	
+	.list-wrap{
+		width: 100%;
+		padding: 0 pxToREM(30);
+		font-size: pxToREM(28);
+		color:#9B9B9B;
+		background: #fff;
+		position: relative;
+		padding-top: pxToREM(80);
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		top: pxToREM($index-Header-Height);
+	}
+	.list-wrap>view,.fileItem{
+		width: 100%;
+		display: flex;
+		align-items:center;
+		border-bottom: 1px solid #F5F5F5;
+	}
+	.fileItem{
+		padding: pxToREM(22) 0;
+		.icon-box{
+			width: 15%;
+			image{
+				width: pxToREM(70);
+				height: pxToREM(70);
+			}
+			.m-fonticon{
+				color: #c62127;
+			}
+		}
+		.folder,.file{
+			line-height:pxToREM(46);
+			font-size: pxToREM(28);
+			height: pxToREM(98);
+			width: 70%;
+			.title{
+				width: 100%;
+				white-space:nowrap;
+			    overflow: hidden;
+			    text-overflow: ellipsis;
+			}
+		}
+		.fileSize{
+			text-align: right;
+			float: right;
+		}
+		.downloadIcon{
+			width: 15%;
+			text-align: right;
+			.xiazai{
+				width: pxToREM(30);
+				height: pxToREM(30);
+				float: right;
+			}
+		}
+		.arrow-right{
+			width: pxToREM(43);
+			text-align: right;
+			width: 15%;
+			padding-right: pxToREM(12);
+		}
+		.arrow-right span{
+			width: pxToREM(14);
+			height: pxToREM(14);
+			border-top: pxToREM(2) solid #dcdcdc;
+			border-right: pxToREM(2) solid #dcdcdc;
+			border-bottom: pxToREM(2) solid transparent;
+			border-left: pxToREM(2) solid transparent;
+			transform: rotate(45deg);
+			display: inline-block;
+			vertical-align: middle;
+		}
+	}
+	.fileicon>image{
+		width: pxToREM(74);
+		height: pxToREM(74);
+	}
+	.title{
+		color: #444444;
+	}
+	
+	
+	/* 下载文件 */
+	.downloadPro{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 1000;
+		background-color: rgba(0,0,0,.5);
+	}
+	.downloadPro.show{
+		display: block;
+	}
+	.progressBox {
+		height: 5px;
+		width: 100%;
+		position: relative;
+		background: lightgray;
+		margin: 10px 0;
+		border-radius: 2px;
+		.progressState{
+			position: absolute;
+			left: 0;
+			top: 0;
+			height: 5px;
+			background: green;
+			border-radius: 2px;
+		}
+	}
+	.downloadBox {
+		position: absolute;
+		height: 40px;
+		top: 45%;
+		left: 50%;
+		width: 220px;
+		margin-left: -110px;
+	}
+	.downloadBox p {
+		color: #fff;
+		text-align: center;
+		height: 16px;
+		line-height: 16px;
+	}
+	.abort-download{
+		width: 50%;
+		color: #333;
+		background: #DCDCDC;
+		position: absolute;
+		bottom: 20%;
+		left:50%;
+		margin-left: -25%;
+	}
+	.nodata{
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: pxToREM(308);
+	}
+	.previewVideoBox{
+		width:100%;
+		height: 100%;
+		background: rgba(0,0,0,.5);
+		position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 999;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		video{
+			width: 100%;
+		}
+		.closeVideo{
+			position: absolute;
+			top: pxToREM(80);
+			right: pxToREM(30);
+			color: #fff;
+		}
+	}
+	.previewSoundBox{
+		width:100%;
+		height: 100%;
+		background: rgba(0,0,0,.5);
+		position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 999;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		.closeSound{
+			position: absolute;
+			top: pxToREM(80);
+			right: pxToREM(30);
+			color: #fff;
+		}
+		.soundPanel{
+			width: 100%;
+			height: pxToREM(100);
+			background: #ffffff;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			
+			.currentTime,.surplusTime{
+				flex: 1;
+				text-align: center;
+			}
+			.currentTime{
+				color: #9B9B9B;
+			}
+			.progressBar{
+				flex: 4;
+				height: pxToREM(10);
+				position: relative;
+				background: #dcdcdc;
+				view{
+					height: 100%;
+					background: #FFD256;
+					position: absolute;
+					left: 0;
+					top: 0;
+					&::before{
+						content: '';
+						width: pxToREM(18);
+						height: pxToREM(18);
+						border-radius: 50%;
+						border: pxToREM(6) solid #FFD256;
+						background: #ffffff;
+						position: absolute;
+						right: - pxToREM(10);
+						top: - pxToREM(10);
+					}
+				}
+			}
+		}
+	}
+}

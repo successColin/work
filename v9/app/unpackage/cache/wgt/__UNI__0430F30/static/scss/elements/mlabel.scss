@@ -1,0 +1,50 @@
+.mLabel {
+	&.formLabel{
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		border-bottom: solid 1px #F5F5F5;
+		.text{
+			font-size:$input-label-fontsize;
+			color:$input-label-fontcolor;
+			.requisite{
+				color:$main-color;
+				font-size: pxToREM(36);
+				line-height:pxToREM(36);
+			}
+		}
+		.content{
+			flex: 1;
+			display: flex;
+			align-items: center;
+			height: $input-height;
+			font-size:$input-value-fontsize;
+			color:$input-value-fontcolor;
+			letter-spacing: 0;
+			.input{
+				width: 100%;
+				&.hasrelationTab{
+					color: $hasrelationTab-color;
+				}
+			}
+		}
+		&.left{
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			label{
+				width: $input-label-width;
+				text-align: left;
+				flex-shrink: 0;
+			}
+		}
+		&.readonly{
+			.text,.content{
+				color: $readonly-color !important;
+			}
+			.content.hasrelationTab{
+				color: $hasrelationTab-color !important;
+			}
+		}
+	}
+}

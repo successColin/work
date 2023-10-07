@@ -1,0 +1,126 @@
+.myself {
+  padding-bottom: $has-big-btn;
+  width: 100%;
+  height: 100%;
+  .bundle-list {
+    margin: 0;
+    ::v-deep {
+      .groupArea-content {
+        padding: 0 30rpx;
+      }
+    }
+  }
+  .haveStatusBar {
+    background: rgba(204, 53, 52, 1);
+  }
+  &-header {
+    position: relative;
+    width: 100%;
+    background: rgba(255, 255, 255, 1);
+    .user-info {
+      display: flex;
+      align-items: center;
+      padding: 50rpx;
+      color: #808080;
+      background: #ffffff;
+    }
+  }
+  &-content {
+    padding: 0 30rpx;
+    background: rgba(255, 255, 255, 1);
+    .user-bundle-list {
+      background: #fff;
+      border-radius: #{$main-radius}rpx;
+    }
+  }
+  .barTitle {
+    width: 100%;
+    height: #{$back-bar-Height}rpx;
+    line-height: #{$back-bar-Height}rpx;
+    color: #fff;
+    text-align: left;
+    text-indent: 30rpx;
+    font-size: 36rpx;
+    font-family: PingFangSC-Medium, PingFangSC;
+    font-weight: 500;
+    z-index: 100;
+  }
+
+  .user-bundle {
+    display: flex;
+    height: 98rpx;
+    line-height: 98rpx;
+    font-size: 30rpx;
+    position: relative;
+    color: #222222;
+  }
+  .font-icon {
+    width: 105rpx;
+    text-align: center;
+  }
+  .bundle-name {
+    flex-grow: 1;
+  }
+  .arrow-right {
+    width: 43rpx;
+    text-align: left;
+  }
+  .arrow-right span {
+    width: 14rpx;
+    height: 14rpx;
+    border-top: 2px solid #9f9f9f;
+    border-right: 2px solid #9f9f9f;
+    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
+    transform: rotate(45deg);
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .user-info > view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .user-name-text {
+    text-indent: 20rpx;
+    flex: 1;
+    overflow: hidden;
+  }
+  .user-img {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 50%;
+    margin-right: 40rpx;
+  }
+  .user-name {
+    font-size: 36rpx;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 600;
+    color: #222222;
+    line-height: 50rpx;
+  }
+  .user-wish {
+    margin-top: 6rpx;
+    font-size: 26rpx;
+    line-height: 33rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .storageInfo {
+    position: absolute;
+    right: 10%;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    color: #9b9b9b;
+    font-size: 30rpx;
+  }
+}
+.mainColor-blue {
+  .haveStatusBar {
+    background: rgba(48, 162, 255, 1);
+  }
+}

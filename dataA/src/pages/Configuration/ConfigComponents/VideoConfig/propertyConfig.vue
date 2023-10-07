@@ -49,6 +49,8 @@
             :before-upload="beforeAvatarUpload1"
             :on-success="uploadSuccess"
             :action="getUploadUrl"
+            :data="setOtherParams"
+            :headers="getUploadHeader"
             :file-list="fileList"
         >
           <el-button size="small" type="primary">点击上传</el-button>
@@ -120,6 +122,17 @@ export default {
   components: {},
 
   computed: {
+    setOtherParams() {
+      const {id} = this.$route.query;
+      return {
+        id:  window.atob(id)
+      }
+    },
+    getUploadHeader() {
+      return {
+        token: localStorage.getItem('screenToken') || ''
+      };
+    },
     getUploadUrl(){
       return `${PREFIX}/v${V}/FileController/uploadFile`;
     },

@@ -1,0 +1,61 @@
+@charset "utf-8";
+@import "./common/_function.scss";
+@import "./common/_variable.scss";
+.register{//登录
+	display: flex;
+	flex-direction: column;
+	&-item{
+		margin-top:pxToREM(28);
+		input{
+			font-size:18px !important;
+		}
+	}
+	&-content{
+		$login-content-height: pxToREM(378);//登录框高度
+		$login-content-text: pxToREM(28);//登录框lable字体大小
+		$login-content-value: pxToREM(36);//登录框输入字体大小
+		height: $login-content-height;
+		text-align: left;
+		padding: 0  pxToREM(80);
+		background:#fff;
+		& .mInput.input-label .text{
+			font-size:$login-content-text;
+			color:rgba(155,155,155,1);
+		}
+		& .input-label .uni-input-input{
+			font-size:$login-content-value !important;
+		}
+	}
+	&-header,&-foot{
+		flex-grow: 1;
+		background:#fff;
+	}
+	&-foot{
+		padding: pxToREM(98) pxToREM(60);
+	}
+	&-header{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		.registerheader-item{
+			display: flex;
+			align-items: center;
+			font-family:PingFangSC-Semibold,PingFang SC;
+			font-weight:600;
+			font-size: pxToREM(60);
+		}
+	}
+	&header-text{
+		font-family: PingFangSC;
+		font-size:pxToREM(28);
+		font-weight:400;
+		color:rgba(128,128,128,1);
+	}
+	&-content-footer{
+		color:rgba(155,155,155,1);
+	}
+	&-content-footer .remeber{
+		color:rgba(68,68,68,1);
+	}
+}

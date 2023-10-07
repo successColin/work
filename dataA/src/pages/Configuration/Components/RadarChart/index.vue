@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -84,7 +84,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -147,7 +146,7 @@ export default {
           legendColor, legendFontWeight, legendFontSize, legendFontFamily, dataField
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
-        if (dataType === 1) {
+        if ([1,4].includes(dataType)) {
           const { staticValue } = dataConfig;
           this.list = JSON.parse(staticValue) || [];
         }
@@ -279,7 +278,7 @@ export default {
           radar: {
             center: [`${centerX}%`, `${centerY}%`],
             radius: `${radius}%`,
-            nameGap,
+            axisNameGap: nameGap,
             splitNumber,
             shape,
             indicator: indicatorArr,
@@ -395,14 +394,14 @@ export default {
   methods: {
     renderOpt() {
       const options = this.getOption();
-      this.instance.myChart.setOption(options);
+      this.instance.myChart.setOption(options, true);
     },
     initDom() {
       const {componentId} = this.config;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

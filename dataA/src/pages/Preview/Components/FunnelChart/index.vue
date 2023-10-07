@@ -18,9 +18,12 @@
 </template>
 
 <script>
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import {returnChartPosition} from '@/utils/utils';
 import {getInfoById} from '@/services/design';
 import {isEqual} from 'lodash';
+import {decrypt} from '@/utils/secret';
+
 // import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
 // 引入基本模板
 let echarts = require('echarts')
@@ -51,11 +54,7 @@ export default {
   data() {
     return {
       instance: null,
-      observer: null,
-      recordOldValue: { // 记录下旧的宽高数据，避免重复触发回调函数
-        width: '0',
-        height: '0'
-      },
+      client: null,
       supplementaryColor: [], // 补充色
       list: [],
       timer: null,
@@ -64,7 +63,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -117,75 +115,6 @@ export default {
             }
           })
         }
-        // if (n > cn) { // 数据大于配置
-        //   return chartData.map((item, i) => {
-        //     const currentConfig = config[i];
-        //     if (currentConfig) {
-        //       const {
-        //         width, // 宽
-        //         height, // 高
-        //         top, // 上边距
-        //         left, // 左边距
-        //         sort, // 排序
-        //         orient, // 漏斗图朝向
-        //         funnelAlign,
-        //         gap, // 图形间距
-        //         isShowLabel, // 是否显示文本标签
-        //         labelFontFamily,
-        //         labelFontWeight,
-        //         labelFontSize,
-        //         labelColor,
-        //         labelTextAlign,
-        //         labelPosition, // 标签位置
-        //
-        //         itemBorderColor, // 图形的描边颜色
-        //         itemBorderWidth, // 图形的描边宽度
-        //         itemBorderType, // 描边类型
-        //         itemShadowBlur, // 图形阴影的模糊大小
-        //         itemShadowColor, // 阴影颜色
-        //         itemShadowOffsetX, // 阴影水平方向上的偏移距离
-        //         itemShadowOffsetY, // 阴影垂直方向上的偏移距离
-        //         opacity
-        //       } = currentConfig;
-        //       return {
-        //         ...item,
-        //         type: 'funnel',
-        //         width: `${width}%`,
-        //         height: `${height}%`,
-        //         top: `${top}%`,
-        //         left: `${left}%`,
-        //         orient,
-        //         sort,
-        //         gap,
-        //         funnelAlign,
-        //         label: {
-        //           show: isShowLabel,
-        //           position: labelPosition,
-        //           color: labelColor,
-        //           fontFamily: labelFontFamily,
-        //           fontSize: labelFontSize,
-        //           fontWeight: labelFontWeight,
-        //           align: labelTextAlign
-        //         },
-        //         itemStyle: {
-        //           borderColor: itemBorderColor,
-        //           borderWidth: itemBorderWidth,
-        //           borderType : itemBorderType,
-        //           shadowBlur: itemShadowBlur,
-        //           shadowColor: itemShadowColor,
-        //           shadowOffsetX: itemShadowOffsetX,
-        //           shadowOffsetY: itemShadowOffsetY,
-        //           opacity
-        //         }
-        //       }
-        //     }
-        //     return {
-        //       ...item,
-        //       type: 'funnel'
-        //     }
-        //   })
-        // };
-
         return chartData.map((item, i) => {
           const currentConfig = config[i];
           if (currentConfig) {
@@ -281,7 +210,7 @@ export default {
         if (dataType === 1) {
           list = JSON.parse(staticValue);
         }
-        if (dataType === 2 || dataType === 3) {
+        if ([2, 3, 4].includes(dataType)) {
           list = this.list;
         }
         const sortType = this.dataSort(list);
@@ -426,7 +355,85 @@ export default {
         this.instance.myChart.setOption(option, true);
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
       // getInfoById
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) {
+        return;
+      }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.list = data;
+        this.renderChart();
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.list = result;
+        this.renderChart();
+        return;
+      }
+      this.list = data;
+      this.renderChart();
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
+    },
+    renderChart() {
+      this.instance.myChart.clear();
+      const option = this.getOption();
+      // 绘制图表
+      this.instance.myChart.setOption(option, true);
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -447,15 +454,12 @@ export default {
           this.timer && clearTimeout(this.timer);
           this.timer = setTimeout(async () => {
             await this.getApi();
-            this.instance.myChart.clear();
-            const option = this.getOption();
-            // 绘制图表
-            this.instance.myChart.setOption(option, true);
           }, time);
         }
         const list = JSON.parse(targetObj);
         if (!enableApiFilter) {
           this.list = list;
+          this.renderChart();
           return
         }
         if (enableApiFilter && apiFilterFun && apiDataFilterId) {
@@ -464,9 +468,11 @@ export default {
           const result = fun()(list);
           if (!(Array.isArray(result) && result.length)) {
             this.list = [];
+            this.renderChart();
             return
           }
           this.list = result;
+          this.renderChart();
         }
       }
     },
@@ -486,16 +492,11 @@ export default {
         this.timer && clearTimeout(this.timer);
         this.timer = setTimeout(async () => {
           await this.getSQL();
-          this.instance.myChart.clear();
-          const option = this.getOption();
-          // 绘制图表
-          this.instance.myChart.setOption(
-            option
-          );
         }, time);
       }
       if (!enableSQLFilter) {
         this.list = res;
+        this.renderChart();
         return
       }
       if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
@@ -504,16 +505,28 @@ export default {
         const result = fun()(res);
         if (!(Array.isArray(result) && result.length)) {
           this.list = [];
+          this.renderChart();
           return
         }
         this.list = result;
+        this.renderChart();
         return;
       }
       this.list = res;
+      this.renderChart();
     }
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

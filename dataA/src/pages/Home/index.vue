@@ -4,17 +4,36 @@
     <Header></Header>
     <div class="main4">
       <div class="tabMain">
-        <div
-            class="pc tabCommon"
-            :class="{pcActive: active === 'PC'}"
-            @click="doClick('PC')"
-        >PC端看板
+        <div class="tabMainLeft">
+          <div
+              class="pc tabCommon"
+              :class="{pcActive: active === 'PC'}"
+              @click="doClick('PC')"
+          >PC端看板
+          </div>
+          <div
+              class="app tabCommon"
+              :class="{appActive: active === 'APP'}"
+              @click="doClick('APP')"
+          >移动端看板
+          </div>
         </div>
-        <div
-            class="app tabCommon"
-            :class="{appActive: active === 'APP'}"
-            @click="doClick('APP')"
-        >移动端看板
+        <div class="tabMainRight">
+          <el-upload
+              class="upload-demo"
+              :multiple="false"
+              :limit="1"
+              accept=".zip"
+              :before-upload="beforeAvatarUpload1"
+              :on-success="uploadSuccess"
+              :action="getUploadUrl"
+              :data="setOtherParams"
+              :headers="getUploadHeader"
+          >
+            <c-button>
+              <div style="display: flex;align-items: center;"><span class="iconfont icon-daochu m-r-4"></span> 导入</div>
+            </c-button>
+          </el-upload>
         </div>
       </div>
       <div class="section2 flex-row">
@@ -46,6 +65,7 @@
 <script>
 import Bus from '@/utils/bus';
 import {getViewByGroup, addView, delView, copyView, updateView, switchViewGroup} from '@/services/home';
+import {PREFIX, V} from '@/constants/config';
 // import pcActive from '@/assets/pcActive.svg';
 // import pcHover from '@/assets/pcHover.svg';
 // import normalBg from '@/assets/mnomarl.svg';
@@ -107,7 +127,46 @@ export default {
     }
   },
   watch: {},
+  computed: {
+    setOtherParams() {
+      return {
+        groupId: this.group.id
+      }
+    },
+    getUploadHeader() {
+      return {
+        token: localStorage.getItem('screenToken') || ''
+      };
+    },
+    getUploadUrl() {
+      return `${PREFIX}/v${V}/DvScreenController/importDvScreen`;
+    }
+  },
   methods: {
+    uploadSuccess(response) {
+      const { code, message} = response;
+      if (code === '00000' && message === 'SUCCESS') {
+        this.fetchViewList();
+        this.$message.success('导入成功!');
+      } else {
+        this.$message.error('导入失败!');
+      }
+    },
+    beforeAvatarUpload1(file) {
+      const {name} = file;
+      const arr = name.split('.');
+      const n = arr.length;
+      const type = arr[n - 1];
+      const isJPG = ['zip'].includes(type);
+      return new Promise((resolve, reject) => {
+        if (!isJPG) {
+          this.$message.error('只限.zip格式文件!');
+          reject(file);
+          return false
+        }
+        return resolve(file)
+      })
+    },
     doClick(type) {
       sessionStorage.setItem('homeActive', type);
       sessionStorage.removeItem('groupDataSelect');
@@ -175,7 +234,8 @@ export default {
       if (!this.list.length) {
         this.$message.error('请选择分组再创建项目!');
         return
-      };
+      }
+      ;
       this.visible = true;
     },
     async fetchViewList() { // 获取屏幕列表
@@ -246,27 +306,41 @@ export default {
 
 .main4 {
   z-index: 43;
-  height: calc(100% - 191px);
+  height: calc(100% - 200px);
   min-width: 1024px;
-  background-color: rgba(19, 30, 69, 1);
+  background-color: #131e45;
   width: calc(100% - 40px);
   justify-content: flex-end;
-  padding-bottom: 27px;
+  /* padding-bottom: 27px; */
   align-items: center;
   position: absolute;
   left: 50%;
-  top: 191px;
-  transform: translate(-50%, 0);
+  top: 180px;
+  transform: translate(-50%);
 }
 
 .tabMain {
   width: 100%;
   height: 66px;
   display: flex;
+  justify-content: space-between;
   padding-left: 20px;
   align-items: center;
   box-shadow: inset 0px -1px 0px 0px #2F437F;
   box-sizing: border-box;
+
+  .tabMainLeft {
+    display: flex;
+  }
+
+  .tabMainRight {
+    margin-right: 20px;
+    ::v-deep{
+      .el-upload-list--text{
+        display: none;
+      }
+    }
+  }
 
   .tabCommon {
     width: 154px;
@@ -284,13 +358,16 @@ export default {
     background-repeat: no-repeat;
     cursor: pointer;
   }
+
   .pc {
     background-image: url('~@/assets/pcActive.png');
   }
+
   .pcActive {
     color: #ffffff;
     background-image: url('~@/assets/pcHover.png');
   }
+
   .pc:hover {
     color: #ffffff;
     background-image: url('~@/assets/pcHover.png');
@@ -300,10 +377,12 @@ export default {
     margin-left: 10px;
     background-image: url('~@/assets/mnomarl.png');
   }
-  .appActive{
+
+  .appActive {
     color: #ffffff;
     background-image: url('~@/assets/mHover.png');
   }
+
   .app:hover {
     color: #ffffff;
     background-image: url('~@/assets/mHover.png');
@@ -313,7 +392,7 @@ export default {
 .section2 {
   z-index: auto;
   width: 100%;
-  height: calc(100% - 20px);
+  height: calc(100% - 66px);
   justify-content: space-between;
 }
 
@@ -404,6 +483,10 @@ export default {
 .flex-row {
   display: flex;
   flex-direction: row;
+}
+
+.m-r-4 {
+  margin-right: 4px;
 }
 
 </style>

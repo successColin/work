@@ -19,15 +19,17 @@
         {{ item.fieldName }}
       </div>
     </div>
+    <!-- 行不置顶 -->
     <div class="seamless-warp"
-         :style="getListScroll"
+         :style="getListScroll(true)"
+         v-if="!config.enableRowTopping"
          ref="listScroll"
     >
       <div
           class="list column-list"
           v-for="(item,i) in list"
           :key="i"
-          :style="getLiStyles(item, i)"
+          :style="getLiStyles(item, i, true)"
       >
         <div
             class="column serial"
@@ -90,16 +92,167 @@
         </div>
       </div>
     </div>
+
+    <!-- 行置顶 -->
+    <div class="seamless-warp" v-if="config.enableRowTopping" :style="getListScroll(true)" ref="listScroll">
+      <div :style="getRowToppingStyles">
+        <div
+            class="list column-list"
+            v-for="(item,i) in topListData"
+            :key="i"
+            :style="getLiStyles(item, i, false)"
+        >
+          <div
+              class="column serial"
+              v-if="config.enableSno"
+              :style="getSnoStyles(i)"
+          >{{ item.snoZ }}
+          </div>
+          <div
+              class="column column-td"
+              v-for="(column, index) in columnArr"
+              :key="`${index}_${column.fieldName}_${column.field}_${i}`"
+              :style="getListColumnStyles(column, i, item)"
+          >
+            <div
+                class="column-content"
+                v-if="!column.isApplyPicture"
+                :class="{'ellipsis': column.isEllipsis, 'unEllipsis': !column.isEllipsis}"
+            >
+              <img
+                  class="prefix"
+                  v-if="getPrefixUrl(column, item)"
+                  :src="getPrefixUrl(column, item)"
+                  :style="getPrefixStyles(column)"
+              />
+              <span
+                  :class="{'unExpress': !column.isEllipsis}"
+                  @click="doHref(column, item)"
+                  :style="getColumnContentStyles(column, item)"
+                  :title="renderValue(column, item)">
+              {{ renderValue(column, item) }}
+            </span>
+              <span
+                  class="column-iconOpe"
+                  v-if="column.interactionMode===4 && getFilesType(column, item).isShow"
+                  :style="getIconStyles(column, i, item)"
+              >
+               <el-tooltip effect="dark" content="预览" placement="top">
+                 <span
+                     class="el-icon-view"
+                     v-if="isShowView(column, item)"
+                     @click="handlePreview(column, item)"
+                 ></span>
+              </el-tooltip>
+              <el-tooltip effect="dark" content="下载" placement="top">
+                 <span class="el-icon-download" @click="handleDown(column, item)"></span>
+              </el-tooltip>
+            </span>
+            </div>
+            <div
+                class="column-images"
+                v-if="column.isApplyPicture && getImageUrl(column, item)"
+                :style="getImageStyles(column)"
+                @click="handleImagePreview(column, item)"
+            >
+              <el-image
+                  style="height: calc(100% - 18px)"
+                  :src="getImageUrl(column, item)"
+                  fit="contain"></el-image>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div
+            class="list column-list"
+            v-for="(item,i) in list"
+            :key="`${item.snoZ}_${i}`"
+            :style="getLiStyles(item, i, true)"
+        >
+          <div
+              class="column serial"
+              v-if="config.enableSno"
+              :style="getSnoStyles(i)"
+          >{{ item.snoZ }}
+          </div>
+          <div
+              class="column column-td"
+              v-for="(column, index) in columnArr"
+              :key="`${index}_${column.fieldName}_${column.field}_${i}`"
+              :style="getListColumnStyles(column, i, item)"
+          >
+            <div
+                class="column-content"
+                v-if="!column.isApplyPicture"
+                :class="{'ellipsis': column.isEllipsis, 'unEllipsis': !column.isEllipsis}"
+            >
+              <img
+                  class="prefix"
+                  v-if="getPrefixUrl(column, item)"
+                  :src="getPrefixUrl(column, item)"
+                  :style="getPrefixStyles(column)"
+              />
+              <span
+                  :class="{'unExpress': !column.isEllipsis}"
+                  @click="doHref(column, item)"
+                  :style="getColumnContentStyles(column, item)"
+                  :title="renderValue(column, item)">
+              {{ renderValue(column, item) }}
+            </span>
+              <span
+                  class="column-iconOpe"
+                  v-if="column.interactionMode===4 && getFilesType(column, item).isShow"
+                  :style="getIconStyles(column, i, item)"
+              >
+               <el-tooltip effect="dark" content="预览" placement="top">
+                 <span
+                     class="el-icon-view"
+                     v-if="isShowView(column, item)"
+                     @click="handlePreview(column, item)"
+                 ></span>
+              </el-tooltip>
+              <el-tooltip effect="dark" content="下载" placement="top">
+                 <span class="el-icon-download" @click="handleDown(column, item)"></span>
+              </el-tooltip>
+            </span>
+            </div>
+            <div
+                class="column-images"
+                v-if="column.isApplyPicture && getImageUrl(column, item)"
+                :style="getImageStyles(column)"
+                @click="handleImagePreview(column, item)"
+            >
+              <el-image
+                  style="height: calc(100% - 18px)"
+                  :src="getImageUrl(column, item)"
+                  fit="contain"></el-image>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>
 
 <script>
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import {getInfoById} from '@/services/design';
-import {validConditions} from '@/utils/common';
+import {checkDetials, validConditions} from '@/utils/common';
 import {getBlob, saveAs} from '@/utils/utils';
-import {isEqual} from 'lodash';
+import {isEqual, cloneDeep} from 'lodash';
 import Bus from '@/utils/bus';
+import {decrypt} from '@/utils/secret';
 
+const setSnoZ = (list = []) => {
+  return list.map((item, index) => {
+    return {
+      ...item,
+      snoZ: index + 1
+    }
+  })
+}
 export default {
   props: {
     config: {
@@ -129,6 +282,7 @@ export default {
   },
   data() {
     return {
+      client: null,
       imageFileUrl: '',
       imageFileName: '',
       list: [],
@@ -139,13 +293,24 @@ export default {
       timerSql: null,
       timerApi: null,
       otherTimer: null,
-      loading: false
+      loading: false,
+      loopArr: [], // 显示区域的数据
+      topListData: [] // 置顶的数据
     };
   },
 
   components: {},
 
   computed: {
+    getRowToppingStyles() {
+      const {rowToppingBg} = this.config;
+      if (rowToppingBg) {
+        return {
+          backgroundColor: rowToppingBg
+        }
+      }
+      return ''
+    },
     columnArr() {
       const {columnConfig = []} = this.config;
       return columnConfig;
@@ -168,7 +333,9 @@ export default {
         }
         const reg = /(http|https):\/\/([\w.]+\/?)\S*/ig;
         const result = url.match(reg);
-        if (!result) {return {isShow: false};}
+        if (!result) {
+          return {isShow: false};
+        }
         const newUrl = result[0] || '';
         if (!newUrl) {
           return {isShow: false};
@@ -278,16 +445,19 @@ export default {
       }
     },
     getListScroll() {
-      const {
-        stylesObj: {
-          theadHeight,
-          loop
-        },
-        enableHeader
-      } = this.config;
-      const height = enableHeader ? 100 - theadHeight : 100;
-      const overflow = loop ? 'hidden' : 'auto';
-      return `height:${height}%;overflow:${overflow};`
+      return function (flag = false) {
+        const {
+          stylesObj: {
+            theadHeight,
+            loop
+          },
+          enableHeader
+        } = this.config;
+        const height = enableHeader ? 100 - theadHeight : 100;
+        const overflow = loop ? 'hidden' : 'auto';
+        if (flag) return `height:${height}%;overflow:${overflow};`
+        return `height:${height}%;`
+      }
     },
     getTheadStyles() {
       const {
@@ -306,10 +476,10 @@ export default {
     getTheadTotalWidth() { // 获取列表宽总宽度
       const columnArr = this.columnArr;
       let total = columnArr.reduce((pre, current) => {
-        const { fieldWidth } = current;
+        const {fieldWidth} = current;
         return pre + fieldWidth;
       }, 0);
-      const { width } = this.config;
+      const {width} = this.config;
       const realWidth = width * this.scale;
       return {
         realWidth,
@@ -318,17 +488,17 @@ export default {
     },
     getColumnWidth() { // 获取每个格子的宽度
       return function (cw) {
-        const { realWidth, total } = this.getTheadTotalWidth;
-        const { enableSno } = this.config;
+        const {realWidth, total} = this.getTheadTotalWidth;
+        const {enableSno} = this.config;
         if (!enableSno) {
           return cw / total * realWidth / this.scale;
         }
-        return cw / total * ( (realWidth - 50) / this.scale);
+        return cw / total * ((realWidth - 50) / this.scale);
       };
     },
     getColumnStyles() {
       return function (obj) {
-        const { fieldWidth } = obj;
+        const {fieldWidth} = obj;
         const {
           stylesObj: {
             theadFontFamily,
@@ -352,10 +522,14 @@ export default {
       return function (column, item) {
         const {field} = column;
         const value = item[field] || '';
-        if (!value) {return '';}
+        if (!value) {
+          return '';
+        }
         const reg = /(http|https):\/\/([\w.]+\/?)\S*/ig;
         const result = value.match(reg);
-        if (!result) {return '';}
+        if (!result) {
+          return '';
+        }
         return result[0] || '';
       }
     },
@@ -389,10 +563,12 @@ export default {
       }
     },
     getLiStyles() {
-      return function ({snoZ}, i) {
+      return function ({snoZ}, i, flag) {
         const retust = snoZ % 2;
         const {
           enableLinesHighlighted,
+          enableRowTopping,
+          rowToppingBg,
           stylesObj: {
             oddBgColor,
             evenBgColor,
@@ -409,12 +585,12 @@ export default {
           }
         } = this.config;
         const height = this.height / rows / this.scale;
-        let highLightStyles = '', speHighlightArr;
+        let highLightStyles = '', speHighlightArr = [];
         let bg = '';
         if (speHighlight) {
           speHighlightArr = speHighlight.split(',');
         }
-        if (enableLinesHighlighted && autoHighlight && loop && animationTypes === 2 && i === 0 && this.list.length > rows) {
+        if (flag && enableLinesHighlighted && autoHighlight && loop && animationTypes === 2 && i === 0 && this.list.length > rows) {
           bg = `background-color:${highlightBgColor} !important;`;
           highLightStyles = `color: ${highlightColor} !important;fontSize:${highlightFontSize}px;fontWeight:${highlightFontWeight};fontFamily:${highlightFontFamily};`;
         } else if (speHighlightArr.length && !autoHighlight && speHighlightArr.includes(`${snoZ}`)) {
@@ -423,7 +599,14 @@ export default {
         } else {
           bg = `background-color:${retust === 1 ? oddBgColor : evenBgColor} !important;`;
         }
-        const styles = `${bg}height:${height}px;transform: translateY(-${this.transactionY}px);${highLightStyles};`;
+        let styles = `${bg}height:${height}px;${highLightStyles};`;
+        if (flag ) {
+          styles += `transform: translateY(-${this.transactionY}px);`;
+        } else if (!flag && rowToppingBg && enableRowTopping) {
+          styles += `position: relative;zIndex: 1;background-color:${rowToppingBg}`;
+        } else if (enableRowTopping && !flag && !rowToppingBg) {
+          styles += 'position: relative;zIndex: 1;';
+        }
         return this.transactionY ? `${styles}transition: transform 500ms ease-in 0.5s;` : `${styles}`;
       }
     },
@@ -469,19 +652,19 @@ export default {
     },
     getColumnContentStyles() {
       return function (column, data) {
-        const {bulletUrl, interactionMode, url, fieldBgColor,
+        const {
+          bulletUrl, interactionMode, url,
+          fieldBgColor,
           fieldFontFamily,
           fieldFontWeight,
-          fieldFontSize,
-          fieldColor
+          fieldFontSize
         } = column;
         const color = this.getColor(column, data, 'fieldRelBgColor');
         const relColor = color || fieldBgColor;
         const styleObj = {
           fontFamily: fieldFontFamily,
           fontWeight: fieldFontWeight,
-          fontSize: `${fieldFontSize}px`,
-          color: fieldColor
+          fontSize: `${fieldFontSize}px`
         }
         let obj = relColor ? {
           ...styleObj,
@@ -511,7 +694,7 @@ export default {
       deep: true,
       handler(v) {
         if (v) {
-          this.list = JSON.parse(JSON.stringify(this.originList));
+          this.list = cloneDeep(this.originList);
         }
       }
     },
@@ -529,7 +712,7 @@ export default {
           if (this.timer) {
             clearTimeout(this.timer);
           }
-          this.list = JSON.parse(JSON.stringify(this.originList));
+          this.list = cloneDeep(this.originList);
         }
       }
     },
@@ -545,7 +728,7 @@ export default {
     },
     otherParams: {
       deep: true,
-      immediate: true,
+      immediate: false,
       handler(v, o) {
         const params = this.getParameters();
         const {isShow} = this.config;
@@ -602,9 +785,13 @@ export default {
       })
     },
     doHref(config, obj) { // 跳转菜单
-      if (this.type === 'design') {return;}
+      if (this.type === 'design') {
+        return;
+      }
       const {bulletHeight, bulletWidth, bulletUrl, callbackFields, interactionMode, url, enableOpenNewWindow} = config;
-      if (interactionMode === 1) {return;}
+      if (interactionMode === 1) {
+        return;
+      }
       let urlSplit = [];
       if (callbackFields) { //  回调参数
         const fields = callbackFields.split(',');
@@ -676,22 +863,35 @@ export default {
         varJson: JSON.stringify(arr)
       };
     },
+    makeTopListData(arr) {
+      const {
+        lineTopConditionConfig = {}
+      } = this.config;
+      let loopList = []; // 需要滚动的数据
+      let topDataList = []; // 需要置顶的数据
+      const n = arr.length;
+      for (let i = 0; i < n; i++) {
+        const data = arr[i];
+        const flag = checkDetials(lineTopConditionConfig, data);
+        flag ? topDataList.push(data) : loopList.push(data);
+      }
+      return {
+        loopList,
+        topDataList
+      }
+    },
     async init() {
       const {
-        dataType, dataConfig: {
+        dataType,
+        enableRowTopping = false,
+        lineTopConditionConfig = {},
+        dataConfig: {
           staticValue = '[]'
         },
         apiDataConfig,
+        mqttDataConfig,
         SqlDataConfig
       } = this.config;
-      const setSnoZ = (list = []) => {
-        return list.map((item, index) => {
-          return {
-            ...item,
-            snoZ: index + 1
-          }
-        })
-      }
       if (this.type === 'design' && dataType !== 1) {
         let list, arr;
         if (dataType === 2) {
@@ -708,14 +908,38 @@ export default {
             list = [];
           }
         }
+        if (dataType === 4) {
+          const { mqttFilterResponse} = mqttDataConfig
+          list = JSON.parse(mqttFilterResponse);
+          if (!(Array.isArray(list) && list.length)) {
+            list = [];
+          }
+        }
+
         arr = setSnoZ(list);
-        this.list = JSON.parse(JSON.stringify(arr));
-        this.originList = JSON.parse(JSON.stringify(arr));
+        if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+          const {loopList, topDataList} = this.makeTopListData(arr);
+          this.list = cloneDeep(loopList);
+          this.originList = cloneDeep(loopList);
+          this.topListData = topDataList;
+        } else {
+          this.list = cloneDeep(arr);
+          this.originList = cloneDeep(arr);
+        }
       } else if (dataType === 1) {
         let list = JSON.parse(staticValue);
         let arr = setSnoZ(list);
-        this.list = JSON.parse(JSON.stringify(arr));
-        this.originList = JSON.parse(JSON.stringify(arr));
+
+        if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+          const {loopList, topDataList} = this.makeTopListData(arr);
+          this.list = cloneDeep(loopList);
+          this.originList = cloneDeep(loopList);
+          this.topListData = topDataList;
+
+        } else {
+          this.list = cloneDeep(arr);
+          this.originList = cloneDeep(arr);
+        }
       } else {
         if (dataType === 2) {
           this.loading = true;
@@ -727,6 +951,12 @@ export default {
           await this.getSQL();
           this.loading = false;
         }
+        if (dataType === 4) {
+          this.loading = true;
+          console.log(1111)
+          await this.initMqtt()
+          this.loading = false;
+        }
       }
       this.$nextTick(() => {
         if (this.$refs.listScroll) {
@@ -736,18 +966,123 @@ export default {
         }
       })
     },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) return;
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        console.log(u);
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(res) {
+      const {
+        enableRowTopping = false,
+        lineTopConditionConfig = {},
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttDataFilterId,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        if (Array.isArray(res) && res.length) {
+          const arr = setSnoZ(res);
+          if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+            const {loopList, topDataList} = this.makeTopListData(arr);
+            this.list = cloneDeep(loopList);
+            this.originList = cloneDeep(loopList);
+            this.topListData = topDataList;
+          } else {
+            this.list = cloneDeep(arr);
+            this.originList = cloneDeep(arr);
+          }
+          // this.list = JSON.parse(JSON.stringify(arr));
+          // this.originList = JSON.parse(JSON.stringify(arr));
+          return;
+        }
+        this.list = res;
+        this.originList = res;
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun && mqttDataFilterId) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(res);
+        const arr = setSnoZ(result);
+        // eslint-disable-next-line no-new-func
+        if (Array.isArray(result) && result.length) {
+          if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+            const {loopList, topDataList} = this.makeTopListData(arr);
+            this.list = cloneDeep(loopList);
+            this.originList = cloneDeep(loopList);
+            this.topListData = topDataList;
+
+          } else {
+            this.list = cloneDeep(arr);
+            this.originList = cloneDeep(arr);
+          }
+          return;
+        }
+        if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+          const {loopList, topDataList} = this.makeTopListData(arr);
+          this.list = cloneDeep(loopList);
+          this.originList = cloneDeep(loopList);
+          this.topListData = topDataList;
+
+        } else {
+          this.list = cloneDeep(arr);
+          this.originList = cloneDeep(arr);
+        }
+        return;
+      }
+      const arr = setSnoZ(res);
+      if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+        const {loopList, topDataList} = this.makeTopListData(arr);
+        this.list = cloneDeep(loopList);
+        this.originList = cloneDeep(loopList);
+        this.topListData = topDataList;
+
+      } else {
+        this.list = cloneDeep(arr);
+        this.originList = cloneDeep(arr);
+      }
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
+    },
     async getApi() {
-      const {apiDataConfig} = this.config;
+      const {apiDataConfig, enableRowTopping = false, lineTopConditionConfig = {}} = this.config;
       const params = this.getParameters();
       const res = await getInfoById(params) || [];
-      const setSnoZ = (list = []) => {
-        return list.map((item, index) => {
-          return {
-            ...item,
-            snoZ: index + 1
-          }
-        })
-      }
       if (res.length) {
         const obj = res[0] || {};
         const targetObj = obj.response || '{}';
@@ -767,8 +1102,15 @@ export default {
         }
 
         if (!enableApiFilter) {
-          this.list = JSON.parse(targetObj);
-          this.originList = JSON.parse(JSON.stringify(targetObj));
+          if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+            const {loopList, topDataList} = this.makeTopListData(targetObj);
+            this.list = cloneDeep(loopList);
+            this.originList = cloneDeep(loopList);
+            this.topListData = topDataList;
+          } else {
+            this.list = cloneDeep(targetObj);
+            this.originList = cloneDeep(targetObj);
+          }
           return
         }
         if (enableApiFilter && apiFilterFun && apiDataFilterId) {
@@ -777,20 +1119,28 @@ export default {
           const result = fun()(JSON.parse(targetObj));
           if (Array.isArray(result) && result.length) {
             const arr = setSnoZ(result);
-            this.list = JSON.parse(JSON.stringify(arr));
-            this.originList = JSON.parse(JSON.stringify(arr));
+            if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+              const {loopList, topDataList} = this.makeTopListData(arr);
+              this.list = cloneDeep(loopList);
+              this.originList = cloneDeep(loopList);
+              this.topListData = topDataList;
+            } else {
+              this.list = cloneDeep(arr);
+              this.originList = cloneDeep(arr);
+            }
+
             return;
           }
-          this.list = JSON.parse(JSON.stringify(result));
-          this.originList = JSON.parse(JSON.stringify(result));
+          this.list = cloneDeep(result);
+          this.originList = cloneDeep(result);
           return;
         }
         this.list = JSON.parse(targetObj);
-        this.originList = JSON.parse(JSON.stringify(targetObj));
+        this.originList = cloneDeep(targetObj);
       }
     },
     async getSQL() {
-      const {SqlDataConfig} = this.config;
+      const {SqlDataConfig, enableRowTopping = false, lineTopConditionConfig = {}} = this.config;
       const {
         SQLFilterFun,
         enableSQLFilter,
@@ -798,14 +1148,7 @@ export default {
         enableSQLAutoUpdate,
         SQLUpdateTime = 1
       } = SqlDataConfig;
-      const setSnoZ = (list = []) => {
-        return list.map((item, index) => {
-          return {
-            ...item,
-            snoZ: index + 1
-          }
-        })
-      }
+
       const params = this.getParameters();
       const res = await getInfoById(params);
       if (enableSQLAutoUpdate) {
@@ -819,8 +1162,17 @@ export default {
       if (!enableSQLFilter) {
         if (Array.isArray(res) && res.length) {
           const arr = setSnoZ(res);
-          this.list = JSON.parse(JSON.stringify(arr));
-          this.originList = JSON.parse(JSON.stringify(arr));
+          if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+            const {loopList, topDataList} = this.makeTopListData(arr);
+            this.list = cloneDeep(loopList);
+            this.originList = cloneDeep(loopList);
+            this.topListData = topDataList;
+          } else {
+            this.list = cloneDeep(arr);
+            this.originList = cloneDeep(arr);
+          }
+          // this.list = JSON.parse(JSON.stringify(arr));
+          // this.originList = JSON.parse(JSON.stringify(arr));
           return;
         }
         this.list = res;
@@ -834,25 +1186,54 @@ export default {
         const arr = setSnoZ(result);
         // eslint-disable-next-line no-new-func
         if (Array.isArray(result) && result.length) {
-          this.list = JSON.parse(JSON.stringify(arr));
-          this.originList = JSON.parse(JSON.stringify(arr));
+          if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+            const {loopList, topDataList} = this.makeTopListData(arr);
+            this.list = cloneDeep(loopList);
+            this.originList = cloneDeep(loopList);
+            this.topListData = topDataList;
+
+          } else {
+            this.list = cloneDeep(arr);
+            this.originList = cloneDeep(arr);
+          }
           return;
         }
-        this.list = JSON.parse(JSON.stringify(arr));
-        this.originList = JSON.parse(JSON.stringify(arr));
+        if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+          const {loopList, topDataList} = this.makeTopListData(arr);
+          this.list = cloneDeep(loopList);
+          this.originList = cloneDeep(loopList);
+          this.topListData = topDataList;
+
+        } else {
+          this.list = cloneDeep(arr);
+          this.originList = cloneDeep(arr);
+        }
         return;
       }
       const arr = setSnoZ(res);
-      this.list = JSON.parse(JSON.stringify(arr));
-      this.originList = arr;
+      if (enableRowTopping && JSON.stringify(lineTopConditionConfig) !== '{}') {
+        const {loopList, topDataList} = this.makeTopListData(arr);
+        this.list = cloneDeep(loopList);
+        this.originList = cloneDeep(loopList);
+        this.topListData = topDataList;
+
+      } else {
+        this.list = cloneDeep(arr);
+        this.originList = cloneDeep(arr);
+      }
     },
     move() { // 数据开始移动
-      const {stylesObj: {rows = 10, loop, loopTime, animationTypes}} = this.config;
+      const {stylesObj: {rows = 10, loop, loopTime, animationTypes}, enableRowTopping} = this.config;
       // , animationTypes
       if (!loop) {
         return;
       }
-      if (this.list.length < rows) {
+      const n = this.topListData.length;
+      if (enableRowTopping && n >= rows) {
+        clearTimeout(this.timer);
+        return;
+      }
+      if (!enableRowTopping && this.list.length < rows) {
         clearTimeout(this.timer);
         return;
       } // 如果数据少于展示的行数，默认不移动
@@ -883,9 +1264,18 @@ export default {
               this.move();
             }
             if (animationTypes === 3) {
-              const loopArr = this.list.slice(0, rows);
-              const restArr = this.list.slice(rows);
-              this.list = [...restArr, ...loopArr];
+
+              if (enableRowTopping && n) {
+                const rn = rows - n;
+                this.loopArr = this.list.slice(0, rn);
+                const restArr = this.list.slice(rn);
+                this.list = [...restArr, ...this.loopArr];
+              } else {
+                this.loopArr = this.list.slice(0, rows);
+                const restArr = this.list.slice(rows);
+                this.list = [...restArr, ...this.loopArr];
+              }
+
               this.move();
             }
           }, 1000);
@@ -900,6 +1290,9 @@ export default {
     this.timerSql = null;
     this.timerApi = null;
     clearTimeout(this.otherTimer);
+    if (this.client) {
+      this.client.end();
+    }
   },
   name: 'index'
 };
@@ -1009,16 +1402,19 @@ export default {
       }
     }
   }
+
   .ellipsis {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
   }
+
   .unEllipsis {
     //display: table;
     line-height: 1.2;
     word-break: break-all;
   }
+
   .unExpress {
     display: inline-block;
     //display: table-cell;

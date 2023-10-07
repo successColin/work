@@ -1,0 +1,43 @@
+@import '../../../../../styles/base.less';
+
+.operator {
+  span {
+    margin-right: 8px;
+    display: inline-block;
+    cursor: pointer;
+  }
+}
+.wrap {
+  height: 100%;
+  .addBtn {
+    margin: 10px;
+  }
+}
+.tableWrap {
+  height: calc(100% - 52px);
+}
+
+.colorWrap {
+  width: 30px;
+  height: 30px;
+}
+.colorBorder{
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d9d9d9;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.copyEntry {
+  display: inline-block;
+  margin-left: 5px;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: @defaultcolor;
+  }
+}

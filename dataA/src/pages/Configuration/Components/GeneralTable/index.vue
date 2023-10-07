@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -34,7 +34,7 @@
       <GeneralTable :config="config" :scale="scale" type="design">
       </GeneralTable>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -66,7 +66,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {

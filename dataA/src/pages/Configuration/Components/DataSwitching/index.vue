@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       :w="config.width"
@@ -45,7 +45,7 @@
 
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>

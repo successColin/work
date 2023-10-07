@@ -1,6 +1,6 @@
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :isActive="true"
       :w="width"
       :h="height"
@@ -15,11 +15,10 @@
       <p style="color: #f5f7fa">{{ top }} х {{ left }} </p>
       <p style="color: #f5f7fa">{{ width }} х {{ height }}</p>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-// import VueDragResize from 'vue-drag-resize'
 export default {
   props: {
     config: {
@@ -42,7 +41,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {},

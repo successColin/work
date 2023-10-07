@@ -1,0 +1,30 @@
+.formWrap {
+  position: relative;
+}
+
+.switchWrap {
+  position: relative;
+  margin: 16px 20px;
+  height: 32px;
+
+  .switchPos {
+    position: absolute;
+    right: 0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.14);
+    border-radius: 16px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+    :global{
+      .ant-switch{
+        margin-right: 10px;
+      }
+    }
+  }
+}

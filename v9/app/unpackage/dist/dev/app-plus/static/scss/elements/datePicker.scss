@@ -1,0 +1,31 @@
+.dateRange{
+	.mDatePicker{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.text{
+		width: $input-label-width;
+		text-align: left;
+		flex-shrink: 0;
+		font-size:$input-label-fontsize;
+		color:$input-label-fontcolor;
+		.requisite{
+			color:$main-color;
+			font-size: pxToREM(36);
+		}
+	}
+	.content{
+		flex: 1;
+		display: flex;
+		.input{
+			flex:1;
+			height: $input-height;
+			font-size:$input-value-fontsize;
+			color:$input-value-fontcolor;
+			letter-spacing: 0;
+		}
+	}
+	.noBorder{border:none;}
+	.startDate{border-bottom: solid 1px #F5F5F5;}
+}

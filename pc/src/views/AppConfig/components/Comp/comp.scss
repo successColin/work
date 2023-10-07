@@ -1,8 +1,0 @@
-.comp {
-  box-sizing: border-box;
-  border: 1px dashed #d9d9d9;
-  cursor: pointer;
-  &.borderLight {
-    border: 1px dashed $--color-primary;
-  }
-}

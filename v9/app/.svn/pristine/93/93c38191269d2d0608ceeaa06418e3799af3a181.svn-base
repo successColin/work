@@ -1,0 +1,250 @@
+{
+  "easycom": {
+    "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+  },
+  "pages": [
+    // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/index/index"
+    },
+    {
+      "path": "pages/index/guide"
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTextStyle": "black"
+      }
+    },
+    // #ifdef APP-PLUS || H5
+    {
+      "path": "pages/frames/inspection/inspection/route"
+    },
+    {
+      "path": "pages/frames/inspection/download/download"
+    },
+    {
+      "path": "pages/frames/inspection/inspection/inspectionDevice"
+    },
+    {
+      "path": "pages/frames/inspection/inspection/inspectionPoint"
+    },
+    {
+      "path": "pages/frames/inspection/inspection/inspectionUpload"
+    },
+    {
+      "path": "pages/frames/inspection/inspection/routeFilter",
+      "style": {}
+    },
+    {
+      "path": "pages/login/selectServer"
+    },
+    // #endif
+    {
+      "path": "pages/login/register"
+    },
+    {
+      "path": "pages/login/selectServer"
+    },
+    {
+      "path": "components/jyf-parser/jyf-parser",
+      "style": {}
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "pages/home", // frames存放框架
+      "pages": [
+        {
+          "path": "home"
+        }
+      ]
+    },
+    {
+      "root": "pages/Heath",
+      "pages": [
+        {
+          "path": "heath"
+        },
+        {
+          "path": "/HealthyJump/healthJump"
+        }
+      ]
+    },
+    {
+      "root": "pages/mine",
+      "pages": [
+        {
+          "path": "userQualification"
+        },
+        {
+          "path": "userInfo"
+        },
+        {
+          "path": "changePassword"
+        },
+        {
+          "path": "feedback"
+        },
+        {
+          "path": "qrcode"
+        },
+        {
+          "path": "versionInfo"
+        },
+        {
+          "path": "language"
+        },
+        {
+          "path": "thirdPartyLinks"
+        }
+      ]
+    },
+    {
+      "root": "pages/frames", // frames存放框架
+      "pages": [
+        {
+          "path": "UBPFramework"
+        },
+        {
+          "path": "FormFramework"
+        },
+        {
+          "path": "echartFramework"
+        },
+        {
+          "path": "ListFramework"
+        },
+        {
+          "path": "ScanFramework"
+        }
+      ]
+    },
+    {
+      "root": "pages/templates", // templates存放展示类型
+      "pages": [
+        {
+          "path": "formTemplate"
+        },
+        {
+          "path": "listTemplate",
+          "style": {
+            "enablePullDownRefresh": true,
+            "onReachBottomDistance": 20
+          }
+        },
+        {
+          "path": "BRATemplate",
+          "style": {
+            "enablePullDownRefresh": true,
+            "onReachBottomDistance": 20
+          }
+        },
+        {
+          "path": "DSTemplate",
+          "style": {
+            "enablePullDownRefresh": true,
+            "onReachBottomDistance": 20
+          }
+        },
+        {
+          "path": "relationFileTab"
+        },
+        {
+          "path": "formListTemplate"
+        },
+        {
+          "path": "webViewTemplate"
+        }
+      ]
+    },
+    {
+      "root": "pages/common", // 公共页面
+      "pages": [
+        {
+          "path": "searchTemplate"
+        },
+        {
+          "path": "panelConfigTemplate"
+        },
+        {
+          "path": "panelTemplate"
+        },
+        {
+          "path": "advancedFilter"
+        },
+        {
+          "path": "preview"
+        }
+      ]
+    },
+    {
+      "root": "pages/news", // 内容管理页面
+      "pages": [
+        {
+          "path": "newsDetail"
+        }
+      ]
+    },
+    {
+      "root": "pages/map",
+      "pages": [
+        {
+          "path": "map"
+        }
+      ]
+    },
+    {
+      "root": "pages/pushMessage",
+      "pages": [
+        {
+          "path": "NoRead",
+          "style": {
+            "enablePullDownRefresh": true,
+            "onReachBottomDistance": 20
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/announcement",
+      "pages": [
+        {
+          "path": "announcement"
+        }
+      ]
+    },
+    {
+      "root": "pages/consultDetail",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
+    }
+  ],
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FAFAFA",
+    "scrollIndicator": "none",
+    "softinputNavBar": "none",
+    "usingComponents": {
+      "m-tree-item": "/components/makeup/tree/m-treeItem"
+    },
+		"rpxCalcMaxDeviceWidth": 2160, // rpx 计算所支持的最大设备宽度，单位 px，默认值为 960  
+		"rpxCalcBaseDeviceWidth": 375, // rpx 计算使用的基准设备宽度，设备实际宽度超出 rpx 计算所支持的最大设备宽度时将按基准宽度计算，单位 px，默认值为 375  
+		"rpxCalcIncludeWidth": 750 // rpx 计算特殊处理的值，始终按实际的设备宽度计算，单位 rpx，默认值为 750  
+  },
+  "condition": {
+    //模式配置，仅开发期间生效
+    "current": 0, //当前激活的模式(list 的索引项)
+    "list": [
+      {
+        "name": "", //模式名称
+        "path": "", //启动页面，必选
+        "query": "" //启动参数，在页面的onLoad函数里面得到
+      }
+    ]
+  }
+}

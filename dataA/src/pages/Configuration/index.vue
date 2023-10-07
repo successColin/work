@@ -17,6 +17,9 @@
         </c-button>
       </div>
       <div class="headerWrap__ope">
+        <c-button class="headerWrap__setting" @click="exportConfig" :loading="exportLoading">
+          <span class="iconfont icon-daochu"></span> 导出
+        </c-button>
         <c-button class="headerWrap__setting" @click="doPreview">
           <span class="iconfont icon-a-dingbuyulandaping"></span> 预览
         </c-button>
@@ -72,8 +75,8 @@
                   :scale="Number(transitionSacle)"
                   :config="configItem"
                   :is="configItem.componentName"
-                  v-for="(configItem, i) in configArr"
-                  :key="`${configItem.componentId}_${i}`"
+                  v-for="(configItem) in configArr"
+                  :key="`${configItem.componentId}`"
                   :activeComponent="activeComponent"
                   @updateActiveComponent="doUpdateActiveComponent"
                   @rightClickComponent="doRightClick"
@@ -163,7 +166,7 @@
 <script>
 import draggable from 'vuedraggable'
 import {createUnique, makeUrl} from '@/utils/utils';
-import {getDesignList, updateOrInsertElement, delComponent, insertElement} from '@/services/design';
+import {getDesignList, updateOrInsertElement, delComponent, insertElement, download } from '@/services/design';
 import {attributeCollection, configGroup, componentConfigs, screenConfig, screenAppConfig} from '@/constants/global';
 import CanvasDrawingConfig from './ConfigComponents/CanvasDrawingConfig/propertyConfig';
 
@@ -181,9 +184,16 @@ const FullScreenBtn = () => import('./Components/FullScreenBtn/index');
 const TransverseBarChartConfig = () => import('./ConfigComponents/TransverseBarChartConfig/index');
 const GeneralTableConfig = () => import('./ConfigComponents/GeneralTableConfig/index');
 const BasicLineChartConfig = () => import('./ConfigComponents/BasicLineChartConfig/index');
+const TimeGanttChartConfig = () => import('./ConfigComponents/TimeGanttChartConfig/index');
+const BasicGraphConfig = () => import('./ConfigComponents/BasicGraphConfig/index');
+const TimeGanttChart = () => import('./Components/TimeGanttChart/index');
 const CircleProgressBarConfig = () => import('./ConfigComponents/CircleProgressBarConfig/index');
+const ThreeDComponentsConfig = () => import('./ConfigComponents/ThreeDComponentsConfig/index');
+const ThreeDComponents = () => import('./Components/ThreeDComponents/index');
+
 const CircleProgressBar = () => import('./Components/CircleProgressBar/index');
 const ImageBoxConfig = () => import('./ConfigComponents/ImageConfig/index');
+const DigitalFlipperConfig = () => import('./ConfigComponents/DigitalFlipperConfig');
 const VideoConfig = () => import('./ConfigComponents/VideoConfig/index');
 const MarqueeConfig = () => import('./ConfigComponents/MarqueeConfig/index');
 const Marquee = () => import('./Components/Marquee/index');
@@ -213,7 +223,7 @@ const TimeFilteringConfig = () => import('./ConfigComponents/TimeFilteringConfig
 const DataSwitchingConfig = () => import('./ConfigComponents/DataSwitchingConfig/propertyConfig');
 const DataSwitching = () => import('./Components/DataSwitching/index');
 const CanvasDrawing = () => import('./Components/CanvasDrawing/index');
-const DropdownBoxConfig = () => import('./ConfigComponents/DropdownBoxConfig/propertyConfig');
+const DropdownBoxConfig = () => import('./ConfigComponents/DropdownBoxConfig/index');
 const DocExportBtnConfig = () => import('./ConfigComponents/DocExportBtnConfig/propertyConfig');
 const DocExportBtn = () => import('./Components/DocExportBtn/index');
 const DropdownBox = () => import('./Components/DropdownBox/index');
@@ -236,11 +246,17 @@ const SankeyConfig = () => import('./ConfigComponents/SankeyConfig/index');
 const Sankey = () => import('./Components/Sankey/index');
 const InfoPresentationConfig = () => import('./ConfigComponents/InfoPresentationConfig/index');
 const InfoPresentation = () => import('./Components/InfoPresentation/index');
-
+const CrossSysBtnConfig = () => import('./ConfigComponents/CrossSysBtnConfig/propertyConfig');
+const CrossSysBtn = () => import('./Components/CrossSysBtn/index');
+const IframeConfig = () => import('./ConfigComponents/IframeConfig/propertyConfig');
+const Iframe = () => import('./Components/Iframe/index');
+const BasicGraph = () => import('./Components/BasicGraph/index');
+const DigitalFlipper = () => import('./Components/DigitalFlipper/index');
 
 export default {
   data() {
     return {
+      exportLoading: false,
       appVisible: false,
       obj: {},
       isShow: true,
@@ -265,6 +281,11 @@ export default {
   },
 
   components: {
+    DigitalFlipper,
+    DigitalFlipperConfig,
+    BasicGraph,
+    Iframe,
+    IframeConfig,
     PublishSetting,
     Sankey,
     SankeyConfig,
@@ -276,6 +297,7 @@ export default {
     RoseChart,
     AppPreview,
     draggable,
+    BasicGraphConfig,
     demo,
     screenBgSetting,
     SingleLineText,
@@ -287,6 +309,8 @@ export default {
     ImageBoxConfig,
     BasicPieChartConfig,
     CircleProgressBarConfig,
+    ThreeDComponentsConfig,
+    ThreeDComponents,
     CircleProgressBar,
     TransverseBarChart,
     BasicPieChart,
@@ -298,6 +322,8 @@ export default {
     BasicBarChartConfig,
     BasicBarChart,
     BasicLineChartConfig,
+    TimeGanttChartConfig,
+    TimeGanttChart,
     BasicLineChart,
     GeneralTable,
     ColumnLineMixConfig,
@@ -335,10 +361,15 @@ export default {
     NationalProvinceMapConfig,
     NationalProvinceMap,
     InfoPresentationConfig,
-    InfoPresentation
+    InfoPresentation,
+    CrossSysBtnConfig,
+    CrossSysBtn
   },
 
   computed: {
+    screenId() { // 大屏id
+      return this.makeId(this.$route.query.id);
+    },
     getOptions() {
       const options = [{
         label: '自适应',
@@ -787,6 +818,35 @@ export default {
     toggleScreen() {
       this.isScreenSettingShow = !this.isScreenSettingShow;
     },
+    async exportConfig() { // 导出配置
+      const obj = sessionStorage.getItem('bgInfo') || '{}';
+      function createObjectURL(object) {
+        return window.URL
+          ? window.URL.createObjectURL(object)
+          : window.webkitURL.createObjectURL(object);
+      }
+      this.exportLoading = true;
+      try {
+        const blob = await download({ dvScreenIds: this.screenId });
+        const newObj = JSON.parse(obj);
+        const { name } = newObj;
+        let filename = `${name || '配置'}.zip`;
+        if (window.navigator.msSaveOrOpenBlob) {
+          navigator.msSaveBlob(blob, filename);
+          navigator.msSaveBlob(blob);
+        } else {
+          let a = document.createElement('a');
+          let url = createObjectURL(blob);
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        }
+      } finally {
+        this.exportLoading = false;
+      }
+    },
     doPreview() { // 预览
       if (this.type === 'PC') {
         const {href} = this.$router.resolve({
@@ -824,7 +884,7 @@ export default {
     async handleSaveConfig() { // 保存配置
       const list = this.$store.getters.list;
       const bgConfig = this.getBgConfig;
-      const screenId = this.makeId(this.$route.query.id);
+      const screenId = this.screenId;
       let newList = [];
       list.forEach((item) => {
         if (item.componentName === 'CanvasDrawing') {
@@ -884,6 +944,10 @@ export default {
     async setComponentStyles(e) {
       if (JSON.stringify(this.activeComponent) === '{}') {
         return;
+      }
+      const focusedElement = document.activeElement;
+      if (['TEXTAREA', 'INPUT'].includes(focusedElement.nodeName)) {
+        return
       }
       let {componentId} = this.activeComponent;
       const {width, height} = this.getBgConfig;

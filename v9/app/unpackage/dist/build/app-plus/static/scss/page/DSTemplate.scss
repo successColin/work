@@ -1,0 +1,61 @@
+.DSTemplate,.BRATemplate{
+	width: 100%;
+	.list-seach{
+		height: $search-inputHeight;
+	}
+	.comBox{
+		padding-left: pxToREM(40);
+		height:pxToREM(90);
+		font-size:$input-label-fontsize;
+		font-family:PingFangSC-Regular,PingFangSC;
+		font-weight:400;
+		color:rgba(68,68,68,1);
+		line-height:pxToREM(90);
+		border-bottom: solid 1px #EBEBEB;
+	}
+	&-bottom{
+		padding: pxToREM(20) 0 pxToREM(30) 0;
+		margin-bottom: $bottom-bar;
+		width: 100%;
+		font-size: 10px;
+		text-align: center;
+		color: #808080;
+	}
+	.nodata{
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: pxToREM(308);
+	}
+	&-btns{
+		width: 100%;
+		position: fixed;
+		bottom: 0;
+		z-index:10;
+		& .bottomBtnsComs{
+			display: flex;
+			width: 100%; 
+			.btn-item{
+				flex: 1;
+				border-top:1px solid rgba(230,230,230,1);
+				border-right:1px solid rgba(230,230,230,1);
+				button{
+					height: $form-button-foot;
+					border-radius: 0px;
+					&:after{
+						border: none;
+					}
+				}
+			}
+		}
+	}
+	.bottom-btn{
+		height:pxToREM(88);
+		bottom: pxToREM(20);
+		margin: 0 pxToREM(30);
+	}
+}

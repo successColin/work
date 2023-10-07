@@ -1,0 +1,118 @@
+.page-body {
+  flex: 1;
+  width: 750rpx;
+  height: 100vh;
+  background: #fff;
+  position: relative;
+  padding-bottom: 5rem;
+  overflow: hidden;
+  .m-map {
+    width: 750rpx;
+    height: 60vh;
+    position: relative;
+    .headerBtn {
+      width: 750rpx;
+      /* #ifdef APP-PLUS */
+      height: 180rpx;
+      /* #endif */
+      /* #ifndef APP-PLUS */
+      height: 250rpx;
+      /* #endif */
+    }
+    .okBtn, .offBtn {
+      width: 120rpx;
+      height: 60rpx;
+      text-align: center;
+      line-height: 50rpx;
+      position: absolute;
+      color: white;
+      font-size: 30rpx;
+			z-index: 99999;
+			/* #ifdef MP */
+			top: 150rpx;
+			/* #endif */
+      /* #ifndef MP */
+      top: 80rpx;
+      /* #endif */
+    }
+    .okBtn {
+      right: 30rpx;
+      background-color: #05C160;
+      border-radius: 5rpx;
+    }
+    .offBtn {
+      left: 25rpx;
+			font-size: 35rpx;
+    }
+    .controls-img {
+      width: 100rpx;
+      height: 100rpx;
+      position: absolute;
+      right: 40rpx;
+      bottom: 90rpx;
+      z-index: 99999;
+    }
+  }
+  .pointContent {
+    width: 750rpx;
+    height: 40vh;
+    position: absolute;
+    bottom: 0;
+    background: white;
+    // transition:height 1s;
+    .iconsty {
+      display: flex;
+      flex-direction: row;
+			z-index: 99999;
+      .icon {
+        flex: 1;
+        text-align: center;
+        margin-top: 10rpx;
+        // margin: 15rpx 0 -20rpx 0;
+      }
+    }
+    .input{
+      background: #F2F2F2;
+      height: 4vh;
+      border-radius: 28rpx;
+      width: 690rpx;
+      height: 60rpx;
+      margin: 0 auto;
+      margin-top: 10rpx;
+      margin-bottom: 10rpx;
+      padding-left: 30rpx;
+      // position: relative;
+    }
+    .poslist {
+      width: 690rpx;
+      margin: 0 auto;
+      margin-top: 40rpx;
+      .font1 {
+        font-size: 34rpx;
+        display: flex;
+        flex-direction: row;
+        height: 45rpx;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				word-break: break-all;
+        .icon {
+          color: #31D387;
+          flex: 1;
+          text-align: right;
+        }
+        .name {
+          flex: 3;
+        }
+      }
+      .font2 {
+        color: #CCCCCC;
+        font-size: 24rpx;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				word-break: break-all;
+      }
+    }
+  }
+}

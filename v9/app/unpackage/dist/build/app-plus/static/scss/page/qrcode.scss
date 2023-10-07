@@ -1,0 +1,52 @@
+.myQrcode{
+	width: 100%;
+	.qrcod-econtent{
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: 0 pxToREM(40);
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		&.has_MP{
+			top: pxToREM($MP-BarTitle-Height);
+		}
+	}
+	.qrcod{
+		width: 100%;
+		background: #fff;
+		.header{
+			padding: pxToREM(40) pxToREM(45);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			&-img{
+				margin-right: pxToREM(24);
+				width: pxToREM(120);
+				height: pxToREM(120);
+			}
+			&-content{
+				flex: 1;
+				color: #444444;
+				font-size: pxToREM(36);
+				font-weight:500;
+			}
+			.user-sub{
+				color: rgba(128,128,128,1);
+				font-size: pxToREM(24);
+				font-weight:400;
+			}
+		}
+		.footer{
+			padding: pxToREM(54);
+			width: 100%;
+			text-align: center;
+			font-size:pxToREM(24);
+			font-weight:400;
+			color:rgba(128,128,128,1);
+		}
+	}
+}

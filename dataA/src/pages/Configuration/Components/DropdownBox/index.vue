@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       :w="config.width"
@@ -36,7 +36,7 @@
           <c-select
               ref="timeSelect"
               :popper-class="`a${config.componentId}_selectPopper`"
-              :options="config.stylesObj.selectOptions"
+              :options="getOptions"
               v-model="timeType"
               @focus="focusSelect"
           >
@@ -44,12 +44,11 @@
         </div>
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-import {screenConfig, TIME_TYPE} from '@/constants/global';
-// import {isEqual} from 'lodash';
+import {screenConfig} from '@/constants/global';
 
 export default {
   props: {
@@ -104,28 +103,33 @@ export default {
   },
 
   computed: {
-    getTimepickerType() {
-      if (this.timeType === 2) {
-        return 'date';
-      } else if (this.timeType === 3) {
-        return 'datetime';
-      } else if (this.timeType === 4) {
-        return 'week';
-      } else if (this.timeType === 5) {
-        return 'month';
-      } else if (this.timeType === 6) {
-        return 'year';
-      }
-      return 'date';
-    },
-    getTimeTypeOptions() {
-      return this.config.stylesObj.checkedTimes.map((item) => {
-        const obj = TIME_TYPE.find((objs) => objs.value === item);
-        if (obj) {
-          return obj;
+    getOptions() {
+      const {
+        enableCustomItems = true,
+        dataType,
+        SqlDataConfig,
+        apiDataConfig,
+        stylesObj: {selectOptions = []}
+      } = this.config;
+      if (enableCustomItems) return selectOptions;
+
+      if (dataType === 2 && !enableCustomItems) {
+        const {apiFilterResponse = '[]'} = apiDataConfig;
+        try {
+          return JSON.parse(apiFilterResponse);
+        } catch (e) {
+          return [];
         }
-        return {}
-      })
+      }
+      if (dataType === 3 && !enableCustomItems) {
+        const {SQLFilterResponse = '[]'} = SqlDataConfig;
+        try {
+          return JSON.parse(SQLFilterResponse);
+        } catch (e) {
+          return []
+        }
+      }
+      return []
     },
     getContentStyles() {
       const {width, height} = this.config;

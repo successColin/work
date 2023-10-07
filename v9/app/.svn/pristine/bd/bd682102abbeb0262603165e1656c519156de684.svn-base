@@ -1,0 +1,27 @@
+import * as dd from 'dingtalk-jsapi';
+import ZheZhengdd from 'gdt-jsapi';
+
+// 钉钉设置 title
+export function ChangePageTitle(title) {
+  const ua = navigator.userAgent.toLowerCase();
+  if (ua.indexOf('dingtalk') > -1) {
+    dd.biz.navigation.hideBar({
+      hidden: true, // true：隐藏，false：显示
+    });
+  }
+}
+
+// 钉钉获取 code
+export async function getDingDingCode(callback) {
+  const ua = navigator.userAgent.toLowerCase();
+	let getCode = '';
+  if (ua.indexOf('saas') > -1) {
+		await ZheZhengdd.getAuthCode({}).then((result) =>{
+			const code = result.code;
+			if (code) {
+				getCode = code;
+			}
+		})
+  }
+	return getCode;
+}

@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -39,11 +39,10 @@
         {{ renderContent }}
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-// import VueDragResize from 'vue-drag-resize'
 
 import {screenConfig} from '@/constants/global';
 
@@ -80,12 +79,11 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
     renderContent() {
-      const {dataType, dataConfig, apiDataConfig, SqlDataConfig} = this.config;
+      const {dataType, dataConfig, apiDataConfig, SqlDataConfig, mqttDataConfig} = this.config;
       const {takeEffect, staticValue} = dataConfig;
       if (dataType === 1) {
         const obj = JSON.parse(staticValue);
@@ -100,6 +98,11 @@ export default {
         const {SQLEffect, SQLFilterResponse} = SqlDataConfig
         const obj = JSON.parse(SQLFilterResponse);
         return obj[SQLEffect];
+      }
+      if (dataType === 4) {
+        const {mqttEffect, mqttFilterResponse} = mqttDataConfig
+        const obj = JSON.parse(mqttFilterResponse);
+        return obj[mqttEffect];
       }
       return '';
     },

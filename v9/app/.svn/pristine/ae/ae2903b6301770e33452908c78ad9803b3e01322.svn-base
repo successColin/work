@@ -1,0 +1,130 @@
+.inspection-route{
+	width: 100%;
+	.route-search{
+		position: fixed;
+		top:$back-bar;
+		width: 100%;
+		display: flex;
+		height: pxToREM(98);
+		background: #fff;
+		box-shadow:0px 0px 1px 0px rgba(245,245,245,1);
+		align-items: center;
+		padding-left: pxToREM(30);
+		color: #9F9F9F;
+		z-index: 11;
+		.search{
+			flex: 1 0 0;
+			font-size: pxToREM(28);
+		}
+		.search-btn, .filter-btn{
+			background: none;
+			outline: none;
+			font-size: pxToREM(28);
+			&:after{
+				border: none;
+			}
+		}
+		.search-btn{
+			flex: 0 1 pxToREM(90);
+		}
+		.filter-btn{
+			flex: 0 1 pxToREM(150);
+			display: flex;
+			align-items: center;
+			color: #9F9F9F;
+			justify-content: center;
+		}
+	}
+	
+	.checkbox-all{
+		margin-right: 2px;
+		.uni-checkbox-input{
+			margin: 0;
+		}
+	}
+	.btn-item{
+		width: 50%;
+		display: inline-block;
+		vertical-align: top;
+		.btn{
+			border-radius: 0px;
+			&:after{
+				border-radius: 0px;
+			}
+		}
+	}
+	.mainColor,.mainColor-blue,.mainColor-orange,.mainColor-violet,.mainColor-navyBlue{
+		float: right;
+		margin-left: pxToREM(40);
+	}
+	.notdata{
+		position: fixed;
+		height: 100%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		.nodata-img{
+			width: pxToREM(300);
+			height: pxToREM(267);
+		}
+		.nodata-text{
+			color: #9B9B9B;
+			font-size: pxToREM(28);
+		}
+	}
+	.inspection-route-box{
+		padding-bottom:pxToREM(30);
+		padding-top: pxToREM(98);
+		&.hasBtn{
+			padding-bottom:pxToREM(128);
+		}
+		.inspection{
+			width: 100%;
+			padding: pxToREM(20) pxToREM(30) 0;
+			margin-top:0px;
+			display: block;
+			.inspection-date-box{
+				height: pxToREM(65);
+				border-bottom: 1px solid #F5F5F5;
+				border-radius: pxToREM($main-radius) pxToREM($main-radius) 0 0;
+				display: flex;
+				align-items: center;
+				background: #fff;
+				padding: 0 pxToREM(30);
+				.checkbox-style{
+					flex: 0 1 22px;
+				}
+				.inspection-date{
+					color: #9B9B9B;
+					font-size: pxToREM(28);
+					flex: 1 0 0;
+				}
+				.inspection-num{
+					flex:0 1 pxToREM(100);
+					line-height: pxToREM(40);
+					color: #fff;
+					font-size: pxToREM(26);
+					background: #ccc;
+					text-align: center;
+					border-radius: pxToREM(20);
+				}
+				.ongoing{
+					background: #F7B500;
+				}
+				.finish{
+					background: #4BA5EA;
+				}
+			}
+			.inspection-name{
+				background: #fff;
+				display: block;
+				line-height: pxToREM(90);
+				padding: 0 pxToREM(30);
+				border-radius: 0 0 pxToREM($main-radius) pxToREM($main-radius);
+				font-size: pxToREM(30);
+			}
+		}
+	}
+}

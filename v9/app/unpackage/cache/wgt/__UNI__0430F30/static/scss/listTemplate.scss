@@ -1,0 +1,14 @@
+.listCreateTemplate{
+	width: 100%;
+	.list-seach{
+		height: $search-inputHeight;
+	}
+	&-bottom{
+		padding: pxToREM(20) 0 pxToREM(30) 0;
+		margin-bottom: $bottom-bar;
+		width: 100%;
+		font-size: 10px;
+		text-align: center;
+		color: #808080;
+	}
+}

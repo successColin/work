@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import { isEqual } from 'lodash';
 // 引入基本模板
 import * as echarts from 'echarts/core';
@@ -27,6 +28,7 @@ import { TitleComponent, TooltipComponent, LegendScrollComponent, DataZoomCompon
 import { CanvasRenderer } from 'echarts/renderers';
 import {supplementaryColor} from '@/utils/common';
 import {getInfoById} from '@/services/design';
+import {decrypt} from '@/utils/secret';
 // 引入基本模板
 // eslint-disable-next-line no-undef
 // const echarts = require('echarts');
@@ -72,11 +74,7 @@ export default {
   data() {
     return {
       instance: null,
-      observer: null,
-      recordOldValue: { // 记录下旧的宽高数据，避免重复触发回调函数
-        width: '0',
-        height: '0'
-      },
+      client: null,
       timer: null,
       supplementaryColor: [], // 补充色
       list: [],
@@ -85,7 +83,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -133,7 +130,7 @@ export default {
         if (dataType === 1) {
           list = JSON.parse(staticValue);
         }
-        if (dataType === 2 || dataType === 3) {
+        if ([2, 3, 4].includes(dataType)) {
           list = this.list;
         }
         if (!(Array.isArray(list) && list.length)) {
@@ -212,29 +209,27 @@ export default {
                 fontSize: labelFontSize // 标签字号
               },
               itemStyle: { // 图形样式
-                normal: { // normal 图形在默认状态下的样式;
-                  // emphasis图形在高亮状态下的样式
-                  barBorderRadius: borderRadius, // 柱条圆角半径,单位px.
-                  // 此处统一设置4个角的圆角大小;
-                  // 也可以分开设置[10,10,10,10]顺时针左上、右上、右下、左下
-                  color(params) {
-                    const num = newColorArr.length;
-                    const index = params.dataIndex % num;
-                    // return newColorArr[params.dataIndex % num]; // 返回颜色数组中的一个对应的颜色值
-                    return {
-                      type: 'linear',
-                      x: 0,
-                      y: 0,
-                      x2: 1,
-                      y2: 1,
-                      colorStops: [{
-                        offset: 0, color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
-                      }, {
-                        offset: 1, color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
-                      }],
-                      global: false // 缺省为 false
-                    };
-                  }
+                // emphasis图形在高亮状态下的样式
+                borderRadius: borderRadius, // 柱条圆角半径,单位px.
+                // 此处统一设置4个角的圆角大小;
+                // 也可以分开设置[10,10,10,10]顺时针左上、右上、右下、左下
+                color(params) {
+                  const num = newColorArr.length;
+                  const index = params.dataIndex % num;
+                  // return newColorArr[params.dataIndex % num]; // 返回颜色数组中的一个对应的颜色值
+                  return {
+                    type: 'linear',
+                    x: 0,
+                    y: 0,
+                    x2: 1,
+                    y2: 1,
+                    colorStops: [{
+                      offset: 0, color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff' // 0% 处的颜色
+                    }, {
+                      offset: 1, color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
+                    }],
+                    global: false // 缺省为 false
+                  };
                 }
               },
               zlevel: 1// 柱状图所有图形的 zlevel 值,
@@ -258,9 +253,7 @@ export default {
               data: totalArr,
               color: barBgColor, // 柱条颜色
               itemStyle: {
-                normal: {
-                  barBorderRadius: borderRadius
-                }
+                borderRadius: borderRadius
               }
             }
           ]
@@ -338,18 +331,14 @@ export default {
       if (dataType === 1) {
         const option = this.getOption();
         // 绘制图表
-        this.instance.myChart.setOption(
-          option
-        );
+        this.instance.myChart.setOption(option, true);
       }
       if (dataType === 2) {
         this.loading = true;
         await this.getApi();
         const option = this.getOption();
         // 绘制图表
-        this.instance.myChart.setOption(
-          option
-        );
+        this.instance.myChart.setOption(option, true);
         this.loading = false;
       }
       if (dataType === 3) {
@@ -357,12 +346,86 @@ export default {
         await this.getSQL();
         const option = this.getOption();
         // 绘制图表
-        this.instance.myChart.setOption(
-          option
-        );
+        this.instance.myChart.setOption(option, true);
         this.loading = false;
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
       // getInfoById
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) { return; }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.list = data;
+        this.renderChart();
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.list = result;
+        this.renderChart();
+        return;
+      }
+      this.list = data;
+      this.renderChart();
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
+    },
+    renderChart() {
+      this.instance.myChart.clear();
+      const option = this.getOption();
+      // 绘制图表
+      this.instance.myChart.setOption(option, true);
     },
     async getApi() {
       const { apiDataConfig } = this.config;
@@ -384,17 +447,12 @@ export default {
           this.timer && clearTimeout(this.timer);
           this.timer = setTimeout(async () => {
             await this.getApi();
-            this.instance.myChart.clear();
-            const option = this.getOption();
-            // 绘制图表
-            this.instance.myChart.setOption(
-              option
-            );
           }, time);
         }
         const list = JSON.parse(targetObj);
         if (!enableApiFilter) {
           this.list = list;
+          this.renderChart();
           return;
         }
         if (enableApiFilter && apiFilterFun && apiDataFilterId) {
@@ -403,9 +461,11 @@ export default {
           const result = fun()(list);
           if (!(Array.isArray(result) && result.length)) {
             this.list = [];
+            this.renderChart();
             return;
           }
           this.list = result;
+          this.renderChart();
         }
       }
     },
@@ -426,16 +486,11 @@ export default {
         this.timer && clearTimeout(this.timer);
         this.timer = setTimeout(async () => {
           await this.getSQL();
-          this.instance.myChart.clear();
-          const option = this.getOption();
-          // 绘制图表
-          this.instance.myChart.setOption(
-            option
-          );
         }, time);
       }
       if (!enableSQLFilter) {
         this.list = res;
+        this.renderChart();
         return;
       }
       if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
@@ -444,16 +499,28 @@ export default {
         const result = fun()(res);
         if (!(Array.isArray(result) && result.length)) {
           this.list = [];
+          this.renderChart();
           return;
         }
         this.list = result;
+        this.renderChart();
         return;
       }
       this.list = res;
+      this.renderChart();
     }
   },
   beforeDestroy() {
     this.timer && clearTimeout(this.timer);
+    if (this.client) {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.unsubscribe(`${topic}/response`);
+      this.client.end();
+    }
   },
   name: 'SingleLineText'
 };

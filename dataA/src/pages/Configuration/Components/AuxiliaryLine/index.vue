@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,11 +35,10 @@
         </div>
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-// import VueDragResize from 'vue-drag-resize'
 
 import {screenConfig} from '@/constants/global';
 
@@ -76,7 +75,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {

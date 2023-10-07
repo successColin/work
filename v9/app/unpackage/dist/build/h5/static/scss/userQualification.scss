@@ -1,0 +1,101 @@
+@charset "utf-8";
+.userQualification{
+	width: 100%;
+	background: #fff;
+	position: relative;
+	padding-bottom: $button-Height;
+	.qualification-content{
+		padding: pxToREM(30) ;
+		background: #fff;
+		width: 100%;
+	}
+	.upload-item{
+		width:  100%;
+		height: pxToREM(345);
+		display: flex;
+		justify-content: center;
+	    align-items: center;
+		flex-direction: column;
+		background: #FAFAFA;
+		border-radius:pxToREM(12);
+		color: #D9D9D9;
+		font-size: pxToREM(28);
+		line-height: pxToREM(60);
+	}
+	.formElemets .text{
+		display: none;
+	}
+	.formElemets.form-upimg{
+		margin: 0;
+	}
+	view.sunsin_picture_list{
+		width:100%;
+		padding:0;
+		// margin-top: pxToREM(25);
+		border: none;
+		display: block;
+		view{
+			display: inline-block;
+			width: 28%;
+			margin-right: 5%;
+			height: pxToREM(214);
+			float: left;
+			margin-bottom: 20upx;
+			.sunsin_width{
+				height: pxToREM(214) !important;
+			}
+		}
+		.sunsin_width{
+			background-size: pxToREM(120) auto;
+			width: 100% !important;
+			height: pxToREM(345) !important;
+			.sunsin_width{
+				height: 100% !important;
+			}
+		}
+		.del-image{
+			width:20px !important;
+			height: 20px !important;
+			margin: 0 !important;
+		}
+	}
+	.sunsin_picture_list view{
+
+	}
+	/* 预览图片 */
+	.sunsin_picture_item {
+		position: relative;
+		background: #F5F5F5;
+	}
+
+	/* 删除按钮样式 */
+	.sunsin_picture_item .del {
+		position: absolute;
+		color: #fff;
+		border-radius: -pxToREM(4);
+		border-top-right-radius: pxToREM(6);
+		width: pxToREM(40);
+		height: pxToREM(40);
+		line-height: pxToREM(40);
+		z-index: 2;
+		text-align: center;
+		background:rgba(0,0,0,0.3);
+		border-radius: 50%;
+	}
+	/* 删除图标位置(上右) */
+	.sunsin_picture_item .del.right {
+		top: 0;
+		right: 0;
+	}
+	.save-item{
+		width: 100%;
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		background-color: #c62127;
+		z-index: 999;
+	}
+	.upimg{
+		border: none;
+	}
+}

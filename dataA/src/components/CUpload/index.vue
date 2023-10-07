@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import {uploadFile} from '@/services/design';
+import {getDesignList, uploadFile} from '@/services/design';
 
 export default {
   inheritAttrs: false,
@@ -143,11 +143,12 @@ export default {
       const {file} = param;
       this.fileList = [file];
       const formData = new FormData();
+      const {id} = this.$route.query;
       formData.append('file', file);
+      formData.append('id', window.atob(id));
       const res = await uploadFile(formData);
-      // const imageUrl = URL.createObjectURL(file);
-      // console.log(imageUrl)
-      this.$emit('changeScreenBg', res)
+      this.$emit('changeScreenBg', `${process.env.NODE_ENV === 'development' ? 'http://47.110.141.124' : ''}${res}`);
+      // this.$emit('changeScreenBg', res)
       // this.beforeAvatarUpload(file)
     },
     clear() {

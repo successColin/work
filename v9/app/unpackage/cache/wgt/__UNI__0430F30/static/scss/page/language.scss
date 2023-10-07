@@ -1,0 +1,29 @@
+.language{
+	width: 100%;
+	.menu-container{
+		width: 100%;
+		height: 100%;
+		padding:pxToREM(20) pxToREM(30);
+		background: #fff;
+		z-index: 99;
+		position: relative;
+		.user-bundle{
+			display: flex;
+			height: pxToREM(98);
+			line-height:pxToREM(98);
+			font-size: pxToREM(30);
+			position: relative;
+			border-bottom: 1px solid #E6E6E6;
+			.font-icon{
+				width: pxToREM(105);
+				text-align: center;
+			}
+			.bundle-name{
+				flex-grow:1;
+			}
+			.current{
+				color: #528AEC;
+			}
+		}
+	}
+}

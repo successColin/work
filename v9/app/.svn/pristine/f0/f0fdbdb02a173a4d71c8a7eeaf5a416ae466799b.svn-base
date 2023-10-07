@@ -1,0 +1,5 @@
+.m-fonticon{
+	&.redColor{
+		color: $main-color;
+	}
+}

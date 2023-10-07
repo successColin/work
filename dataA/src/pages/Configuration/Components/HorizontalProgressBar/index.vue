@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,11 +35,11 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-import {returnChartPosition, getXAxisByKey, debounce} from '@/utils/utils';
+import { debounce} from '@/utils/utils';
 import {supplementaryColor} from '@/utils/common';
 import {screenConfig} from '@/constants/global';
 // 引入基本模板
@@ -82,7 +82,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -166,7 +165,7 @@ export default {
         const { staticValue } = dataConfig;
         let list = [];
         const cn = colorArr.length; // 颜色长度
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
         }
         if (dataType === 2) {
@@ -253,29 +252,27 @@ export default {
                 fontSize: labelFontSize // 标签字号
               },
               itemStyle: { // 图形样式
-                normal: { // normal 图形在默认状态下的样式;
-                  // emphasis图形在高亮状态下的样式
-                  barBorderRadius: borderRadius, // 柱条圆角半径,单位px.
-                  // 此处统一设置4个角的圆角大小;
-                  // 也可以分开设置[10,10,10,10]顺时针左上、右上、右下、左下
-                  color(params) {
-                    const num = newColorArr.length;
-                    const index = params.dataIndex % num;
-                    // return newColorArr[params.dataIndex % num]; // 返回颜色数组中的一个对应的颜色值
-                    return {
-                      type: 'linear',
-                      x: 0,
-                      y: 0,
-                      x2: 1,
-                      y2: 1,
-                      colorStops: [{
-                        offset: 0, color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff'// 0% 处的颜色
-                      }, {
-                        offset: 1, color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
-                      }],
-                      global: false // 缺省为 false
-                    };
-                  }
+                // emphasis图形在高亮状态下的样式
+                borderRadius: borderRadius, // 柱条圆角半径,单位px.
+                // 此处统一设置4个角的圆角大小;
+                // 也可以分开设置[10,10,10,10]顺时针左上、右上、右下、左下
+                color(params) {
+                  const num = newColorArr.length;
+                  const index = params.dataIndex % num;
+                  // return newColorArr[params.dataIndex % num]; // 返回颜色数组中的一个对应的颜色值
+                  return {
+                    type: 'linear',
+                    x: 0,
+                    y: 0,
+                    x2: 1,
+                    y2: 1,
+                    colorStops: [{
+                      offset: 0, color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff'// 0% 处的颜色
+                    }, {
+                      offset: 1, color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
+                    }],
+                    global: false // 缺省为 false
+                  };
                 }
               },
               zlevel: 1// 柱状图所有图形的 zlevel 值,
@@ -299,9 +296,7 @@ export default {
               data: totalArr,
               color: barBgColor, // 柱条颜色
               itemStyle: {
-                normal: {
-                  barBorderRadius: borderRadius
-                }
+                borderRadius: borderRadius
               }
             }
           ]
@@ -380,14 +375,14 @@ export default {
   methods: {
     renderOpt() {
       const options = this.getOption();
-      this.instance.myChart.setOption(options);
+      this.instance.myChart.setOption(options, true);
     },
     initDom() {
       const {componentId} = this.config;
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

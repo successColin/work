@@ -54,7 +54,7 @@
 <script>
 import moment from 'moment';
 import {screenConfig, TIME_TYPE} from '@/constants/global';
-// import {isEqual} from 'lodash';
+import { hexify, getLightColor } from '@/utils/common';
 
 export default {
   props: {
@@ -287,12 +287,15 @@ export default {
       styleDom.setAttribute('className', `${componentId}-timePickStylesWrap`);
       styleDom.innerHTML = `
           .${classSelectProperNames} {
-            background-color: ${bgColor} !important;
+            background-color: ${hexify(bgColor)} !important;
             color: ${fontColor} !important;
             border: 1px solid ${borderColor} !important;
           }
           .${classSelectProperNames} .el-select-dropdown__item.hover{
-            background: ${iconColor};
+            background: ${hexify(getLightColor(bgColor, 0.8))};
+          }
+          .${classSelectProperNames} .el-select-dropdown__item.selected {
+            background: ${hexify(getLightColor(bgColor, 0.8))};
           }
           .${classSelectProperNames} .el-select-dropdown__item{
             color: ${fontColor};
@@ -357,10 +360,11 @@ export default {
             border-bottom: solid 1px ${borderColor};
           }
           .${classProperNames} .available {
-            color: ${borderColor} !important;
+            color: ${fontColor} !important;
           }
           .${classProperNames} .available:hover {
             color: ${iconColor} !important;
+            opacity: 0.8;
           }
           .${classProperNames} .el-month-table td .cell {
             color: ${fontColor};
@@ -421,7 +425,8 @@ export default {
             border: 1px solid ${borderColor} !important;
           }
           .${classNames} .el-button--primary:hover {
-            background-color: ${iconColor} !important;
+            opacity: 0.8;
+            // background-color: ${bgColor} !important;
           }
       `;
       document.getElementsByTagName('head')[0].appendChild(styleDom);

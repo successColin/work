@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :isDraggable="!config.isFixed"
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
@@ -127,7 +127,7 @@
         </bm-info-window>
       </baidu-map>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -193,7 +193,6 @@ export default {
 
   components: {
     BmlHeatmap
-    // VueDragResize
   },
 
   computed: {
@@ -1100,7 +1099,7 @@ export default {
     },
     renderMap(){
       const { dataConfig, dataType, apiDataConfig, SqlDataConfig } = this.config;
-      if (dataType === 1) {
+      if ([1, 4].includes(dataType)) {
         const { staticValue = '[]' } = dataConfig;
         const list = JSON.parse(staticValue);
         this.points = list;

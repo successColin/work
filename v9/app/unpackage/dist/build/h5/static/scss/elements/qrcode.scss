@@ -1,0 +1,68 @@
+@charset "utf-8";
+
+//扫描选择框
+.mQrcode{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border-bottom: solid 1px #F5F5F5;
+	&.left{
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.content{
+		flex: 1;
+		display: flex;
+			.qrcode-item{
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				color: #808080;
+				font-size: pxToREM(24);
+			}
+	}
+	&.readonly{
+		.text,.input{
+			color: $readonly-color !important;
+		}
+		.input.hasrelationTab{//如果存在弹出框，字体颜色为蓝色
+			color: $hasrelationTab-color !important;
+		}
+	}
+	.qrcode-pop{
+		position: fixed;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		background: rgba(0,0,0,.6);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		.qrcode-wrap{
+			width: 70%;
+			height: pxToREM(510);
+			background: #fff;
+			border-radius: pxToREM(10);
+			display: flex;
+			justify-content: space-between;
+			flex-direction: column;
+			align-items: center;
+			color: #9B9B9B;
+			font-size: pxToREM(24);
+			.qrcode-image{
+				width: pxToREM(240);
+				height: pxToREM(240);
+				margin-top: pxToREM(70);
+			}
+			.cancel-qrcode{
+				width: 100%;
+				height: pxToREM(88);
+				color: #333333;
+				font-size: pxToREM(32);
+				background: #fff;
+			}
+		}
+	}
+}

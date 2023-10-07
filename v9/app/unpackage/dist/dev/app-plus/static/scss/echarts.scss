@@ -1,0 +1,31 @@
+.container{
+	width: 100%;
+	padding: pxToREM(30);
+	box-sizing: border-box;
+	.ectart-title{
+		width: 100%;
+		height: pxToREM(88);
+		line-height: pxToREM(88);
+		font-size: pxToREM(36);
+		color: #333333;
+		position: relative;
+		text-indent: pxToREM(20);
+		&::before{
+			content: '';
+			display: inline-block;
+			width: pxToREM(8);
+			height: pxToREM(32);
+			position: absolute;
+			left: 0;
+			top: pxToREM(28);
+			background: #C62127;
+		}
+	}
+	.canvasView{
+		width: 100%;
+		height: pxToREM(600);
+		border: 1px solid #EBEBEB;
+		box-sizing: border-box;
+	}
+	
+}

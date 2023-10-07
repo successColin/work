@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,11 +35,11 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
-import {returnChartPosition, debounce} from '@/utils/utils';
+import { debounce } from '@/utils/utils';
 import {screenConfig} from '@/constants/global';
 // 引入基本模板
 // eslint-disable-next-line no-undef
@@ -81,7 +81,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -196,9 +195,8 @@ export default {
           colorArr
         } = stylesObj;
         let list = [];
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
-
         }
         if (dataType === 2) {
           const {apiFilterResponse = '[]'} = apiDataConfig;

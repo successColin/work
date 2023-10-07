@@ -1,0 +1,249 @@
+<template>
+  <view class="inspection-download">
+    <m-back-bar>
+      <block slot="barTitle">{{ $t('basic-download') }}</block>
+    </m-back-bar>
+
+    <view class="progress-box-parent">
+      <view class="progress-bg">
+        <view class="progress-box">
+          <text class="progress-title">{{ $t('inspection-routeTask') }}</text
+          ><!--巡检路线任务-->
+          <progress
+            class="progress"
+            :percent="inspectionRoute"
+            show-info="true"
+            activeColor="#F7B500"
+            backgroundColor="#D8D8D8"
+            stroke-width="10"
+          />
+        </view>
+        <view class="progress-box">
+          <text class="progress-title">{{ $t('inspection-pointTast') }}</text
+          ><!--巡检点任务-->
+          <progress
+            class="progress"
+            :percent="inspectionPoint"
+            show-info="true"
+            activeColor="#F7B500"
+            backgroundColor="#D8D8D8"
+            stroke-width="10"
+          />
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部按钮 -->
+    <view class="formTemplate-btns foot">
+      <m-button
+        class="btn-item"
+        btnClass="mainColor"
+        :disabled="disabled"
+        :btnTilte="$t('basic-download')"
+        @elementClick="handleBttomBtnClick()"
+      ></m-button>
+    </view>
+  </view>
+</template>
+
+<script>
+import { mapState, mapMutations } from 'vuex';
+
+import {
+  readyDB,
+  insertIntoInspectionDo,
+  insertInspectionpointDo,
+  selectpoint,
+  selectInspection,
+  dropInspectionTables,
+} from '@/static/js/DB.js';
+import inspectionApi from '@/common/request/inspectionApi/index.js';
+
+export default {
+  data() {
+    return {
+      disabled: false,
+      activeColor: '#F7B500',
+      inspectionRoute: 0,
+      inspectionPoint: 0,
+      isDownload: true,
+    };
+  },
+  computed: {
+    ...mapState(['userDesigner', 'bundleId', 'userId']),
+    ...mapState('home', {
+      newBundle: 'newBundle',
+    }),
+  },
+  watch: {
+    inspectionRoute(val) {
+      if (val === this.inspectionPoint) {
+        this.downloadOver();
+      }
+    },
+    inspectionPoint(val) {
+      if (val === this.inspectionRoute) {
+        this.downloadOver();
+      }
+    },
+  },
+  onBackPress() {
+    this.isDownload = false;
+  },
+  methods: {
+    ...mapMutations(['SET_bundle']),
+    ...mapMutations('home', ['SET_NEW_BUNDLE']),
+    downloadOver() {
+      uni.hideLoading();
+      this.disabled = false;
+      uni.showModal({
+        title: this.$t('basic-modalTip'), //中文：'提示',
+        content: this.$t('pageTip-downloadSuccessful'), //中文:'下载成功',
+        showCancel: false,
+        confirmText: this.$t('basic-confirm'),
+        success: function () {
+          uni.navigateBack();
+        },
+      });
+    },
+    handleBttomBtnClick() {
+      let that = this;
+      this.disabled = true;
+      uni.showModal({
+        title: that.$t('basic-modalTip'), //中文：'提示',
+        content: that.$t('inspection-isDownload'), // 中文：'下载会清空原本所有数据，是否下载？',
+        confirmText: that.$t('basic-confirm'),
+        cancelText: that.$t('basic-cancel'),
+        success: function (res) {
+          if (res.confirm) {
+            uni.showLoading({
+              title: that.$t('pageTip-readyDownload'), //中文；'准备下载'
+            });
+            dropInspectionTables(
+              function (res) {
+                readyDB(
+                  function () {
+                    uni.showLoading({
+                      title: that.$t('pageTip-downloading'), //中文；'下载中...'
+                    });
+                    that.downIntoInspectionPoint(1);
+                    that.downIntoInspection(1);
+                  },
+                  function () {
+                    uni.hideLoading();
+                    that.disabled = false;
+                  }
+                );
+              },
+              function () {
+                uni.hideLoading();
+                that.disabled = false;
+              }
+            );
+          } else {
+            that.disabled = false;
+          }
+        },
+      });
+    },
+    downIntoInspection(pageNum) {
+      let that = this;
+      inspectionApi
+        .getInspectionDo(
+          that,
+          {
+            pageNum: pageNum,
+            pageSize: 100,
+          },
+          that.userId
+        )
+        .then((res) => {
+          if (res.list.length === 0) return;
+          insertIntoInspectionDo(
+            res.list,
+            function () {
+              let totalPageNum = Math.ceil(res.total / 100);
+              let nextPageNum = pageNum + 1;
+              that.inspectionRoute = (pageNum / totalPageNum).toFixed(1) * 100;
+              if (nextPageNum <= totalPageNum && that.isDownload)
+                that.downIntoInspection(nextPageNum);
+            },
+            function (e) {
+              uni.hideLoading();
+              uni.showModal({
+                title: that.$t('basic-modalTip'), //中文：'提示',
+                content: JSON.stringify(e),
+                confirmText: that.$t('basic-confirm'),
+                cancelText: that.$t('basic-cancel'),
+              });
+            }
+          );
+        })
+        .catch(() => {
+          uni.hideLoading();
+        });
+    },
+    downIntoInspectionPoint(pageNum) {
+      let that = this;
+      inspectionApi
+        .getInspectionPotinDo(
+          that,
+          {
+            pageNum: pageNum,
+            pageSize: 100,
+          },
+          that.userId
+        )
+        .then((res) => {
+          if (res.list.length === 0) {
+            uni.showModal({
+              title: that.$t('basic-modalTip'), //中文：'提示',
+              content: that.$t('inspection-noTask'), //中文：'没有点检任务',
+              confirmText: that.$t('basic-confirm'),
+              showCancel: false,
+            });
+            uni.hideLoading();
+            return;
+          }
+          insertInspectionpointDo(
+            res.list,
+            function () {
+              let totalPageNum = Math.ceil(res.total / 100);
+              let nextPageNum = pageNum + 1;
+              that.inspectionPoint = (pageNum / totalPageNum).toFixed(1) * 100;
+              if (nextPageNum <= totalPageNum && that.isDownload)
+                that.downIntoInspectionPoint(nextPageNum);
+            },
+            function (e) {
+              uni.hideLoading();
+              uni.showModal({
+                title: that.$t('basic-modalTip'), //中文：'提示',
+                content: JSON.stringify(e),
+                confirmText: that.$t('basic-confirm'),
+                cancelText: that.$t('basic-cancel'),
+              });
+            }
+          );
+        })
+        .catch(() => {
+          uni.hideLoading();
+        });
+    },
+  },
+  onLoad(options) {
+    const isNew = this.newBundle[options.bundleId],
+      bundleV = options.V || '0'; //bundle的版本信息
+    this.SET_NEW_BUNDLE({
+      //加载过后设置isNew为false
+      bundle: options.bundleId,
+      isNew: false,
+    });
+    if (isNew) {
+      let bundleVersions = uni.getStorageSync('bundleVersion') || {},
+        key = this.userDesigner + '_' + options.bundleId;
+      bundleVersions[key] = bundleV;
+      uni.setStorageSync('bundleVersion', bundleVersions);
+    }
+  },
+};
+</script>

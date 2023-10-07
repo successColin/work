@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -81,7 +81,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -183,7 +182,7 @@ export default {
         const cn = colorArr.length; // 颜色长度
         // let supplementaryColorArr = [], list = [];
         let list = null;
-        if (dataType === 1) {
+        if ([1,4].includes(dataType)) {
           list = JSON.parse(staticValue);
           // const ln = list.length; // 数据长度
           // supplementaryColorArr = supplementaryColor(ln, cn)
@@ -262,19 +261,15 @@ export default {
         chartConfig.data = [{
           value: value,
           itemStyle: {
-            normal: {
-              color: barColor,
-              borderRadius: 10
-            }
+            color: barColor,
+            borderRadius: 10
           }
         },
         //(maxValue进度条最大值 - value当前进度) + 颜色
         {
           value: total - value,
           itemStyle: {
-            normal: {
-              color: barBgColor
-            }
+            color: barBgColor
           }
         }];
         chartConfig = {
@@ -301,27 +296,27 @@ export default {
           },
           type: 'pie'
         }
-        if (cn) {
-          chartConfig.itemStyle = {
-            emphasis: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            },
-            normal: {
-              // color: (params) => {
-              //   const colorList = [...colorArr, ...supplementaryColorArr];
-              //   return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
-              //     offset: 0,
-              //     color: colorList[params.dataIndex].c1
-              //   }, {
-              //     offset: 1,
-              //     color: colorList[params.dataIndex].c2
-              //   }])
-              // }
-            }
-          }
-        }
+        // if (cn) {
+        //   chartConfig.itemStyle = {
+        //     // emphasis: {
+        //     //   shadowBlur: 10,
+        //     //   shadowOffsetX: 0,
+        //     //   shadowColor: 'rgba(0, 0, 0, 0.5)'
+        //     // }
+        //     // normal: {
+        //     //   color: (params) => {
+        //     //     const colorList = [...colorArr, ...supplementaryColorArr];
+        //     //     return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
+        //     //       offset: 0,
+        //     //       color: colorList[params.dataIndex].c1
+        //     //     }, {
+        //     //       offset: 1,
+        //     //       color: colorList[params.dataIndex].c2
+        //     //     }])
+        //     //   }
+        //     // }
+        //   }
+        // }
         let series = [chartConfig];
         return {
           ...optionConfig,
@@ -365,7 +360,7 @@ export default {
           setTimeout(() => {
             const options = this.getOption();
             try {
-              this.instance.myChart.setOption(options);
+              this.instance.myChart.setOption(options, true);
             } catch (error) {
               this.instance.myChart.dispose();
               this.initDom();
@@ -389,7 +384,7 @@ export default {
       this.instance = Object.freeze({myChart: echarts.init(document.getElementById(componentId))});
       const option = this.getOption();
       // 绘制图表
-      this.instance.myChart.setOption(option);
+      this.instance.myChart.setOption(option, true);
     },
     deactivated() {
       // this.$emit("updateActiveComponent", {})

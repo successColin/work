@@ -1,0 +1,32 @@
+@tagBg: rgba(255, 241, 231, 1);
+@tagColor: rgba(250, 100, 0, 1);
+.wrap {
+  display: flex;
+
+  .fontSize {
+    font-size: 16px;
+  }
+  .vNormal {
+    vertical-align: top;
+  }
+
+  .tagWrap {
+    margin-left: 8px;
+
+    :global {
+      .ant-tag {
+        height: 32px;
+        line-height: 32px;
+        color: @tagColor;
+        vertical-align: middle;
+        cursor: pointer;
+        background: @tagBg;
+        border: none;
+      }
+    }
+  }
+}
+.itemForms {
+  margin-bottom: 10px;
+}
+

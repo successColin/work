@@ -23,21 +23,19 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="6" v-for="item in viewList" :key="item.id">
+      <el-col :span="6" v-for="(item) in viewList" :key="item.id">
         <Card :info="item" v-bind="$attrs" @doShow="showPublishConfig"></Card>
       </el-col>
-      <CDialog
-          :visible.sync="visible"
-          :isNeedCancelBtn="false"
-          :append-to-body="true"
-          title="发布设置"
-          @handleOk="handleOk"
-      >
-        <PublishConfig :info="info" v-if="visible" ref="PublishConfig"></PublishConfig>
-      </CDialog>
     </el-row>
-
-
+    <CDialog
+        :visible.sync="visible"
+        :isNeedCancelBtn="false"
+        :append-to-body="true"
+        title="发布设置"
+        @handleOk="handleOk"
+    >
+      <PublishConfig :info="info" v-if="visible" ref="PublishConfig"></PublishConfig>
+    </CDialog>
   </div>
 </template>
 
@@ -45,7 +43,7 @@
 import Bus from '@/utils/bus';
 import {updateView} from '@/services/home';
 
-const Card = () => import('./Card/index');
+import Card from './Card/index';
 const PublishConfig = () => import('./PublishConfig/index');
 
 export default {
@@ -121,7 +119,7 @@ export default {
   padding-top: 20px;
   z-index: auto;
   flex: 1;
-  height: calc(100% - 80px);
+  height: calc(100%);
   justify-content: space-between;
   overflow: auto;
   box-sizing: border-box;

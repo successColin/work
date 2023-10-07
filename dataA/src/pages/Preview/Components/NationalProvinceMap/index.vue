@@ -35,12 +35,13 @@
 </template>
 
 <script>
-
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
 import axios from 'axios';
 import { debounce } from '@/utils/utils';
 import {screenConfig} from '@/constants/global';
 import {getInfoById} from '@/services/design';
 import { PROVINCE_LIST, CITY_LIST } from '@/constants/global'
+import {decrypt} from '@/utils/secret';
 
 // eslint-disable-next-line no-undef
 let echarts = require('echarts');
@@ -85,6 +86,7 @@ export default {
   },
   data() {
     return {
+      client: null,
       pathArr: [{}], // 下钻路径
       pointData: {},
       top: 0,
@@ -255,27 +257,23 @@ export default {
           symbolSize,
           hoverAnimation: true,
           label: {
-            normal: {
-              formatter: function ({ data: { name, value} }) {
-                if (!labelShowType) {return name;}
-                if (labelShowType === 1) {return name;}
-                if (labelShowType === 2) {return value[2];}
-                if (labelShowType === 3) {return '';}
-                return '';
-              },
-              position: labelPosition,
-              show: enableShowLabel,
-              color: labelColor,
-              fontSize: labelSize
-            }
+            formatter: function ({ data: { name, value} }) {
+              if (!labelShowType) {return name;}
+              if (labelShowType === 1) {return name;}
+              if (labelShowType === 2) {return value[2];}
+              if (labelShowType === 3) {return '';}
+              return '';
+            },
+            position: labelPosition,
+            show: enableShowLabel,
+            color: labelColor,
+            fontSize: labelSize
           },
           itemStyle: {
-            normal: {
-              color: scatterColor,
-              shadowBlur: 10,
-              shadowColor: '#333',
-              borderColor: scatterBorderColor
-            }
+            color: scatterColor,
+            shadowBlur: 10,
+            shadowColor: '#333',
+            borderColor: scatterBorderColor
           },
           emphasis: {
             scale,
@@ -388,20 +386,18 @@ export default {
           symbolSize: [imageWidth, imageHeight],
           hoverAnimation: true,
           label: {
-            normal: {
-              formatter: function ({ data: { name, value} }) {
-                if (!labelShowType) {return name;}
-                if (labelShowType === 1) {return name;}
-                if (labelShowType === 2) {return value[2];}
-                if (labelShowType === 3) {return '';}
-                return '';
-              },
-              offset: [shadowHorizontalOffset, shadowVerticalOffset],
-              position: labelPosition,
-              show: enableShowLabel,
-              color: labelColor,
-              fontSize: labelSize
-            }
+            formatter: function ({ data: { name, value} }) {
+              if (!labelShowType) {return name;}
+              if (labelShowType === 1) {return name;}
+              if (labelShowType === 2) {return value[2];}
+              if (labelShowType === 3) {return '';}
+              return '';
+            },
+            offset: [shadowHorizontalOffset, shadowVerticalOffset],
+            position: labelPosition,
+            show: enableShowLabel,
+            color: labelColor,
+            fontSize: labelSize
           },
           zlevel: 2
         }
@@ -533,7 +529,7 @@ export default {
     },400);
   },
   mounted() {
-    const { componentId, stylesObj: { interactionMode, enableMouseClick } } = this.config;
+    const { stylesObj: { interactionMode, enableMouseClick } } = this.config;
     if (enableMouseClick && interactionMode === 1) {
       this.pathArr = [{ name: this.getFirstName }]
     }
@@ -620,7 +616,6 @@ export default {
 
         try {
           mapGeoJSON = require(`@/assets/geoJSON/${lastData[areaCallbackField]}.json`);
-          console.log(11, mapGeoJSON);
         } catch (e) {
           let url = '/';
           if (geoJsonConfig.length) {
@@ -637,7 +632,6 @@ export default {
         mapName = url || `默认${n}`;
       }
       const baseColor = 'rgba(255, 255, 255, 0)';
-      console.log(mapName, mapGeoJSON);
       echarts.registerMap(`${mapName}`, mapGeoJSON);
       let series = [];
       const option = {
@@ -680,32 +674,26 @@ export default {
           roam: roam,
           zoom,
           label: {
-            normal: {
+            show: enableShow,
+            color: textColor
+          },
+          emphasis: {
+            label: {
               show: enableShow,
-              textStyle: {
-                color: textColor
-              }
+              color: highlightTextColor
             },
-            emphasis: {
-              show: enableShow,
-              textStyle: {
-                color: highlightTextColor
-              }
+            itemStyle: {
+              areaColor: areaHighlightColor
             }
           },
           itemStyle: {
-            normal: {
-              shadowOffsetX: shadowHorizontalOffset,
-              shadowOffsetY: shadowVerticalOffset,
-              areaColor: areaDefaultColor, // 区域颜色
-              borderColor: adminBoundaryColor, // 边界颜色
-              borderWidth: adminBoundaryBorderWidth, // 边界宽度
-              shadowBlur: adminBoundaryShadowSize, // 阴影大小
-              shadowColor: adminBoundaryShadowColor // 阴影颜色
-            },
-            emphasis: {
-              areaColor: areaHighlightColor
-            }
+            shadowOffsetX: shadowHorizontalOffset,
+            shadowOffsetY: shadowVerticalOffset,
+            areaColor: areaDefaultColor, // 区域颜色
+            borderColor: adminBoundaryColor, // 边界颜色
+            borderWidth: adminBoundaryBorderWidth, // 边界宽度
+            shadowBlur: adminBoundaryShadowSize, // 阴影大小
+            shadowColor: adminBoundaryShadowColor// 阴影颜色
           },
           select: {
             disabled: true,
@@ -754,7 +742,7 @@ export default {
     },
     async fetchMethods() {
       const { dataType, dataConfig: { staticValue } } = this.config;
-      if (dataType === 1) {
+      if ([1, 4].includes(dataType)) {
         this.list = JSON.parse(staticValue);
       }
       if (dataType === 2) {
@@ -763,6 +751,73 @@ export default {
       if (dataType === 3) {
         await this.getSQL();
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+        // if (this.client) {
+        //   this.publishMessage()
+        // } else {
+        //   await this.initMqtt()
+        // }
+      }
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) { return; }
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun // 过滤器函数
+        }
+      } = this.config;
+      if (!enableMqttFilter) {
+        this.list = data;
+        return
+      }
+      if (enableMqttFilter && mqttFilterFun) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.list = result;
+        return;
+      }
+      this.list = data;
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     async init() {
       const {componentId, enableTooltip, stylesObj: { enableMouseClick }} = this.config;
@@ -772,7 +827,6 @@ export default {
       }
       await this.fetchMethods();
       const option = await this.getOption();
-      console.log(option, 'zz');
       this.instance.myChart.setOption(option, true);
       this.instance.myChart.on('mousemove', (params) => {
         const { componentType, event: { offsetX, offsetY }, data } = params;

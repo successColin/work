@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -83,7 +83,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
@@ -150,9 +149,31 @@ export default {
           borderRadius,
           pieHorizontal,
           pieVertical,
+          enableLegendValue = false, // 是否在图例里面显示值
           colorArr
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
+        let chartConfig = {};
+        const cn = colorArr.length; // 颜色长度
+        let supplementaryColorArr = [], list = [];
+        if ([1, 4].includes(dataType)) {
+          list = JSON.parse(staticValue);
+          const ln = list.length; // 数据长度
+          supplementaryColorArr = supplementaryColor(ln, cn)
+        }
+        if (dataType === 2) {
+          const {apiFilterResponse = '[]'} = apiDataConfig;
+          list = JSON.parse(apiFilterResponse);
+          const ln = list.length; // 数据长度
+          supplementaryColorArr = supplementaryColor(ln, cn)
+        }
+        if (dataType === 3) {
+          const {SQLFilterResponse = '[]'} = SqlDataConfig;
+          list = JSON.parse(SQLFilterResponse);
+          const ln = list.length; // 数据长度
+          supplementaryColorArr = supplementaryColor(ln, cn)
+        }
+        chartConfig.data = list;
         let optionConfig = {
           tooltip: {
             trigger: 'item'
@@ -173,30 +194,14 @@ export default {
               fontWeight: legendFontWeight,
               fontSize: legendFontSize,
               fontFamily: legendFontFamily
+            },
+            formatter(params) {
+              if (!enableLegendValue) {return params;}
+              const current = list.find((item) => item.name === params) || {};
+              return `${params}   ${current.value || 0}`;
             }
           }
         };
-        let chartConfig = {};
-        const cn = colorArr.length; // 颜色长度
-        let supplementaryColorArr = [], list = [];
-        if (dataType === 1) {
-          list = JSON.parse(staticValue);
-          const ln = list.length; // 数据长度
-          supplementaryColorArr = supplementaryColor(ln, cn)
-        }
-        if (dataType === 2) {
-          const {apiFilterResponse = '[]'} = apiDataConfig;
-          list = JSON.parse(apiFilterResponse);
-          const ln = list.length; // 数据长度
-          supplementaryColorArr = supplementaryColor(ln, cn)
-        }
-        if (dataType === 3) {
-          const {SQLFilterResponse = '[]'} = SqlDataConfig;
-          list = JSON.parse(SQLFilterResponse);
-          const ln = list.length; // 数据长度
-          supplementaryColorArr = supplementaryColor(ln, cn)
-        }
-        chartConfig.data = list;
         chartConfig = {
           ...chartConfig,
           roseType: 'radius',
@@ -241,18 +246,16 @@ export default {
             //   shadowOffsetX: 0,
             //   shadowColor: 'rgba(0, 0, 0, 0.5)'
             // },
-            normal: {
-              borderRadius: borderRadius,
-              color: (params) => {
-                const colorList = [...colorArr, ...supplementaryColorArr];
-                return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
-                  offset: 0,
-                  color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
-                }, {
-                  offset: 1,
-                  color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
-                }])
-              }
+            borderRadius: borderRadius,
+            color: (params) => {
+              const colorList = [...colorArr, ...supplementaryColorArr];
+              return new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ //颜色渐变函数 前四个参数分别表示四个位置依次为左、下、右、上
+                offset: 0,
+                color: colorList[params.dataIndex].c1 || colorList[params.dataIndex].c2 || '#fff'
+              }, {
+                offset: 1,
+                color: colorList[params.dataIndex].c2 || colorList[params.dataIndex].c1 || '#fff'
+              }])
             }
           }
         }
@@ -290,7 +293,7 @@ export default {
           setTimeout(() => {
             const options = this.getOption();
             try {
-              this.instance.myChart.setOption(options);
+              this.instance.myChart.setOption(options, true);
             } catch (error) {
               this.instance.myChart.dispose();
               this.initDom();

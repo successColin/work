@@ -17,13 +17,15 @@
 </template>
 
 <script>
-import {IsURL} from '@/utils/utils';
+import * as mqtt from 'mqtt/dist/mqtt.min.js';
+import { IsURL } from '@/utils/utils';
 import {isEqual} from 'lodash';
 import {getInfoById} from '@/services/design';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import 'videojs-flvjs-es6';
 import 'videojs-flash';
+import {decrypt} from '@/utils/secret';
 
 export default {
   props: {
@@ -42,25 +44,27 @@ export default {
   data() {
     return {
       videoPlayer: null,
-      content: ''
+      content: '',
+      client: null
     };
   },
 
-  components: {
-  },
+  components: {},
 
   computed: {
     getRotateX() {
-      const { width, height, top, left, stylesObj} = this.config;
+      const {width, height, top, left, stylesObj} = this.config;
       let styles = `width: ${width}px;height: ${height}px;line-height:${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex};`;
       return styles;
     },
     getImageUrl() { // 获取图片路径
       return function (url) {
-        if (!url) {return '';}
+        if (!url) {
+          return '';
+        }
         const reg = /(http|https):\/\/([\w.]+\/?)\S*/ig;
         const result = url.match(reg);
-        if (!result || !IsURL(result)){
+        if (!result || !IsURL(result)) {
           return '';
         }
         return result[0] || '';
@@ -140,7 +144,7 @@ export default {
         await this.handelVideoUrl(this.content);
         return;
       }
-      const { dataType } = this.config;
+      const {dataType} = this.config;
       if (dataType === 2) {
         await this.getApi();
         return
@@ -149,10 +153,72 @@ export default {
         await this.getSQL();
         return
       }
+      if (dataType === 4 && !this.client) {
+        await this.initMqtt()
+      }
       if (dataType === 1 && supportParameters === 3) {
         this.content = resultUrl;
         await this.handelVideoUrl(this.content);
       }
+    },
+    async initMqtt() {
+      const {
+        mqttDataConfig: {
+          mqttSourceId,
+          sourceU,
+          sourceP,
+          sourceA,
+          sourceD,
+          topic
+        }
+      } = this.config;
+      if (!(mqttSourceId && sourceU && sourceP && topic)) return;
+      const options = {
+        username: decrypt(sourceA), // 可选，MQTT代理的用户名
+        password: decrypt(sourceD) // 可选，MQTT代理的密码
+      };
+      const url = decrypt(sourceU);
+      const port = decrypt(sourceP);
+      this.client = mqtt.connect(`${url}:${port}/mqtt`, options);
+      this.client.on('connect', () => {
+        this.client.subscribe(`${topic}/response`, (err) => {
+          if (!err) {
+            console.log('订阅成功!');
+            this.publishMessage();
+          }
+        });
+      });
+      this.client.on('message', (u, message) => {
+        console.log(u);
+        this.reduceMqtt(JSON.parse(message));
+      });
+    },
+    reduceMqtt(data) {
+      const {
+        mqttDataConfig: {
+          enableMqttFilter,
+          mqttFilterFun, // 过滤器函数
+          mqttEffect
+        }
+      } = this.config;
+      if (enableMqttFilter) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${mqttFilterFun}`);
+        const result = fun()(data);
+        this.content = result[mqttEffect];
+        this.handelVideoUrl(this.content);
+      } else {
+        this.content = data[mqttEffect];
+        this.handelVideoUrl(this.content);
+      }
+    },
+    publishMessage(message = '') {
+      const {
+        mqttDataConfig: {
+          topic
+        }
+      } = this.config;
+      this.client.publish(`${topic}/publish`, message, {qos: 2});
     },
     async getApi() {
       const {apiDataConfig} = this.config;
@@ -334,9 +400,12 @@ export default {
       }
     }
   },
-  destroyed() {
+  beforeDestroy() {
     if (this.videoPlayer) {
       this.videoPlayer.dispose();
+    }
+    if (this.client) {
+      this.client.end();
     }
   },
   name: 'SingleLineText'

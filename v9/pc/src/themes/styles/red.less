@@ -1,0 +1,64 @@
+.theme-red {
+  // 添加按钮
+  :global {
+    .globalAddNewBtn {
+      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+    .globalAddNewBtn:hover {
+      color: @defaultcolor;
+      border: 1px solid rgba(@defaultcolor, 0.6);
+      background: lighten(@defaultcolor, 50%);
+    }
+
+    .defaultButtonStyle {
+      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+    .defaultButtonStyle:hover,
+    .defaultButtonStyle:focus {
+      color: @defaultcolor !important;
+      border: 1px solid rgba(@defaultcolor, 0.6);
+      background: lighten(@defaultcolor, 35%);
+    }
+  }
+
+  // 工单展望
+  :global {
+    .ganttContainerSetColor {
+      .switchbgd:hover {
+        color: red !important;
+      }
+      .checkOutClass:checked::after {
+        background-color: @defaultcolor !important;
+        border-color: @defaultcolor !important;
+      }
+    }
+  }
+  :global {
+    .ant-tabs-content {
+      background: red;
+    }
+  }
+  :global {
+    .center-menu-avatar {
+      background: @defaultcolor;
+      &.menuMinor {
+        color: #fff !important;
+      }
+    }
+    .darker-header-bg {
+      .userHeaderInfo {
+        background: @defaultcolor;
+      }
+    }
+    .userHeaderInfo:hover {
+      background: @darkRed;
+    }
+    .markedList li:hover {
+      color: @defaultcolor;
+
+      .normal-menu-color {
+        color: @defaultcolor;
+      }
+    }
+  }
+}

@@ -19,7 +19,7 @@
           </el-tooltip>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item
-                v-for="item in list"
+                v-for="item in newList"
                 :key="item.id"
                 :command="item.id"
             >{{ item.name }}
@@ -30,7 +30,7 @@
           <div slot="content">
             <span v-if="type==='PC'">预览</span>
             <div v-if="type==='APP'">
-              <qrcode-vue :value="preUrl"></qrcode-vue>
+              <qrcode-vue :value="preAppUrl"></qrcode-vue>
             </div>
           </div>
           <span class="iconfont icon-yulan icon3" @click="doPreview"></span>
@@ -50,6 +50,13 @@
             <span class="iconfont icon-gengduocaozuo icon3"></span>
           </el-tooltip>
           <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <div @click="exportConfig">
+                <span class="iconfont icon-daochu"></span>
+                <span style="vertical-align: top;margin-left: 5px;">导出</span>
+              </div>
+            </el-dropdown-item>
+
             <el-dropdown-item>
               <div @click="copy">
                 <span class="iconfont icon-fuzhi"></span>
@@ -103,7 +110,7 @@
 import QrcodeVue from 'qrcode.vue'
 import Bus from '@/utils/bus';
 import {makeUrl} from '@/utils/utils';
-import {getDesignList} from '@/services/design';
+import {download, getDesignList} from '@/services/design';
 // import {getDesignList, doPublish} from '@/services/design';
 
 
@@ -137,14 +144,22 @@ export default {
   },
 
   computed: {
+    newList() {
+      console.log(this.info);
+      return this.list.filter((item) => item.id !== this.info.groupId);
+    },
     makeId() {
       return function (id) {
         return window.btoa(id)
       }
     },
+    preAppUrl() {
+      const token = localStorage.getItem('screenToken');
+      return `${this.preUrl}?designTypePreview=APP&token=${token}`;
+    },
     preUrl() {
       const url = makeUrl();
-      return `${url}${this.makeId(this.info.id)}?designTypePreview=APP`;
+      return `${url}${this.makeId(this.info.id)}`;
     }
   },
 
@@ -224,6 +239,33 @@ export default {
     },
     copy() {
       Bus.$emit('copyProject', this.info)
+    },
+    async exportConfig() {
+      const { id, name } = this.info;
+      function createObjectURL(object) {
+        return window.URL
+            ? window.URL.createObjectURL(object)
+            : window.webkitURL.createObjectURL(object);
+      }
+      this.exportLoading = true;
+      try {
+        const blob = await download({ dvScreenIds: id });
+        let filename = `${name || '配置'}.zip`;
+        if (window.navigator.msSaveOrOpenBlob) {
+          navigator.msSaveBlob(blob, filename);
+          navigator.msSaveBlob(blob);
+        } else {
+          let a = document.createElement('a');
+          let url = createObjectURL(blob);
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        }
+      } finally {
+        this.exportLoading = false;
+      }
     }
     // async changePublish(v) {
     //   const {id} = this.info;

@@ -1,0 +1,59 @@
+.mPop{
+	.mask {
+		position: fixed;
+		z-index: 1000;
+		top: 0;
+		right: 0;
+		left: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.6);
+	}
+	.pop-content{
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		width: 80%;
+		padding-top: pxToREM(46);
+		background-color: #fff;
+		transform: translateX(-50%) translateY(-50%);
+		background: #fff;
+		border-radius:10px;
+		font-family:PingFangSC-Regular,PingFangSC;
+		z-index: 3000;
+		.pop-title{
+			text-align: center;
+			font-size:pxToREM(32);
+			color:rgba(68,68,68,1);
+		}
+		.content{
+			padding: pxToREM(20) pxToREM(30) pxToREM(46) pxToREM(30);
+			text-align: center;
+			font-size:pxToREM(28);
+			color:rgba(155,155,155,1);
+		}
+		.bottom{
+			display: flex;
+			.btn-item{
+				flex: 1;
+				border-top:1px solid rgba(230,230,230,1);
+				border-right:1px solid rgba(230,230,230,1);
+				button{
+					&:after{
+						border: none;
+					}
+				}
+				&:first-child{
+					button{
+						border-radius: 0 0 0 10px;
+					}
+				}
+				&:last-child{
+					border-right:none;
+					button{
+						border-radius: 0 0 10px 0;
+					}
+				}
+			}
+		}
+	}
+}

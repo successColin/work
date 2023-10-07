@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -35,7 +35,7 @@
       </div>
       <div class="pieHook"></div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -82,47 +82,12 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {
     getContentStyles() {
       const {width, height} = this.config;
       return `width:${width}px;height:${height}px;`;
-    },
-    getTextStyles() {
-      return function () {
-        // let styles = `width: ${this.config.width}px;height: ${this.config.height}px;line-height:${this.config.height}px;`;
-        let styles = `line-height:${this.config.height}px;`;
-        const {stylesObj = {}, gradientType, enableBackground} = this.config;
-        const {
-          color1,
-          color2,
-          hShadow,
-          vShadow,
-          blur,
-          shadowColor,
-          ...rest
-        } = stylesObj;
-        Object.keys(rest).forEach(item => {
-          let singStyle = `${item}:${stylesObj[item]}`
-          if (item === 'fontSize' || item === 'letterSpacing') {
-            singStyle += 'px'
-          }
-          styles += `${singStyle}${singStyle ? ';' : ''}`
-        })
-
-        if (gradientType === 1) { // 左右渐变
-          styles += `background-image: linear-gradient(to right, ${color1}, ${color2});`
-        } else if (gradientType === 2) {
-          styles += `background-image: -webkit-gradient(linear,0 0,0 bottom,from(${color1}),to(${color2}));`
-        }
-        if (enableBackground) {
-          styles += `text-shadow:${hShadow}px ${vShadow}px ${blur}px ${shadowColor};
-          `;
-        }
-        return styles;
-      };
     },
     getList() {
       return this.$store.getters.list;
@@ -209,6 +174,8 @@ export default {
           meanLabelColor = '#ffffff', // 均值线标签颜色
           meanLabelSize = 12, // 均值线标签字体大小
           meanLabelPosition = 'end', // 均值线标签位置
+          showBackground = false,
+          backgroundColor = 'rgba(180, 180, 180, 0.2)',
           colorArr
         } = stylesObj;
         let legendPos = returnChartPosition(legendPosition);
@@ -226,9 +193,8 @@ export default {
           return ''
         }
         let supplementaryColorArr = [], XAxis, legendData = [], series = [], list = [];
-        if (dataType === 1) {
+        if ([1, 4].includes(dataType)) {
           list = JSON.parse(staticValue);
-
         }
         if (dataType === 2) {
           const {apiFilterResponse = '[]'} = apiDataConfig;
@@ -247,6 +213,7 @@ export default {
         XAxis = getXAxisByKey(list, dimension); // x轴的数据
         legendData = getXAxisByKey(list, dimension === 'x' ? 's' : 'x'); // 确定图例
         const ln = legendData.length;
+        console.log(legendData, 'legendData');
         supplementaryColorArr = supplementaryColor(ln, cn)
         legendData.forEach((item, index) => {
           const data = [];
@@ -260,12 +227,12 @@ export default {
             }
           })
           let obj = {
-            name: item,
+            name: item || '',
             data: data,
             type: 'bar',
-            showBackground: false,
+            showBackground,
             backgroundStyle: {
-              color: 'rgba(180, 180, 180, 0.2)'
+              color: backgroundColor
             },
             label: {
               show: enableLabel,
@@ -287,16 +254,14 @@ export default {
             },
             barWidth,
             itemStyle: {
-              normal: {
-                borderRadius: [borderRadius, borderRadius, 0, 0],
-                color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
-                  offset: 0,
-                  color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff'// 0% 处的颜色
-                }, {
-                  offset: 1,
-                  color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
-                }], false)
-              }
+              borderRadius: [borderRadius, borderRadius, 0, 0],
+              color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
+                offset: 0,
+                color: newColorArr[index].c1 || newColorArr[index].c2 || '#fff'// 0% 处的颜色
+              }, {
+                offset: 1,
+                color: newColorArr[index].c2 || newColorArr[index].c1 || '#fff' // 100% 处的颜色
+              }], false)
             },
             barCategoryGap: interGroupSpace,
             barGap: `${innerGroupSpace}%`,
@@ -308,9 +273,9 @@ export default {
               data: []
             }
           };
-          obj = firstReduce(obj, this.config);
-          obj = getChartMarkLineConfig({ baseConfig: obj, name: item, markLineConfig });
-          series.push(obj);
+          const fobj = firstReduce(obj, this.config);
+          const lobj = getChartMarkLineConfig({ baseConfig: fobj, name: item, markLineConfig });
+          series.push(lobj);
         })
         let option = {
           dataZoom: [
@@ -337,7 +302,7 @@ export default {
             },
             itemWidth: 10,
             itemHeight: 10,
-            data: legendData
+            data: legendData.length && legendData[0] ? legendData : []
           },
           xAxis: {
             type: XDataType,
@@ -482,7 +447,7 @@ export default {
   methods: {
     renderOpt() {
       const options = this.getOption();
-      this.instance.myChart.setOption(options);
+      this.instance.myChart.setOption(options, true);
     },
     initDom() {
       const {componentId} = this.config;

@@ -7,7 +7,7 @@
 */
 <!-- 页面 -->
 <template>
-  <VueDragResize
+  <CDragComponent
       :parentLimitation="true"
       :isActive="config.componentId === activeComponent.componentId"
       @deactivated="deactivated"
@@ -37,7 +37,7 @@
         {{ renderContent }}
       </div>
     </div>
-  </VueDragResize>
+  </CDragComponent>
 </template>
 
 <script>
@@ -97,10 +97,10 @@ export default {
           return hour;
         } else if (meridiem === '下午' || meridiem === '晚上') {
           return hour + 12;
-        } 
+        }
         // '中午'
         return hour >= 11 ? hour : hour + 12;
-        
+
       },
       meridiem: function (hour, minute, isLower) {
         const hm = hour * 100 + minute;
@@ -114,9 +114,9 @@ export default {
           return '中午';
         } else if (hm < 1800) {
           return '下午';
-        } 
+        }
         return '晚上';
-        
+
       },
       calendar: {
         sameDay: '[今天]LT',
@@ -172,7 +172,6 @@ export default {
   },
 
   components: {
-    // VueDragResize
   },
 
   computed: {

@@ -68,8 +68,8 @@
             ></chart-legend-position>
           </div>
           <TextStylesConfig
-              title="字体样式"
-              title1="字体颜色"
+              title="标题字体样式"
+              title1="标题字体颜色"
               fontFamily="微软雅黑"
               :fontFamilyValue="getComponentInfo.stylesObj.legendFontFamily"
               :fontWeightValue="getComponentInfo.stylesObj.legendFontWeight"
@@ -77,6 +77,43 @@
               :colorValue="getComponentInfo.stylesObj.legendColor"
               @change="({value,key}) => changeStyles(value, `legend${key}`)"
           />
+<!--          <div class="numberWrap">-->
+<!--            <div class="propsSetting flexItem">-->
+<!--              <p class="setTitle">标题左边距</p>-->
+<!--              <c-input-->
+<!--                  type="number"-->
+<!--                  :min="0"-->
+<!--                  :numberValue="getComponentInfo.stylesObj.legendMarginLeft"-->
+<!--                  @Input-Change="(value) => changeStyles(Number(value), 'legendMarginLeft')"/>-->
+<!--            </div>-->
+<!--            <div class="propsSetting flexItem">-->
+<!--              <p class="setTitle">标题右边距</p>-->
+<!--              <c-input-->
+<!--                  type="number"-->
+<!--                  :min="0"-->
+<!--                  :numberValue="getComponentInfo.stylesObj.legendMarginRight"-->
+<!--                  @Input-Change="(value) => changeStyles(Number(value), 'legendMarginRight')"/>-->
+<!--            </div>-->
+<!--          </div>-->
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">启用图例值</span>
+            <el-switch
+                :value="getComponentInfo.stylesObj.enableLegendValue"
+                @change="(value) => changeStyles(value, 'enableLegendValue')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
+<!--          <TextStylesConfig-->
+<!--              v-if="getComponentInfo.stylesObj.enableLegendValue"-->
+<!--              title="值字体样式"-->
+<!--              title1="值字体颜色"-->
+<!--              :fontFamilyValue="getComponentInfo.stylesObj.legendValueFontFamily"-->
+<!--              :fontWeightValue="getComponentInfo.stylesObj.legendValueFontWeight"-->
+<!--              :fontSizeValue="getComponentInfo.stylesObj.legendValueFontSize"-->
+<!--              :colorValue="getComponentInfo.stylesObj.legendValueColor"-->
+<!--              @change="({value,key}) => changeStyles(value, `legendValue${key}`)"-->
+<!--          />-->
         </div>
       </el-collapse-item>
       <el-collapse-item title="标注" name="3">
@@ -159,6 +196,20 @@
             ></el-slider>
           </div>
           <div class="ellipsisWrap propsSetting">
+            <span class="setTitle">扇形中心横坐标</span>
+            <el-slider
+                @change="(value) => changeStyles(value, 'pieHorizontal')"
+                v-model="getComponentInfo.stylesObj.pieHorizontal"
+            ></el-slider>
+          </div>
+          <div class="ellipsisWrap propsSetting">
+            <span class="setTitle">扇形中心纵坐标</span>
+            <el-slider
+                @change="(value) => changeStyles(value, 'pieVertical')"
+                v-model="getComponentInfo.stylesObj.pieVertical"
+            ></el-slider>
+          </div>
+          <div class="ellipsisWrap propsSetting">
             <span class="setTitle">自定义颜色</span>
             <data-color
                 :value="getComponentInfo.stylesObj.colorArr"
@@ -167,6 +218,35 @@
           </div>
         </div>
       </el-collapse-item>
+      <el-collapse-item title="悬浮提示" name="5">
+        <template slot="title">
+          <div class="bgSettingWrap">
+            <div class="title">悬浮提示</div>
+            <div class="switchWrap">
+              <el-switch
+                  @click.stop.native
+                  :value="getComponentInfo.enableTooltip??true"
+                  @change="(value) => changeTitle(value, 'enableTooltip')"
+                  active-color="#4689F5"
+                  inactive-color="#183472">
+              </el-switch>
+            </div>
+          </div>
+        </template>
+        <div>
+          <div class="propsSetting">
+            <p class="setTitle">提示内容</p>
+            <div>
+              <c-select
+                  :options="tipOptions"
+                  :value="getComponentInfo.stylesObj.tipType??1"
+                  @change="(value) => changeStyles(value, 'tipType')"
+              ></c-select>
+            </div>
+          </div>
+        </div>
+      </el-collapse-item>
+
     </el-collapse>
 
   </div>
@@ -206,6 +286,18 @@ export default {
         }, {
           label: '加粗',
           value: 'bold'
+        }
+      ],
+      tipOptions: [
+        {
+          label: '全部',
+          value: 1
+        }, {
+          label: '仅数值',
+          value: 2
+        }, {
+          label: '仅占比',
+          value: 3
         }
       ],
       labelOptions: [
@@ -637,6 +729,14 @@ export default {
         width: 200px;
         margin: 0 auto;
       }
+    }
+  }
+  .numberWrap {
+    display: flex;
+    justify-content: space-between;
+
+    .flexItem {
+      width: 123px;
     }
   }
 

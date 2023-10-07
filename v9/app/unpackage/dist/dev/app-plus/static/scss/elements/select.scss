@@ -1,0 +1,50 @@
+@charset "utf-8";
+
+//扫描选择框
+.mSearchSelect{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border-bottom: solid 1px #F5F5F5;
+	&.left{
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		.text{
+			width: $input-label-width;
+			text-align: left;
+			flex-shrink: 0;
+			.requisite{
+				color:$main-color;
+				font-size: pxToREM(36);
+				line-height:pxToREM(36);
+			}
+		}
+	}
+	.text{
+		font-size:$input-label-fontsize;
+		color:$input-label-fontcolor;
+	}
+	.content{
+		flex: 1;
+		display: flex;
+		.input{
+			flex:1;
+			height: $input-height;
+			font-size:$input-value-fontsize;
+			color:$input-value-fontcolor;
+			letter-spacing: 0;
+			&.hasrelationTab{//如果存在弹出框，字体颜色为蓝色
+				color: $hasrelationTab-color;
+			}
+		}
+	}
+	&.readonly{
+		.text,.input{
+			color: $readonly-color !important;
+		}
+		.input.hasrelationTab{//如果存在弹出框，字体颜色为蓝色
+			color: $hasrelationTab-color !important;
+		}
+	}
+}

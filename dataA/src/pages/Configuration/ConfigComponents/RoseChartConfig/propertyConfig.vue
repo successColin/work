@@ -77,6 +77,15 @@
               :colorValue="getComponentInfo.stylesObj.legendColor"
               @change="({value,key}) => changeStyles(value, `legend${key}`)"
           />
+          <div class="ellipsisWrap flex propsSetting">
+            <span class="setTitle">启用图例值</span>
+            <el-switch
+                :value="getComponentInfo.stylesObj.enableLegendValue"
+                @change="(value) => changeStyles(value, 'enableLegendValue')"
+                active-color="#4689F5"
+                inactive-color="#183472">
+            </el-switch>
+          </div>
         </div>
       </el-collapse-item>
       <el-collapse-item title="标注" name="3">
@@ -192,6 +201,35 @@
           </div>
         </div>
       </el-collapse-item>
+      <el-collapse-item title="悬浮提示" name="5">
+        <template slot="title">
+          <div class="bgSettingWrap">
+            <div class="title">悬浮提示</div>
+            <div class="switchWrap">
+              <el-switch
+                  @click.stop.native
+                  :value="getComponentInfo.enableTooltip??true"
+                  @change="(value) => changeTitle(value, 'enableTooltip')"
+                  active-color="#4689F5"
+                  inactive-color="#183472">
+              </el-switch>
+            </div>
+          </div>
+        </template>
+        <div>
+          <div class="propsSetting">
+            <p class="setTitle">提示内容</p>
+            <div>
+              <c-select
+                  :options="tipOptions"
+                  :value="getComponentInfo.stylesObj.tipType??1"
+                  @change="(value) => changeStyles(value, 'tipType')"
+              ></c-select>
+            </div>
+          </div>
+        </div>
+      </el-collapse-item>
+
     </el-collapse>
 
   </div>
@@ -231,6 +269,18 @@ export default {
         }, {
           label: '加粗',
           value: 'bold'
+        }
+      ],
+      tipOptions: [
+        {
+          label: '全部',
+          value: 1
+        }, {
+          label: '仅数值',
+          value: 2
+        }, {
+          label: '仅占比',
+          value: 3
         }
       ],
       labelOptions: [

@@ -1,0 +1,127 @@
+//common(48,162,255,1) (198,33,39,1)
+$main-color: rgb(198, 33, 39) !default;
+$main-color-two: rgb(195, 85, 83) !default;
+$main-color-blue: rgb(48, 162, 255) !default;
+$main-color-navyBlue: rgb(47, 88, 153) !default;
+$main-color-violet: rgb(216, 0, 109) !default;
+$main-color-orange: rgb(248, 156, 51) !default;
+$main-backcolor: rgba(245, 245, 245, 1) !default;
+$yellow-color: rgba(250, 183, 28, 1) !default;
+$bar-active-color: rgba(198, 33, 39, 1) !default;
+$default-lable: rgba(155, 155, 155, 1) !default;
+$index-Header-Height: 220 !default;
+$main-radius: 12 !default;
+$readonly-color: rgba(155, 155, 155, 1) !default;
+$hasrelationTab-color: #1890ff !default;
+
+//calendar
+$calendar-Height: 683 !default;
+$calendar-Header-Height: 180 !default;
+$calendar-Item-Height: 80 !default;
+//button
+$button-Height: pxToREM(100) !default;
+//form
+$form-button-foot: pxToREM(98) !default;
+//search
+$search-backcolor: rgba(250, 250, 250, 1) !default;
+$search-inputHeightN: 98 !default;
+$search-inputHeight: 98rpx !default;
+$search-inputHeightHealthy: pxToREM(108) !default;
+$search-inputSize: 30rpx !default;
+$search-btnWidth: pxToREM(100) 100upx !default;
+$searchSelect-btnWidth: pxToREM(88) !default;
+//list
+$listItemIconSize: pxToREM(80) !default;
+//bar
+$bar-bottom-bigout: pxToREM(100) !default;
+$bar-bottom-bigout-height: pxToREM(50) !default;
+$bar--bottom-big: pxToREM(74) !default;
+$bottom-bar: 98rpx !default;
+$has-big-btn: pxToREM(158) !default; //98+60
+$back-bar: 88rpx !default;
+$back-bar-Height: 88 !default;
+//MP
+$MP-BarTitle-Height: 64 !default;
+//input
+//listLabel----------------------
+$input-listlabel-fontsize: 24 !default;
+$input-listlabel-color: rgba(155, 155, 155, 1) !default;
+$input-listlabel-height: 35 !default;
+//Heighr--------------------------
+$input-height: 88rpx !default;
+$input-height-half: pxToREM(40) !default;
+//font--------------------------
+$input-label-width: 206rpx !default;
+$input-label-fontsize: 30rpx !default;
+$input-label-top-fontsize: 30rpx !default;
+$input-label-fontcolor: rgba(155, 155, 155, 1) !default;
+$input-value-fontsize: 30rpx !default;
+$input-value-fontcolor: rgba(68, 68, 68, 1) !default;
+//textarea
+$textarea-label-height: 80upx !default;
+//splitline
+$splitline-bgColor: rgba(250, 250, 250, 1) !default;
+$splitline-height: 18upx !default;
+//datePicker
+$datePicker-label-height: 80upx !default;
+//color--------------------------
+//browser support
+//-------------------------------
+$prefix-for-webkit: true !default;
+$prefix-for-mozilla: true !default;
+$prefix-for-microsoft: true !default;
+$prefix-for-opera: true !default;
+$prefix-for-spec: true !default;
+
+//layout
+//-------------------------------
+$header-height: 46 !default;
+$footer-height: 10% !default;
+$nav-width: 12% !default;
+$nav-item-height: 36px !default;
+//page
+//-------------------------------
+$page-header: 53 !default;
+//scrollbar
+//-------------------------------
+$scrollbar-w: 9px;
+$scrollbar-h: 9px;
+$scrollbar-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+$scrollbar-thumbbackground: rgba(0, 0, 0, 0.2);
+$scrollbar-trackbackground: rgba(0, 0, 0, 0.1);
+//colors
+//-------------------------------
+
+$subsidiary-color: rgba(208, 0, 111, 1) !default;
+$subsidiary-color-y: rgba(196, 214, 0, 1) !default;
+$nav-on: yellow !default;
+$header-color: rgba(236, 240, 241, 1) !default;
+$select-color: rgba(0, 160, 233, 1) !default;
+$select-font-color: #818181 !default;
+$page-headerborder-color: rgba(221, 221, 221, 1) !default;
+$page-headertitle-color: #333333 !default;
+$table-header: rgba(157, 167, 172, 1) !default;
+$page-tool-focus: rgba(104, 201, 223, 1) !default;
+//-------------------------------dialog
+$dialogmain-color: rgba(131, 0, 81, 1) !default;
+//font size
+//-------------------------------
+$font: 'microsoft yahei';
+$root-fize: 16 !default;
+
+//style
+//-------------------------------
+%no-margin-full {
+  padding: 0;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  font-family: $font, Georgia, Serif;
+}
+%no-margin {
+  padding: 0;
+  margin: 0;
+}
+
+// tab 高
+$page-tab-height: 99rpx;

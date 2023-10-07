@@ -1,0 +1,146 @@
+@charset "utf-8";
+@mixin buttons($color:#EEE,$fontcolor:#fff){
+	$hoverColor: hsla(0,0%,100%,.6);
+	@if $color == #EEE {$fontcolor:#CCC}
+	background-color: $color;
+	border-color: $color;
+	color: $fontcolor;
+	&:active{
+		background-color: darken($color,10%);
+		border-color: darken($color,10%);
+		color: $hoverColor;
+	} 
+	&[loading]{//加loading
+		background-color: darken($color,10%);
+		border-color: darken($color,10%);
+		color: $hoverColor;
+	}
+	&[disabled]{//不可用
+		background-color: tint( $color, 10% );
+	}
+}
+@mixin iconbuttons($color:#EEE){
+	$hoverColor: hsla(0,0%,100%,.6);
+	color: $color;
+	&:active{
+		color: darken($color,20%);
+	} 
+	&[disabled]{//不可用
+		color: tint( $color, 10% );
+	}
+}
+.mButton{
+	.m-fonticon{
+		display: inline-block;
+		margin-right: 2px;
+	}
+	.fontTextBtn{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.btn{
+		height:  $button-Height;
+		line-height: $button-Height;
+		font-size:16px;
+	}
+	&.mainColor{
+		color: $main-color; 
+		button{
+			width: 100%;
+			@include buttons($main-color);
+		}
+		@include iconbuttons($main-color);
+	}
+	&.mainColor-blue{
+		color: $main-color-blue; 
+		button{
+			width: 100%;
+			@include buttons($main-color-blue);
+		}
+		@include iconbuttons($main-color-blue);
+	}
+	&.mainColor-navyBlue{
+		color: $main-color-navyBlue; 
+		button{
+			width: 100%;
+			@include buttons($main-color-navyBlue);
+		}
+		@include iconbuttons($main-color-navyBlue);
+	}
+	&.mainColor-violet{
+		color: $main-color-violet; 
+		button{
+			width: 100%;
+			@include buttons($main-color-violet);
+		}
+		@include iconbuttons($main-color-violet);
+	}
+	&.mainColor-orange{
+		color: $main-color-orange; 
+		button{
+			width: 100%;
+			@include buttons($main-color-orange);
+		}
+		@include iconbuttons($main-color-orange);
+	}
+	&.whiteColor{
+		button{
+			width: 100%;
+			@include buttons(#fff,$main-color);
+		}
+	}
+	&.whiteColor-blue{
+		button{
+			width: 100%;
+			@include buttons(#fff,$main-color-blue);
+		}
+	}
+	
+	&.whiteColor-navyBlue{
+		button{
+			width: 100%;
+			@include buttons(#fff,$main-color-navyBlue);
+		}
+	}
+	&.whiteColor-violet{
+		button{
+			width: 100%;
+			@include buttons(#fff,$main-color-violet);
+		}
+	}
+	&.whiteColor-orange{
+		button{
+			width: 100%;
+			@include buttons(#fff,$main-color-orange);
+		}
+	}
+	&.redColor{
+		button{ 
+			width: 100%;
+			@include buttons($main-color);
+		}
+		@include iconbuttons($main-color);
+	}
+	&.yellowColor{
+		button{
+			width: 100%;
+			@include buttons($yellow-color);
+		}
+		@include iconbuttons($yellow-color);
+	}
+	&.whiteColorBlack{
+		button{
+			width: 100%;
+			@include buttons(#fff,rgba(68,68,68,1));
+		}
+	}
+	&.searchColor{
+		color: #9F9F9F; 
+		button{
+			width: 100%;
+			@include buttons(#9F9F9F);
+		}
+		@include iconbuttons(#9F9F9F);
+	}
+}
