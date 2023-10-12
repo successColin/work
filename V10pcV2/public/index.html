@@ -1,0 +1,110 @@
+<!--
+ * @Descripttion:
+ * @version:
+ * @Author: tjf
+ * @Date: 2021-04-20 15:51:39
+ * @LastEditors: tjf
+ * @LastEditTime: 2021-05-21 08:44:14
+-->
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!--    <title>机至数科-APIoT</title>-->
+    <!-- 本地 -->
+    <link rel="stylesheet" href="/luckysheet/plugins/css/pluginsCss.css" />
+    <link rel="stylesheet" href="/luckysheet/plugins/plugins.css" />
+    <link rel="stylesheet" href="/luckysheet/css/luckysheet.css" />
+    <link rel="stylesheet" href="/luckysheet/assets/iconfont/iconfont.css" />
+    <!-- ----------- -->
+    <link rel="stylesheet" href="/static/css/reset.css" />
+    <!-- v10 PC端 -->
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_2455147_m35k6noj1nj.css"
+    />
+    <!-- V10 PC端 图标管理 无色-->
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_3589589_lwag9mymt1.css"
+    />
+    <!-- V10 PC端 图标管理 彩色-->
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_3589590_oiiwz06t3.css"
+    />
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_3741784_1ymeu613j1hj.css"
+    />
+    <!-- 离线font -->
+    <!-- <link rel="stylesheet" href="/font/font_3741784_1sgnzm1t9k9/iconfont.css" />
+    <link rel="stylesheet" href="/font/font_2455147_30l9u4kzbgx/iconfont.css" />
+    <link rel="stylesheet" href="/font/font_3589590_v16b4dp0dkc/iconfont.css" />
+    <link rel="stylesheet" href="/font/font_3589589_0uits3sn5cx/iconfont.css" /> -->
+    <script src="/static/js/index.js"></script>
+  </head>
+  <body>
+    <noscript>
+      <strong
+        >We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
+        properly without JavaScript enabled. Please enable it to
+        continue.</strong
+      >
+    </noscript>
+    <div id="app"></div>
+<!--    <iframe-->
+<!--            src="https://udify.app/chatbot/JqMBa16s44OM4qF8"-->
+<!--            style="width: 100%; height: 100%; min-height: 700px"-->
+<!--            frameborder="0"-->
+<!--            allow="microphone">-->
+<!--    </iframe>-->
+  </body>
+  <script src="/luckysheet/plugins/js/plugin.js" defer></script>
+  <script src="/luckysheet/luckysheet.umd.js" defer></script>
+  <script src="/static/js/uni-webview.js" defer></script>
+  <script src="/static/js/base64.js"></script>
+  <script type="text/javascript">
+    var userAgent = navigator.userAgent;
+    if (userAgent.indexOf('DingTalk') > -1) {
+      // 支付宝小程序的 JS-SDK 防止 404 需要动态加载，如果不需要兼容支付宝小程序，则无需引用此 JS 文件。
+      document.writeln(
+        '<script src="https://appx/web-view.min.js"' +
+          '>' +
+          '<' +
+          '/' +
+          'script>',
+      );
+    } else if (/QQ/i.test(userAgent) && /miniProgram/i.test(userAgent)) {
+      // QQ 小程序
+      document.write(
+        '<script type="text/javascript" src="https://qqq.gtimg.cn/miniprogram/webview_jssdk/qqjssdk-1.0.0.js"><\/script>',
+      );
+    } else if (
+      /miniProgram/i.test(userAgent) &&
+      /micromessenger/i.test(userAgent)
+    ) {
+      // 微信小程序 JS-SDK 如果不需要兼容微信小程序，则无需引用此 JS 文件。
+      document.write(
+        '<script type="text/javascript" src="/static/js/jweixin.js"><\/script>',
+      );
+    } else if (/toutiaomicroapp/i.test(userAgent)) {
+      // 头条小程序 JS-SDK 如果不需要兼容头条小程序，则无需引用此 JS 文件。
+      document.write(
+        '<script type="text/javascript" src="https://s3.pstatp.com/toutiao/tmajssdk/jssdk-1.0.1.js"><\/script>',
+      );
+    } else if (/swan/i.test(userAgent)) {
+      // 百度小程序 JS-SDK 如果不需要兼容百度小程序，则无需引用此 JS 文件。
+      document.write(
+        '<script type="text/javascript" src="https://b.bdstatic.com/searchbox/icms/searchbox/js/swan-2.0.18.js"><\/script>',
+      );
+    } else {
+      document.writeln(
+        '<script src="/static/js/gdtjsapi.js"' + '>' + '<' + '/' + 'script>',
+      );
+    }
+  </script>
+</html>

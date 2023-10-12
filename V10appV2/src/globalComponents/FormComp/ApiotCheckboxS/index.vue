@@ -1,0 +1,270 @@
+<!--
+ * @Author: sss
+ * @Date: 2022-01-11 10:49:37
+ * @Last Modified by: sss
+ * @Last Modified time: 2022-01-11 10:49:37
+ * @Desc: 多选框-需要一个数组
+-->
+<template>
+  <view class="apiotCheckbox" :class="[disabled ? 'disabled' : '']">
+    <checkbox-group @change="checkboxChange">
+      <div class="apiotCheckbox__group" :class="[position]">
+        <label
+          v-for="(item, index) in optionList"
+          class="apiotCheckbox__item"
+          :key="index"
+        >
+          <view class="apiotCheckbox__content">
+            <i
+              class="apiotCheckbox__content--checkbox"
+              :class="[
+                checkedV.findIndex((v) => `${item[valueProp]}` === `${v}`) !==
+                -1
+                  ? `appIcon appIcon-a-fuxuankuangxuanzhong themeColor__font-${getThemeIndex}`
+                  : 'nochecked',
+              ]"
+            ></i>
+            <checkbox
+              :value="`${item[valueProp]}`"
+              :checked="
+                checkedV.findIndex((v) => `${item[valueProp]}` === `${v}`) !==
+                -1
+              "
+              :color="themeColor"
+              :disabled="disabled || readonly"
+              style="display: none; display: none"
+            />
+            <view class="apiotCheckbox__content--name">
+              <i
+                v-if="dropDownStyle === 3 && item.icon && item.icon.icon"
+                class="icon iconfont"
+                :class="item.icon.icon"
+                :style="{ color: item.icon.color, fontSize: '20px' }"
+              ></i>
+              <p
+                class="name"
+                :style="[
+                  {
+                    backgroundColor:
+                      dropDownStyle === 2 && item.color ? item.color : '',
+                    color:
+                      dropDownStyle === 2 && item.fontColor
+                        ? item.fontColor
+                        : '',
+                  },
+                  checkboxStyle,
+                ]"
+              >
+                {{ item[showProp] }}
+              </p>
+            </view>
+          </view>
+        </label>
+      </div>
+    </checkbox-group>
+  </view>
+</template>
+
+<script>
+export default {
+  components: {},
+
+  props: {
+    value: [Number, String, Array],
+    list: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    dictKey: {
+      type: String,
+      default: ''
+    },
+    valueProp: {
+      type: String,
+      default: 'value'
+    },
+    showProp: {
+      type: String,
+      default: 'name'
+    },
+    // 排序
+    sort: {
+      type: String,
+      default: 'asc'
+    },
+    // option显示的值
+    showArry: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    position: {
+      // 排布方向 row，column
+      type: String,
+      default: 'row'
+    },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    dropDownStyle: {
+      // 显示风格 1-正常；2-主题背景色；3-有图标
+      type: Number,
+      default: 1
+    }
+  },
+
+  data() {
+    return {
+      checkboxV: null
+    };
+  },
+
+  watch: {
+    value(newV) {
+      this.checkboxV = newV;
+    }
+  },
+
+  computed: {
+    getThemeIndex() {
+      return this.$store.getters.getThemeIndex;
+    },
+    checkboxStyle() {
+      const { dropDownStyle } = this;
+      const style = {};
+      if (dropDownStyle === 2) {
+        // style.backgroundColor = themeColor;
+        // style.color = '#fff';
+        style.padding = ' 6rpx 20rpx';
+        style.borderRadius = '100px';
+      }
+      return style;
+    },
+    themeColor() {
+      return this.$store.state.base.themeColor;
+    },
+    showList() {
+      const { list, dicList, sort } = this;
+      let showList = [...list];
+      if (list.length === 0) showList = [...dicList];
+      return sort === 'desc' ? showList.reverse() : showList;
+    },
+    optionList() {
+      const { showArry, showList, valueProp } = this;
+      if (showArry.length === 0) return showList;
+
+      const list = showList.filter((item) => showArry.includes(item[valueProp]));
+      return list;
+    },
+    dicList() {
+      const { dictKey } = this;
+      if (dictKey) return this.$store.getters.getCurDict(dictKey) || [];
+      return [];
+    },
+    checkedV() {
+      const { checkboxV } = this;
+      let valueArry = null;
+      if (typeof checkboxV === 'number') valueArry = [checkboxV];
+      else if (checkboxV && Array.isArray(checkboxV)) valueArry = [...checkboxV];
+      else if (checkboxV && typeof checkboxV === 'string') valueArry = checkboxV.split(',');
+      else valueArry = [];
+      return valueArry;
+    }
+  },
+
+  methods: {
+    checkboxChange(evt) {
+      const { value } = evt.detail;
+      this.checkboxV = value.join(',');
+      this.$emit('change', value.join(','));
+    }
+  },
+
+  mounted() {},
+
+  created() {
+    this.checkboxV = this.value;
+  }
+};
+</script>
+
+<style lang='scss' scoped>
+.apiotCheckbox {
+  margin: 5px 0;
+  width: 100%;
+  &.disabled {
+    &.disabled {
+      box-sizing: border-box;
+      padding: $form-el-disabled-padding;
+      background: $form-el-disabled;
+      border-radius: 12rpx;
+      .apiotCheckbox__content {
+        color: $form-el-disabled-valueColor;
+      }
+    }
+  }
+  &__group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    &.row {
+      flex-direction: row;
+      flex-wrap: wrap;
+      .apiotCheckbox__item {
+        flex: 0 0 50%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    height: $form-el-height;
+    font-size: $form-el-fontSize;
+    font-family: $--font-family;
+    color: $form-el-valueColor;
+
+    &--name {
+      display: flex;
+      align-items: center;
+      .icon {
+        margin-right: 8rpx;
+      }
+    }
+
+    &--checkbox {
+      flex-shrink: 0;
+    }
+
+    &--checkbox {
+      font-size: 32rpx;
+      height: 34rpx;
+      width: 34rpx;
+      text-align: center;
+      margin-right: 10rpx;
+
+      &.nochecked {
+        &::after {
+          content: '';
+          display: inline-block;
+          width: 30rpx;
+          height: 30rpx;
+          border: 2rpx solid #d9d9d9;
+          border-radius: 6rpx;
+        }
+      }
+    }
+  }
+}
+</style>

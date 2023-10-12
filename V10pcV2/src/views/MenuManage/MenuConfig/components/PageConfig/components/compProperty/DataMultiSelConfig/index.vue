@@ -1,0 +1,316 @@
+<template>
+  <div class="config singleLineTextConfig">
+    <h1 class="config__h1">数据多选框</h1>
+    <el-form label-position="top" :model="activeObj">
+      <TitleConfig
+        :fatherObj="fatherObj"
+        :activeObj="activeObj"
+        :relateObj="relateObj"
+      ></TitleConfig>
+      <HelpConfig :activeObj="activeObj"></HelpConfig>
+      <!-- 业务表 -->
+      <el-form-item label="业务表" v-if="!isShow">
+        <filterable-input
+          :disabled="!!activeObj.tableInfo.tableName"
+          placeholder="请选择关联表"
+          title="关联表"
+          :dialogType="1"
+          :showInfo="activeObj.tableInfo"
+          @selectRes="selectTable"
+        ></filterable-input>
+      </el-form-item>
+      <!-- 关联数据源  -->
+      <DataSourceConfig
+        :isUser="isUser"
+        :fatherObj="fatherObj"
+        :activeObj="activeObj"
+        :relateObj="relateObj"
+        v-if="
+          this.relateObj.tableInfo.tableName ||
+          (this.activeObj.tableInfo.tableName && !isShow)
+        "
+      ></DataSourceConfig>
+      <el-form-item label="多选值来源" v-if="activeObj.dataSource.columnName">
+        <filterable-input
+          class="m-t-10"
+          placeholder="请选择表"
+          :showInfo="activeObj.multiTable.table"
+          :dialogType="1"
+          @selectRes="selectMultiTable"
+        ></filterable-input>
+        <filterable-input
+          class="m-t-10"
+          placeholder="请选择字段"
+          :tableName="activeObj.multiTable.table.tableName"
+          :showInfo="activeObj.multiTable.column"
+          :dialogType="2"
+          :notShowSys="true"
+          @selectRes="selectMultiColumn"
+        ></filterable-input>
+      </el-form-item>
+      <!-- <el-form-item
+        style="margin-bottom: 0"
+        v-if="activeObj.dataSource.columnName && isShow"
+      >
+        <p class="switchBox">
+          是否启用字典
+          <el-switch
+            v-model="activeObj.enableDict"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item> -->
+      <!-- activeObj.dataSource.columnName && -->
+      <el-form-item label="字典表" v-if="activeObj.enableDict">
+        <filterable-input
+          ref="filterableInput"
+          placeholder="请选择字典"
+          :showInfo="activeObj.dataSource.dictObj"
+          :hasPagination="true"
+          :dialogType="3"
+          @selectRes="selectDict"
+        ></filterable-input>
+      </el-form-item>
+      <el-form-item label="关联类型" v-if="activeObj.dataSource.columnName">
+        <el-radio v-model="activeObj.relateType" :label="1">弹出面板</el-radio>
+        <el-radio v-model="activeObj.relateType" :label="2" v-if="false"
+          >跳转菜单</el-radio
+        >
+        <apiot-button
+          class="panelBtn"
+          v-if="activeObj.relateType === 1"
+          @click="showPanelConfig = true"
+        >
+          <i class="iconfont icon-shezhi m-r-4"></i>弹出面板配置
+        </apiot-button>
+        <apiot-button class="panelBtn" v-if="activeObj.relateType === 2">
+          <i class="iconfont icon-shezhi m-r-4"></i>跳转菜单配置
+        </apiot-button>
+      </el-form-item>
+      <el-form-item
+        v-if="
+          relateObj && relateObj.compName === 'TableMain' && !isUser && false
+        "
+      >
+        <p class="switchBox">
+          是否启用表头搜索
+          <el-switch
+            v-model="activeObj.enableTableSearch"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
+      <StatusConfig :activeObj="activeObj"></StatusConfig>
+      <WidthConfig
+        :activeObj="activeObj"
+        :relateObj="relateObj"
+        :isShow="isShow"
+      ></WidthConfig>
+      <el-form-item label="验证">
+        <p class="switchBox">
+          是否必填
+          <el-switch
+            v-model="activeObj.shouldRequired"
+            class="switchBox__switch"
+            active-text="是"
+            inactive-text="否"
+            @change="setRequiredRule"
+          >
+          </el-switch>
+        </p>
+      </el-form-item>
+      <el-form-item label="提交类型" v-if="isShow && !isUser">
+        <el-select v-model="activeObj.submitType" placeholder="请选择类型">
+          <el-option label="始终提交" :value="1"></el-option>
+          <el-option label="仅显示时提交" :value="2"></el-option>
+          <el-option label="始终不提交" :value="3"></el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <!-- 面板配置弹窗 -->
+    <PanelConfig
+      :visible.sync="showPanelConfig"
+      :configData="configData"
+      :activeObj="activeObj"
+      :isSelPanel="true"
+      :triggerCompMap="triggerCompMap"
+    ></PanelConfig>
+  </div>
+</template>
+
+<script>
+import { createUnique } from '@/utils/utils';
+import PanelConfig from '../ContentConfig/PanelConfig';
+import propertyMixin from '../propertyMixin';
+
+export default {
+  mixins: [propertyMixin],
+  data() {
+    return {
+      tableArr: [],
+      showPanelConfig: false, // 面板配置弹窗是否显示
+    };
+  },
+
+  components: {
+    PanelConfig,
+  },
+
+  computed: {
+    dataTableInfo() {
+      return this.isShow ? this.relateObj.tableInfo : this.activeObj.tableInfo;
+    },
+    getSingleRelate() {
+      return this.relateObj.relateTableArr.filter(
+        (item) =>
+          item.conditionArr[0][0].firstLineTable.tableName ===
+            this.relateObj.tableInfo.tableName &&
+          item.conditionArr[0][0].firstLineColumn.columnName &&
+          item.conditionArr[0][0].secondLineColumn.columnName,
+      );
+    },
+    getMultiRelate() {
+      return [
+        {
+          relateName: '主表',
+        },
+        ...this.getSingleRelate,
+      ];
+    },
+  },
+  created() {
+    // 需要在内部组件渲染之前初始化数据
+    this.initMainTable();
+  },
+  mounted() {
+    this.setRequiredRule();
+  },
+
+  methods: {
+    // 选中表格
+    selectTable(table) {
+      this.activeObj.tableInfo.tableName = table.tableName;
+      this.activeObj.tableInfo.id = table.id;
+      this.activeObj.tableInfo.nameAlias = table.tableName;
+
+      this.activeObj.dataSource.tableName = table.tableName;
+      this.activeObj.dataSource.id = table.id;
+    },
+    // 关系选择切换
+    relateChange(item) {
+      this.tableArr = [];
+
+      if (item.relateName !== '主表') {
+        this.tableArr.push({
+          label: '关联表',
+          tableName: item.relateTable.tableName,
+          alias: item.relateTable.alias,
+        });
+      } else {
+        this.tableArr.push({
+          label: '主表',
+          tableName: this.relateObj.tableInfo.tableName,
+          alias: '',
+        });
+      }
+      // this.activeObj.dataSource.mianColumnInfo = item.conditionArr[0][0].firstLineColumn;
+      // 单表默认单表 多表默认关联表
+      this.tableChange(this.tableArr[0]);
+    },
+    // 表格切换
+    tableChange(table) {
+      if (this.activeObj.dataSource.tableName === table.tableName) {
+        return;
+      }
+      this.activeObj.dataSource.tableName = table.tableName;
+      this.activeObj.dataSource.alias = table.alias;
+      // 切换表格，重置字段
+      this.activeObj.dataSource.columnName = '';
+      this.activeObj.dataSource.id = '';
+    },
+    // 字典选择结果
+    async selectDict(dict) {
+      if (
+        this.activeObj.dataSource.dictObj &&
+        dict.id === this.activeObj.dataSource.dictObj.id
+      ) {
+        return;
+      }
+      dict.dictValue.forEach((item) => {
+        item.value = +item.value;
+        if (item[`${localStorage.apiotLanguage}`]) {
+          item.name = item[`${localStorage.apiotLanguage}`] || item.zhCN;
+        }
+      });
+      this.$bus.$emit('changeDictArr', dict.dictKey);
+      // this.activeObj.dataSource.dictObj = dict;
+      this.$set(this.activeObj.dataSource, 'dictObj', dict);
+      this.fatherObj.form[this.activeObj.compId] = '';
+    },
+    // 设置必填规则,无则设置，有则不变
+    setRequiredRule() {
+      const ruleArr = this.fatherObj.rules[this.activeObj.compId];
+      const ruleObj = {
+        flag: 'requiredRule',
+        required: true,
+        message: `${this.activeObj.name}不能为空`,
+        trigger: 'change',
+      };
+      if (ruleArr && ruleArr.length !== 0) {
+        const index = ruleArr.findIndex((item) => item.flag === 'requiredRule');
+        if (index === -1 && this.activeObj.shouldRequired) {
+          ruleArr.push(ruleObj);
+        }
+        if (index !== -1 && !this.activeObj.shouldRequired) {
+          ruleArr.splice(index, 1);
+        }
+      } else if (this.activeObj.shouldRequired) {
+        this.$set(this.fatherObj.rules, this.activeObj.compId, [ruleObj]);
+      }
+    },
+    selectMultiTable(table) {
+      this.activeObj.multiTable.table.id = table.id;
+      this.activeObj.multiTable.table.tableName = table.tableName;
+      this.activeObj.multiTable.table.alias = `${
+        table.tableName
+      }__${createUnique()}`;
+      this.activeObj.multiTable.column.id = '';
+      this.activeObj.multiTable.column.columnName = '';
+      this.activeObj.multiTable.column.columnTypeDict = '';
+    },
+    selectMultiColumn(table) {
+      this.activeObj.multiTable.column.id = table.id;
+      this.activeObj.multiTable.column.columnName = table.columnName;
+      this.activeObj.multiTable.column.columnTypeDict = table.columnTypeDict;
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+@import '../commonConfig';
+
+.relateBox {
+  &__relate,
+  &__table {
+    width: 48% !important;
+  }
+  &__relate {
+    margin-right: 4%;
+  }
+}
+
+.panelBtn {
+  width: 100%;
+  margin-top: 10px;
+  .iconfont {
+    color: $--color-primary;
+  }
+}
+</style>

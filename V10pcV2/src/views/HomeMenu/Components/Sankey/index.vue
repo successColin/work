@@ -1,0 +1,473 @@
+/**
+* @name: index
+* @author: DELL
+* @date: 2021/8/21 14:51
+* @description：index
+* @update: 2021/8/21 14:51
+*/
+<!-- 页面 -->
+<template>
+  <div
+      v-loading="loading"
+      class="singleTextWrap"
+      :style="getContentStyles"
+  >
+    <div class="singleTextContent" :id="domId">
+    </div>
+  </div>
+</template>
+
+<script>
+import { getInfoById } from '@/api/design';
+import { checkAndGetOtherParams, getRequestParams } from '_v/HomeMenuConfig/constants/common';
+// import { autoToolTip } from '@/utils/echarts_auto_tooltip.js';
+// 引入基本模板
+const echarts = require('echarts');
+
+export default {
+  props: {
+    config: {
+      type: Object,
+      default: () => {
+      }
+    },
+    activeComponent: {
+      type: Object,
+      default: () => {
+      }
+    },
+    otherParams: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    filterParameter: {
+      type: Object,
+      default() {
+        return {};
+      }
+    }
+  },
+  data() {
+    return {
+      instance: null,
+      observer: null,
+      recordOldValue: { // 记录下旧的宽高数据，避免重复触发回调函数
+        width: '0',
+        height: '0'
+      },
+      supplementaryColor: [], // 补充色
+      list: [],
+      loading: false,
+      timer: null,
+      params: {},
+    };
+  },
+
+  components: {},
+
+  computed: {
+    domId() {
+      const { componentId } = this.config;
+      return `${componentId}_${this._uid}`;
+    },
+    getContentStyles() {
+      const {
+        width,
+        height,
+        top,
+        left,
+        stylesObj
+      } = this.config;
+      return `width:${width}px;height:${height}px;top:${top}px;left:${left}px;zIndex:${stylesObj.zIndex};`;
+    },
+    makeData() { // 处理节点
+      return function (list = []) {
+        const obj = {};
+        list.forEach((item) => {
+          const {
+            source,
+            target
+          } = item;
+          if (!Object.hasOwn(obj, source)) {
+            obj[source] = null;
+          }
+          if (!Object.hasOwn(obj, target)) {
+            obj[target] = null;
+          }
+        });
+        return Object.keys(obj)
+            .map((item) => ({ name: item }));
+      };
+    },
+    makeLevels() { // 处理层级数据
+      return function (levels = []) {
+        return levels.map((item, i) => {
+          const {
+            align, // left、center、right
+            verticalAlign, // 'top''middle''bottom'
+            isShowLabel, // 是否显示文本标签
+            labelFontFamily,
+            labelFontWeight,
+            labelFontSize,
+            labelColor,
+            distance,
+            rotate,
+            // eslint-disable-next-line max-len
+            labelPosition, // top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+            itemBorderColor, // 图形的描边颜色
+            itemBorderWidth, // 图形的描边宽度
+            itemBorderType, // 描边类型
+            itemShadowBlur, // 图形阴影的模糊大小
+            itemShadowColor, // 阴影颜色
+            itemShadowOffsetX, // 阴影水平方向上的偏移距离
+            itemShadowOffsetY, // 阴影垂直方向上的偏移距离
+            opacity, // 透明的
+
+            lineStyleColor, // 线条颜色
+            lineStyleOpacity, // 线条透明度
+            curveness
+          } = item;
+          return {
+            depth: i,
+            label: {
+              show: isShowLabel,
+              position: labelPosition,
+              distance,
+              rotate,
+              color: labelColor,
+              fontWeight: labelFontWeight,
+              fontFamily: labelFontFamily,
+              fontSize: labelFontSize,
+              align,
+              verticalAlign
+            },
+            itemStyle: {
+              borderColor: itemBorderColor,
+              borderWidth: itemBorderWidth,
+              borderType: itemBorderType,
+              shadowBlur: itemShadowBlur,
+              shadowColor: itemShadowColor,
+              shadowOffsetX: itemShadowOffsetX,
+              shadowOffsetY: itemShadowOffsetY,
+              opacity
+            },
+            lineStyle: {
+              color: lineStyleColor,
+              opacity: lineStyleOpacity,
+              curveness
+            }
+          };
+        });
+      };
+    },
+    getOption() {
+      return function () {
+        const {
+          stylesObj,
+          dataType,
+          dataConfig,
+          name,
+          levels
+        } = this.config;
+        const { staticValue } = dataConfig;
+        const {
+          backgroundColor,
+          left,
+          top,
+          width,
+          height,
+          nodeWidth,
+          nodeGap,
+          nodeAlign,
+          orient,
+          draggable,
+          colorArr
+        } = stylesObj;
+        let list;
+        if (dataType === 1) {
+          list = JSON.parse(staticValue);
+        }
+        if (dataType === 2 || dataType === 3) {
+          list = this.list;
+        }
+        const nodes = this.makeData(list);
+        const lastLevels = this.makeLevels(levels);
+        const option = {
+          tooltip: {
+            show: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            borderWidth: 0,
+            textStyle: {
+              color: '#fff'
+            },
+            axisPointer: {
+              type: 'cross',
+              label: {
+                backgroundColor: '#333'
+              }
+            }
+          },
+          backgroundColor,
+          series: [{
+            name,
+            type: 'sankey',
+            left: `${left}%`,
+            top: `${top}%`,
+            // right: `${right}%`,
+            // bottom: `${bottom}%`,
+            width: `${width}%`,
+            height: `${height}%`,
+            nodeWidth,
+            nodeGap,
+            nodeAlign,
+            orient,
+            draggable,
+            links: list,
+            data: nodes,
+            levels: lastLevels
+          }]
+        };
+        if (colorArr.length) {
+          option.color = colorArr.map((item) => item.c1);
+        }
+        return option;
+      };
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.initDom();
+    });
+  },
+  watch: {
+    filterParameter: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          if (isShow) {
+            this.checkFilterParameter(true);
+          }
+        }
+      }
+    },
+    otherParams: {
+      deep: true,
+      immediate: true,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          // eslint-disable-next-line max-len
+          const lastOtherParams = checkAndGetOtherParams({ config: this.config, otherParams: this.otherParams });
+          if (isShow && JSON.stringify(lastOtherParams) !== '{}') {
+            this.fetchData();
+          }
+        }
+      }
+    }
+  },
+  methods: {
+    getParameters() {
+      const {
+        id,
+        componentId
+      } = this.config;
+      const reduce = (obj) => // 将Object 处理成 Array
+          Object.keys(obj)
+              .map((item) => ({
+                name: item,
+                value: obj[item]
+              }));
+      const { query } = this.$route;
+      const satisfyParams = {};
+      if (JSON.stringify(this.otherParams) !== '{}') {
+        Object.keys(this.otherParams)
+            .forEach((item) => {
+              if (item.indexOf(componentId) > -1) {
+                const key = item.replace(`${componentId}_`, '');
+                satisfyParams[key] = this.otherParams[item];
+              }
+            });
+      }
+      const currentParams = {
+        ...satisfyParams,
+        ...query
+      };
+      const arr = reduce(currentParams);
+      return {
+        id,
+        varJson: JSON.stringify(arr)
+      };
+    },
+    checkFilterParameter(flag) {
+      const paramsObj = {};
+      const { componentId } = this.config;
+      Object.keys(this.filterParameter).forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.split('_')[1];
+          paramsObj[key] = this.filterParameter[item];
+        }
+      });
+      this.params = paramsObj;
+      this.$nextTick(() => {
+        if (flag && JSON.stringify(paramsObj) === '{}') {
+          return;
+        }
+        this.fetchData();
+      });
+    },
+
+    initDom() {
+      this.instance = Object.freeze({ myChart: echarts.init(document.getElementById(this.domId)) });
+      this.fetchData();
+    },
+    async fetchData() {
+      if (!this.instance) {
+        return;
+      }
+      const { dataType } = this.config;
+      if (dataType === 1) {
+        const option = this.getOption();
+        // 绘制图表
+        this.instance.myChart.setOption(option, true);
+        // 自动轮播
+        // autoToolTip(this.instance.myChart, option, {
+        //   // 轮播间隔时间 默认2s
+        //   interval: 2000,
+        //   // 是否循环轮播所有序列
+        //   loopSeries: true,
+        //   // 第1个被轮播的序列下标
+        //   seriesIndex: 0
+        // });
+      }
+      if (dataType === 3) {
+        this.loading = true;
+        await this.getSQL();
+        const option = this.getOption();
+        // 绘制图表
+        this.instance.myChart.setOption(option, true);
+        this.loading = false;
+      }
+      // getInfoById
+    },
+    async getApi() {
+      const { apiDataConfig } = this.config;
+      const params = this.getParameters();
+      const res = await getInfoById(params) || [];
+      if (res.length) {
+        const obj = res[0] || {};
+        const targetObj = obj.response || '{}';
+        const {
+          enableApiFilter,
+          enableApiAutoUpdate,
+          apiUpdateTime = 1,
+          apiFilterFun,
+          apiDataFilterId
+        } = apiDataConfig;
+        if (enableApiAutoUpdate) {
+          const time = apiUpdateTime * 1000;
+          // eslint-disable-next-line no-unused-expressions
+          this.timer && clearTimeout(this.timer);
+          this.timer = setTimeout(async () => {
+            await this.getApi();
+            this.instance.myChart.clear();
+            const option = this.getOption();
+            // 绘制图表
+            this.instance.myChart.setOption(option, true);
+          }, time);
+        }
+        const list = JSON.parse(targetObj);
+        if (!enableApiFilter) {
+          this.list = list;
+          return;
+        }
+        if (enableApiFilter && apiFilterFun && apiDataFilterId) {
+          // eslint-disable-next-line no-new-func
+          const fun = new Function(`return ${apiFilterFun}`);
+          const result = fun()(list);
+          if (!(Array.isArray(result) && result.length)) {
+            this.list = [];
+            return;
+          }
+          this.list = result;
+        }
+      }
+    },
+    async getSQL() {
+      const { SqlDataConfig } = this.config;
+      const {
+        SQLFilterFun,
+        enableSQLFilter,
+        SQLDataFilterId,
+        enableSQLAutoUpdate,
+        SQLUpdateTime = 1
+      } = SqlDataConfig;
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
+      const res = await getInfoById(params);
+      if (enableSQLAutoUpdate) {
+        const time = SQLUpdateTime * 1000;
+        // eslint-disable-next-line no-unused-expressions
+        this.timer && clearTimeout(this.timer);
+        this.timer = setTimeout(async () => {
+          await this.getSQL();
+          this.instance.myChart.clear();
+          const option = this.getOption();
+          // 绘制图表
+          this.instance.myChart.setOption(
+              option
+          );
+        }, time);
+      }
+      if (!enableSQLFilter) {
+        this.list = res;
+        return;
+      }
+      if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${SQLFilterFun}`);
+        const result = fun()(res);
+        if (!(Array.isArray(result) && result.length)) {
+          this.list = [];
+          return;
+        }
+        this.list = result;
+        return;
+      }
+      this.list = res;
+    }
+  },
+  beforeDestroy() {
+    // eslint-disable-next-line no-unused-expressions
+    this.timer && clearTimeout(this.timer);
+  },
+  name: 'SingleLineText'
+};
+</script>
+
+<style lang='scss' scoped>
+.singleTextWrap {
+  position: absolute;
+  //overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  .singleTextContent {
+    width: calc(100%);
+    height: calc(100%);
+    position: relative;
+    margin: 0 auto;
+  }
+}
+</style>

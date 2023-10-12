@@ -1,0 +1,144 @@
+/*
+ * @Descripttion: app配置
+ * @Author: cmk
+ * @Date: 2021-04-12 12:53:46
+ * @LastEditors: cmk
+ * @LastEditTime: 2021-04-22 17:19:58
+ */
+import FetchData from './axiosConfig';
+
+// app 登录模块
+// 文件上传
+export function upload(data) {
+  return FetchData.request({
+    url: 'system/interface/upload',
+    method: 'post',
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+    data,
+  });
+}
+
+// 保存app 登录页信息
+export function saveSysAppLoginConfig(data) {
+  return FetchData.request({
+    url: 'system/page/saveSysAppLoginConfig',
+    method: 'post',
+    data,
+  });
+}
+
+// 获取app 登录页信息
+export function getAppLoginPage(params) {
+  return FetchData.request({
+    url: 'system/page/getAppLoginPage',
+    params,
+  });
+}
+
+// 保存功能界面信息
+export function saveFunctionInterface(data) {
+  return FetchData.request({
+    url: 'system/interface/saveFunctionInterface',
+    method: 'post',
+    data,
+  });
+}
+
+// 获取功能界面信息
+export function getFunctionInterface(params) {
+  return FetchData.request({
+    url: 'system/interface/getFunctionInterface',
+    params,
+  });
+}
+// 保存我的界面信息
+export function saveMyInterface(data) {
+  return FetchData.request({
+    url: 'system/interface/saveMyInterface',
+    method: 'post',
+    data,
+  });
+}
+
+// 获取我的界面信息
+export function getMyInterface(params) {
+  return FetchData.request({
+    url: 'system/interface/getMyInterface',
+    params,
+  });
+}
+
+// 新增编辑菜单
+export function saveAppMenu(data) {
+  return FetchData.request({
+    url: 'system/interface/saveAppMenu',
+    method: 'post',
+    data,
+  });
+}
+// 复制
+export function copyAppMenu(data) {
+  return FetchData.request({
+    url: 'system/design/copyAppMenu',
+    method: 'post',
+    data,
+  });
+}
+// 删除菜单 deleteAppMenu
+export function deleteAppMenu(data) {
+  return FetchData.request({
+    url: 'system/interface/deleteAppMenu',
+    method: 'post',
+    data,
+  });
+}
+// 根据key获取对应参数信息
+export function getInfoByKey(params) {
+  return FetchData.request({
+    url: 'system/parameter/getInfoByKey',
+    params,
+  });
+}
+// 保存参数信息
+export function saveParameter(data) {
+  return FetchData.request({
+    url: 'system/parameter/save',
+    method: 'post',
+    data,
+  });
+}
+// 上传更新文件
+export function uploadUpdatePackage(data) {
+  return FetchData.request({
+    url: 'system/parameter/upload',
+    method: 'post',
+    data,
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  });
+}
+
+// 导出app菜单
+export function exportAppMenu(data) {
+  return FetchData.request({
+    url: 'system/design/exportAppMenu',
+    method: 'post',
+    responseType: 'blob',
+    data,
+  });
+}
+
+// 导入app菜单
+export function importAppMenu(data) {
+  return FetchData.request({
+    url: 'system/design/importAppMenu',
+    method: 'post',
+    headers: {
+      'content-type': 'application/json',
+    },
+    data,
+  });
+}

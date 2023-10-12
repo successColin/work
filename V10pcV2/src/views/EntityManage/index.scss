@@ -1,0 +1,63 @@
+// class 变量名
+// $--name: 'entity';
+// 头部的高度
+// $--headHeight: 42px;
+// 计算表格宽度时减去的距离
+// $--desWidth: calc(100vw - 280px);
+
+@mixin setLayout($--name, $--headHeight, $--desWidth: '', $--minWidth: '') {
+  .#{$--name} {
+    &__content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    &__header {
+      flex: 0 0 $--headHeight;
+      padding: 0 10px;
+      line-height: $--headHeight;
+      .icon-shanchu {
+        color: $--color-primary;
+      }
+    }
+    &__search {
+      position: relative;
+      width: 200px;
+      float: right;
+      ::v-deep {
+        .el-input__inner {
+          height: 30px;
+          padding-left: 12px;
+          padding-right: 30px;
+        }
+        .el-input:focus-within + i.icon-sousuo {
+          color: $--color-primary;
+        }
+      }
+      .icon-sousuo {
+        position: absolute;
+        color: #d9d9d9;
+        height: 28px;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 1px;
+        width: 29px;
+        line-height: 30px;
+        cursor: pointer;
+      }
+    }
+    &__main {
+      flex: 1;
+      overflow: hidden;
+      box-sizing: border-box;
+      padding: 0 10px;
+      width: 100%;
+      // min-width: $--minWidth;
+      // height: calc(100% - 42px - 42px);
+    }
+
+    &__footer {
+      flex: 0 0 42px;
+    }
+  }
+}

@@ -1,0 +1,134 @@
+<!--
+ * @Author: sss
+ * @Date: 2021-07-26 14:15:40
+ * @Last Modified by: sss
+ * @Last Modified time: 2021-07-26 14:15:40
+ * @Desc: 钉钉
+-->
+<template>
+  <article class="wechat">
+    <div class="configuration--line">
+      <label class="header__label isRequired">{{
+          $t('messageTemplate.serve')
+        }}</label>
+      <select-serve :messageType="5" v-model="server"></select-serve>
+    </div>
+    <div class="configuration--line">
+      <label class="header__label isRequired">{{
+          $t('messageTemplate.contentTemplate')
+        }}</label>
+      <codemirror
+          ref="dingContent"
+          key="dingContent"
+          com="dingContent"
+          prop="content"
+          :height="200"
+          @onCmFocus="onCmFocus"
+          @contentChange="contentChange"
+      ></codemirror>
+    </div>
+  </article>
+</template>
+
+<script>
+import Codemirror from '../Codemirror';
+import SelectServe from '../SelectServe';
+
+export default {
+  components: { Codemirror, SelectServe },
+
+  inject: ['getVariables'],
+
+  props: {
+    content: {
+      type: Object,
+      default() {
+        return {};
+      }
+    }
+  },
+
+  data() {
+    return {
+      contentProps: { },
+      contentTemplate: '',
+      variables: [],
+      server: {}
+    };
+  },
+
+  computed: {
+    serverId() {
+      return this.server.id || '';
+    },
+    curContent() {
+      const { server, contentTemplate, contentProps, serverId } = this;
+      return {
+        ...this.content,
+        ...{
+          contentProps: JSON.stringify(contentProps),
+          content: contentTemplate,
+          serverId,
+          server,
+          messageType: 5
+        }
+      };
+    }
+  },
+
+  watch: {
+    contentProps: {
+      handler() {
+        this.$emit('change', this.curContent);
+      },
+      immediate: true,
+      deep: true
+    },
+    server() {
+      this.$emit('change', this.curContent);
+    }
+  },
+
+  methods: {
+    init() {
+      this.contentTemplate = this.content.content || '';
+      const { contentProps, serverId, server = {} } = this.content;
+      if (contentProps) this.contentProps = JSON.parse(contentProps);
+      server.id = serverId || '';
+      this.server = { ...server };
+
+      this.variables = this.getVariables();
+      this.$refs.dingContent.init({ content: this.contentTemplate, variables: this.variables });
+    },
+    // 编辑聚焦时
+    onCmFocus(codemirrorValInfo) {
+      // 编辑器聚焦后通知变量区打开“变量注入功能”，并带给变量区对应的编辑器唯一标识，可以正确注入对应编辑器
+      this.$bus.$emit('codemirrorVal_open', {
+        codemirrorKey: `${codemirrorValInfo.com}_codemirror_markVal`
+      });
+    },
+    // 值发生变化时
+    contentChange(value) {
+      this.contentTemplate = value.content;
+      this.$emit('change', this.curContent);
+    }
+  },
+
+  mounted() {
+    this.init();
+
+    // 向编辑器注入变量
+    this.$bus.$on('dingContent_codemirror_markVal', (info) => {
+      this.$refs.dingContent.setValue(info);
+    });
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('dingContent_codemirror_markVal');
+  }
+};
+</script>
+
+<style lang='scss' scoped>
+@import '../tab.scss';
+</style>

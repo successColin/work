@@ -1,0 +1,67 @@
+// class 变量名
+// $--name: 'entity';
+// 头部的高度
+// $--headHeight: 42px;
+// 计算表格宽度时减去的距离
+// $--desWidth: calc(100vw - 280px);
+
+@mixin setLayout($--name) {
+  .#{$--name} {
+    margin-top: 30rpx;
+    display: flex;
+    flex-direction: column;
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30rpx;
+      height: 80rpx;
+      background: #ffffff;
+      border-bottom: 1px solid #e9e9e9;
+      color: #333333;
+      &--title,
+      &--select {
+        font-size: 32rpx;
+        @include fontBlob(500);
+      }
+      &--back {
+        font-family: $--font-family;
+        font-size: 28rpx;
+        line-height: 30rpx;
+      }
+      &--flex {
+        flex: 1;
+        text-align: center;
+      }
+    }
+    &__search {
+      border-bottom: 1px solid #e9e9e9;
+    }
+    &__nav {
+      display: flex;
+      margin: 10rpx 30rpx;
+      &--type {
+        margin-top: 10px;
+        border-radius: 33px;
+        padding: 12rpx 24rpx;
+        margin-right: 13rpx;
+        font-size: 28rpx;
+        background: #f6f6f8;
+        color: #333333;
+      }
+      &--select {
+        background: #f1f7ff;
+        color: #4689f5;
+      }
+    }
+    &__content {
+      flex: 1;
+    }
+    footer {
+      width: calc(100% - 64rpx);
+      display: flex;
+      padding: 20rpx 33rpx;
+      background: #ffffff;
+    }
+  }
+}

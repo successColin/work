@@ -1,0 +1,14 @@
+.listLabel {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  &.labelRight {
+    justify-content: flex-end;
+    text-align: right;
+    margin-right: 30rpx;
+  }
+  &__title {
+    flex-shrink: 0;
+  }
+}

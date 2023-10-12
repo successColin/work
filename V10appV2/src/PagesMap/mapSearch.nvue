@@ -1,0 +1,349 @@
+<template>
+  <view class="mapSearch">
+    <map
+      id="map"
+      ref="map"
+      class="mapSearch__map"
+      :markers="markers"
+      scale="18"
+      :show-location="true"
+      :longitude="centerInfo.longitude"
+      :latitude="centerInfo.latitude"
+      layer-style="2"
+      @tap="clickMap"
+    ></map>
+
+    <search-div
+      :value="selectedLocation"
+      :title="config.title"
+      @clickTip="clickTip"
+      @changeCity="changeCity"
+    ></search-div>
+    <view class="mapCurrent" @tap.stop="backCurrent">
+      <text
+        :style="{ fontFamily: 'appIcon', fontSize: '42rpx', color: themeColor }"
+        >&#xeb66;</text
+      >
+    </view>
+    <view class="mapSearch__location">
+      <view
+        ><text style="font-size: 30rpx">{{ selectedLocation.name }}</text></view
+      >
+      <view class="point">
+        <text style="font-size: 24rpx"
+          >X:{{ selectedLocation.longitude }} Y:{{
+            selectedLocation.latitude
+          }}</text
+        >
+      </view>
+      <view class="mapSearch__footer--btns">
+        <view class="mapSearch__footer-btn cancel" @click.stop="cancel"
+          ><text style="font-size: 30rpx">取消</text></view
+        >
+        <view class="mapSearch__footer-btn sure" @click.stop="sure"
+          ><text style="font-size: 30rpx; color: #fff">确定</text></view
+        >
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import SearchDiv from './components/SearchDiv';
+
+export default {
+  components: { SearchDiv },
+
+  data() {
+    return {
+      marks: [], // 标记点，不包括当前位置
+      selectedLocation: {}, // 已经选中的标记点
+      centerInfo: {}, // 中心点信息
+      config: {
+        title: 'map',
+        flag: ''
+      }
+    };
+  },
+
+  computed: {
+    themeColor() {
+      return this.$store.state.base.themeColor;
+    },
+    location() {
+      return this.$store.state.map.location;
+    },
+    currentMark() {
+      const { latitude, longitude, name } = this.location;
+      if (!latitude && !longitude) return null;
+      return {
+        id: 1,
+        latitude,
+        longitude,
+        iconPath: '/static/img/map/location.png',
+        width: 25,
+        height: 25
+      };
+    },
+    markers() {
+      if (this.currentMark) return [this.currentMark, ...this.marks];
+      return [...this.marks];
+    }
+  },
+
+  methods: {
+    // 回到目前所在位置
+    backCurrent() {
+      const { location, selectedLocation = {} } = this;
+      const { latitude, longitude, name } = this.location;
+      // 如果当前选中的点与目前所在位置相同
+      if (selectedLocation.latitude === latitude && selectedLocation.longitude === longitude) return;
+
+      this.setCenter(this.location);
+      this.selectedLocation = { ...this.location };
+      this.marks = [];
+    },
+    // 取消
+    cancel() {
+      uni.navigateBack();
+    },
+    sure() {
+      uni.$emit(this.config.flag, this.selectedLocation);
+      uni.navigateBack();
+    },
+    // 选择城市后重新定位中心点
+    changeCity(city) {
+      const { center: location, name } = city;
+      if (location) {
+        const locationArry = location.split(',');
+        const longitude = Number(locationArry[0]);
+        const latitude = Number(locationArry[1]);
+        this.setCenter({ longitude, latitude });
+      }
+    },
+    // 搜索出来的信息进行点击
+    clickTip(tip) {
+      const { location, name, id } = tip;
+      const index = this.markers.findIndex((item) => item.id === id);
+      if (index !== -1) return false;
+      const locationArry = location.split(',');
+      const longitude = Number(locationArry[0]);
+      const latitude = Number(locationArry[1]);
+      this.selectedLocation = { ...tip, longitude, latitude };
+      this.setCenter({ longitude, latitude });
+
+      this.marks = [
+        {
+          id,
+          latitude,
+          longitude,
+          iconPath: '/static/img/map/location.png',
+          width: 40,
+          height: 40
+        }
+      ];
+    },
+    // 直接点击地图
+    async clickMap(e) {
+      const { detail } = e;
+      const { longitude, latitude } = detail;
+      if (!longitude || !latitude) return;
+      this.setCenter({ longitude, latitude });
+      this.marks = [
+        {
+          id: 1,
+          iconPath: '/static/img/map/location.png',
+          latitude,
+          longitude,
+          width: 25,
+          height: 25
+        }
+      ];
+      this.getLocation({ longitude, latitude });
+    },
+    // 设置中心点
+    setCenter(location) {
+      const { longitude, latitude } = location;
+      this.centerInfo = { longitude, latitude };
+    },
+    // 设置当前定位的详细信息
+    async getLocation(p) {
+      if (!p) return;
+      const { longitude, latitude } = p;
+      // #ifdef APP-PLUS || MP-WEIXIN || H5
+      const info = await this.$store.dispatch('getAddress', {
+        type: 'noset',
+        currentLocation: {
+          longitude,
+          latitude
+        }
+      });
+      this.selectedLocation = info;
+      // #endif
+    }
+  },
+
+  mounted() {},
+
+  created() {
+    // #ifndef H5
+    const domModule = weex.requireModule('dom');
+    domModule.addRule('fontFace', {
+      fontFamily: 'appIcon',
+      src: "url('http://at.alicdn.com/t/c/font_2808920_i1wobrnylyg.ttf?t=1670985649159')"
+    });
+    // #endif
+  },
+
+  onLoad(option) {
+    option = option || {};
+    this.config = { ...this.config, ...option };
+    const { flag } = option;
+    if (flag) {
+      const locations = this.$store.state.map.selectedLocation;
+      this.selectedLocation = locations[flag] || {};
+    } else this.selectedLocation = { ...this.location };
+    this.setCenter(this.selectedLocation);
+
+    const { longitude, latitude } = this.selectedLocation;
+    if (latitude !== this.location.latitude || longitude !== this.location.longitude) {
+      const param = { ...this.selectedLocation };
+      param.id = param.id || 1;
+      param.iconPath = '/static/img/map/location.png';
+      this.marks = [param];
+    }
+    this.getLocation({ longitude, latitude });
+  },
+  onReady() {
+    // #ifdef APP-PLUS
+    plus.navigator.setStatusBarStyle('dark');
+    // #endif
+    // #ifdef MP
+    uni.setNavigationBarTitle({
+      title: this.config.title
+    });
+    // #endif
+  }
+};
+</script>
+<style lang='scss' scoped>
+page {
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 0px;
+  --safe-area-inset-left: 0px;
+}
+
+@supports (top: constant(safe-area-inset-top)) {
+  page {
+    --safe-area-inset-top: constant(safe-area-inset-top);
+    --safe-area-inset-right: constant(safe-area-inset-right);
+    --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+    --safe-area-inset-left: constant(safe-area-inset-left);
+  }
+}
+
+@supports (top: env(safe-area-inset-top)) {
+  page {
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-right: env(safe-area-inset-right);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+    --safe-area-inset-left: env(safe-area-inset-left);
+  }
+}
+/* #ifndef APP-PLUS-NVUE */
+page {
+  min-height: 100%;
+}
+/* #endif */
+.mapCurrent {
+  position: fixed;
+  bottom: 320rpx;
+  right: 22rpx;
+  padding: 20rpx 28rpx;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 6rpx 6rpx 0 rgba(0, 0, 0, 0.3);
+}
+.mapSearch {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: red;
+  &__map {
+    /* #ifdef H5 */
+    width: 100%;
+    height: 100vh;
+    /* #endif */
+    /* #ifdef MP-WEIXIN */
+    width: 100%;
+    height: 100%;
+    /* #endif */
+    /* #ifdef APP-PLUS */
+    width: 750rpx;
+    height: 1500rpx;
+    /* #endif */
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  &__location {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 36rpx 30rpx 20rpx 30rpx;
+    color: #333333;
+    border-radius: 24rpx 24rpx 0 0;
+  }
+}
+.point {
+  font-size: 24rpx;
+  color: #808080;
+  line-height: 32rpx;
+}
+.iconfont {
+  font-family: appIcon;
+  display: flex;
+  background: red;
+}
+.footerBtns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.mapSearch__footer--btns {
+  height: 88rpx;
+  margin: 19rpx 0;
+  display: flex;
+  flex-direction: row;
+  background: #fff;
+}
+.mapSearch__footer-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 72rpx;
+  border-radius: 12rpx;
+  font-size: 15px;
+  color: #333333;
+  text-align: center;
+}
+.cancel {
+  background: #f1f3f6;
+  font-size: 15px;
+}
+.sure {
+  margin-left: 24rpx;
+
+  background: #4689f5;
+  color: #fff;
+}
+</style>

@@ -1,0 +1,411 @@
+{
+  "easycom": {
+    "^uni-(.*)": "@/components/uni-$1/uni-$1.vue",
+    "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+  },
+  "pages": [
+    // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/index/index"
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "Login",
+      "pages": [
+        // #ifndef MP-WEIXIN
+        // #endif
+        {
+          "path": "index"
+        },
+        {
+          "path": "loginForgot"
+        }
+      ]
+    },
+    {
+      "root": "PagesError",
+      "pages": [
+        {
+          "path": "501",
+          "style": {
+            "backgroundColor": "#FFFFFF"
+          }
+        }
+      ]
+    },
+    // #ifdef MP-ALIPAY
+    // {
+    //   "root": "PagesDing", // 钉钉相关界面
+
+    //   "pages": [
+    //     {
+    //       "path": "associatedUser"
+    //     },
+    //     {
+    //       "path": "ex"
+    //     }
+    //   ]
+    // },
+    // #endif
+    // #ifdef MP-WEIXIN
+    {
+      "root": "PagesWX",
+      "pages": [
+        {
+          "path": "Login"
+        },
+        {
+          "path": "Register"
+        }
+      ]
+    },
+    // #endif
+    {
+      "root": "menuConfigure", // 配置界面
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "highSearch", // 筛选
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "components/MenuMain/SearchRelationpage/index", // 关联资料查询
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "components/MenuMain/ConfigMain/ProcessNodes/detail" // 流程详情
+        },
+        {
+          "path": "components/MenuMain/ConfigMain/ConfigBtns/ProcessOP/index" // 流程审批
+        }
+      ]
+    },
+    {
+      "root": "MenuHome",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "applicationTab"
+        }
+      ]
+    },
+    {
+      "root": "interfaceCommon", // 通用功能，例如搜索界面1
+      "pages": [
+        {
+          "path": "search",
+          "style": {
+            "backgroundColor": "#FFFFFF"
+          }
+        },
+        {
+          "path": "webView",
+          "style": {
+            // #ifdef MP
+            "navigationStyle": "default",
+            // #endif
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "PagesPrint", // 通用功能，例如搜索界面1
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            // #ifdef MP
+            "navigationStyle": "default",
+            // #endif
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    // #ifdef APP-PLUS
+    {
+      "root": "inspection",
+      "pages": [
+        {
+          "path": "inspection/route",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "inspection/inspectionDevice",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "inspection/inspectionPoint",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "inspection/inspectionUpload",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        }
+      ]
+    },
+    // #endif
+    {
+      "root": "userloginManage",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "MoreInfor",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "components/InforDetails/index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "root": "knowledgeBase",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "components/SearchPage/index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black",
+            "app-plus": {
+              "softinputMode": "adjustResize"
+            }
+          }
+        },
+        {
+          "path": "webViewTemplate/index"
+        }
+      ]
+    },
+    {
+      "root": "PagesGlobalSearch",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "MinePages",
+      "pages": [
+        {
+          "path": "BasicInfo/index"
+        },
+        {
+          "path": "ChangePassword/index"
+        },
+        {
+          "path": "ChangeTelephone/index"
+        },
+        {
+          "path": "MyCode/index"
+        },
+        {
+          "path": "ChangeEmail/index"
+        },
+        {
+          "path": "ChangeUsername/index"
+        },
+        {
+          "path": "ChangeSign/index"
+        }
+      ]
+    },
+    {
+      "root": "PagesServer",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
+    },
+    {
+      "root": "Message",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "components/webview/index"
+        }
+      ]
+    },
+    {
+      "root": "PagesProcess",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "components/AdvancedScreen/index"
+        }
+      ]
+    },
+    {
+      "root": "PagesSelectUser",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "enablePullDownRefresh": true,
+            "onReachBottomDistance": 120,
+            "backgroundColor": "#F6F6F8",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "Notice",
+      "pages": [
+        {
+          "path": "NoticeList/index"
+        },
+        {
+          "path": "NoticeDetail/index"
+        }
+      ]
+    },
+    {
+      "root": "PageCalendar",
+      "pages": [
+        {
+          "path": "index"
+        }
+      ]
+    },
+    {
+      "root": "PagesMap",
+      "pages": [
+        {
+          "path": "mapSearch",
+          "style": {
+            // "navigationStyle": "default",
+            // "backgroundColor": "#F6F6F8",
+            // "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "citySelect"
+        }
+      ]
+    },
+    {
+      "root": "PagesHealth",
+      "pages": [
+        {
+          "path": "index"
+        },
+        {
+          "path": "HealthyJump/healthJump"
+        }
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/index/index": {
+      "network": "all",
+      "packages": [
+        "Login",
+        "MenuHome",
+        "PagesError",
+        "menuConfigure",
+        "knowledgeBase",
+        "PagesProcess",
+        "MoreInfor",
+        "PagesGlobalSearch"
+      ]
+    },
+    "menuConfigure/index": {
+      "network": "all",
+      "packages": ["interfaceCommon", "PagesSelectUser"]
+    },
+    "PagesProcess/index": {
+      "network": "all",
+      "packages": ["interfaceCommon", "PagesSelectUser"]
+    }
+  },
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F6F6F8",
+    "scrollIndicator": "none",
+    "softinputNavBar": "none"
+  }
+}

@@ -1,0 +1,39 @@
+@mixin setTabContent(
+  $--name,
+  $--footerHeight,
+  $--dateRangeWidth,
+  $--inputWidth
+) {
+  .#{$--name} {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    &__header {
+      margin: 0 10px;
+      width: 100%;
+      display: flex;
+      .item {
+        margin: 0 10px 10px 0;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+      &--dateRange {
+        flex: 0 0 $--dateRangeWidth;
+      }
+      &--input {
+        flex: 0 0 $--inputWidth;
+      }
+    }
+    &__content {
+      margin: 0 10px;
+      flex: 1;
+      width: 100%;
+      overflow: hidden;
+    }
+    &__footer {
+      flex: 0 0 $--footerHeight;
+      width: 100%;
+    }
+  }
+}

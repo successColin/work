@@ -1,0 +1,544 @@
+<template>
+  <div class="searchComp">
+    <el-form-item :label="`${configData.name}`" class="searchComp__left">
+      <!-- <el-select
+        v-model="form[`${configData.compId}_lambda`]"
+        class="searchComp__right"
+      >
+        <el-option
+          v-for="lambda in lambdaArr[type]"
+          :label="lambda.label"
+          :value="lambda.value"
+          :key="lambda.value"
+          @click.native="lambdaChange(lambda)"
+        ></el-option>
+      </el-select> -->
+      <div slot="label">
+        <span> {{ configData.name }} </span>
+        <el-dropdown
+          @command="handleCommand"
+          class="searchComp__condition"
+          placement="bottom-start"
+        >
+          <span class="el-dropdown-link">
+            {{ form[`${configData.compId}_lambdaLabel`]
+            }}<i class="iconfont icon-shujiantouzhankai"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item
+              :command="lambda"
+              v-for="lambda in lambdaArr[type]"
+              :label="lambda.label"
+              :value="lambda.value"
+              :key="lambda.value"
+              >{{ lambda.label }}</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
+      <apiot-input
+        v-if="type === 1 || type === 6"
+        class="searchComp__left--fw"
+        v-model="form[configData.compId]"
+        :placeholder="configData.placeholder"
+      ></apiot-input>
+      <el-select
+        :key="1"
+        v-if="
+          type === 2 &&
+          ['IN', 'NOT IN'].includes(form[`${configData.compId}_lambda`])
+        "
+        class="searchComp__left--fw"
+        v-model="form[configData.compId]"
+        :placeholder="configData.placeholder"
+        @change="selectChange"
+        :multiple="true"
+        :collapse-tags="true"
+      >
+        <el-option
+          v-for="item in effectArr"
+          :key="item.value"
+          :label="item.name"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+      <el-select
+        :key="2"
+        v-if="
+          type === 2 &&
+          !['IN', 'NOT IN'].includes(form[`${configData.compId}_lambda`])
+        "
+        class="searchComp__left--fw"
+        v-model="seletcValue"
+        :placeholder="configData.placeholder"
+        @change="selectChange1"
+        :multiple="false"
+      >
+        <el-option
+          v-for="item in effectArr"
+          :key="item.value"
+          :label="item.name"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+      <div class="searchComp__left--fw" v-if="type === 3">
+        <apiot-button class="selectBtn m-r-4" @click="showPanelDialog">
+          <i class="iconfont icon-jiahao"></i>选择
+        </apiot-button>
+        <ApiotTagBox
+          :form="form"
+          :configData="configData"
+          class="selectBtn__tag"
+        ></ApiotTagBox>
+      </div>
+      <el-date-picker
+        v-if="type === 4"
+        class="searchComp__left--fw"
+        v-model="form[configData.compId]"
+        type="datetimerange"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        :picker-options="pickerOptions"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+        align="right"
+      >
+      </el-date-picker>
+      <el-input
+        v-if="type === 5"
+        class="searchComp__left--fw"
+        v-model="form[configData.compId]"
+        :placeholder="configData.placeholder"
+        v-onlyNumber="2"
+      >
+      </el-input>
+    </el-form-item>
+    <!-- <transition name="slide-bottom"> -->
+    <Panel-dialog
+      ref="panelDialog"
+      :key="curCompId"
+      :visible.sync="showPanel"
+      :panelObj="panelObj"
+      :showPanel="showPanel"
+      @setDataSel="setDataSel"
+      :append-to-body="true"
+    ></Panel-dialog>
+    <!-- </transition> -->
+  </div>
+</template>
+
+<script>
+import { timeShortcuts } from '@/config';
+
+export default {
+  props: {
+    // 表单信息
+    form: {
+      type: Object,
+    },
+    configData: {
+      type: Object,
+    },
+    grandFather: {
+      type: Object,
+    },
+  },
+  name: '',
+  data() {
+    return {
+      compType: 6,
+      lambdaArr: {
+        1: [
+          { label: '模糊匹配', value: 'LIKE' },
+          { label: '等于', value: '=' },
+          { label: '不等于', value: '<>' },
+        ],
+        2: [
+          { label: 'IN', value: 'IN' },
+          { label: 'NOT IN', value: 'NOT IN' },
+          { label: '等于', value: '=' },
+          { label: '不等于', value: '<>' },
+        ],
+        3: [
+          { label: 'IN', value: 'IN' },
+          { label: 'NOT IN', value: 'NOT IN' },
+          { label: '等于', value: '=' },
+          { label: '不等于', value: '<>' },
+        ],
+        4: [
+          { label: '日期范围内', value: 'IN' },
+          { label: '日期范围外', value: 'NOT IN' },
+        ],
+        5: [
+          { label: '=', value: '=' },
+          { label: '!=', value: '<>' },
+          { label: '>', value: '>' },
+          { label: '<', value: '<' },
+          { label: '>=', value: '>=' },
+          { label: '<=', value: '<=' },
+        ],
+        6: [{ label: 'IN', value: 'IN' }],
+      },
+      type: -1,
+      panelObj: null, // 面板相关信息
+      showPanel: false,
+      pickerOptions: {
+        shortcuts: timeShortcuts,
+      },
+      curCompId: '',
+      seletcValue: '',
+    };
+  },
+
+  computed: {
+    getDictArr() {
+      return this.$store.getters.getCurDict(
+        this.configData.dataSource.dictObj.dictKey,
+      );
+    },
+    // 生效字典数组
+    effectArr() {
+      if (this.configData.effectDict && this.configData.effectDict.length) {
+        const arr = this.getDictArr.filter((item) => {
+          if (this.configData.effectDict.includes(item.value)) {
+            return true;
+          }
+          return false;
+        });
+        return arr;
+      }
+      return this.getDictArr;
+    },
+    getCurrntMultiArr: {
+      get() {
+        return this.form[`${this.configData.compId}_`]
+          ? this.form[`${this.configData.compId}_`].split(',')
+          : [];
+      },
+      set(value) {
+        const valueArr = this.form[`${this.configData.compId}_`]
+          ? this.form[this.configData.compId].split(',')
+          : [];
+        const tempArr = this.form[`${this.configData.compId}_`]
+          ? this.form[`${this.configData.compId}_`].split(',')
+          : [];
+        const index = tempArr.findIndex((item) => item === value);
+        tempArr.splice(index, 1);
+        valueArr.splice(index, 1);
+        this.form[`${this.configData.compId}_`] = tempArr.join(',');
+        this.form[`${this.configData.compId}`] = valueArr.join(',');
+      },
+    },
+    getRelateColumnName() {
+      // console.log(this.grandFather);
+      const relateName = this.configData.dataSource.relateName.split('(')[0];
+      const index = this.grandFather.relateTableArr.findIndex(
+        (relate) => relate.relateName === relateName,
+      );
+      if (index !== -1) {
+        return this.grandFather.relateTableArr[index].conditionArr[0][0]
+          .secondLineColumn.columnName;
+      }
+      return 'id';
+    },
+  },
+
+  mounted() {
+    this.initComp();
+  },
+
+  inject: [
+    'isConfig',
+    'resolveFormula',
+    'getAllForm',
+    'getPanel',
+    'getFatherPanel',
+    'onlyFlag',
+    'sysMenuDesignId',
+  ],
+
+  components: {},
+  methods: {
+    initComp() {
+      let { compType } = this.configData;
+      // 转换label
+      if (compType === 15) {
+        if (this.configData.dataSource.relateName === '主表') {
+          if (this.configData.enableMultiColumn) {
+            // 数据多选框
+            compType = 7;
+          } else if (this.configData.enableDict) {
+            // 字典选择
+            compType = 4;
+          } else if (this.configData.dataSource.columnTypeDict === '3') {
+            // 日期时间选择框
+            compType = 9;
+          } else if (this.configData.dataSource.columnTypeDict === '1') {
+            // 数字类型
+            compType = 10;
+          } else {
+            compType = 1;
+          }
+        } else {
+          compType = 6;
+        }
+      }
+      // 单行文本 多行文本
+      if ([1, 11].includes(compType)) {
+        this.type = 1;
+      }
+      // 下拉 单选 多选
+      if ([2, 3, 4].includes(compType)) {
+        this.type = 2;
+      }
+      // 数据单选 数据多选
+      if ([6, 7].includes(compType)) {
+        this.type = 3;
+      }
+      // 时间
+      if ([8, 9].includes(compType)) {
+        this.type = 4;
+      }
+      // 数字
+      if ([10].includes(compType)) {
+        this.type = 5;
+      }
+      // 人员
+      if ([28].includes(compType)) {
+        this.type = 6;
+      }
+      this.compType = compType;
+      if (this.type === -1) {
+        this.type = 1;
+        console.log(this.type);
+      }
+      if (this.lambdaArr[this.type]) {
+        this.form[`${this.configData.compId}_lambda`] =
+          this.lambdaArr[this.type][0].value;
+        this.form[`${this.configData.compId}_lambdaLabel`] =
+          this.lambdaArr[this.type][0].label;
+      }
+    },
+    lambdaChange(v) {
+      this.form[`${this.configData.compId}_lambdaLabel`] = v.label;
+    },
+    // 处理过滤条件变量为真实值
+    resolveFilterVar(panelObj) {
+      panelObj.panelVarObj = {};
+
+      panelObj.panelFilter.forEach((item) => {
+        const arr = item.termParams.split(',');
+        panelObj.panelVarObj[item.compId] = {};
+        arr.forEach((compId) => {
+          panelObj.panelVarObj[item.compId][compId] = this.getAllForm()[compId];
+        });
+      });
+
+      panelObj.panelFixData = {};
+      panelObj.panelData.forEach((item) => {
+        if (item.mainComp.type === 2) {
+          panelObj.panelFixData[item.paneComp.compId] =
+            item.mainComp.fixedValue;
+        } else if (item.mainComp.type === 3) {
+          panelObj.panelFixData[item.paneComp.compId] = this.resolveFormula(
+            true,
+            item.mainComp.fixedValue,
+          );
+        } else {
+          panelObj.panelFixData[item.paneComp.compId] =
+            this.getAllForm()[item.mainComp.compId];
+        }
+      });
+
+      panelObj.panelCompId = this.configData.compId;
+      panelObj.relationMenuDesignId = this.sysMenuDesignId();
+      panelObj.onlyFlag = this.onlyFlag();
+      panelObj.panelName = `请选择${this.configData.name}`;
+      return panelObj;
+    },
+    showPanelDialog() {
+      // this.panelObj = this.resolveFilterVar(this.getPanel()[this.configData.compId]);
+      if (this.configData.panelObj) {
+        this.panelObj = this.resolveFilterVar(this.configData.panelObj);
+      } else {
+        this.panelObj = this.resolveFilterVar(
+          this.getPanel()[this.configData.compId],
+        );
+      }
+      // console.log(this.panelObj);
+      if (this.panelObj && this.panelObj.panelName) {
+        this.curCompId = this.panelObj.id;
+        this.$nextTick(() => {
+          if (this.compType === 6) {
+            const obj = {
+              name: this.configData.dataSource.columnName,
+              value: this.form[`${this.configData.compId}_`] || '',
+            };
+            this.$refs.panelDialog.initSelData(
+              this.getRelateColumnName,
+              this.form[this.configData.compId],
+              obj,
+            );
+          } else if (this.compType === 7) {
+            const obj = {
+              name: this.configData.multiTable.column.columnName,
+              value: this.form[`${this.configData.compId}_`] || '',
+            };
+
+            this.$refs.panelDialog.initSelData(
+              'id',
+              this.form[this.configData.compId],
+              obj,
+            );
+          }
+          this.showPanel = true;
+        });
+      }
+    },
+    setDataSel(arr) {
+      let str = '';
+      let str1 = '';
+      arr.forEach((item) => {
+        str += `${item.id},`;
+        if (this.compType === 6) {
+          str1 += `${item[this.configData.dataSource.columnName]},`;
+        } else if (this.compType === 7) {
+          str1 += `${item[this.configData.multiTable.column.columnName]},`;
+        } else {
+          str1 += `${item[this.configData.dataSource.columnName]},`;
+        }
+      });
+      this.form[this.configData.compId] = str.slice(0, -1);
+      this.form[`${this.configData.compId}_`] = str1.slice(0, -1);
+      this.showPanel = false;
+    },
+    // 数据选择框更改
+    selectChange() {
+      console.log(this.form[this.configData.compId]);
+      const arr = [];
+      this.form[this.configData.compId].forEach((v) => {
+        const index = this.effectArr.findIndex((dict) => dict.value === v);
+        if (index !== -1) {
+          arr.push(this.effectArr[index].name);
+        }
+      });
+      this.form[`${this.configData.compId}_`] = arr.join();
+    },
+    selectChange1() {
+      console.log(this.seletcValue);
+      if (this.seletcValue) {
+        this.form[this.configData.compId] = [this.seletcValue];
+        this.selectChange();
+      }
+    },
+    handleCommand(v) {
+      if (v.value === this.form[`${this.configData.compId}_lambda`]) {
+        return;
+      }
+      this.form[`${this.configData.compId}_lambda`] = v.value;
+      this.form[`${this.configData.compId}_lambdaLabel`] = v.label;
+      if (this.type === 2) {
+        this.form[this.configData.compId] = [];
+        this.seletcValue = '';
+      }
+      console.log(this.seletcValue);
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.searchComp {
+  display: flex;
+  &__left {
+    flex: 1;
+    &--fw {
+      width: 100% !important;
+      display: flex;
+      align-items: center;
+      ::v-deep {
+        .el-input__inner {
+          height: 32px !important;
+        }
+      }
+      .selectBtn {
+        border-radius: 4px;
+        border: 1px solid #e9e9e9;
+        width: 68px;
+        height: 32px;
+        box-sizing: border-box;
+        font-size: 13px;
+        font-weight: 400;
+        margin-right: 4px;
+        &:hover {
+          border-color: $--color-primary !important;
+          .iconfont {
+            color: $--color-primary;
+          }
+        }
+        .iconfont {
+          font-weight: normal;
+          font-size: 13px;
+          color: #aaaaaa;
+          margin-right: 4px;
+        }
+        &__tag {
+          width: calc(100% - 72px);
+        }
+      }
+    }
+  }
+  &__right {
+    width: 115px;
+    margin-right: 8px;
+  }
+  &__condition {
+    cursor: pointer;
+    font-weight: normal;
+    color: $--color-primary;
+    padding: 2px 10px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    &:hover {
+      background-color: #f6f6f8;
+      border-radius: 4px;
+      .el-dropdown-link {
+        .iconfont {
+          visibility: visible;
+        }
+      }
+    }
+    .el-dropdown-link {
+      .iconfont {
+        visibility: hidden;
+      }
+    }
+  }
+}
+::v-deep {
+  .el-form-item {
+    margin-bottom: 0;
+    .el-form-item__label {
+      padding-top: 0px;
+      line-height: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333333;
+      display: flex;
+    }
+    .fieldSelect--item {
+      height: 32px;
+    }
+    .el-form-item__content {
+      display: flex;
+      align-items: center;
+    }
+  }
+  .el-date-editor .el-range-input {
+    width: 44%;
+    font-size: 13px;
+    color: #333333;
+  }
+}
+</style>

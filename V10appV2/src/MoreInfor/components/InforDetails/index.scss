@@ -1,0 +1,71 @@
+.richText {
+  color: #333;
+  font-size: 26rpx;
+  ::v-deep {
+    // h1,h2,h3,h4,h5,h6,span
+    // html,body,div,applet,object,iframe,p,
+    // blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,
+    // img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,
+    // center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,
+    // tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,
+    // figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,
+    // time,mark,audio,video{
+    //   font-size: 26rpx;
+    //   color: #333;
+    // }
+    blockquote {
+      background-color: #f5f2f0;
+      border-left: 16rpx solid #B4D5FF;
+      display: block;
+      margin: 20rpx 0;
+      padding-left: 20rpx;
+    }
+    code {
+      background-color: #f5f2f0;
+      border-radius: 6rpx;
+      font-family: monospace;
+      padding: 6rpx;
+    }
+    pre>code {
+      word-wrap: normal;
+      font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+      hyphens: none;
+      line-height: 1.5;
+      margin: 0.5em 0;
+      overflow: auto;
+      padding: 1em;
+      tab-size: 4;
+      text-align: left;
+      text-shadow: 0 2rpx #fff;
+      white-space: pre;
+      word-break: normal;
+      word-spacing: normal;
+
+      background-color: #f5f2f0;
+      border: 2rpx solid #e8e8e8;
+      border-radius: 8rpx 8rpx;
+      display: block;
+      font-size: 28rpx;
+      padding: 20rpx;
+      text-indent: 0;
+    }
+    blockquote, pre>code {
+      padding-left: 20rpx !important;
+    }
+    ol li, blockquote, pre>code {
+      padding: 10rpx 0;
+    }
+    table th {
+      background-color: #f5f2f0;
+      font-weight: 700;
+      text-align: center !important;
+    }
+    table th, table td {
+      border: 2rpx solid #ccc;
+      line-height: 1.5;
+      min-width: 50rpx;
+      padding: 8rpx 10rpx;
+      text-align: left;
+    }
+  }
+}

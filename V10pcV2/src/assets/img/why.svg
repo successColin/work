@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>icon/元素/原因</title>
+    <desc>Created with Sketch.</desc>
+    <g id="icon/元素/原因" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="地图_定位">
+            <rect id="矩形" fill="#000000" fill-rule="nonzero" opacity="0" x="0" y="0" width="20" height="20"></rect>
+            <rect id="矩形" fill="#EE5E5E" x="0" y="0" width="20" height="20" rx="5"></rect>
+            <path d="M6.016,15.176 L6.016,14.636 L13.984,14.636 L13.984,15.176 L14.848,15.176 L14.848,4.748 L5.152,4.748 L5.152,15.176 L6.016,15.176 Z M13.984,13.82 L6.016,13.82 L6.016,5.564 L13.984,5.564 L13.984,13.82 Z M7.048,13.16 C8.464,12.38 9.412,11.396 9.904,10.196 C11.08,11.228 12.028,12.2 12.736,13.136 L13.36,12.512 C12.496,11.492 11.416,10.472 10.144,9.452 C10.216,9.212 10.276,8.948 10.324,8.684 L13.324,8.684 L13.324,7.868 L10.432,7.868 C10.492,7.328 10.528,6.752 10.528,6.128 L9.688,6.128 C9.688,6.752 9.652,7.328 9.592,7.868 L6.676,7.868 L6.676,8.684 L9.46,8.684 C9.388,9.044 9.292,9.392 9.184,9.716 C8.752,10.844 7.852,11.768 6.508,12.5 L7.048,13.16 Z" id="因" fill="#FFFFFF" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,27 @@
+// class 变量名
+// $--name
+
+@mixin setLayout($--name) {
+  .#{$--name} {
+    &__opt {
+      display: flex;
+      position: relative;
+      .iconColor {
+        color: #4689f5;
+      }
+    }
+    &__input {
+      position: absolute;
+      right: 0;
+    }
+    &__table {
+      margin-top: 6px;
+      height: calc(100% - 45px) !important;
+    }
+    ::v-deep {
+      .content__area {
+        margin: 6px 10px 0 10px;
+      }
+    }
+  }
+}

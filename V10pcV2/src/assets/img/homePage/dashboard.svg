@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>仪表盘</title>
+    <desc>Created with Sketch.</desc>
+    <g id="仪表盘" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-44">
+            <rect id="矩形备份-37" x="0" y="0" width="30" height="30"></rect>
+            <path d="M15.0781021,11 L13.9114355,16.6923077 C13.0781021,17.1538461 12.5781021,17.7692308 12.5781021,18.6923077 C12.5781021,19.9230769 13.7447688,21 15.0781021,21 C16.4114355,21 17.5781021,19.9230769 17.5781021,18.6923077 C17.5781021,17.7692308 17.0781021,17 16.2447688,16.6923077 L15.0781021,11 Z" id="路径" fill="#EE5E5E" fill-rule="nonzero"></path>
+            <path d="M25,8.95041413 C23.0508093,5.96795874 19.7017125,4 15.8972671,4 C9.87887267,4 5,8.92486775 5,15 C5,21.0751322 9.87887267,26 15.8972671,26 C19.6570417,26 22.972098,24.0779845 24.9307618,21.1542224" id="路径" stroke="#EE5E5E" stroke-width="5" stroke-linecap="round" transform="translate(15.000000, 15.000000) rotate(-270.000000) translate(-15.000000, -15.000000) "></path>
+        </g>
+    </g>
+</svg>

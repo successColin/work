@@ -1,0 +1,262 @@
+/**
+* @name: index
+* @author: DELL
+* @date: 2021/8/21 14:51
+* @description：index
+* @update: 2021/8/21 14:51
+*/
+<!-- 页面 -->
+<template>
+  <div
+      v-loading="loading"
+      class="singleTextWrap"
+      :id="`basicPie_${config.componentId}`"
+      :style="getContentStyles"
+  >
+    <div class="singleTextContent" :id="domId">
+    </div>
+  </div>
+</template>
+
+<script>
+// 引入基本模板
+import { isEqual } from 'lodash';
+import { getInfoById } from '@/api/design';
+import { getLiquidfillOption, getRequestParams } from '@/views/HomeMenuConfig/constants/common';
+import 'echarts-liquidfill';
+
+// eslint-disable-next-line no-undef
+const echarts = require('echarts');
+
+export default {
+  props: {
+    designType: {
+      type: String,
+      default: ''
+    },
+    config: {
+      type: Object,
+      default: () => {
+      }
+    },
+    activeComponent: {
+      type: Object,
+      default: () => {
+      }
+    },
+    otherParams: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    filterParameter: { // 控件传给控件的参数集合
+      type: Object,
+      default() {
+        return {};
+      }
+    }
+  },
+  data() {
+    return {
+      content: [],
+      myChart: null,
+      observer: null,
+      instance: null,
+      params: {}, // 参数集合
+      timer: null,
+      loading: false
+    };
+  },
+
+  components: {
+  },
+
+  computed: {
+    domId() {
+      const { componentId } = this.config;
+      return `${componentId}_${this._uid}_${this.designType}`;
+    },
+    getContentStyles() {
+      const { width, height, stylesObj, left, top } = this.config;
+      return `width:${width}px;height:${height}px;left:${left}px;top: ${top}px;zIndex:${stylesObj.zIndex};`;
+    },
+    getOption() {
+      return function () {
+        return getLiquidfillOption({ config: this.config, data: this.content, echarts });
+      };
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.initDom();
+    });
+  },
+  activated() {
+    this.$nextTick(() => {
+      this.initDom();
+    });
+  },
+  watch: {
+    config(val) { // 普通的watch监听
+      if (this.myChart && val) {
+        const options = this.getOption();
+        this.myChart.setOption(options);
+      }
+    },
+    content: {
+      deep: true,
+      immediate: true,
+      handler(val) {
+        if (this.myChart && val) {
+          const options = this.getOption();
+          this.myChart.setOption(options);
+        }
+      }
+    },
+    otherParams: {
+      deep: true,
+      immediate: true,
+      handler(v, o) {
+        const { isShow } = this.config;
+        if (JSON.stringify(v) !== '{}' && !isEqual(v, o) && isShow) {
+          this.fetchData();
+        } else if (JSON.stringify(v) === '{}' && JSON.stringify(o) !== '{}' && isShow) {
+          this.fetchData();
+        }
+      }
+    },
+    filterParameter: {
+      deep: true,
+      immediate: false,
+      handler(v) {
+        if (v && JSON.stringify(v) !== '{}') {
+          // 进行判断参数是否是本控件里面的
+          const { isShow } = this.config;
+          if (isShow) {
+            this.checkFilterParameter(true);
+          }
+        }
+      }
+    },
+  },
+  methods: {
+    getFilterParamsObj() {
+      const paramsObj = {};
+      const { componentId } = this.config;
+      Object.keys(this.filterParameter).forEach((item) => {
+        if (item.indexOf(componentId) > -1) {
+          const key = item.split('_')[1];
+          paramsObj[key] = this.filterParameter[item];
+        }
+      });
+      this.params = paramsObj;
+      return paramsObj;
+    },
+    checkFilterParameter(flag) {
+      const paramsObj = this.getFilterParamsObj();
+      this.$nextTick(() => {
+        if (flag && JSON.stringify(paramsObj) === '{}') {
+          return;
+        }
+        this.fetchData();
+      });
+    },
+    initDom() {
+      const domWrap = this.domId;
+      this.myChart = echarts.init(document.getElementById(domWrap));
+      this.instance = Object.freeze({ myChart: this.myChart });
+      this.getFilterParamsObj();
+      this.fetchData();
+    },
+    async fetchData() {
+      if (!this.myChart) { return; }
+      const { dataType } = this.config;
+      if (dataType === 1) {
+        const option = this.getOption();
+        // 绘制图表
+        this.myChart.setOption(
+          option
+        );
+      }
+      if (dataType === 3) {
+        this.loading = true;
+        await this.getSQL();
+        this.loading = false;
+      }
+      // getInfoById
+    },
+    async getSQL() {
+      const { SqlDataConfig } = this.config;
+      const {
+        SQLFilterFun,
+        enableSQLFilter,
+        SQLDataFilterId,
+        enableSQLAutoUpdate,
+        SQLUpdateTime = 1
+      } = SqlDataConfig;
+      const { query = {}, name } = this.$route;
+      const params = getRequestParams({
+        config: this.config,
+        routeQuery: name !== 'appCustomPage' ? {} : query,
+        otherParams: this.otherParams,
+        elseParams: this.params || {}
+      });
+      const res = await getInfoById(params);
+      if (enableSQLAutoUpdate) {
+        const time = SQLUpdateTime * 1000;
+        // eslint-disable-next-line no-unused-expressions
+        this.timer && clearTimeout(this.timer);
+        this.timer = setTimeout(async () => {
+          await this.getSQL();
+          const option = this.getOption();
+          this.myChart.clear();
+          this.myChart.setOption(
+            option
+          );
+        }, time);
+      }
+      if (!enableSQLFilter) {
+        this.content = res;
+        return;
+      }
+      if (enableSQLFilter && SQLFilterFun && SQLDataFilterId) {
+        // eslint-disable-next-line no-new-func
+        const fun = new Function(`return ${SQLFilterFun}`);
+        const result = fun()(res);
+        this.content = result;
+        return;
+      }
+      this.content = res;
+    }
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  deactivated() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  },
+  name: 'SingleLineText'
+};
+</script>
+
+<style lang='scss' scoped>
+.singleTextWrap {
+  position: absolute;
+  //overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  .singleTextContent {
+    width: calc(100%);
+    height: calc(100%);
+    position: relative;
+    margin: 0 auto;
+  }
+}
+</style>

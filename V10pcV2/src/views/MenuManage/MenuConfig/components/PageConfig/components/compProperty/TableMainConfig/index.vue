@@ -1,0 +1,1704 @@
+<template>
+  <div class="contentConfig">
+    <header class="contentConfig__title">
+      <h1>{{ isBtnArea ? '按钮区' : '表格区' }}</h1>
+    </header>
+    <section class="contentConfig__wrapper" v-if="!isBtnArea">
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="!isSelect && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          显示标题
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.showTitle"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div class="contentConfig__box contentConfig__hasTab" v-if="!isUser">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否隐藏该区域
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.notShowArea"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow"
+        v-if="!isSelect && !isUser"
+      >
+        <h2>区域展示</h2>
+        <ul class="contentConfig__areaShow--box">
+          <li
+            class="contentConfig__areaShow--item"
+            v-for="(item, index) in areaArr"
+            :class="[
+              {
+                active: item.pageType === getCurPageType,
+              },
+            ]"
+            :key="index"
+            @click.stop="changeActive(index)"
+          >
+            <img
+              :src="
+                require(`@/assets/img/menu_images/displayType/${item.imgUrl}`)
+              "
+            />
+            <p>
+              {{ item.name }}
+            </p>
+          </li>
+        </ul>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__dataSource"
+        v-if="getCurrentTab.children.length"
+      >
+        <h2>关联数据源</h2>
+        <el-select
+          :disabled="true"
+          placeholder="请选择数据源"
+          :value="1"
+          class="contentConfig__dataSource--select"
+        >
+          <el-option label="数据库" :value="1"></el-option>
+        </el-select>
+        <h2 class="contentConfig__dataSource--h2">
+          业务表<el-tooltip
+            content="当业务表被关系关联，或者被组件使用时不允许更改"
+            placement="top"
+            ><i class="iconfont icon-bangzhu"
+          /></el-tooltip>
+        </h2>
+        <filterable-input
+          placeholder="请选择关联表"
+          title="关联表"
+          :dialogType="1"
+          :isTree="getCurrentTab.isTree"
+          :disabled="canChangeTable"
+          :showInfo="getCurrentTab.tableInfo"
+          @selectRes="selectTable"
+        ></filterable-input>
+        <h2 v-if="getCurrentTab && getCurrentTab.tableInfo.tableName">
+          关联表
+        </h2>
+        <apiot-button
+          class="contentConfig__dataSource--addRelate"
+          style="margin-bottom: 10px"
+          v-if="getCurrentTab && getCurrentTab.tableInfo.tableName"
+          @click="
+            currentRadioObj = null;
+            relateDialog = true;
+          "
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>配置关联表
+        </apiot-button>
+        <!-- <br /> -->
+        <apiot-button
+          class="contentConfig__dataSource--addRelate"
+          style="margin-left: 0"
+          v-if="getCurrentTab && getCurrentTab.tableInfo.tableName && !isSelect"
+          @click="
+            currentRadioObj = null;
+            filterDialog = true;
+          "
+        >
+          <i class="iconfont icon-shaixuan m-r-4"></i>设置过滤条件
+        </apiot-button>
+        <apiot-button
+          class="contentConfig__dataSource--addRelate"
+          style="margin-left: 0"
+          v-if="getCurrentTab && getCurrentTab.tableInfo.tableName && isSelect"
+          @click="addLableComp"
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>添加label框
+        </apiot-button>
+        <apiot-button
+          class="contentConfig__dataSource--addRelate"
+          style="margin-left: 0; margin-top: 10px"
+          v-if="
+            getCurrentTab &&
+            getCurrentTab.tableInfo.tableName &&
+            isSelect &&
+            hasAddbtn
+          "
+          @click="addBtnComp"
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>添加新增按钮
+        </apiot-button>
+      </div>
+      <div class="contentConfig__box m-t-10">
+        <apiot-button
+          class="contentConfig__hasTab--addArea"
+          @click="showColumnsDialog = true"
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>合并表头设置
+        </apiot-button>
+      </div>
+      <div class="contentConfig__box contentConfig__hasTab" v-if="!isUser">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否需要数据权限
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.needPermissions"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div class="contentConfig__box contentConfig__hasTab" v-if="false">
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否初始化
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.shouldInit"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div class="contentConfig__box" v-if="!isSelect && !isUser">
+        <h2>之后加载</h2>
+        <el-select
+          v-model="getCurrentTab.reloadArea"
+          multiple
+          collapse-tags
+          class="contentConfig__select"
+        >
+          <el-option
+            :label="item.name"
+            :value="item.compId"
+            v-for="item in getArea"
+            :key="item.compId"
+          ></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box"
+        v-if="getCardArea.children.length && !isSelect && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否开启列统计
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.statistics"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+        <h2 v-if="getCurrentTab.statistics">统计类型</h2>
+        <el-select
+          v-if="getCurrentTab.statistics"
+          v-model="getCurrentTab.statisticsType"
+          class="contentConfig__select"
+        >
+          <el-option label="合计(当前页)" :value="1"></el-option>
+          <el-option label="平均值(当前页)" :value="2"></el-option>
+          <el-option label="最大值(当前页)" :value="3"></el-option>
+          <el-option label="最小值(当前页)" :value="4"></el-option>
+          <el-option label="合计(全部数据)" :value="5"></el-option>
+          <el-option label="平均值(全部数据)" :value="6"></el-option>
+          <el-option label="最大值(全部数据)" :value="7"></el-option>
+          <el-option label="最小值(全部数据)" :value="8"></el-option>
+        </el-select>
+        <h2 v-if="getCurrentTab.statistics">统计组件</h2>
+        <el-select
+          v-if="getCurrentTab.statistics"
+          v-model="getCurrentTab.statisticsComps"
+          multiple
+          collapse-tags
+          class="contentConfig__select"
+        >
+          <el-option
+            :label="item.name"
+            :value="item.compId"
+            v-for="item in getStatisticsComps"
+            :key="item.compId"
+          ></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow"
+        v-if="!isSelect && +getCurPageType === 2 && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用个性化配置
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.personalConfig"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow"
+        v-if="!isSelect && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          显示序号及选择列
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.showNum"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow"
+        v-show="getCurrentTab.showNum"
+        v-if="!isSelect && !isUser"
+      >
+        <h2>行选择</h2>
+        <el-select
+          v-model="getCurrentTab.selectType"
+          class="contentConfig__select"
+        >
+          <el-option
+            :label="item.label"
+            :value="item.value"
+            v-for="item in lineSelectArr"
+            :key="item.value"
+          ></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="!isSelect && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用操作列
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            :value="getCurrentTab.canOperate"
+            @input="changeCanOperate"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box m-b-10"
+        v-if="getCurrentTab.canOperate && !isSelect"
+      >
+        <h2>操作列名称</h2>
+        <apiot-input
+          v-model="getCurrentTab.operateName"
+          @blur="operateBlur"
+          placeholder="请输入操作里名称"
+        ></apiot-input>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow m-b-10"
+        v-if="getCurrentTab.canOperate && !isSelect"
+      >
+        <h2>操作列宽度</h2>
+        <p class="operateWidth p-r-10 p-l-10">
+          <el-button-group>
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.05' }]"
+              @click="getCurrentTab.operateWidth = '0.05'"
+              >5%</el-button
+            >
+            <!-- <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.08' }]"
+              @click="getCurrentTab.operateWidth = '0.08'"
+              >8%</el-button
+            > -->
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.1' }]"
+              @click="getCurrentTab.operateWidth = '0.1'"
+              >10%</el-button
+            >
+            <!-- <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.12' }]"
+              @click="getCurrentTab.operateWidth = '0.12'"
+              >12%</el-button
+            > -->
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.15' }]"
+              @click="getCurrentTab.operateWidth = '0.15'"
+              >15%</el-button
+            >
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.2' }]"
+              @click="getCurrentTab.operateWidth = '0.2'"
+              >20%</el-button
+            >
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.25' }]"
+              @click="getCurrentTab.operateWidth = '0.25'"
+              >25%</el-button
+            >
+            <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.3' }]"
+              @click="getCurrentTab.operateWidth = '0.3'"
+              >30%</el-button
+            >
+            <!-- <el-button
+              :class="[{ active: getCurrentTab.operateWidth === '0.25' }]"
+              @click="getCurrentTab.operateWidth = '0.25'"
+              >25%</el-button
+            > -->
+          </el-button-group>
+        </p>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="!isSelect && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用行背景色
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.lineBg"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="!isSelect && !isUser && getCurrentTab.lineBg"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          背景色奇偶相间
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.hasCardIcon"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box"
+        v-if="getCurrentTab.lineBg && !getCurrentTab.hasCardIcon"
+      >
+        <apiot-button
+          class="contentConfig__hasTab--addArea"
+          @click="showRuleDialog = true"
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i>设置条件颜色
+        </apiot-button>
+      </div>
+      <div class="contentConfig__box m-b-10" v-if="!isSelect && !isUser">
+        <h2>表格高度</h2>
+        <el-select
+          v-model="getCurrentTab.showLine"
+          style="width: calc(100% - 20px)"
+          class="p-l-10 p-r-10"
+        >
+          <el-option label="自适应" :value="5"></el-option>
+          <el-option label="10" :value="10"></el-option>
+          <el-option label="20" :value="20"></el-option>
+          <el-option label="30" :value="30"></el-option>
+          <el-option label="40" :value="40"></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="!isSelect && !isUser && $route.query.isApp !== '1'"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否行编辑
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.lineEditable"
+            active-text="是"
+            inactive-text="否"
+            @change="lineEditChange"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow"
+        v-if="!isSelect && getCurrentTab.lineEditable"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否必填
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.required"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="!getCurrentTab.lineEditable && !isSelect && !isUser"
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用分页
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.hasPagination"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+      </div>
+      <div
+        class="contentConfig__box m-b-10"
+        v-show="getCurrentTab.hasPagination && getCurrentTab.showLine !== 5"
+        v-if="!isSelect"
+      >
+        <h2>每页默认条数</h2>
+        <el-select
+          v-model="getCurrentTab.rowNum"
+          style="width: calc(100% - 20px)"
+          class="p-l-10 p-r-10"
+        >
+          <el-option label="10" :value="10"></el-option>
+          <el-option label="20" :value="20"></el-option>
+          <el-option label="30" :value="30"></el-option>
+          <el-option label="40" :value="40"></el-option>
+        </el-select>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__areaShow m-b-10"
+        v-if="!isSelect && !isUser"
+      >
+        <h2>列固定</h2>
+        <p class="numberBox">
+          左侧
+          <el-input-number
+            class="m-l-10 m-r-10"
+            v-model="getCurrentTab.fixedLeft"
+            :min="0"
+            :controls="false"
+          ></el-input-number
+          >列
+        </p>
+        <p class="numberBox">
+          右侧
+          <el-input-number
+            class="m-l-10 m-r-10"
+            v-model="getCurrentTab.fixedRight"
+            :min="0"
+            :controls="false"
+          ></el-input-number
+          >列
+        </p>
+      </div>
+      <div style="height: 10px" v-if="isUser"></div>
+      <apiot-button
+        v-if="getCurrentTab && getCurrentTab.tableInfo.tableName"
+        class="contentConfig__hasTab--addArea"
+        @click="dialogVisible = true"
+      >
+        <i class="iconfont icon-xinzeng m-r-4"></i
+        >{{ $t('common.add', { name: '字段排序' }) }}
+      </apiot-button>
+      <div class="contentConfig__box">
+        <draggable
+          v-model="getCurrentTab.sortArr"
+          group="sort"
+          animation="300"
+          handle=".icon-zongxiangtuodong"
+          v-if="getCurrentTab.sortArr.length"
+        >
+          <transition-group class="contentConfig__hasTab--list" tag="ul">
+            <li
+              class="contentConfig__hasTab--tab"
+              v-for="(child, index) in getCurrentTab.sortArr"
+              :key="child.id"
+              @click="changeTab(child)"
+            >
+              <i class="iconfont icon-zongxiangtuodong m-l-14 m-r-6"></i>
+              <span class="columnName">{{ child.columnName }}</span>
+              <el-select v-model="child.sort" class="columnName__sort">
+                <el-option label="升序" value="ASC"></el-option>
+                <el-option label="降序" value="DESC"></el-option>
+              </el-select>
+              <el-tooltip
+                effect="dark"
+                content="删除"
+                :enterable="false"
+                placement="bottom"
+              >
+                <i class="iconfont icon-shanchu" @click="deleteSort(index)"></i
+              ></el-tooltip>
+            </li>
+          </transition-group>
+        </draggable>
+      </div>
+      <div
+        class="contentConfig__box contentConfig__hasTab"
+        v-if="
+          !getCurrentTab.lineEditable &&
+          !isSelect &&
+          !isUser &&
+          $route.query.isApp !== '1'
+        "
+      >
+        <h2 class="contentConfig__hasTab--switchBox">
+          是否启用汇总
+          <el-switch
+            class="contentConfig__hasTab--switch"
+            v-model="getCurrentTab.enableSum"
+            active-text="是"
+            inactive-text="否"
+          >
+          </el-switch>
+        </h2>
+        <h2 v-if="getCurrentTab.enableSum">汇总展示风格</h2>
+        <el-select
+          v-if="getCurrentTab.enableSum"
+          v-model="getCurrentTab.sumType"
+          class="contentConfig__select m-b-10"
+        >
+          <el-option label="上下布局" :value="1"></el-option>
+          <el-option label="左右布局" :value="2"></el-option>
+        </el-select>
+        <apiot-button
+          v-if="
+            getCurrentTab &&
+            getCurrentTab.tableInfo.tableName &&
+            getCurrentTab.enableSum
+          "
+          class="contentConfig__hasTab--addArea"
+          @click="showSum"
+        >
+          <i class="iconfont icon-xinzeng m-r-4"></i
+          >{{ $t('common.add', { name: '汇总项' }) }}
+        </apiot-button>
+        <draggable
+          v-model="getCurrentTab.sumArr"
+          group="sort"
+          animation="300"
+          handle=".icon-zongxiangtuodong"
+          v-if="
+            getCurrentTab.sumArr &&
+            getCurrentTab.sumArr.length &&
+            getCurrentTab.enableSum
+          "
+        >
+          <transition-group class="contentConfig__hasTab--list" tag="ul">
+            <li
+              class="contentConfig__hasTab--tab"
+              v-for="(child, index) in getCurrentTab.sumArr"
+              :key="child.compId"
+            >
+              <i class="iconfont icon-zongxiangtuodong m-l-14 m-r-6"></i>
+              <span class="columnName sumName">{{ child.name }}</span>
+              <el-tooltip
+                effect="dark"
+                content="编辑"
+                :enterable="false"
+                placement="bottom"
+              >
+                <i
+                  class="iconfont icon-bianji m-r-12"
+                  @click="editSum(index)"
+                ></i
+              ></el-tooltip>
+              <el-tooltip
+                effect="dark"
+                content="删除"
+                :enterable="false"
+                placement="bottom"
+              >
+                <i class="iconfont icon-shanchu" @click="deleteSum(index)"></i
+              ></el-tooltip>
+            </li>
+          </transition-group>
+        </draggable>
+      </div>
+    </section>
+    <!-- 按钮区 -->
+    <BtnsAreaConfig
+      v-if="isBtnArea"
+      :getBtnsArea="getBtnsArea"
+      :isBtnArea="isBtnArea"
+    ></BtnsAreaConfig>
+    <!-- 配置关联表弹窗 -->
+    <RelateTableDialog
+      :visible.sync="relateDialog"
+      :getCurrentTab="getCurrentTab"
+    ></RelateTableDialog>
+    <!-- 筛选条件 -->
+    <FilterTerm
+      :visible.sync="filterDialog"
+      v-if="filterDialog"
+      :configData="configData"
+      :triggerCompMap="triggerCompMap"
+      :getCurrentTab="getCurrentTab"
+    ></FilterTerm>
+    <!-- 实体表和字段表: 实体表1，字段表2 -->
+    <transition name="dialog-fade">
+      <table-or-field-dialog
+        :visible.sync="dialogVisible"
+        v-if="dialogVisible"
+        :currentRadioObj.sync="currentColumnObj"
+        :dialogType="2"
+        :tableName="getCurrentTab.tableInfo.tableName"
+        :hasPagination="false"
+        :columnTypes="`1,2,3,4,5`"
+        :idNeedId="true"
+        :notShowSys="false"
+        @sure-click="handleSubmit"
+      ></table-or-field-dialog>
+    </transition>
+    <!-- 背景色 -->
+    <rule-dialog
+      :visible.sync="showRuleDialog"
+      :showRuleDialog="showRuleDialog"
+      :activeObj="activeObj"
+      :configData="configData"
+      :triggerCompMap="triggerCompMap"
+    ></rule-dialog>
+    <!-- 合并表头 -->
+    <columnsDialog
+      :visible.sync="showColumnsDialog"
+      :showColumnsDialog="showColumnsDialog"
+      :activeObj="activeObj"
+      :columnsArr="getCardArea"
+      :configData="configData"
+      :triggerCompMap="triggerCompMap"
+    ></columnsDialog>
+    <!-- 汇总新增 -->
+    <transition name="dialog-fade">
+      <sumDialog
+        :visible.sync="showSumDialog"
+        :filterObj="sumObj"
+        :configData="configData"
+        :sumType="sumType"
+        @sumSureClick="sumSureClick"
+        v-if="showSumDialog"
+      ></sumDialog>
+    </transition>
+  </div>
+</template>
+
+<script>
+import { createUnique } from '@/utils/utils';
+import BtnsAreaConfig from '../ContentConfig/BtnsAreaConfig';
+import FilterTerm from '../ContentConfig/FilterTerm';
+import RelateTableDialog from '../ContentConfig/RelateTableDialog';
+import ruleDialog from './ruleDialog.vue';
+import columnsDialog from './columnsDialog.vue';
+import sumDialog from './sumDialog.vue';
+
+export default {
+  props: {
+    activeObj: {
+      type: Object,
+    },
+    hasTriggerComp: {
+      type: Object,
+    },
+    configData: {
+      type: Array,
+    },
+    triggerCompMap: {
+      type: Object,
+    },
+    // 所有组件平坦化
+    getAllcheck: {
+      type: Object,
+    },
+    isSelect: {
+      type: Boolean,
+    },
+    isUser: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      areaArr: [
+        {
+          name: '全功能区',
+          compName: 'MenuMain',
+          propertyCompName: 'ContentConfig',
+          pageType: 1,
+          shouldTab: true,
+          imgUrl: 'FullFeatArea.svg',
+          compId: 0,
+          areaType: 1,
+          tableInfo: {
+            tableName: '',
+            id: 0,
+            nameAlias: '',
+          },
+          relateTableArr: [],
+          relateTableIndex: 0,
+          children: [
+            {
+              name: '功能区',
+              compId: 0,
+              form: {
+                id: '',
+              },
+              rules: {},
+              children: [],
+              areaType: 1,
+            },
+          ],
+        },
+        {
+          name: '按钮功能区',
+          compName: 'MenuMain',
+          propertyCompName: 'ContentConfig',
+          pageType: 2,
+          shouldTab: true,
+          imgUrl: 'BtnsFeatArea.svg',
+          compId: 0,
+          areaType: 1,
+          tableInfo: {
+            tableName: '',
+            id: 0,
+            nameAlias: '',
+          },
+          relateTableArr: [],
+          relateTableIndex: 0,
+          children: [
+            {
+              name: '按钮区',
+              compId: 0,
+              children: [],
+              areaType: 2,
+              rightIndex: 0,
+            },
+            {
+              name: '功能区',
+              compId: 0,
+              form: {
+                id: '',
+              },
+              rules: {},
+              children: [],
+              areaType: 1,
+            },
+          ],
+        },
+        {
+          name: '功能按钮区',
+          compName: 'MenuMain',
+          propertyCompName: 'ContentConfig',
+          pageType: 3,
+          shouldTab: true,
+          imgUrl: 'FeatBtnsArea.svg',
+          compId: 0,
+          areaType: 1,
+          tableInfo: {
+            tableName: '',
+            id: 0,
+            nameAlias: '',
+          },
+          relateTableArr: [],
+          relateTableIndex: 0,
+          children: [
+            {
+              name: '功能区',
+              compId: 0,
+              form: {
+                id: '',
+              },
+              rules: {},
+              children: [],
+              areaType: 1,
+            },
+            {
+              name: '按钮区',
+              compId: 0,
+              children: [],
+              areaType: 2,
+              rightIndex: 0,
+            },
+          ],
+        },
+      ],
+      relateDialog: false,
+      dialogVisible: false,
+      currentRadioObj: null,
+      currentColumnObj: null,
+      filterDialog: false,
+      lineSelectArr: [
+        {
+          value: 0,
+          label: '无',
+        },
+        {
+          value: 1,
+          label: '多选',
+        },
+        {
+          value: 2,
+          label: '单选',
+        },
+      ],
+      showRuleDialog: false, // 行背景色颜色规则
+      showColumnsDialog: false, // 是否显示合并行
+      showSumDialog: false, // 打开汇总新增编辑
+      sumObj: {
+        compId: '',
+        name: '',
+        color: '',
+        filterTermType: 1,
+        tableInfo: '',
+        filterTermStr: '',
+        filterTermSql: '',
+        termParams: '',
+      },
+      sumType: 1,
+      sumIndex: 0,
+    };
+  },
+
+  components: {
+    RelateTableDialog,
+    BtnsAreaConfig,
+    FilterTerm,
+    ruleDialog,
+    sumDialog,
+    columnsDialog,
+  },
+
+  computed: {
+    // 选择面板是否有新增按钮
+    hasAddbtn() {
+      if (this.isSelect && this.configData[0].selShowType === 1) {
+        return this.activeObj.children[0].children.length === 1;
+      }
+      return false;
+    },
+    // 获取当前页面的类型
+    getCurPageType() {
+      if (this.getCurrentTab) {
+        return this.getCurrentTab.pageType;
+      }
+      return -1;
+    },
+    // 获取当前的tab
+    getCurrentTab() {
+      // console.log(this.activeObj);
+      return this.activeObj;
+    },
+    // 是否可以更改主表
+    canChangeTable() {
+      let flag = false;
+      if (!this.getCurrentTab.children.length) {
+        return flag;
+      }
+      if (this.getCurrentTab.relateTableArr.length) {
+        flag = true;
+      } else {
+        this.getCurrentTab.children.forEach((child) => {
+          child.children.forEach((comp) => {
+            if (
+              comp.dataSource &&
+              comp.dataSource.relateName === '主表' &&
+              comp.dataSource.tableName &&
+              comp.dataSource.columnName !== 'id'
+            ) {
+              flag = true;
+            }
+          });
+        });
+      }
+      return flag;
+    },
+    // 是不是按钮区
+    isBtnArea() {
+      return this.activeObj.shouldTab && this.activeObj.areaType === 2;
+    },
+    // 获取按钮数组
+    getBtnsArea() {
+      if (this.activeObj.children.length) {
+        const index = this.activeObj.children.findIndex(
+          (child) => child.areaType === 2,
+        );
+        if (index !== -1) {
+          return this.activeObj.children[index];
+        }
+      }
+      return {
+        children: [],
+      };
+    },
+    // 获取功能组件
+    getCardArea() {
+      if (this.activeObj.children.length) {
+        const index = this.activeObj.children.findIndex(
+          (child) => child.areaType === 1,
+        );
+        if (index !== -1) {
+          return this.activeObj.children[index];
+        }
+      }
+      return {
+        children: [],
+      };
+    },
+    // 获取开启了字典的label或者有字典的组件
+    getDictLable() {
+      // console.log();
+      return this.getCardArea.children.filter((child) => {
+        if (child.enableDict) {
+          return true;
+        }
+        if ([2, 3, 4].includes(child.compType)) {
+          return true;
+        }
+        return false;
+      });
+    },
+    // 获取所有的区域
+    getArea() {
+      const curInfo = [];
+      const keys = Object.keys(this.getAllcheck);
+      keys.forEach((key) => {
+        const curComp = this.getAllcheck[key];
+        if (
+          curComp.compType === 'AREA' &&
+          this.activeObj.compId !== curComp.compId
+        ) {
+          curInfo.push(curComp);
+        }
+      });
+      return curInfo;
+    },
+    getStatisticsComps() {
+      const curInfo = [];
+      const childArr =
+        this.activeObj.children[this.activeObj.pageType === 2 ? 1 : 0].children;
+      childArr.forEach((curComp) => {
+        if (!['AREA', 2, 3, 4, 5, 6, 7, 8, 9, 16].includes(curComp.compType)) {
+          if (
+            curComp.dataSource &&
+            [1, 4].includes(+curComp.dataSource.columnTypeDict) &&
+            curComp.dataSource.columnName !== 'id'
+          ) {
+            if (curComp.compType === 15) {
+              if (
+                curComp.enableDict ||
+                curComp.enableMultiColumn ||
+                curComp.dataSource.relateName !== '主表'
+              ) {
+                return;
+              }
+            }
+            curInfo.push(curComp);
+          }
+        }
+      });
+      return curInfo;
+    },
+  },
+
+  mounted() {
+    this.resetCardIcon();
+    this.resetReloadArea();
+    this.resetStatisticsComps();
+    this.initSum();
+    if (this.getCurrentTab.notShowArea == null) {
+      this.$set(this.getCurrentTab, 'notShowArea', false);
+    }
+  },
+
+  methods: {
+    // 初始化汇总
+    initSum() {
+      if (!this.getCurrentTab.sumArr) {
+        this.$set(this.getCurrentTab, 'enableSum', false);
+        this.$set(this.getCurrentTab, 'sumType', 1);
+        this.$set(this.getCurrentTab, 'sumArr', []);
+      }
+    },
+    // 确认汇总
+    sumSureClick() {
+      // 新增
+      if (this.sumType === 1) {
+        this.getCurrentTab.sumArr.push(this.sumObj);
+      }
+      if (this.sumType === 2) {
+        this.getCurrentTab.sumArr.splice(this.sumIndex, 1, this.sumObj);
+      }
+      this.showSumDialog = false;
+    },
+    // 展示汇总
+    showSum() {
+      console.log(this.getCurrentTab);
+      this.sumObj = {
+        compId: createUnique(),
+        name: '',
+        color: '#4689f5',
+        filterTermType: 1,
+        tableInfo: this.getCurrentTab.tableInfo,
+        filterTermStr: '',
+        filterTermSql: '',
+        termParams: '',
+      };
+      this.sumType = 1;
+      this.showSumDialog = true;
+    },
+    editSum(index) {
+      this.sumIndex = index;
+      this.sumObj = JSON.parse(
+        JSON.stringify(this.getCurrentTab.sumArr[index]),
+      );
+      this.sumType = 2;
+      this.showSumDialog = true;
+    },
+    deleteSum(index) {
+      this.getCurrentTab.sumArr.splice(index, 1);
+    },
+    // 操作列名称失焦
+    operateBlur() {
+      if (!this.getCurrentTab.operateName) {
+        this.getCurrentTab.operateName = '操作';
+      }
+    },
+    // 重置选中的图标跟颜色来源
+    resetCardIcon() {
+      if (this.getDictLable.length === 0) {
+        this.getCurrentTab.iconId = '';
+        this.getCurrentTab.iconColorId = '';
+      } else {
+        const index1 = this.getDictLable.findIndex(
+          (label) => label.compId === this.getCurrentTab.iconId,
+        );
+        if (index1 === -1) {
+          this.getCurrentTab.iconId = '';
+        }
+        const index2 = this.getDictLable.findIndex(
+          (label) => label.compId === this.getCurrentTab.iconColorId,
+        );
+        if (index2 === -1) {
+          this.getCurrentTab.iconColorId = '';
+        }
+      }
+    },
+    // 重置触发的区域
+    resetReloadArea() {
+      const arr = [];
+      this.getArea.forEach((comp) => {
+        if (this.getCurrentTab.reloadArea.includes(comp.compId)) {
+          arr.push(comp.compId);
+        }
+      });
+      this.getCurrentTab.reloadArea = arr;
+    },
+    // 重置统计组件
+    resetStatisticsComps() {
+      if (!this.getCurrentTab.statisticsComps) {
+        this.getCurrentTab.statisticsComps = [];
+      }
+      const arr = [];
+      this.getStatisticsComps.forEach((comp) => {
+        if (this.getCurrentTab.statisticsComps.includes(comp.compId)) {
+          arr.push(comp.compId);
+        }
+      });
+      this.getCurrentTab.statisticsComps = arr;
+    },
+    // 选中表格
+    selectTable(table) {
+      // console.log(table);
+      this.getCurrentTab.tableInfo.tableName = table.tableName;
+      this.getCurrentTab.tableInfo.id = table.id;
+      this.getCurrentTab.tableInfo.nameAlias = table.tableName;
+      this.getCurrentTab.sortArr = [];
+      // 更改id组件的表名
+      this.getCurrentTab.children.forEach((child) => {
+        child.children.forEach((comp) => {
+          // console.log(comp);
+          if (
+            comp.dataSource &&
+            comp.dataSource.relateName === '主表' &&
+            comp.dataSource.columnName === 'id'
+          ) {
+            comp.dataSource.tableName = table.tableName;
+          }
+        });
+      });
+    },
+    // 更改当前活跃的tab
+    changeActive(index) {
+      if (index !== 1) {
+        this.activeObj.personalConfig = false;
+      }
+      // 判断是否打开tab
+      if (this.activeObj.children.length) {
+        this.changeChilren(this.activeObj, index);
+        // 判断没有打开tab的情况下是否有子节点
+      } else {
+        this.addTab(index);
+      }
+    },
+    // 切换视图
+    async changeChilren(obj, index) {
+      const newPageType = index + 1;
+      if (obj.pageType === newPageType) {
+        return;
+      }
+      if (obj.pageType !== 1 && newPageType === 1) {
+        const i = this.getBtnsArea.children.findIndex((btn) => {
+          if (this.hasTriggerComp[btn.compId]) {
+            return true;
+          }
+          return false;
+        });
+        // console.log(i);
+        if (i !== -1) {
+          return this.$message({
+            type: 'warning',
+            message: '该按钮区存在触发器配置，请先删除相关的触发器配置',
+          });
+        }
+        try {
+          await this.$confirm('将清空按钮区的内容，是否继续', {
+            confirmButtonText: this.$t('common.sure'),
+            cancelButtonText: this.$t('common.cancle'),
+            type: 'warning',
+          });
+        } catch (error) {
+          return;
+        }
+      }
+      if (obj.pageType === 1) {
+        if (newPageType === 2) {
+          obj.children.unshift({
+            name: '按钮区',
+            compId: createUnique(),
+            children: [],
+            areaType: 2,
+            rightIndex: 0,
+          });
+        } else if (newPageType === 3) {
+          obj.children.push({
+            name: '按钮区',
+            compId: createUnique(),
+            children: [],
+            areaType: 2,
+            rightIndex: 0,
+          });
+        }
+      } else if (obj.pageType === 2) {
+        if (newPageType === 1) {
+          obj.children.shift();
+        } else if (newPageType === 3) {
+          const temp = obj.children.shift();
+          obj.children.push(JSON.parse(JSON.stringify(temp)));
+        }
+      } else if (obj.pageType === 3) {
+        if (newPageType === 2) {
+          const temp = obj.children.shift();
+          obj.children.push(JSON.parse(JSON.stringify(temp)));
+        } else if (newPageType === 1) {
+          obj.children.pop();
+        }
+      }
+      obj.pageType = newPageType;
+    },
+    // 添加tab
+    addTab(index) {
+      const tempData = JSON.parse(JSON.stringify(this.areaArr[index]));
+      tempData.children.forEach((child) => {
+        child.compId = createUnique();
+      });
+      // this.activeObj.curCompId = tempData.compId;
+      // tempData.name = `Tab${this.activeObj.children.length + 1}`;
+      // if (this.activeObj.children.length === 0) {
+      //   this.activeObj.firstShowTabId = tempData.compId;
+      // }
+      // this.activeObj.children.push(tempData);
+      // console.log(index, this.activeObj);
+      this.activeObj.pageType = index + 1;
+      this.activeObj.children = tempData.children;
+    },
+    // 切换tab
+    changeTab(child) {
+      this.activeObj.curCompId = child.compId;
+    },
+    // 设置名称备注
+    setBackName(child) {
+      child.backName = child.name;
+    },
+    // 还原名称备注
+    resetBackName(child) {
+      if (!child.name) {
+        child.name = child.backName;
+      }
+    },
+    // 删除label
+    deleteLabel(index) {
+      this.getCardArea.children.splice(index, 1);
+    },
+    // 新增排序字段
+    handleSubmit() {
+      const index = this.getCurrentTab.sortArr.findIndex(
+        (column) => column.id === this.currentColumnObj.id,
+      );
+      if (index === -1) {
+        // console.log(this.currentColumnObj);
+        // console.log(this.getCurrentTab);
+        this.getCurrentTab.sortArr.push({
+          memo: this.currentColumnObj.memo,
+          id: this.currentColumnObj.id,
+          columnName: this.currentColumnObj.columnName,
+          sort: 'ASC',
+        });
+        this.dialogVisible = false;
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '该排序字段已存在',
+        });
+      }
+    },
+    // 删除排序
+    deleteSort(index) {
+      this.getCurrentTab.sortArr.splice(index, 1);
+    },
+    // 更改是否启用行编辑
+    lineEditChange() {
+      // console.log(this.getCurrentTab.lineEditable);
+      if (this.getCurrentTab.lineEditable) {
+        this.getCurrentTab.hasPagination = false;
+        this.getCurrentTab.statistics = false;
+      }
+    },
+    // 更改是否启用按钮区
+    changeCanOperate() {
+      const arr =
+        this.activeObj.pageType === 2
+          ? this.activeObj.children[1].children
+          : this.activeObj.children[0].children;
+      const obj = arr.find((comp) => comp.tableCompName === 'OperateCol');
+      if (obj) {
+        const res = obj.children.find((btn) => this.hasTriggerComp[btn.compId]);
+        if (res) {
+          this.$message({
+            type: 'warning',
+            message: '该组件存在触发器配置，请先删除或更改该触发器',
+          });
+          return;
+        }
+      }
+      this.activeObj.canOperate = !this.activeObj.canOperate;
+    },
+    // 添加label组件
+    addLableComp() {
+      const idCompId = createUnique();
+      const label = {
+        name: 'label控件',
+        areaType: 1, // 表示内容区
+        dragTable: true,
+        dragCard: true, // 能否拖入卡片区
+        dragTree: true, // 能否拖入卡片区
+        imgUrl: 'baseComp/Label.svg',
+        compType: 15,
+        compId: idCompId,
+        compName: 'Label',
+        tableCompName: 'TableLabelCol',
+        propertyCompName: 'LabelConfig',
+        labelName: 'label',
+        labelShowStyle: 1, // label 展示风格
+        waterColor: '#333', // 小水滴颜色
+        dropDownType: 15,
+        placeholder: '请选择数据',
+        showLabelTitle: true, // 是否显示label的标题
+        helpInfo: '', // 帮助信息
+        enableMultiColumn: false, // 是否多选字段
+        labelNotChange: false, // label 不可更改
+        enableDict: false, // 是否字典值
+        dataSource: {
+          relateName: '', // 关系名称
+          tableName: '', //  表名
+          columnName: '', // 字段名称
+          columnTypeDict: 0, // 字段类型
+          id: 0, // 字段id
+          alias: '', // 别名
+          dictObj: null, // 字典表数据
+          mainColumnInfo: null, // 主表相关信息
+        },
+        timeShowType: 1, // 1 是日期 2是日期时间
+        multiTable: {
+          table: {
+            tableName: '',
+            alias: '',
+            id: '',
+          },
+          column: {
+            columnName: '',
+            id: '',
+            columnTypeDict: 0,
+          },
+        },
+        singleStatus: 1,
+        canShow: true,
+        canReadonly: false,
+        width: '50%',
+        tableWidth: '0.1',
+        alignStyle: 1, // 1 是左对齐 2右对齐
+        font: {
+          color: '#333333', // 字体颜色
+          size: 13, // 字体大小
+          style: 1, // 1 常规 2 加粗
+        }, // 字体大小
+        labelBg: {
+          color: '#ffffff', // 背景颜色
+          style: 0, // 0 无 1 方角 2 圆角
+        }, // label 背景色
+        enableIcon: false, // 是否允许label图标
+        enableDictIcon: false, // 是否允许字典图标
+        showTreeText: true, // 树节点上展示内容
+        icon: {
+          icon: '',
+          color: '',
+          imageUrl: '',
+        }, // label 图标
+        relateType: 1, // 弹窗类型 1是面板 2是菜单
+        dialogName: 'PanelDialog', // 弹窗风格
+        dialogTitle: '', // 弹窗标题
+        shouldRequired: false,
+        submitType: 1, // 1 始终提交 2 仅显示时提交 3 始终不提交
+      };
+      if (this.$route.query.isApp === '1') {
+        label.width = '100%';
+      }
+      console.log(this.activeObj);
+      this.activeObj.children[1].form[idCompId] = '';
+      this.activeObj.children[1].children.push(label);
+    },
+    // 添加新增按钮
+    addBtnComp() {
+      const idCompId = createUnique();
+      const btn = {
+        noDragForm: true,
+        name: '新增', // 按钮名称
+        areaType: 2, // 表示在按钮区
+        dragCard: true, // 是否允许拖入卡片区
+        imgUrl: 'baseComp/FormButton.svg', // z组件拖拽图标
+        compType: 5, // 组件类型
+        compId: idCompId, // 组件id
+        compName: 'FormButton', // 真实页面组件渲染名称
+        propertyCompName: 'FormButtonConfig', // 组件配置渲染名称
+        helpInfo: '', // 帮助信息
+        buttonType: 3, // 类型
+        exportType: 1, // 导出类型
+        buttonStyle: 'primary', // 样式
+        buttonForm: 1, // 风格
+        iconColor: '#4689f5', // 图标颜色
+        iconFont: 'icon-xinzeng', // 图标
+        ruleArr: [], // 提交钱校验规则
+        pane: {
+          name: '', // 面板名称
+          columnName: '', // 面板字段
+          paramArr: [],
+        },
+        singleStatus: 1,
+        textPanelId: '',
+        buttonChildType: '', // 按钮子类型
+        enableLog: false, // 是否启用日志
+        logComp: [], // 操作日志组件数组
+        execFunc: false, // 允许执行函数
+        execFuncName: '', // 函数表达式
+        flowType: 1, // 流程类型
+        beforeSubmit: {
+          type: 1,
+          html: '',
+        }, // 提交前提示
+        afterSubmit: {
+          type: 1,
+          html: '',
+        }, // 提交后提示
+        saveAreaArr: '', // 需要保存的区域
+        relateType: 1, // 弹窗类型 1是面板 2是菜单 3是外部地址
+        outerLink: '', // 外部地址
+        paramsArr: [], // 参数
+        dialogName: 'PanelDialog', // 弹窗风格
+        dialogTitle: '', // 弹窗标题
+        refreshType: 0,
+        submitEnable: false,
+        canShow: true,
+        canReadonly: false,
+        templateInfo: {}, // 导入模板
+        extraColumn: [], // 额外导入信息
+        needField: true, // 是否导出数据库表字段
+        exportSetting: 1, // 导出设置 1 - 4
+        downLoadType: 1, // 下载类型
+        fileColumns: [], // 导出业务字段
+        layeredStrategy: '[]', // 层级设置
+        downloadName: '下载文件', // 文件名
+        printTemp: {}, // 按钮关联打印模板
+        queryArea: [], // 查询区域
+      };
+      this.activeObj.children[0].children.unshift(btn);
+    },
+  },
+
+  watch: {
+    'getCurrentTab.sortArr': {
+      handler(v) {
+        this.getCurrentTab.sortStr = '';
+        v.forEach((column) => {
+          this.getCurrentTab.sortStr += `${this.getCurrentTab.tableInfo.tableName}.${column.columnName} ${column.sort},`;
+        });
+        this.getCurrentTab.sortStr = this.getCurrentTab.sortStr.slice(0, -1);
+        // console.log(this.getCurrentTab.sortStr);
+      },
+      deep: true,
+    },
+    filterDialog(v) {
+      // console.log(v);
+      if (!v) {
+        this.$bus.$emit('addHasTriggerComp');
+      }
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.contentConfig {
+  height: 100%;
+  &__title {
+    height: 46px;
+    line-height: 46px;
+    font-size: 16px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 600;
+    color: #333333;
+    padding-left: 10px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e9e9e9;
+  }
+  &__wrapper {
+    height: calc(100% - 46px);
+    overflow: auto;
+  }
+  &__box {
+    h2 {
+      padding-left: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333333;
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+  &__hasTab {
+    &--switchBox {
+      position: relative;
+      ::v-deep {
+        .el-switch__label {
+          position: absolute;
+          margin: 0;
+          color: #ffffff !important;
+        }
+        .el-switch__label--left {
+          display: none;
+          left: 22px;
+          &.is-active {
+            display: block;
+            z-index: 1;
+          }
+          span {
+            font-size: 12px;
+          }
+        }
+        .el-switch__label--right {
+          display: none;
+          left: 6px;
+          &.is-active {
+            display: block;
+          }
+          span {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+    &--switch {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    &--list {
+      padding: 0 10px;
+    }
+    &--tab {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      .iconfont {
+        font-size: 16px;
+        color: #bbc3cd;
+        cursor: pointer;
+        &:hover {
+          color: $--color-primary;
+        }
+      }
+      .icon-zongxiangtuodong {
+        cursor: move;
+      }
+      .icon-sheweimoren {
+        visibility: hidden;
+        &.active {
+          color: $--color-primary;
+          visibility: visible;
+        }
+      }
+      .input {
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        flex: 1;
+      }
+      .columnName {
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        &__sort {
+          width: 80px;
+          margin-left: auto;
+          margin-right: 8px;
+        }
+      }
+      .sumName {
+        flex: 1;
+      }
+      &.active,
+      &:hover {
+        background: $--hover-color;
+        .icon-sheweimoren {
+          visibility: visible;
+        }
+      }
+    }
+    &--addTab {
+      margin-left: 10px;
+      width: calc(100% - 20px);
+      .icon-xinzeng {
+        color: $--color-primary;
+      }
+    }
+    &--addArea {
+      margin-left: 10px;
+      width: calc(100% - 20px);
+      .icon-xinzeng {
+        color: $--color-primary;
+      }
+    }
+    &--addArea {
+      margin-bottom: 10px;
+    }
+  }
+  &__select {
+    margin-left: 10px;
+    width: calc(100% - 20px);
+  }
+  &__areaShow {
+    &--box {
+      display: flex;
+    }
+    &--item {
+      box-sizing: border-box;
+      border: 1px solid #e9e9e9;
+      height: 80px;
+      width: 80px;
+      margin-left: 10px;
+      cursor: pointer;
+      &:hover,
+      &.active {
+        background: #fafafa;
+        border: 1px solid #e9e9e9;
+      }
+      img {
+        display: block;
+        margin: 14px auto 0;
+      }
+      p {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 400;
+        color: #333333;
+        line-height: 16px;
+      }
+    }
+  }
+  &__dataSource {
+    padding-left: 10px;
+    padding-right: 10px;
+    h2 {
+      padding-left: 0;
+    }
+    &--select {
+      width: 100%;
+    }
+    &--h2 {
+      display: flex;
+      align-items: center;
+      .iconfont {
+        color: #aaaaaa;
+        font-weight: normal;
+        margin-left: 5px;
+      }
+    }
+    &--addRelate {
+      width: 100%;
+      i {
+        color: $--color-primary;
+      }
+    }
+  }
+  .numberBox {
+    display: flex;
+    padding: 0 10px;
+    align-items: center;
+    font-size: 13px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+  }
+  .operateWidth {
+    ::v-deep {
+      .el-button-group {
+        width: 100%;
+        display: flex;
+        .el-button {
+          padding: 0;
+          flex: 1;
+          text-align: center;
+          &.active {
+            color: #4689f5;
+            border-color: #c8dcfc;
+            background-color: #edf3fe;
+          }
+        }
+      }
+    }
+  }
+}
+</style>

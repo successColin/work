@@ -1,0 +1,121 @@
+@mixin setFormStyle() {
+  $--grapHeight: 10rpx;
+
+  .rowForm {
+    margin: 20rpx 20rpx 0 20rpx;
+
+    ::v-deep {
+      .element {
+        // #ifdef MP-WEIXIN
+        width: auto;
+        // #endif
+        margin: 0 30rpx;
+        align-items: center;
+        box-shadow: inset 0 -1rpx 0 0 #e9e9e9;
+        .elementLabel {
+          margin: 0 8rpx 0 0;
+          width: 160rpx;
+          font-size: $form-el-labelFontSize;
+          flex-shrink: 0;
+        }
+        .elementContent {
+          flex: 1;
+          padding: 6rpx 0;
+        }
+        &.topEl {
+          flex-direction: column;
+          align-items: stretch;
+          padding-bottom: 30rpx;
+          .elementLabel {
+            width: 100%;
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+          }
+        }
+        &.noborder {
+          box-shadow: none;
+        }
+      }
+    }
+    .configForm__content {
+      border-radius: 12rpx;
+      box-shadow: 0 2rpx 2rpx 0 rgba(0, 0, 0, 0.05);
+    }
+    .hasBorder {
+      &::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 1rpx;
+        background: #e9e9e9;
+      }
+    }
+  }
+  .columnForm {
+    // margin-top: $--grapHeight;
+
+    ::v-deep {
+      .element {
+        padding: 0 30rpx;
+        flex-direction: column;
+        // box-shadow: inset 0 -1rpx 0 0 #e9e9e9;
+        &::after {
+          content: '';
+          display: block;
+          width: 100%;
+          height: 1rpx;
+          box-shadow: inset 0 -1rpx 0 0 #e9e9e9;
+        }
+        .elementLabel {
+          width: 100%;
+          min-height: 34px;
+          display: flex;
+          align-items: center;
+        }
+        .elementContent {
+          width: 100%;
+        }
+        &.topEl {
+          padding-bottom: 30rpx;
+          &::after {
+            box-shadow: none;
+          }
+        }
+        &.noborder {
+          &::after {
+            box-shadow: none;
+          }
+        }
+      }
+    }
+  }
+  .configForm {
+    margin-bottom: 30rpx;
+    &__content {
+      background: #fff;
+      box-sizing: border-box;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      .itemContents {
+        box-sizing: border-box;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .grap {
+        padding-top: 25rpx;
+        width: 100%;
+        background: #f6f6f8;
+        font-size: 36rpx;
+        font-family: PingFangSC-Medium, PingFang SC;
+        @include fontBlob(500);
+        color: #333333;
+        &.grapTitle {
+          padding: 25rpx 30rpx;
+        }
+      }
+    }
+  }
+}

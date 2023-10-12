@@ -1,0 +1,57 @@
+/*
+ * @Description: 多语言-租户
+ * @Author: ytx
+ * @Date: 2021-04-29 19:47:04
+ * @Last Modified by: ytx
+ * @Last Modified time: 2021-05-15 10:57:56
+ */
+export default {
+  tenant: {
+    tenant: '%{name}租户',
+    tenant1: '租户%{name}',
+    name: '姓名',
+    name1: '名称',
+    activate: '激活',
+    freeze: '冻结',
+    release: '释放',
+    upgrade: '升级',
+    restore: '恢复',
+    isFreezeTenant: '是否确定冻结该租户？',
+    rootAdministrator: '主管理员',
+    numberOfMembers: '成员数量',
+    registrationDate: '注册日期',
+    subscriptionDeadline: '订阅截止日期',
+    members: '成员',
+    dataSource: '数据源',
+    dataSourceType: '数据源类型',
+    all: '全部',
+    currentType: '当前类型',
+    buyType: '购买类型',
+    standardEdition: '标准版',
+    professionalEdition: '专业版',
+    purchaser: '购买人%{info}',
+    phone: '电话',
+    email: '邮箱',
+    buyTime: '购买时间',
+    memberList: '成员清单',
+    account: '账户',
+    drivers: '驱动',
+    linkPoolConfiguration: '链接池配置',
+    URLAddress: 'URL地址',
+    initializationSize: '初始化大小',
+    minimum: '最小值',
+    max: '最大值',
+    maximumWaitingTimeUnitMs: '最大等待时间单位ms',
+    detectsTheIdleConnectionIntervalInMs: '检测空闲连接间隔时间单位ms',
+    connectTheSmallestSurvivingTimeUnitMs: '连接最小生存的时间单位ms',
+    role: '角色',
+    memberName: '成员名称',
+    lastActiveTime: '最后活跃时间',
+    activateTenant: '激活租户',
+    releaseTenant: '释放租户',
+    tenantName: '租户名称',
+    purchaserName: '购买人姓名',
+    purchaserPhone: '购买人电话',
+    purchaserEmail: '购买人邮箱',
+  },
+};

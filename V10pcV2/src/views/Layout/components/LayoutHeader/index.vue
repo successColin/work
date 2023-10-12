@@ -1,0 +1,1285 @@
+<!--
+ * @Author: cmk
+ * @Date: 2021-04-15 18:30:38
+ * @LastEditors: tjf
+ * @LastEditTime: 2021-05-28 09:21:11
+ * @Des: 主页面 头部组件
+-->
+<template>
+  <div class="header">
+    <dropdown-menu
+      :isHover.sync="isHover"
+      :menuArr="moreOpeArr"
+    ></dropdown-menu>
+    <section class="header__bg" :style="getbg"></section>
+    <section
+      class="header__bgOpi"
+      :class="[
+        {
+          whiteStyle: $store.state.globalConfig.themeConfig.themeStyle === '3',
+        },
+      ]"
+      v-if="$store.state.globalConfig.isInited"
+    ></section>
+    <section
+      class="header__animate"
+      v-if="$store.state.globalConfig.themeConfig.themeStyle !== '3'"
+    >
+      <i
+        class="iconfont icon-dingbudonghuatuansan animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuaner animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuansan animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuanyi animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <i
+        class="iconfont icon-dingbudonghuatuaner animate"
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '1'"
+      ></i>
+      <img
+        :src="
+          $parseImgUrl(
+            $store.state.globalConfig.themeConfig.topStyleIcon.slice(0, -1),
+          )
+        "
+        v-if="$store.state.globalConfig.themeConfig.topStyle === '3'"
+      />
+    </section>
+    <section
+      class="header__content"
+      :class="[
+        {
+          whiteStyle: $store.state.globalConfig.themeConfig.themeStyle === '3',
+        },
+      ]"
+    >
+      <header-menu
+        v-show="
+          [1, 3].includes($store.getters.getMenuType) &&
+          $store.state.globalConfig.isInited
+        "
+      ></header-menu>
+      <img
+        :src="getUrl"
+        alt="logo"
+        class="m-l-20"
+        :style="`height:${getWidth}px;cursor:pointer`"
+        @click="$emit('refresh')"
+      />
+      <section class="header__content--tab">
+        <nav class="nav header__content--self">
+          <i class="iconfont icon-shujiantouzhankai m-l-10"></i>
+          <div class="header__content--selfAvatar">
+            <user-avatar
+              :userItem="$store.state.userCenter.userInfo"
+              :onlyAvatar="true"
+            ></user-avatar>
+          </div>
+          <div
+            class="header__content--selfName font__ellipsis"
+            :title="
+              $store.state.userCenter.userInfo
+                ? $store.state.userCenter.userInfo.username
+                : ''
+            "
+          >
+            {{
+              $store.state.userCenter.userInfo
+                ? $store.state.userCenter.userInfo.username
+                : ''
+            }}
+          </div>
+          <img
+            src="./images/profession.svg"
+            alt=""
+            v-if="+themeConfig.enableVersionId === 1"
+          />
+          <user-info
+            :userCenter.sync="userCenter"
+            :userInfo="$store.state.userCenter.userInfo"
+            :isShowUserInfo.sync="isShowUserInfo"
+            v-show="isShowUserInfo"
+            class="userInfo"
+          ></user-info>
+        </nav>
+        <nav
+          class="line"
+          v-if="$store.state.globalConfig.themeConfig.themeStyle === '3'"
+        ></nav>
+        <nav
+          class="nav header__content--language"
+          v-if="
+            $store.state.globalConfig.themeConfig.enableMultilingualism === '1'
+          "
+        >
+          <el-dropdown placement="bottom" @command="changeLang">
+            <div class="header__content--langShow">
+              <img :src="langData[curLangIndex].url" />
+            </div>
+            <el-dropdown-menu slot="dropdown" class="myLang">
+              <el-dropdown-item
+                v-for="(item, index) in langData"
+                :key="item.val"
+                :command="{ item, index }"
+                ><img :src="item.url" alt="" class="myLang__img" />{{
+                  item.name
+                }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </nav>
+        <el-tooltip
+          :tabindex="-1"
+          effect="dark"
+          transition="topEnterBottomLeave"
+          :content="isFullScreen ? '退出全屏' : '全屏'"
+          placement="bottom"
+          v-if="$store.state.globalConfig.themeConfig.enableFullScreen === '1'"
+        >
+          <nav class="nav iconNav" @click="zoomFun">
+            <img
+              class="iconNav__img"
+              :src="getImg('enableFullScreenIcon')"
+              alt=""
+              v-if="getImg('enableFullScreenIcon')"
+            />
+            <i
+              v-else
+              class="iconfont"
+              :class="`${
+                isFullScreen ? 'icon-quxiaoquanping' : 'icon-quanping'
+              }`"
+            ></i>
+          </nav>
+        </el-tooltip>
+        <nav
+          class="nav iconNav"
+          v-if="$store.state.globalConfig.themeConfig.enableHelpCenter === '1'"
+        >
+          <el-dropdown placement="bottom" @command="changeHelp" :tabindex="-1">
+            <img
+              class="iconNav__img"
+              :src="getImg('enableHelpCenterIcon')"
+              alt=""
+              v-if="getImg('enableHelpCenterIcon')"
+            />
+            <i
+              v-else
+              class="iconfont icon-wentibangzhu header__content--help"
+            ></i>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-for="item in filterHelp(helpCenter)"
+                :key="item.command"
+                :icon="`iconfont ${item.icon}`"
+                :command="item.command"
+              >
+                {{ item.title }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </nav>
+        <el-tooltip
+          :tabindex="-1"
+          effect="dark"
+          content="审批"
+          placement="bottom"
+          transition="topEnterBottomLeave"
+          v-if="
+            $store.state.globalConfig.themeConfig.enableApprovalProcess === '1'
+          "
+        >
+          <nav class="nav iconNav">
+            <div v-if="getImg('enableApprovalProcessIcon')">
+              <img
+                class="iconNav__img"
+                :src="getImg('enableApprovalProcessIcon')"
+                alt=""
+              />
+            </div>
+            <i
+              v-else
+              class="iconfont icon-liuchengshenpi"
+              @click="showTask = true"
+            ></i>
+            <div
+              v-if="taskNum > 0"
+              class="showNum"
+              :style="getTaskStyle"
+              :class="[{ animateNum: showApprovalAnimate }]"
+            >
+              {{ taskNum > 99 ? '99+' : taskNum }}
+            </div>
+          </nav>
+        </el-tooltip>
+        <el-tooltip
+          :tabindex="-1"
+          effect="dark"
+          content="消息"
+          placement="bottom"
+          :enterable="false"
+          transition="topEnterBottomLeave"
+          v-if="$store.state.globalConfig.messageConfig.enableMessage === '1'"
+        >
+          <nav class="nav iconNav">
+            <div v-if="getImg('enableMessageIcon')">
+              <img
+                class="iconNav__img"
+                :src="getImg('enableMessageIcon')"
+                alt=""
+              />
+            </div>
+            <span
+              v-else
+              class="iconfont icon-xiaoxitongzhi"
+              @click="showMessageFun"
+            ></span>
+            <div
+              v-if="messageNum > 0"
+              class="showNum"
+              :style="getMessageStyle"
+              :class="[{ animateNum: showMessageAnimate }]"
+            >
+              {{ messageNum > 99 ? '99+' : messageNum }}
+            </div>
+            <!-- <video ref="sound" src="../../../../assets/message.mp3" muted="muted"></video> -->
+            <audio
+              src="../../../../assets/message.mp3"
+              style="visibility: hidden"
+              ref="sound"
+            ></audio>
+          </nav>
+        </el-tooltip>
+        <GlobalSearch
+          v-if="
+            $store.state.globalConfig.themeConfig.enableGlobalSearch === '1'
+          "
+        ></GlobalSearch>
+        <nav class="line"></nav>
+        <nav
+          class="nav menuBtn"
+          v-for="(item, index) in getTopMenu"
+          :key="index"
+          @click="navClick(item)"
+        >
+          {{ item.menuName }}
+        </nav>
+        <!--        v-if="moreOpeArr.length"-->
+        <nav
+          class="nav menuBtn"
+          v-if="moreOpeArr.length"
+          @mouseenter="mouseenter"
+          @mouseleave="mouseLeave"
+        >
+          <i class="iconfont m-r-4 icon-gengduocaozuo"></i>
+        </nav>
+      </section>
+    </section>
+    <user-center
+      v-if="$store.state.userCenter.userInfo"
+      :userCenter.sync="userCenter"
+      :centerVisible.sync="userCenter.visible"
+      @getUserCenterInfo="getUserCenterInfo"
+      :userInfo="$store.state.userCenter.userInfo"
+    >
+    </user-center>
+    <switch-tenant
+      v-if="$store.state.userCenter.userInfo"
+      v-show="userCenter.visible && userCenter.showType === 'tenant'"
+      :visible.sync="userCenter.visible"
+      :userCenter.sync="userCenter"
+      :userInfo="$store.state.userCenter.userInfo"
+    ></switch-tenant>
+<!--    <task-to-do-->
+<!--      :showTabs.sync="showTask"-->
+<!--      v-model="activeName"-->
+<!--      :activeName="activeName"-->
+<!--      @tab-click="handleTabsClick"-->
+<!--      @changeMessage="allCount"-->
+<!--    />-->
+    <task-to-do
+        :showTabs.sync="showTask"
+        v-model="activeName"
+        :activeName="activeName"
+        @tab-click="handleTabsClick"
+        @changeMessage="allCount"
+        @closeApproval="allCount"
+    />
+    <apiot-drawer
+      :visible.sync="showMessage"
+      :class="{ showTaskMessage: showTaskMessage }"
+      class="drawerMessage"
+      destroy-on-close
+      append-to-body
+      ref="apiotDrawer"
+      :title="$t('messageShow.MessageNotification')"
+      :hasFooter="false"
+    >
+      <message-show
+        :showMessage.sync="showMessage"
+        :showTaskMessage.sync="showTaskMessage"
+        @readCountChanged="allCount"
+      />
+    </apiot-drawer>
+    <remote-assistance v-if="isShowAudio"/>
+  </div>
+</template>
+
+<script>
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import cnImg from '@/assets/img/cn.png';
+// import enImg from '@/assets/img/en.png';
+import { fontChange, debounce, Decrypt } from '@/utils/utils';
+import UserCenter from '@/views/UserCenter/index';
+import SwitchTenant from '@/views/UserCenter/components/SwitchTenant/index';
+import UserInfo from '@/views/UserCenter/UserInfo/index';
+import userAvatar from '@/views/orgManage/components/userAvatar/index';
+import { getPersonalCenterUser } from '@/api/userCenter';
+import { getMyTodoList } from '@/api/flow';
+import { getMailCount } from '@/api/messageShow.js';
+import TaskToDo from '@/views/TaskToDo/index2';
+import MessageShow from '@/views/MessageShow/index';
+import HeaderMenu from '../HeaderMenu';
+import DropdownMenu from './components/DropdownMenu';
+import GlobalSearch from './components/GlobalSearch';
+import RemoteAssistance from './components/RemoteAssistance';
+
+export default {
+  data() {
+    return {
+      activeName: 'LeaveItToMe',
+      showTask: false,
+      taskNum: 0, // 任务数量
+      messageNum: 0, // 消息数量
+      color: '#FA9D0B',
+      logoHeight: 18,
+      name: 'admin',
+      timer: null,
+      langData: [
+        {
+          name: '中文',
+          val: 'zhCN',
+          url: cnImg,
+        },
+        // {
+        //   name: 'EN',
+        //   val: 'enUS',
+        //   url: enImg
+        // }
+      ],
+      helpCenter: [
+        {
+          title: '帮助文档',
+          icon: 'icon-wenjian',
+          command: 'HelpDoc',
+        },
+        {
+          title: '视频教程',
+          icon: 'icon-shipin',
+          command: 'VideoTutorial',
+        },
+        {
+          title: '常见问题',
+          icon: 'icon-bangzhu',
+          command: 'CommonProblem',
+        },
+        {
+          title: '更新日志',
+          icon: 'icon-gengxin',
+          command: 'UpdateLog',
+        },
+      ],
+      curLangIndex: 0, // 当前语言下标
+      isFullScreen: false, // 是否全屏
+      num: 5, // 消息条数
+      btnMenuArr: [
+        {
+          menuName: '反馈中心',
+        },
+        {
+          menuName: '机至数科',
+        },
+        {
+          menuName: '数据看板',
+        },
+        {
+          menuName: '菜单1',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单231232132',
+          icon: {
+            icon: 'icon_shuju',
+            color: '#34C7BE',
+          },
+        },
+        {
+          menuName: '菜单2',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单3',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单4',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单5',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单6',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单7',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单8',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单9',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+        {
+          menuName: '菜单10',
+          icon: {
+            icon: 'icon_gongdan',
+            color: '#EE5E5E',
+          },
+        },
+      ], // 按钮菜单数组
+      userInfo: null,
+      userCenter: {
+        visible: false,
+        showType: '',
+      },
+      isShowUserInfo: true,
+      isHover: false,
+      showMessage: false,
+      timer2: null,
+      timer1: null,
+      showTaskMessage: false,
+      showMessageAnimate: false,
+      showApprovalAnimate: false,
+    };
+  },
+
+  components: {
+    HeaderMenu,
+    UserInfo,
+    UserCenter,
+    DropdownMenu,
+    SwitchTenant,
+    userAvatar,
+    TaskToDo,
+    MessageShow,
+    GlobalSearch,
+    RemoteAssistance,
+  },
+  computed: {
+    isShowAudio() {
+      return this.remoteConfig.enableAssistance === '1' && this.userInfo && this.userInfo.isExpert;
+    },
+    getTaskStyle() {
+      const { approvalColor } = this.$store.state.globalConfig.themeConfig;
+      if (approvalColor) {
+        if (!['#4689f5', 'rgba(70, 137, 245, 1)'].includes(approvalColor)) {
+          return `backgroundColor:${approvalColor}`;
+        }
+      }
+      return '';
+    },
+    getMessageStyle() {
+      const { messageColor } = this.$store.state.globalConfig.messageConfig;
+      if (messageColor) {
+        if (!['#4689f5', 'rgba(70, 137, 245, 1)'].includes(messageColor)) {
+          return `backgroundColor:${messageColor}`;
+        }
+      }
+      return '';
+    },
+    themeConfig() {
+      return this.$store.state.globalConfig.themeConfig;
+    },
+    remoteConfig() {
+      return this.$store.state.globalConfig.remoteConfig;
+    },
+    getbg() {
+      const { themeStyle, themeColor } =
+        this.$store.state.globalConfig.themeConfig;
+      if (themeStyle === '3') {
+        return 'background: #ffffff';
+      }
+      return `background: ${themeStyle === '1' ? '#29354D' : themeColor}`;
+    },
+    getWidth() {
+      return this.$store.state.globalConfig.themeConfig.homePageLogoWidth || 18;
+    },
+    getUrl() {
+      const url = this.$store.state.globalConfig.themeConfig.homePageLogo;
+      const newUrl = url === '0' ? '' : url;
+      return newUrl
+        ? this.$parseImgUrl(newUrl.substr(0, newUrl.length - 1))
+        : require('./images/logo.png');
+    },
+    getAbridegName() {
+      return fontChange(this.name);
+    },
+    getTopMenu() {
+      if (this.$store.state.globalConfig.themeConfig.enableLink === '1') {
+        return this.$store.state.globalConfig.thirdLinks.slice(0, 5);
+      }
+      return [];
+    },
+    moreOpeArr() {
+      if (this.$store.state.globalConfig.themeConfig.enableLink === '1') {
+        if (this.$store.state.globalConfig.thirdLinks.length > 5) {
+          return this.$store.state.globalConfig.thirdLinks.slice(5);
+        }
+      }
+      return [];
+    },
+    getImg() {
+      return (key) => {
+        //
+        if (this.$store.state.globalConfig.themeConfig[key]) {
+          return this.$parseImgUrl(
+            this.$store.state.globalConfig.themeConfig[key].substr(
+              0,
+              this.$store.state.globalConfig.themeConfig[key].length - 1,
+            ),
+          );
+        }
+        return '';
+      };
+    },
+  },
+  watch: {
+    '$store.state.globalConfig.themeConfig.enableApprovalProcess': {
+      handler(v) {
+        if (v === '1') {
+          this.initTask();
+        }
+      },
+    },
+    '$store.state.globalConfig.messageConfig.enableMessage': {
+      handler(v) {
+        if (v === '1') {
+          this.initMessage();
+        }
+      },
+    },
+    showTask: {
+      handler(v) {
+        if (!v) {
+          this.activeName = 'LeaveItToMe';
+        }
+      },
+    },
+  },
+  mounted() {
+    this.setCurLangIndex();
+    this.getUserCenterInfo();
+    window.addEventListener('resize', debounce(this.pageResize));
+    // if (this.$store.state.globalConfig.themeConfig.enableMessage === '1') {
+    //   this.initMessage();
+    // }
+    // if (this.$store.state.globalConfig.themeConfig.enableApprovalProcess === '1') {
+    //   this.initTask();
+    // }
+    this.allCount();
+    // if (this.timer2) {
+    //   clearInterval(this.timer2);
+    // }
+    // this.timer2 = setInterval(() => {
+    //   this.initTask();
+    // }, 60 * 1000);
+    const { enableApprovalProcess } =
+      this.$store.state.globalConfig.themeConfig;
+    const { enableMessage } = this.$store.state.globalConfig.messageConfig;
+    if (enableMessage === '1' || enableApprovalProcess === '1') {
+      this.initWebSocket();
+    }
+    console.log(this.remoteConfig.enableAssistance, 'this.remoteConfig.enableAssistance');
+    if (this.remoteConfig.enableAssistance === '1') {
+      this.appendCSS();
+      this.appendScript('/static/js/hls.min.0.13.2m.js');
+      this.appendScript('/static/js/tcplayer.v4.1.min.js');
+    }
+  },
+
+  methods: {
+    appendCSS() {
+      const link = document.createElement('link');
+      link.setAttribute('href', 'https://imgcache.qq.com/open/qcloud/video/tcplayer/tcplayer.css');
+      link.setAttribute('rel', 'stylesheet');
+      const head = document.getElementsByTagName('head')[0];
+      head.appendChild(link);
+    },
+    appendScript(url) {
+      const script = document.createElement('script');
+      script.src = url;
+      script.setAttribute('type', 'text/javascript');
+      document.body.appendChild(script);
+    },
+    allCount(type = 0) {
+      console.log(111);
+      const { enableApprovalProcess } =
+        this.$store.state.globalConfig.themeConfig;
+      const { enableMessage } = this.$store.state.globalConfig.messageConfig;
+      if (enableMessage === '1') {
+        this.initMessage(type);
+      }
+      if (enableApprovalProcess === '1') {
+        this.initTask(type);
+      }
+    },
+    initWebSocket() {
+      this.connection();
+      // const that = this;
+      // // 断开重连机制,尝试发送消息,捕获异常发生时重连
+      // this.timer2 = setInterval(() => {
+      //   try {
+      //     that.stompClient.send('test');
+      //   } catch (err) {
+      //     that.connection();
+      //   }
+      // }, 5000);
+    },
+    async connection() {
+      // await this.getUserCenterInfo();
+      // 建立连接对象
+      const { socketUrl } = this.$store.state.globalConfig.messageConfig;
+      if (!socketUrl) return;
+      const socket = new SockJS(`${socketUrl}/welcome`);
+      // 获取STOMP子协议的客户端对象
+      this.stompClient = Stomp.over(socket);
+      // 定义客户端的认证信息,按需求配置
+      const headers = {
+        token: Decrypt(localStorage.getItem('token') || ''),
+      };
+      const that = this;
+      // 向服务器发起websocket连接
+      this.stompClient.connect(
+        headers,
+        () => {
+          // console.log('链接成功');
+          const { account } = this.$store.state.userCenter.userInfo;
+          // eslint-disable-next-line no-unused-vars
+          this.stompClient.subscribe(
+            `/user/${account}:PC/msg`,
+            async (response) => {
+              const res = JSON.parse(response.body);
+              // 用户踢登提示
+              if (res.bizKey === 'SESSION_KICKED') {
+                this.disconnect();
+                localStorage.setItem('token', '');
+                await this.$confirm(
+                  '您的账号已被挤下线，回到登录页可重新登录！',
+                  '提示',
+                  {
+                    confirmButtonText: '好的',
+                    showCancelButton: false,
+                    type: 'warning',
+                  },
+                ).then(() => {
+                  window.vue.$router.push('/login');
+                });
+              }
+              if (res.bizKey === 'NEW_INNER_MAIL') {
+                that.allCount(1);
+              }
+              that.allCount(1);
+              await that.$store.dispatch('setApprovalNum');
+            },
+            headers,
+          );
+          // this.stompClient.send('/app/chat.addUser', headers, JSON.stringify({
+          //   sender: '',
+          //   chatType: 'JOIN'
+          // })); // 用户加入接口
+        },
+        (err) => {
+          // 连接发生错误时的处理函数
+          // console.log('失败');
+          console.log(err);
+        },
+      );
+    }, // 连接后台
+    disconnect() {
+      if (this.stompClient) {
+        this.stompClient.disconnect();
+        this.stompClient.unsubscribe();
+      }
+    }, // 断开连接
+    setSocket(path) {
+      const that = this;
+      // 链接次数
+      let number = 1;
+      // 连接地址
+      const url = '';
+      // 建立连接对象（还未发起连接）
+      const socket = new SockJS(url);
+      // 获取 STOMP 子协议的客户端对象
+      const stompClient = Stomp.over(socket);
+      stompClient.debug = null; // 浏览器不console信息日志
+      // 向服务器发起websocket连接并发送CONNECT帧
+      stompClient.connect(
+        {},
+        (frame) => {
+          stompClient.subscribe(
+            `/user/${path}/consultationImageUpdateNotify`,
+            (data) => {
+              console.log('))))收到后台推送的数据', frame, data);
+            },
+          );
+        },
+        function (error) {
+          number += 1;
+          if (number < 6) {
+            this.setSocket(`${that.expertSysid}/${that.consultationSysid}`);
+          }
+          console.log('))))收到后台推送的数据错误回调', error);
+        },
+      );
+    },
+    filterHelp(arr) {
+      const { helpCenterMenu } = this.$store.state.globalConfig.themeConfig;
+      const a = helpCenterMenu ? helpCenterMenu.split(',') : [];
+      return arr.filter((item, index) => {
+        if (a.includes(`${index + 1}`)) {
+          return true;
+        }
+        return false;
+      });
+    },
+    async initTask(type) {
+      const oldNum = this.taskNum;
+      const data = (await getMyTodoList({ current: 1, size: 1 })) || {};
+      const { total = 0 } = data;
+      this.taskNum = total;
+      if (type === 1 && oldNum !== total) {
+        this.showApprovalAnimate = true;
+        this.$refs.sound.play();
+        setTimeout(() => {
+          this.showApprovalAnimate = false;
+        }, 600);
+      }
+    },
+    async initMessage(type) {
+      const param = {
+        innerMailCategorys: ['WORK_FLOW', 'SYSTEM'],
+        hasRead: 2,
+      };
+      const oldNum = this.messageNum;
+      const data = (await getMailCount(param)) || 0;
+      this.messageNum = data;
+      if (type === 1 && oldNum !== data) {
+        this.showMessageAnimate = true;
+        this.$refs.sound.play();
+        setTimeout(() => {
+          this.showMessageAnimate = false;
+        }, 600);
+      }
+    },
+    handleTabsClick({ name }) {
+      // 切换tab
+      this.activeName = name;
+    },
+    async getUserCenterInfo() {
+      const res = await getPersonalCenterUser();
+      this.userInfo = res;
+      this.$store.commit('setUserInfo', res);
+    },
+    // 设置当前语言
+    setCurLangIndex() {
+      this.curLangIndex = 0;
+      if (localStorage.apiotLanguage) {
+        const index = this.langData.findIndex(
+          (item) => item.val === localStorage.apiotLanguage,
+        );
+        if (index !== -1) {
+          this.curLangIndex = index;
+        }
+      }
+    },
+    // 更改语言
+    changeLang({ item, index }) {
+      this.curLangIndex = index;
+      this.$i18n.locale = item.val;
+      localStorage.apiotLanguage = item.val;
+      this.$store.commit('changeLanguage');
+    },
+    // 点击帮助
+    changeHelp(command) {
+      const arr = this.filterHelp(this.helpCenter);
+      const obj = arr.find((v) => v.command === command);
+      const routeUrl = this.$router.resolve({
+        name: 'helpCenterShow',
+        query: {
+          id: command,
+          name: obj.title,
+        },
+      });
+      window.open(routeUrl.href, '_blank');
+    },
+    // 最大化、最小化
+    zoomFun() {
+      if (this.isFullScreen) {
+        this.handleExitFullscreen();
+      } else {
+        this.handleFullScreen();
+      }
+    },
+    // 全屏
+    handleFullScreen() {
+      const element = document.documentElement;
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+      } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+      }
+      this.isFullScreen = true;
+    },
+    // 退出全屏
+    handleExitFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+      this.isFullScreen = false;
+    },
+    // 退出全屏
+    pageResize() {
+      const isFull =
+        window.fullScreen ||
+        document.webkitIsFullScreen ||
+        document.msFullscreenEnabled;
+      if (isFull === undefined) {
+        this.isFullScreen = false;
+      }
+    },
+
+    mouseenter() {
+      this.timer = setTimeout(() => {
+        this.isHover = true;
+      }, 200);
+    },
+    // 鼠标移出
+    mouseLeave(e) {
+      clearTimeout(this.timer);
+      const H = this.$store.state.globalConfig.themeConfig.topHeight || 50;
+      if (e.y < H) {
+        this.isHover = false;
+      }
+    },
+    showMessageFun() {
+      this.showMessage = true;
+      console.log(this.showMessage);
+    },
+    navClick(item) {
+      window.open(item.linkAdress);
+    },
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', debounce(this.pageResize));
+    if (this.timer1) clearInterval(this.timer1);
+    if (this.timer2) clearInterval(this.timer2);
+    if (this.timer) clearInterval(this.timer);
+    this.timer1 = null;
+    this.timer = null;
+    this.timer2 = null;
+    this.disconnect();
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+$iconNavWidth: 44px;
+.header {
+  position: relative;
+  z-index: 101;
+  height: $layoutHeader;
+
+  &__bg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .animate {
+    overflow: hidden;
+  }
+
+  &__bgOpi {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0.25;
+    background: #000;
+    overflow: hidden;
+    &.whiteStyle {
+      background: #fff;
+    }
+  }
+
+  &__animate {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+
+    & > .iconfont {
+      position: absolute;
+      color: #fff;
+
+      &:nth-child(1) {
+        font-size: 68px;
+        left: 56px;
+        top: 7px;
+        opacity: 0.1;
+        animation: clockwise 10s linear infinite;
+      }
+
+      &:nth-child(2) {
+        font-size: 118px;
+        left: 122px;
+        top: 10px;
+        opacity: 0.05;
+        animation: counterclockwise 10s linear infinite;
+      }
+
+      &:nth-child(3) {
+        font-size: 88px;
+        left: 306px;
+        top: 0px;
+        opacity: 0.1;
+        animation: clockwise 10s linear infinite;
+      }
+
+      &:nth-child(4) {
+        font-size: 66px;
+        left: 397px;
+        top: 4px;
+        opacity: 0.4;
+        animation: counterclockwise 10s linear infinite;
+      }
+
+      &:nth-child(5) {
+        font-size: 40px;
+        left: 456px;
+        top: -10px;
+        opacity: 0.25;
+        animation: clockwise 10s linear infinite;
+      }
+    }
+  }
+
+  &__content {
+    position: relative;
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    &.whiteStyle {
+      ::v-deep {
+        color: #333333;
+        border-bottom: 1px solid #e9e9e9;
+        .header__content--selfName,
+        .icon-shujiantouzhankai,
+        .menuBtn {
+          color: #333333;
+        }
+        nav > i,
+        nav > span {
+          color: #bbc3cd;
+        }
+        .line {
+          background: #e9e9e9;
+        }
+      }
+    }
+
+    &--tab {
+      flex: 1;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+      height: $layoutHeader;
+      line-height: $layoutHeader;
+
+      .nav {
+        cursor: pointer;
+        height: 100%;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.14);
+        }
+      }
+    }
+
+    &--self {
+      // width: 230px;
+      width: max-content;
+      height: 34px;
+      line-height: 34px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding-right: 14px;
+      background: rgba(255, 255, 255, 0.08);
+
+      &:hover {
+        .icon-shujiantouzhankai {
+          transform: rotate(-180deg);
+        }
+      }
+
+      .icon-shujiantouzhankai {
+        transition: all 0.2s linear;
+      }
+
+      .userInfo {
+        height: 0;
+        transform: translateY(-10px);
+        opacity: 0;
+        transition: transform 0.3s, height 0.3s, opacity 0.3s;
+        z-index: -11;
+      }
+
+      &:hover {
+        background: $--color-primary;
+
+        .userInfo {
+          opacity: 1;
+          transform: translateY(0px);
+          height: 380px;
+          z-index: 1001;
+        }
+      }
+    }
+
+    &--selfAvatar {
+      width: $userImageHeader;
+      height: $userImageHeader;
+      line-height: $userImageHeader;
+      background: #5a80ed;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 400;
+      margin-left: 6px;
+
+      ::v-deep {
+        .avatar .userImage {
+          width: $userImageHeader;
+          height: $userImageHeader;
+        }
+
+        .avatar .imageName {
+          width: $userImageHeader;
+          height: $userImageHeader;
+          line-height: $userImageHeader;
+        }
+      }
+    }
+
+    &--selfName {
+      margin: 0 12px 0 10px;
+      font-size: 13px;
+      font-weight: 400;
+      text-align: left;
+      // flex: 1;
+      max-width: 74px;
+      width: min-content;
+    }
+
+    &--language {
+      width: 56px;
+      text-align: center;
+    }
+
+    &--langShow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: $layoutHeader;
+      width: 56px;
+      color: #fff;
+      cursor: pointer;
+
+      img {
+        width: 20px;
+      }
+    }
+
+    &--help {
+      display: inline-block;
+      width: $iconNavWidth;
+      color: #fff;
+    }
+
+    .iconNav {
+      position: relative;
+      width: $iconNavWidth;
+      &__img {
+        width: 22px;
+        height: 22px;
+        vertical-align: middle;
+      }
+
+      .iconfont {
+        font-size: $iconFontSizeHeadr;
+      }
+
+      .icon-xiaoxitongzhi {
+        position: relative;
+      }
+      .showNum {
+        position: absolute;
+        top: 4px;
+        right: -6px;
+        // width: 24px;
+        min-width: 10px;
+        padding: 0 4px;
+        height: 18px;
+        line-height: 18px;
+        border-radius: 10px;
+        background-color: $--color-primary;
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 12px;
+      }
+      .icon-liuchengshenpi {
+        position: relative;
+      }
+      .animateNum {
+        &::after {
+          animation: scaleAni 0.5s 1;
+        }
+      }
+      @keyframes scaleAni {
+        0% {
+          transform: scale(1) rotate(0);
+        }
+        20% {
+          transform: scale(1.1) rotate(10deg);
+        }
+        40% {
+          transform: scale(1.2) rotate(-10deg);
+        }
+        60% {
+          transform: scale(1.3) rotate(10deg);
+        }
+        8% {
+          transform: scale(1.2) rotate(-10deg);
+        }
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+      }
+    }
+
+    .line {
+      margin: 0 12px;
+      width: 1px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .menuBtn {
+      padding: 0 20px;
+    }
+  }
+  ::v-deep {
+    .el-drawer__body,
+    .drawer__content {
+      overflow: initial;
+    }
+    .el-drawer__close-btn {
+      position: relative;
+      z-index: 1;
+    }
+    .showTaskMessage {
+      .el-drawer__close-btn {
+        display: none;
+      }
+    }
+  }
+}
+
+.myLang {
+  &__img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    position: relative;
+    margin-right: 4px;
+    top: -2px;
+  }
+}
+</style>

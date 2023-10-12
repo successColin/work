@@ -1,0 +1,86 @@
+/*
+* @Description: 主题色文件
+* @Author: sss
+* @Date: 2021-04-26 17:23:05
+ * @Last Modified by: sss 
+ * @Last Modified time: 2023-05-31 17:45:52
+*/
+@import './index.scss';
+@import '~uview-ui/theme.scss';
+
+@import '~uview-ui/index';
+// 主题色
+$themeColor: (
+  0: #4689f5,
+  1: #c62127,
+  2: #ee5e5e,
+  3: #fab71c,
+  4: #fc8256,
+  5: #34c7be,
+  6: #10b98a,
+  7: #1ca6ff,
+  8: #a853f2,
+  9: #ef4373,
+  10: #708db7,
+);
+@each $key, $color in $themeColor {
+  .themeColor__bg-#{$key} {
+    // 主题背景色
+    background-color: $color !important;
+  }
+  .themeColor__font-#{$key} {
+    // 主题字体色
+    color: $color !important;
+  }
+  .themeColor__bg-font-#{$key} {
+    // 主题背景+字体色
+    color: $color !important;
+    background-color: lighten($color, 35%) !important;
+  }
+  .themeColor__border-#{$key} {
+    // 主题背景色
+    border-color: $color !important;
+  }
+  .themeColor__icon-#{$key} {
+    // 图标颜色淡化
+    color: lighten($color, 30%) !important;
+  }
+  .themeColor__boxBgn-#{$key} {
+    // 区域背景淡化
+    background: lighten($color, 50%) !important;
+  }
+  button.themeColor__btn-#{$key} {
+    // 主题色按钮
+    border-color: $color !important;
+    background-color: $color !important;
+    &.u-primary-hover {
+      background-color: darken($color, 10%) !important;
+    }
+    &.u-btn--primary--disabled {
+      background-color: rgba($color, 0.6) !important;
+    }
+  }
+  button.defalut__btn-#{$key} {
+    // 默认按钮
+    &.u-default-hover {
+      color: $color !important;
+      border-color: $color !important;
+      background-color: rgba($color, 0.3) !important;
+    }
+  }
+  $ankey: animation-ripple-#{$key};
+
+  .circle-ripple-#{$key} {
+    animation: $ankey 0.7s linear infinite;
+  }
+  @keyframes #{$ankey} {
+    0% {
+      box-shadow: 0 0 0 0 rgba($color, 0.3), 0 0 0 20rpx rgba($color, 0.3),
+        0 0 0 40rpx rgba($color, 0.3);
+    }
+    100% {
+      box-shadow: 0 0 0 20rpx rgba($color, 0.3), 0 0 0 40rpx rgba($color, 0.3),
+        0 0 0 60rpx rgba($color, 0);
+    }
+  }
+}

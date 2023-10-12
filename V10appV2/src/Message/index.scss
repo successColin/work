@@ -1,0 +1,63 @@
+.message {
+  height: 100%;
+  background: #ffffff;
+  &__tab{
+    height: 88rpx;
+    display: flex;
+    line-height: 88rpx;
+    box-shadow: inset 0px -1rpx 0px 0px #E9E9E9;
+    padding: 0 30rpx;
+    .tab{
+      flex: 1;
+      text-align: center;
+      color: #666666;
+      font-size: 30rpx;
+      position: relative;
+    }
+    .active{
+      color: #4689F5;
+      &::before{
+        content: '';
+        width: 60rpx;
+        height: 5rpx;
+        background: #4689F5;
+        border-radius: 1rpx;
+        -webkit-border-radius: 1rpx;
+        -moz-border-radius: 1rpx;
+        -ms-border-radius: 1rpx;
+        -o-border-radius: 1rpx;
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translate(-30rpx);
+        -webkit-transform: translate(-30rpx);
+        -moz-transform: translate(-30rpx);
+        -ms-transform: translate(-30rpx);
+        -o-transform: translate(-30rpx);
+      }
+    }
+  }
+  &__content{
+    height: calc(100% - $navbar-height);
+  }
+  ::v-deep{
+    .el-drawer__body, .drawer__content{
+      overflow: initial;
+    }
+    .el-tabs{
+      background: transparent;
+    }
+    .el-tabs__nav-scroll{
+      display: flex;
+      justify-content: center;
+    }
+    .el-tabs__item{
+      line-height: 56px;
+      height: 56px;
+      padding: 0 28px;
+    }
+    .el-tabs__content{
+      padding-left: 36px;
+    }
+  }
+}
