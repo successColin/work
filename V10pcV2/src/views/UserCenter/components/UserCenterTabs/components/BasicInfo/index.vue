@@ -328,9 +328,18 @@ export default {
       // this.$refs.avatar.checkImage();
     },
     putImgToCanv(e) {
-      // console.log(e);
-      this.visibleAvatar = true;
-      this.$refs.avatar.forIe9(e);
+      const name = e.target.value;
+      const nameArr = name.split('.');
+      if (nameArr.length !== 2) {
+        return this.$message.warning('上传图片格式不正确，请重新上传');
+      }
+      const ext = nameArr[1];
+      if (ext !== 'png' && ext !== 'jpg' && ext !== 'gif' && ext !== 'svg') {
+        this.$message.warning('上传图片格式不正确，请重新上传');
+      } else {
+        this.visibleAvatar = true;
+        this.$refs.avatar.forIe9(e);
+      }
     },
     clearUploadValue() {
       this.$refs.inputFile.value = '';

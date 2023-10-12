@@ -91,7 +91,7 @@ export default {
       this.visible = false;
       this.scopeObj.row = {
         ...this.scopeObj.row,
-        userid: users,
+        userId: users,
       };
       this.$emit(
         'handleEdit',

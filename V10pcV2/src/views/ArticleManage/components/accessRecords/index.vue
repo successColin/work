@@ -27,7 +27,7 @@
     </div>
     <el-table
       :data="tableData"
-      row-key="userid"
+      row-key="userId"
       :height="tableHeight"
       ref="announceRecordTable"
     >
@@ -78,7 +78,7 @@ export default {
       isHaveRead: 0,
       loading: false,
       keywords: '',
-      tableHeight: 300
+      tableHeight: 300,
     };
   },
 
@@ -86,8 +86,8 @@ export default {
     // 当前对象
     currentTableObj: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   components: { userAvatar },
 
@@ -122,7 +122,7 @@ export default {
           current: this.current,
           size: this.size,
           username: this.keywords,
-          isHaveRead: this.isHaveRead
+          isHaveRead: this.isHaveRead,
         };
         const res = await getAnnounceUser(param);
         this.tableData = res.records.map((item) => {
@@ -130,9 +130,9 @@ export default {
             ...item,
             user: {
               username: item.userName,
-              id: item.userid,
-              image: item.imageUrl || ''
-            }
+              id: item.userId,
+              image: item.imageUrl || '',
+            },
           };
           return obj;
         });
@@ -162,13 +162,13 @@ export default {
       this.current = 1;
       console.log(e);
       this.initAccessRecords();
-    }
+    },
   },
-  name: 'List'
+  name: 'List',
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .userDialog {
   ::v-deep {
     .el-dialog {

@@ -60,9 +60,13 @@ import {
   doGetRoleData,
   doGetBatchAuth,
   doEditRoleAuth,
-  doEditRoleDataAuth
+  doEditRoleDataAuth,
 } from '@/api/role';
-import { getDefaultFunctionAuth, doUpdateUserFunctionAuth, doUpdateUserDataAuth } from '@/api/user';
+import {
+  getDefaultFunctionAuth,
+  doUpdateUserFunctionAuth,
+  doUpdateUserDataAuth,
+} from '@/api/user';
 import DesignDetial from '../DesignDetial/designDetial';
 import BatchDesign from './BatchDesign/batchDesign';
 
@@ -70,25 +74,25 @@ export default {
   props: {
     activeTabsKey: {
       type: String,
-      default: 'PCDesign'
+      default: 'PCDesign',
     },
     com: {
       type: String,
-      default: 'PCDesign'
+      default: 'PCDesign',
     },
     designObj: {
       // 修改权限的对象
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     isShowInherit: {
       type: Boolean,
-      default: false
+      default: false,
     },
     functionType: {
       type: String,
-      default: 'role'
-    }
+      default: 'role',
+    },
   },
   data() {
     return {
@@ -96,19 +100,19 @@ export default {
       loading: false,
       authList: [], // 菜单模块，菜单，权限列表
       dataAuthList: {}, // 数据权限集合
-      functionAuthList: [] // 功能权限集合
+      functionAuthList: [], // 功能权限集合
     };
   },
 
   watch: {},
   components: {
     DesignDetial, // 设计权限详情
-    BatchDesign // 批量设计
+    BatchDesign, // 批量设计
   },
 
   computed: {
     designName() {
-      return function(obj) {
+      return function (obj) {
         if (this.functionType === 'user') {
           return obj.username;
         }
@@ -116,7 +120,7 @@ export default {
           return obj.roleName;
         }
       };
-    }
+    },
   },
 
   mounted() {
@@ -130,7 +134,8 @@ export default {
   },
 
   methods: {
-    batchUpdateOrg() { // 批量选择组织
+    batchUpdateOrg() {
+      // 批量选择组织
       // this.custom({
       //   value: '5',
       //   functionObj,
@@ -143,7 +148,10 @@ export default {
       // value.selectKey = this.selectKey;
       console.log(this.$refs.authDetial);
       const { doUpdateAuth, selectModuleIndex } = this.$refs.authDetial;
-      const lastObj = this.com === 'PCDesign' ? this.selectModuleKeys : this.authList[selectModuleIndex];
+      const lastObj =
+        this.com === 'PCDesign'
+          ? this.selectModuleKeys
+          : this.authList[selectModuleIndex];
       // 自定义弹框
       this.$bus.$emit(`${this.functionType}_orgcustom`, {
         dialogVisible: true,
@@ -155,7 +163,7 @@ export default {
           value: '5',
           isBatch: true,
           authList: this.authList,
-        }
+        },
       });
     },
     selectChooseModules(value) {
@@ -200,14 +208,16 @@ export default {
       }
     },
     showRealName(obj) {
-      const languageType = window.localStorage.getItem('apiotLanguage') || 'zhCN';
+      const languageType =
+        window.localStorage.getItem('apiotLanguage') || 'zhCN';
       return obj[languageType];
     },
     batchChangeRadio(obj) {
       // 组织批量修改
       const { value } = obj;
       if (!this.$refs.authDetial) return false;
-      const { selectModuleIndex, authList, doUpdateAuth } = this.$refs.authDetial;
+      const { selectModuleIndex, authList, doUpdateAuth } =
+        this.$refs.authDetial;
       const modulles = authList[selectModuleIndex] || {};
       let modullesArr = modulles.list || [];
       if (this.com === 'PCDesign') {
@@ -216,7 +226,7 @@ export default {
       if (!modullesArr.length) return false;
       const { id: roleId } = this.designObj;
       const newList = [];
-      const filedKey = this.functionType === 'role' ? 'roleId' : 'userid';
+      const filedKey = this.functionType === 'role' ? 'roleId' : 'userId';
       const type =
         this.activeTabsKey === 'PCDesign'
           ? this.$t('role.desktopPermission')
@@ -228,7 +238,7 @@ export default {
           const newItem = {
             ...item,
             [filedKey]: roleId,
-            typeDict: value
+            typeDict: value,
           };
           newList.push(newItem);
           menuArr.push(item.menuName);
@@ -237,24 +247,28 @@ export default {
       message += menuArr.join('/');
       if (!newList.length) return false;
       const typeName = this.functionType === 'role' ? '角色' : '用户';
-      const msg = `批量修改${this.retrunName(this.designObj)}${typeName}的${this.showRealName(
-        obj
-      )}数据权限（${message}）`;
+      const msg = `批量修改${this.retrunName(
+        this.designObj,
+      )}${typeName}的${this.showRealName(obj)}数据权限（${message}）`;
       // console.log(msg);
-      const api = this.functionType === 'role' ? doEditRoleDataAuth : doUpdateUserDataAuth;
+      const api =
+        this.functionType === 'role'
+          ? doEditRoleDataAuth
+          : doUpdateUserDataAuth;
       doUpdateAuth(
         {
           [filedKey]: roleId,
           list: newList,
-          logData: msg
+          logData: msg,
         },
-        api
+        api,
       );
     },
     batchCheckAll({ value }) {
       // 功能角色全选
       if (!this.$refs.authDetial) return false;
-      const { selectModuleIndex, authList, doUpdateAuth } = this.$refs.authDetial;
+      const { selectModuleIndex, authList, doUpdateAuth } =
+        this.$refs.authDetial;
       const modulles = authList[selectModuleIndex] || {};
       let modullesArr = modulles.list || [];
       if (this.com === 'PCDesign') {
@@ -267,7 +281,7 @@ export default {
         const newList1 = functionList.map((listObj) => ({
           ...listObj,
           menuName: item.menuName,
-          inherit: item.inherit
+          inherit: item.inherit,
         }));
         const subChildren = item.children;
         if (subChildren && Array.isArray(subChildren) && subChildren.length) {
@@ -276,7 +290,7 @@ export default {
             const arr = subArr.map((subObj) => ({
               ...subObj,
               menuName: sub.menuName,
-              inherit: sub.inherit
+              inherit: sub.inherit,
             }));
             functionAuthList = [...functionAuthList, ...arr];
           });
@@ -287,8 +301,11 @@ export default {
       });
       const { id: roleId } = this.designObj;
       const newList = [];
-      const api = this.functionType === 'role' ? doEditRoleAuth : doUpdateUserFunctionAuth;
-      const filedKey = this.functionType === 'role' ? 'roleId' : 'userid';
+      const api =
+        this.functionType === 'role'
+          ? doEditRoleAuth
+          : doUpdateUserFunctionAuth;
+      const filedKey = this.functionType === 'role' ? 'roleId' : 'userId';
       let message = '';
       functionAuthList.forEach((item) => {
         const isTrue = value ? '1' : '2';
@@ -297,7 +314,7 @@ export default {
           const newItem = {
             ...item,
             check: isTrue,
-            [filedKey]: roleId
+            [filedKey]: roleId,
           };
           newList.push(newItem);
         } else if (
@@ -308,12 +325,14 @@ export default {
             const newItem = {
               ...item,
               check: isTrue,
-              [filedKey]: roleId
+              [filedKey]: roleId,
             };
             newList.push(newItem);
           }
         }
-        const msg = `${item.menuName}-${this.returnAuthName(item.permissionItemId)}权限/`;
+        const msg = `${item.menuName}-${this.returnAuthName(
+          item.permissionItemId,
+        )}权限/`;
         message += msg;
       });
       if (!newList.length) return false;
@@ -323,22 +342,25 @@ export default {
         this.activeTabsKey === 'PCDesign'
           ? this.$t('role.desktopPermission')
           : this.$t('role.Mobileterminalpermission');
-      const msg = `${doType}${this.retrunName(this.designObj)}${typeName}的数据权限(${type}-${message})`;
+      const msg = `${doType}${this.retrunName(
+        this.designObj,
+      )}${typeName}的数据权限(${type}-${message})`;
       doUpdateAuth(
         {
           list: newList,
-          logData: msg
+          logData: msg,
         },
-        api
+        api,
       );
     },
     batchCheckItem({
       // 功能权限单项
       value,
-      obj
+      obj,
     }) {
       if (!this.$refs.authDetial) return false;
-      const { selectModuleIndex, authList, doUpdateAuth } = this.$refs.authDetial;
+      const { selectModuleIndex, authList, doUpdateAuth } =
+        this.$refs.authDetial;
       const { id: authId } = obj;
       const modulles = authList[selectModuleIndex] || {};
       let modullesArr = modulles.list || [];
@@ -353,7 +375,7 @@ export default {
         const newList1 = functionList.map((listObj) => ({
           ...listObj,
           menuName: item.menuName,
-          inherit: item.inherit
+          inherit: item.inherit,
         }));
         menuArr.push(item.menuName);
         const subChildren = item.children;
@@ -363,7 +385,7 @@ export default {
             const arr = subArr.map((subObj) => ({
               ...subObj,
               menuName: sub.menuName,
-              inherit: sub.inherit
+              inherit: sub.inherit,
             }));
             functionAuthList = [...functionAuthList, ...arr];
           });
@@ -375,8 +397,11 @@ export default {
       if (!functionAuthList.length) return false;
       const { id: roleId } = this.designObj;
       const newList = [];
-      const api = this.functionType === 'role' ? doEditRoleAuth : doUpdateUserFunctionAuth;
-      const filedKey = this.functionType === 'role' ? 'roleId' : 'userid';
+      const api =
+        this.functionType === 'role'
+          ? doEditRoleAuth
+          : doUpdateUserFunctionAuth;
+      const filedKey = this.functionType === 'role' ? 'roleId' : 'userId';
       functionAuthList.forEach((item) => {
         const isTrue = value ? '1' : '2';
         if (item.permissionItemId === authId) {
@@ -388,7 +413,7 @@ export default {
               const newItem = {
                 ...item,
                 check: isTrue,
-                [filedKey]: roleId
+                [filedKey]: roleId,
               };
               newList.push(newItem);
             }
@@ -397,7 +422,7 @@ export default {
             const newItem = {
               ...item,
               check: isTrue,
-              [filedKey]: roleId
+              [filedKey]: roleId,
             };
             newList.push(newItem);
           }
@@ -409,16 +434,18 @@ export default {
           ? this.$t('role.desktopPermission')
           : this.$t('role.Mobileterminalpermission');
       const typeName = this.functionType === 'role' ? '角色' : '用户';
-      const msg = `${doType}${this.retrunName(this.designObj)}${typeName}的${this.returnAuthName(
-        authId
+      const msg = `${doType}${this.retrunName(
+        this.designObj,
+      )}${typeName}的${this.returnAuthName(
+        authId,
       )}数据权限(${type}-${menuArr.join('/')})`;
       if (!newList.length) return false;
       doUpdateAuth(
         {
           list: newList,
-          logData: msg
+          logData: msg,
         },
-        api
+        api,
       );
     },
     async getRoleFunctionAuth() {
@@ -443,18 +470,19 @@ export default {
       // 根据comkey来调用接口获取pc，app的数据
       const { id } = this.designObj;
       let params = {
-        functionDict: this.com === 'mobileDesign' ? 2 : 1
+        functionDict: this.com === 'mobileDesign' ? 2 : 1,
       };
       params = {
         ...params,
-        [this.functionType === 'role' ? 'roleId' : 'userid']: id
+        [this.functionType === 'role' ? 'roleId' : 'userId']: id,
       };
       this.fetchAuthList(params);
     },
     async fetchAuthList(params) {
       // 获取权限列表
       this.loading = true;
-      const api = this.functionType === 'role' ? fetchRoleAuth : getDefaultFunctionAuth;
+      const api =
+        this.functionType === 'role' ? fetchRoleAuth : getDefaultFunctionAuth;
       try {
         const list = await api(params);
         this.authList = this.com === 'PCDesign' ? [] : list;
@@ -472,12 +500,12 @@ export default {
       } catch (e) {
         // console.log(e);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .designWrap {
   width: 100%;
   height: 100%;

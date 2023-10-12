@@ -1,53 +1,45 @@
-/**
-* @name: operationExpert
-* @author: DELL
-* @date: 2023/9/1 10:43
-* @description：operationExpert
-* @update: 2023/9/1 10:43
-*/
+/** * @name: operationExpert * @author: DELL * @date: 2023/9/1 10:43 *
+@description：operationExpert * @update: 2023/9/1 10:43 */
 <!-- 页面 -->
 <template>
   <apiot-dialog
-      :title="getDialogName"
-      :visible.sync="visible"
-      :loading="loading"
-      @sure-click="handleOk"
-      class="approverDialog"
+    :title="getDialogName"
+    :visible.sync="visible"
+    :loading="loading"
+    @sure-click="handleOk"
+    class="approverDialog"
   >
     <div class="form-content" v-if="visible">
       <el-form
-          ref="valiForm"
-          @submit.native.prevent
-          :rules="rules"
-          :model="info"
+        ref="valiForm"
+        @submit.native.prevent
+        :rules="rules"
+        :model="info"
       >
         <el-row class="form_el_row_wrap" style="margin: 0 !important">
-          <el-col :span="24" :class="{readonly: !!info.id}">
-            <el-form-item
-              :label="$t('expert.account')"
-              prop="ccList">
+          <el-col :span="24" :class="{ readonly: !!info.id }">
+            <el-form-item :label="$t('expert.account')" prop="ccList">
               <div>
                 <CCUsers
-                    v-if="!info.id"
-                    :isMute="false"
-                    :value="ccList"
-                    @change="handleSelectCC"
+                  v-if="!info.id"
+                  :isMute="false"
+                  :value="ccList"
+                  @change="handleSelectCC"
                 />
                 <user-headname
-                    v-if="info.id"
-                    :userInfo="ccList[0]"
-                    v-bind="$attrs"
+                  v-if="info.id"
+                  :userInfo="ccList[0]"
+                  v-bind="$attrs"
                 ></user-headname>
-
               </div>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item :label="$t('expert.memo')" prop="domain">
               <apiot-input
-                  v-forbid
-                  v-model="info.domain"
-                  type="textarea"
+                v-forbid
+                v-model="info.domain"
+                type="textarea"
               ></apiot-input>
             </el-form-item>
           </el-col>
@@ -68,37 +60,36 @@ export default {
       type: Object,
       default() {
         return {
-          userid: null,
-          username: ''
+          userId: null,
+          username: '',
         };
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       loading: false,
       info: {},
-      visible: false
+      visible: false,
     };
   },
 
   components: {
-    CCUsers
+    CCUsers,
   },
 
   computed: {
     ccList() {
-      if (!this.info.userid) {
+      if (!this.info.userId) {
         return [];
       }
-      const {
-        userid,
-        username
-      } = this.info;
-      return [{
-        id: userid,
-        username
-      }];
+      const { userId, username } = this.info;
+      return [
+        {
+          id: userId,
+          username,
+        },
+      ];
     },
     getDialogName() {
       if (this.info.id) {
@@ -114,27 +105,26 @@ export default {
             message: '请选择专家',
             trigger: 'blur',
             validator: (rule, value, callback) => {
-              if (!this.info.userid) {
+              if (!this.info.userId) {
                 callback(new Error('请选择专家!'));
               } else {
                 callback();
               }
             },
-          }
-        ]
+          },
+        ],
       };
-    }
+    },
   },
 
-  mounted() {
-  },
+  mounted() {},
   watch: {
     targetObj: {
       immediate: true,
       handler(v) {
         this.info = JSON.parse(JSON.stringify(v));
-      }
-    }
+      },
+    },
   },
   methods: {
     setVisible() {
@@ -142,14 +132,11 @@ export default {
     },
     handleSelectCC(v) {
       const obj = v[0] || {};
-      const {
-        id,
-        username
-      } = obj;
+      const { id, username } = obj;
       this.info = {
         ...this.info,
-        userid: id,
-        username
+        userId: id,
+        username,
       };
       this.$refs.valiForm.validate();
     },
@@ -180,9 +167,9 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .form-content {
-  padding: 13px 20px;
+  padding: 13px 0;
   .readonly {
     ::v-deep {
       .el-form-item__label {
@@ -194,6 +181,10 @@ export default {
     }
   }
   ::v-deep {
+    .el-col{
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
     .el-form-item__label {
       //float: none;
       padding-bottom: 6px;

@@ -169,7 +169,13 @@ export default {
     },
     // 默认字典项
     getDictArr() {
-      if (this.activeObj.dataSource.dictObj) {
+      if (
+        this.activeObj.dataSource.dictObj &&
+        this.activeObj.dataSource.dictObj.dictKey &&
+        this.$store.getters.getCurDict(
+          this.activeObj.dataSource.dictObj.dictKey,
+        )
+      ) {
         const tempData = JSON.parse(
           JSON.stringify(
             this.$store.getters.getCurDict(
@@ -201,7 +207,7 @@ export default {
       ) {
         return;
       }
-      // console.log(dict);
+      console.log(dict);
       dict.dictValue.forEach((item) => {
         item.value = +item.value;
         if (item[`${localStorage.apiotLanguage}`]) {

@@ -1,72 +1,69 @@
-/**
-* @name: index
-* @author: DELL
-* @date: 2022/8/31 15:50
-* @description：index
-* @update: 2022/8/31 15:50
-*/
+/** * @name: index * @author: DELL * @date: 2022/8/31 15:50 *
+@description：index * @update: 2022/8/31 15:50 */
 <!-- 页面 -->
 <template>
-  <div
-      class="singleTextWrap"
-      :style="getContentStyles"
-      v-loading="loading"
-  >
-    <el-tabs v-model="activeName" :style="getTitleHeight"   @tab-click="handleSelect">
+  <div class="singleTextWrap" :style="getContentStyles" v-loading="loading">
+    <el-tabs
+      v-model="activeName"
+      :style="getTitleHeight"
+      @tab-click="handleSelect"
+    >
       <el-tab-pane
-          :name="`${item.id}`"
-          v-for="item in titleArr"
-          :key="`${item.id}`"
+        :name="`${item.id}`"
+        v-for="item in titleArr"
+        :key="`${item.id}`"
       >
-        <span slot="label" :style="getTitleNameStyles">{{ item.name }}({{item.count}})</span>
+        <span slot="label" :style="getTitleNameStyles"
+          >{{ item.name }}({{ item.count }})</span
+        >
       </el-tab-pane>
     </el-tabs>
     <div
-        :style="getContentHeight"
-        class="contentWrap"
-        :id="`basicPie_${config.componentId}`"
-        @mouseover="clear"
-        @mouseout="begin"
+      :style="getContentHeight"
+      class="contentWrap"
+      :id="`basicPie_${config.componentId}`"
+      @mouseover="clear"
+      @mouseout="begin"
     >
       <div class="apiotNoData" v-if="!msgList.length"></div>
       <div
-          v-for="(item, i) in msgList"
-          :key="`${item.name}_${i}`"
-          class="itemWrap"
-          :style="getItemStyles"
+        v-for="(item, i) in msgList"
+        :key="`${item.name}_${i}`"
+        class="itemWrap"
+        :style="getItemStyles"
       >
-        <div
-            :title="item.title"
-            @click="look(item)"
-        >{{ item.title }} <span v-if="item.isHaveRead === 2" class="isRead"></span></div>
+        <div :title="item.title" @click="look(item)">
+          {{ item.title }}
+          <span v-if="item.isHaveRead === 2" class="isRead"></span>
+        </div>
         <div :title="item.createTime">{{ item.createTime }}</div>
         <div :title="item.memo">{{ item.memo || 'admin' }}</div>
       </div>
     </div>
     <apiot-drawer
-        :append-to-body="true"
-        :visible.sync="visible"
-        destroy-on-close
-        @closed="begin"
-        :hasFooter="false"
-        ref="apiotDrawer"
-        :title="lookInfo.title"
+      :append-to-body="true"
+      :visible.sync="visible"
+      destroy-on-close
+      @closed="begin"
+      :hasFooter="false"
+      ref="apiotDrawer"
+      :title="lookInfo.title"
     >
       <div class="noticeContent">
         <div v-html="lookInfo.html"></div>
-        <div class="noticeEdit">
-          编辑:{{lookInfo.memo || 'admin'}}
-        </div>
-        <div class="noticeEdit">
-          发布时间:{{lookInfo.createTime}}
-        </div>
+        <div class="noticeEdit">编辑:{{ lookInfo.memo || 'admin' }}</div>
+        <div class="noticeEdit">发布时间:{{ lookInfo.createTime }}</div>
       </div>
     </apiot-drawer>
   </div>
 </template>
 
 <script>
-import { getNoticeGroup, getNoticeListById, getNoticeDetial } from '@/api/homePage';
+import {
+  getNoticeGroup,
+  getNoticeListById,
+  getNoticeDetial,
+} from '@/api/homePage';
 
 export default {
   props: {
@@ -74,22 +71,20 @@ export default {
       type: Object,
       default() {
         return {};
-      }
+      },
     },
     config: {
       type: Object,
-      default: () => {
-      }
+      default: () => {},
     },
     scale: {
       type: Number,
-      default: 1
+      default: 1,
     },
     activeComponent: {
       type: Object,
-      default: () => {
-      }
-    }
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -110,7 +105,7 @@ export default {
   components: {},
 
   computed: {
-    getuserid() {
+    getUserId() {
       return this.$store.state.userCenter.userInfo.id;
     },
     getContentStyles() {
@@ -125,7 +120,7 @@ export default {
           contentColor,
           contentFontWeight,
           colHeight,
-        }
+        },
       } = this.config;
       const obj = {
         height: `${colHeight}px`,
@@ -139,22 +134,26 @@ export default {
         return {
           ...obj,
           transform: `translateY(-${this.transactionY}px)`,
-          transition: 'transform 500ms ease-in 0.5s'
+          transition: 'transform 500ms ease-in 0.5s',
         };
       }
       return obj;
     },
     getContentHeight() {
-      const { stylesObj: { titleHeight, animationSet } } = this.config;
+      const {
+        stylesObj: { titleHeight, animationSet },
+      } = this.config;
       return {
         height: `calc(100% - ${titleHeight}px)`,
-        overflow: (animationSet === 1 || !animationSet) ? 'auto' : 'hidden',
+        overflow: animationSet === 1 || !animationSet ? 'auto' : 'hidden',
       };
     },
     getTitleHeight() {
-      const { stylesObj: { titleHeight } } = this.config;
+      const {
+        stylesObj: { titleHeight },
+      } = this.config;
       return {
-        height: `${titleHeight}px`
+        height: `${titleHeight}px`,
       };
     },
     getTitleNameStyles() {
@@ -163,8 +162,8 @@ export default {
           titleFontFamily,
           titleFontSize,
           titleFontWeight,
-          titleHeight
-        }
+          titleHeight,
+        },
       } = this.config;
       return {
         height: `${titleHeight}px`,
@@ -173,10 +172,12 @@ export default {
         fontFamily: titleFontFamily,
         fontWeight: titleFontWeight,
       };
-    }
+    },
   },
   mounted() {
-    const { stylesObj: { dataShowType } } = this.config;
+    const {
+      stylesObj: { dataShowType },
+    } = this.config;
     if (dataShowType === 1) {
       // 全部
       this.allInit();
@@ -191,7 +192,7 @@ export default {
       this.clear();
       const res = await getNoticeDetial({
         id: item.id,
-        userid: this.getuserid
+        userId: this.getUserId,
       });
       item.isHaveRead = 1;
       this.lookInfo = res;
@@ -201,7 +202,8 @@ export default {
     },
     allInit() {
       this.fetchNoticeList({
-        status: 2, userid: this.getuserid
+        status: 2,
+        userId: this.getUserId,
       });
     },
     async fetchNoticeList(params) {
@@ -229,7 +231,9 @@ export default {
       // this.msgList = [];
       this.clear();
       await this.fetchNoticeList({
-        status: 1, userid: this.getuserid, groupId: name
+        status: 1,
+        userId: this.getUserId,
+        groupId: name,
       });
     },
     clear() {
@@ -246,36 +250,42 @@ export default {
       return document.querySelector(`#basicPie_${componentId}`);
     },
     checkIsRight() {
-      const { stylesObj: { colHeight, animationSet } } = this.config;
+      const {
+        stylesObj: { colHeight, animationSet },
+      } = this.config;
       if (animationSet === 1 || !animationSet) return false;
       const dom = this.getDom();
       if (dom) {
         const { height } = dom.getBoundingClientRect();
         const n = this.msgList.length;
-        if (height < (colHeight * n * this.scale)) {
+        if (height < colHeight * n * this.scale) {
           return true;
         }
         return false;
       }
       return false;
     },
-    async initData() { // 分组
+    async initData() {
+      // 分组
       try {
         this.loading = true;
-        const groupList = await getNoticeGroup({ userid: this.getuserid });
+        const groupList = await getNoticeGroup({ userId: this.getUserId });
         if (groupList.length) {
           const { id } = groupList[0];
           this.titleArr = groupList;
           this.activeName = `${id}`;
           await this.fetchNoticeList({
-            status: 1, userid: this.getuserid, groupId: id
+            status: 1,
+            userId: this.getUserId,
+            groupId: id,
           });
         }
       } catch (e) {
         this.loading = false;
       }
     },
-    async init() { // 初始化
+    async init() {
+      // 初始化
       if (this.checkIsRight()) {
         this.start();
       }
@@ -291,7 +301,9 @@ export default {
     startAnimation() {
       const obj = this.msgList[0];
       this.msgList.push(obj);
-      const { stylesObj: { colHeight } } = this.config;
+      const {
+        stylesObj: { colHeight },
+      } = this.config;
       this.transactionY = colHeight;
       if (this.timer1) {
         clearTimeout(this.timer1);
@@ -303,7 +315,7 @@ export default {
       this.$nextTick(() => {
         this.start();
       });
-    }
+    },
   },
   beforeDestroy() {
     console.log('消耗');
@@ -313,7 +325,7 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .singleTextWrap {
   position: absolute;
   width: 100%;
@@ -333,21 +345,21 @@ export default {
     .itemWrap {
       display: flex;
       position: relative;
-      &> div {
+      & > div {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         box-sizing: border-box;
         cursor: pointer;
-        &:hover{
+        &:hover {
           opacity: 0.7;
         }
       }
       & > div:nth-child(1) {
         flex: 0 0 68%;
         padding-left: 20px;
-        &:hover{
-          text-decoration:underline;
+        &:hover {
+          text-decoration: underline;
         }
       }
 
@@ -357,7 +369,7 @@ export default {
       & > div:nth-child(3) {
         flex: 0 0 10%;
       }
-      .isRead{
+      .isRead {
         display: inline-block;
         //position: absolute;
         //content: '';
@@ -372,13 +384,13 @@ export default {
     }
   }
 }
-.noticeContent{
+.noticeContent {
   width: 100%;
   height: 100%;
   padding: 20px;
   box-sizing: border-box;
   overflow: auto;
-  .noticeEdit{
+  .noticeEdit {
     line-height: 28px;
     text-align: right;
     font-size: 14px;
@@ -386,5 +398,4 @@ export default {
     color: #303133;
   }
 }
-
 </style>

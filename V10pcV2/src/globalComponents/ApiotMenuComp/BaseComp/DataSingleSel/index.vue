@@ -474,10 +474,11 @@ export default {
     },
     getSelColumnArr() {
       const columnStr = this.getSelDataColumn(this.configData.compId);
+      // const columnArr = columnStr.split(',');
+      // columnArr.push(this.configData.dataSource.columnName);
       sessionStorage.tempColumnStr = columnStr;
     },
     setDataSel(arr) {
-      // console.log(arr);
       // console.log(this.grandFather, this.configData.dataSource);
       if (
         this.parent.form[this.configData.compId] !==

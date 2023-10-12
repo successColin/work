@@ -1,5 +1,5 @@
 <template>
-  <div ref="ganttContainer"></div>
+  <div ref="ganttContainer" :class="[{ isTreeGantt: isTreeGantt }]"></div>
 </template>
 
 <script>
@@ -76,6 +76,25 @@ export default {
       gantt.config.show_progress = false;
       // 是否显示依赖连线(取消)
       gantt.config.show_links = false;
+    } else {
+      /* eslint-disable */
+      gantt.templates.grid_folder = (item) => {
+        return (
+          "<div class='gantt_tree_icon gantt_folder_" +
+          (item.$open ? 'open' : 'closed') +
+          "'></div>"
+        );
+      };
+      gantt.templates.grid_file = () => {
+        return "<div class='gantt_tree_icon gantt_file'></div>";
+      };
+      gantt.templates.grid_open = function (item) {
+        return `<div class='gantt_tree_icon gantt_${
+          item.$open ? 'close' : 'open'
+        }
+          '></div>`;
+      };
+      /* eslint-enable */
     }
 
     const zoomConfig = {
@@ -255,7 +274,7 @@ export default {
 
     gantt.attachEvent('onTaskClick', (id, e) => {
       const task = gantt.getTask(id);
-      console.log(e.target.className);
+      // console.log(e.target.className);
       this.$emit(
         'task-selected',
         task,
@@ -297,10 +316,16 @@ export default {
         task.start_date = startTime;
         task.end_date = enTime;
         gantt.updateTask(id);
-        if (!this.isTreeGantt) {
-          this.$emit('onAfterTaskDrag', task, mode);
-        }
+        this.$emit('onAfterTaskDrag', task, mode);
       }
+    });
+    gantt.attachEvent('onAfterLinkAdd', (id, item) => {
+      const task = gantt.getTask(item.source);
+      this.$emit('onAfterLinkAdd', task, item);
+    });
+    gantt.attachEvent('onAfterLinkDelete', (id, item) => {
+      const task = gantt.getTask(item.source);
+      this.$emit('onAfterLinkDelete', task, item);
     });
   },
   activated() {
@@ -320,6 +345,7 @@ export default {
   },
   methods: {
     initColumn(columns) {
+      console.log(columns);
       //   [
       //   { name: 'text', label: 'Task name', width: '*' },
       //   { name: 'start_date', label: 'Start time', align: 'center' },
@@ -371,6 +397,10 @@ export default {
       });
 
       // console.log(start, end);
+    },
+    getTask(id) {
+      const task = gantt.getTask(id);
+      return task;
     },
     addTask(obj) {
       gantt.addTask(obj);
@@ -448,6 +478,9 @@ export default {
   border-radius: 4px;
   /* position: relative; */
 }
+.isTreeGantt .gantt_task_line:hover::before {
+  display: none;
+}
 .gantt_task_line:hover::before {
   content: '';
   position: absolute;
@@ -481,5 +514,20 @@ export default {
 }
 .gantt_scale_line:last-child > div:hover {
   background-color: #d4d9e0;
+}
+.gantt_tree_icon.gantt_open {
+  background-image: url(./images/treeOpen.svg);
+}
+.gantt_tree_icon.gantt_close {
+  background-image: url(./images/treeClose.svg);
+}
+.gantt_tree_icon.gantt_folder_open {
+  background-image: url(./images/folderOpen.svg);
+}
+.gantt_tree_icon.gantt_folder_closed {
+  background-image: url(./images/folderClose.svg);
+}
+.gantt_tree_icon.gantt_file {
+  background-image: url(./images/child.svg);
 }
 </style>

@@ -353,7 +353,7 @@ export default {
       const params = {
         ids: this.data.id,
         tableName: +this.data.dataType === 1 ? 'sys_position' : 'sys_device',
-        userid: this.$store.state.userCenter.userInfo.id,
+        userId: this.$store.state.userCenter.userInfo.id,
         menuId: this.$route.params.id || this.$route.query.menuId,
       };
       await batchDelete(params);

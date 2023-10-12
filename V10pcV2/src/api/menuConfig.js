@@ -5,6 +5,7 @@
  * @LastEditors: cmk
  * @LastEditTime: 2021-04-22 17:19:58
  */
+import { Encrypt, Decrypt } from '@/utils/utils';
 import FetchData from './axiosConfig';
 
 // 根据菜单id获取设计列表
@@ -258,6 +259,12 @@ export function getSidebarList(data) {
 // 获取侧边列表分页
 export function getSidebarPage(data) {
   const menuId = window.vue.$route.params.id;
+  if (data.groupContent) {
+    data.groupContent = Encrypt(data.groupContent);
+  }
+  if (data.groupBy) {
+    data.groupBy = Encrypt(data.groupBy);
+  }
   return FetchData.request({
     url: 'application/select/page',
     method: 'post',
@@ -298,6 +305,15 @@ export function ganttList(data) {
 export function updateGanttTime(data) {
   return FetchData.request({
     url: '/application/save/updateGanttTime',
+    method: 'post',
+    data,
+  });
+}
+
+// 更新树节点信息
+export function updateGanttTreeInfo(data) {
+  return FetchData.request({
+    url: '/application/save/updateGanttTreeInfo',
     method: 'post',
     data,
   });
@@ -550,18 +566,25 @@ export function selectList(params) {
   }
   // 10ms以下添加paramObj
   const date = +new Date();
-  console.log(date - sessionStorage.firstTempTime);
   if (date - sessionStorage.firstTempTime < 500) {
     sessionStorage.firstTempTime = date;
     if (paramObj[key]) {
-      const content = `${paramObj[key].selectContent},${params.selectContent}`;
+      const content = `${Decrypt(paramObj[key].selectContent)},${
+        params.selectContent
+      }`;
       const contentStr = [...new Set(content.split(','))].join(',');
       paramObj[key] = {
         ...paramObj[key],
-        selectContent: contentStr,
+        selectContent: Encrypt(contentStr),
       };
     } else {
-      paramObj[key] = params;
+      // paramObj[key] = params;
+      console.log(params);
+      paramObj[key] = {
+        selectContent: Encrypt(params.selectContent),
+        selectFrom: Encrypt(params.selectFrom),
+        selectWhere: Encrypt(params.selectWhere),
+      };
     }
   }
   return new Promise((resolve, reject) => {
@@ -576,7 +599,6 @@ export function selectList(params) {
           'content-type': 'application/json',
         },
       });
-      console.log(resObj);
       sessionStorage.firstTempTime = '';
     }, 500);
     //
@@ -592,7 +614,7 @@ export function selectList(params) {
         clearInterval(inTimer);
       }
     }, 200);
-    // 超时定时器
+    // // 超时定时器
     inOutTimer = setTimeout(() => {
       clearInterval(inTimer);
       sessionStorage.firstTempTime = '';
@@ -607,6 +629,11 @@ export function selectList(params) {
 
 // 获取记录分页列表
 export function selectListSingle(params) {
+  params = {
+    selectContent: Encrypt(params.selectContent),
+    selectFrom: Encrypt(params.selectFrom),
+    selectWhere: Encrypt(params.selectWhere),
+  };
   return FetchData.request({
     url: 'application/select/selectList',
     params,

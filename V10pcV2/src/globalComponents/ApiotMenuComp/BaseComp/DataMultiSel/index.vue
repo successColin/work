@@ -333,6 +333,9 @@ export default {
     },
     getSelColumnArr() {
       const columnStr = this.getSelDataColumn(this.configData.compId);
+      // const columnArr = columnStr.split(',');
+      // columnArr.push(this.configData.multiTable.column.columnName);
+      // sessionStorage.tempColumnStr = [...new Set(columnArr)].join(',');
       sessionStorage.tempColumnStr = columnStr;
     },
     setDataSel(arr) {

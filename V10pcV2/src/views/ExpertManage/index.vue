@@ -256,6 +256,8 @@ export default {
   .main {
     width: 100%;
     height: calc(100% - 42px - 48px);
+    padding: 0 10px;
+    box-sizing: border-box;
   }
 
   .footer {

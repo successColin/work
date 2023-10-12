@@ -5,6 +5,7 @@
  * @Last Modified by: ytx
  * @Last Modified time: 2022-08-10 11:48:40
  */
+import { Decrypt } from '@/utils/utils';
 import { getListByKey, getListByKeys } from '@/api/globalConfig';
 import { changeThemeColor } from '@/utils/themeColorClient';
 
@@ -152,12 +153,13 @@ export default {
     async fetchConfigFuns({ commit }, key) {
       console.log(key, 'key');
       const res = await getListByKeys({ parameterKey: key });
-      const keys = Object.keys(res);
+      const tempRes = JSON.parse(Decrypt(res));
+      const keys = Object.keys(tempRes);
       keys.forEach((k) => {
         if (k === 'THEME_AND_LOGO') {
-          commit('reduceDataToThemeConfig', res[k]);
+          commit('reduceDataToThemeConfig', tempRes[k]);
         } else {
-          commit('resolveData', [res[k], k]);
+          commit('resolveData', [tempRes[k], k]);
         }
       });
       commit('setIsInited', true);

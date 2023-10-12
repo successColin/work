@@ -22,6 +22,20 @@
         </div>
       </div>
       <div class="form-item">
+        <div class="form-item-label">审批事件设置</div>
+        <div class="form-item-content">
+          <div>
+            <div style="margin-bottom: 10px;">
+              <apiot-button class="list-btn" @click="eventVisible=true">
+                <i class="icon-shezhi iconfont"></i>
+                设置事件
+              </apiot-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-item">
         <div class="form-item-label">PC端填写界面配置</div>
         <div class="form-item-content">
           <apiot-button class="list-btn" @click="pageSet('pc')">
@@ -61,6 +75,12 @@
       @handleCancel="handleCancel"
       :isNeedAbstract="true"
     />
+    <EventConfigCom
+        @submitChange="changeConfig"
+        :visible.sync="eventVisible"
+        :value="eventConfig"
+        :tabArr="tabArr"
+        :currentVersion="currentVersion"/>
   </div>
 </template>
 
@@ -68,6 +88,7 @@
 import MessageTemplate from '_v/Flow/Content/Process/ConfigDrawer/ConfigComponents/MessageTemplateSetting';
 import ApprovalPanelConfig from '../ApprovalPanelConfig/index';
 import SelectUsers from '../FlowApproval/SelectUsers';
+import EventConfigCom from '../FlowApproval/EventConfig/index';
 
 // import FilterableInput from '../FilterableInput';
 
@@ -93,6 +114,16 @@ export default {
   },
   data() {
     return {
+      eventVisible: false,
+      tabArr: [
+        {
+          key: '6',
+          eventType: 'SUBMIT',
+          com: 'CommonConfig',
+          name: '提交'
+        }
+      ],
+      eventConfig: {},
       isShowTitle: false, // 显示表头全选
       isShowCheckAll: false, // 显示表头全选
       isEditTitle: false, // 编辑全选
@@ -126,6 +157,7 @@ export default {
   },
 
   components: {
+    EventConfigCom,
     SelectUsers,
     ApprovalPanelConfig,
     MessageTemplate
@@ -146,6 +178,36 @@ export default {
   },
 
   methods: {
+    changeConfig(c) {
+      this.eventConfig = c;
+    },
+    setEventConfig() {
+      const obj = this.nodeInfo.eventConfig || {};
+      const arr = Object.keys(obj);
+      for (let i = 0; i < arr.length; i += 1) {
+        const item = arr[i];
+        const target = obj[item];
+        if (['SUBMIT', 'AGREE', 'REVOKE', 'REFERRAL', 'ENDORSEMENT'].includes(item)) {
+          target.nodeEvents.forEach((node) => {
+            const { nodeAttributes } = node;
+            node.attribute = JSON.parse(nodeAttributes);
+          });
+        }
+        if (item === 'REJECT' && JSON.stringify(target) !== '{}') {
+          const { rejectEvents } = target;
+          const jArr = Object.keys(rejectEvents);
+          for (let j = 0; j < jArr.length; j += 1) {
+            const currentKey = jArr[j];
+            const current = rejectEvents[currentKey] || [];
+            current.forEach((currentNode) => {
+              const { nodeAttributes: cAttribute } = currentNode;
+              currentNode.attribute = JSON.parse(cAttribute);
+            });
+          }
+        }
+      }
+      this.eventConfig = obj;
+    },
     changeMessageTemplate(res = {}) {
       this.msgConf = {
         templateId: res.id || ''
@@ -153,12 +215,19 @@ export default {
     },
     init() {
       if (JSON.stringify(this.nodeInfo) !== '{}' && this.nodeInfo) {
-        const { fillUsers,
-          submitText,
-          checkFormConfig,
-          appCheckFormConfig, msgConf = {} } = this.nodeInfo;
+        const { fillUsers = {
+          // 审批人集合
+          ROLE: [], // 角色
+          ORG: [], // 组织
+          USER: [], // 固定人员
+          POST: [] // 职位
+        },
+          submitText = '保存',
+          checkFormConfig = [],
+          appCheckFormConfig = [], msgConf = {} } = this.nodeInfo;
         this.sourceType = fillUsers;
         this.submitText = submitText;
+        this.setEventConfig(this.nodeInfo.eventConfig);
         // eslint-disable-next-line max-len
         this.checkFormConfigJSONOrigin = checkFormConfig
           ? JSON.parse(JSON.stringify(checkFormConfig))

@@ -1121,7 +1121,7 @@ export default {
     // 获取选中数组
     getSelMultiArr(compId, callback) {
       if (compId === this.configData.compId) {
-        callback(this.multiEntityArr);
+        callback(this.multiEntityArr, this.tableData);
       }
     },
     getAllTableData(compId, callback) {
@@ -2110,6 +2110,9 @@ export default {
         if (comp.compType === 9 && comp.defaultType === 1) {
           v = formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss');
         }
+        if ([6, 7, 15].includes(comp.compType)) {
+          obj[`${comp.compId}_`] = '';
+        }
         obj[comp.compId] = v;
       });
       obj.unique = createUnique();
@@ -2157,6 +2160,7 @@ export default {
         );
         console.log(uniqueArr);
         this.tableData = res;
+        this.configData.tableData = this.tableData;
         this.$refs.tableMain.clearSelection();
         this.multiEntityArr = [];
         this.currentRadioObj = null;
@@ -2372,6 +2376,7 @@ export default {
     },
     // 数据选择框选中数据
     setDataSel(arr) {
+      console.log(arr);
       // 单选框
       if (this.dataSelComp.compType === 6) {
         this.$set(

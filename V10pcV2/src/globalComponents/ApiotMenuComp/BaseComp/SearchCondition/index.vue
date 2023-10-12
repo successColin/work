@@ -680,7 +680,7 @@ export default {
           searchCompId: this.configData.compId,
           searchContent: JSON.stringify(searchInfo),
           sysMenuDesignId: this.sysMenuDesignId(),
-          userid: this.$store.state.userCenter.userInfo.id,
+          userId: this.$store.state.userCenter.userInfo.id,
         });
       }
     },

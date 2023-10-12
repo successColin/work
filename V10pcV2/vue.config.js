@@ -34,8 +34,8 @@ module.exports = {
         // target: 'http://47.118.76.70:8080/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
         // target: 'http://192.168.0.27:8080', // cl
         // target: 'https://oa.mingcloud.top/', // cl
-        // target: 'http://192.168.0.22:8081', // jt
-        // target: 'http://192.168.0.136:8080', // lf
+        // target: 'http://192.168.0.34:8081', // jt
+        target: 'http://192.168.0.136:8080', // lf
         // target: 'http://192.168.0.32:8080', // xh
         // target: 'http://192.168.0.21:8080', // zs
         // target: 'http://192.168.0.25:8080', // jh
@@ -44,7 +44,7 @@ module.exports = {
         // target: 'http://47.99.87.62:84/', // 泰州石化
         // target: 'http://114.55.7.104/', //
         // target: 'http://116.62.194.222:85/', // 泸州老窖
-        target: 'http://47.99.87.62:97/', // 兵刚项目
+        // target: 'http://47.99.87.62:97/', // 兵刚项目
         // target: 'http://47.99.87.62:98/', // 代理地址，这里设置的地址会代替axios中设置的baseURL
         changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
         pathRewrite: {

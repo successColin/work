@@ -1,10 +1,5 @@
-/**
-* @name: index
-* @author: DELL
-* @date: 2022/5/5 14:00
-* @description：index
-* @update: 2022/5/5 14:00
-*/
+/** * @name: index * @author: DELL * @date: 2022/5/5 14:00 * @description：index
+* @update: 2022/5/5 14:00 */
 <!-- 页面 -->
 <template>
   <div class="wrap" v-loading="loading">
@@ -34,8 +29,8 @@
                 </div>
                 <Users
                   :row="item"
-                  :key="item.createuserid"
-                  userid="createuserid"
+                  :key="item.createUserId"
+                  userId="createUserId"
                   prop="createUser"
                 />
               </div>
@@ -118,15 +113,17 @@ export default {
       visible: false,
       flowObj: {},
       rules: {
-        workflowName: [{ required: true, message: '请输入流程名称', trigger: 'change' }]
+        workflowName: [
+          { required: true, message: '请输入流程名称', trigger: 'change' },
+        ],
       },
-      designObj: {} // 设计对象
+      designObj: {}, // 设计对象
     };
   },
 
   components: {
     FlowDesign,
-    Users
+    Users,
   },
 
   computed: {
@@ -135,14 +132,14 @@ export default {
         const i = index % 5;
         return `color: ${userColorArr[i]}`;
       };
-    }
+    },
   },
   watch: {
     visible(v) {
       if (!v) {
         this.flowObj = {};
       }
-    }
+    },
   },
   mounted() {
     this.$bus.$off('FlowGroup').$on('FlowGroup', (item) => {
@@ -177,7 +174,9 @@ export default {
     async doDel({ id }) {
       // 删除流程
       try {
-        await this.$confirm('确定删除该流程吗？', this.$t('common.tip'), { type: 'warning' });
+        await this.$confirm('确定删除该流程吗？', this.$t('common.tip'), {
+          type: 'warning',
+        });
         await delFlow({ workflowInfoId: id });
         await this.getList();
         this.$message.success('删除成功!');
@@ -198,7 +197,7 @@ export default {
         const api = id ? editFlow : addFlow;
         await api({
           groupId: functionId,
-          ...this.flowObj
+          ...this.flowObj,
         });
         await this.getList();
         this.visible = false;
@@ -213,7 +212,7 @@ export default {
     async getList() {
       const params = {
         keywords: this.keywords,
-        groupId: this.selectKey.id
+        groupId: this.selectKey.id,
       };
       try {
         this.loading = true;
@@ -222,13 +221,13 @@ export default {
       } catch (e) {
         this.loading = false;
       }
-    }
+    },
   },
-  name: 'index'
+  name: 'index',
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .wrap {
   width: 100%;
   height: 100%;

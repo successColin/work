@@ -12,7 +12,7 @@
         @deleteSelf="handleClose(tag)"
         itemIconClass="icon-zuzhi"
       >
-<!--        <i class="iconfont icon-zuzhi"></i>{{ tag.name }}-->
+        <!--        <i class="iconfont icon-zuzhi"></i>{{ tag.name }}-->
       </apiot-tag>
     </div>
     <div class="orgWrapTitleAndSearch">
@@ -42,18 +42,21 @@
       >
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <span
-              class="iconfont"
-              :class="{[type === 'position' ? 'icon-zhiwei' : 'icon-zuzhi']: true}"
+            class="iconfont"
+            :class="{
+              [type === 'position' ? 'icon-zhiwei' : 'icon-zuzhi']: true,
+            }"
           ></span>
           <span>{{ node.label }}</span>
           <span class="select-children-all" v-if="checkNodeIsShow(data)">
             <el-button
-                type="text"
-                size="mini"
-                @click.stop="() => remove(node, data)">
+              type="text"
+              size="mini"
+              @click.stop="() => remove(node, data)"
+            >
               选中子节点
             </el-button>
-        </span>
+          </span>
         </span>
       </el-tree>
     </div>
@@ -68,64 +71,64 @@ export default {
   props: {
     isInherit: {
       type: Number,
-      default: 0
+      default: 0,
     },
     selected: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     type: {
       type: String,
       default() {
         return 'org';
-      }
+      },
     },
     isSingle: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     // 当前所属组织id
     curId: {
       type: Number,
       default() {
         return null;
-      }
+      },
     },
     useInRoleAndUser: {
       // 用于角色和用户，默认不用用
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     functionType: {
       // 用于角色和用户，默认不用用
       type: String,
       default() {
         return 'role';
-      }
+      },
     },
     menuId: {
-      type: Number
+      type: Number,
     },
     relationId: {
-      type: Number
-    }
+      type: Number,
+    },
   },
   data() {
     return {
       defaultProps: {
         label: 'name',
         children: 'childList',
-        isLeaf: ({ childrenTotal }) => !childrenTotal
+        isLeaf: ({ childrenTotal }) => !childrenTotal,
       },
       loading: false,
       treeData: [],
       isActive: false,
       input: '',
-      selectKeys: [] // 勾选的数据
+      selectKeys: [], // 勾选的数据
     };
   },
   components: {},
@@ -143,7 +146,7 @@ export default {
         title = this.$t('role.positionFile');
       }
       return title;
-    }
+    },
   },
   mounted() {
     this.selectKeys = JSON.parse(JSON.stringify(this.selected));
@@ -233,8 +236,7 @@ export default {
             arr = [item.rootPath];
           }
           const isCur = arr.filter((obj) => String(obj) === String(this.curId));
-          if (String(item.id) === String(this.curId) ||
-            isCur.length > 0) {
+          if (String(item.id) === String(this.curId) || isCur.length > 0) {
             item.disabled = true;
           }
           return item;
@@ -271,16 +273,17 @@ export default {
     // },
     async getOrg() {
       // 获取设计过的组织
-      const api = this.functionType === 'role' ? doFetchDesignOrg : getUserOrgAuth;
+      const api =
+        this.functionType === 'role' ? doFetchDesignOrg : getUserOrgAuth;
       try {
         let params = {
           menuId: this.menuId,
-          [this.functionType === 'role' ? 'roleId' : 'userid']: this.relationId
+          [this.functionType === 'role' ? 'roleId' : 'userId']: this.relationId,
         };
         if (this.functionType !== 'role' && this.isInherit) {
           params = {
             ...params,
-            inherit: this.isInherit
+            inherit: this.isInherit,
           };
         }
         this.selectKeys = await api(params);
@@ -312,9 +315,10 @@ export default {
             } else {
               arr = [item.rootPath];
             }
-            const isCur = arr.filter((obj) => String(obj) === String(this.curId));
-            if (String(item.id) === String(this.curId) ||
-              isCur.length > 0) {
+            const isCur = arr.filter(
+              (obj) => String(obj) === String(this.curId),
+            );
+            if (String(item.id) === String(this.curId) || isCur.length > 0) {
               item.disabled = true;
             }
             return item;
@@ -325,13 +329,13 @@ export default {
       } catch (e) {
         this.loading = false;
       }
-    }
+    },
   },
-  beforeDestory() {}
+  beforeDestory() {},
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .orgWrap {
   padding: 0;
   width: 100%;
@@ -437,12 +441,12 @@ export default {
     border-right: 1px solid #e9e9e9;
     overflow-y: auto;
     box-sizing: border-box;
-    .select-children-all{
+    .select-children-all {
       margin-left: 10px;
       visibility: hidden;
     }
     ::v-deep {
-      .el-tree__empty-block{
+      .el-tree__empty-block {
         min-height: 300px;
       }
       .custom-tree-node .iconfont {
@@ -479,7 +483,7 @@ export default {
           background: #f1f7ff;
         }
       }
-      .el-tree-node__content:hover .select-children-all{
+      .el-tree-node__content:hover .select-children-all {
         visibility: visible;
       }
     }

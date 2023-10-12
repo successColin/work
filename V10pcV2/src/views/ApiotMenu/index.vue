@@ -740,6 +740,30 @@ export default {
         }
         return true;
       });
+      // GET_TABLE_DATA
+      parser.setFunction('GET_TABLE_IS_NO_DATA', (params) => {
+        const { formObj } = getAllPaneBack;
+        const formId = Object.keys(formObj).find((key) => {
+          if (
+            Object.prototype.hasOwnProperty.call(formObj[key].form, params[0])
+          ) {
+            return true;
+          }
+          return false;
+        });
+        let multiArr = [];
+        this.$bus.$emit(
+          `getSelMultiArr${curOnlyFlag}`,
+          formObj[formId].parentCompId,
+          (arr, allArr) => {
+            multiArr = allArr;
+          },
+        );
+        if (multiArr.length) {
+          return false;
+        }
+        return true;
+      });
       parser.setFunction('GET_TIME_GAP', (params) => {
         const start = new Date(
           params[0].replace ? params[0].replace(/-/g, '/') : params[0],
@@ -1686,6 +1710,14 @@ export default {
           return str;
         },
       );
+      // 获取表格是否有值
+      formulaRes = formulaRes.replace(
+        /GET_TABLE_IS_NO_DATA\(\$([A-Za-z0-9]{6})\$\)/g,
+        (v) => {
+          const str = v.replace(/\$/g, "'");
+          return str;
+        },
+      );
       // console.log(formulaRes);
       // 更改值
       formulaRes = formulaRes.replace(
@@ -1891,6 +1923,7 @@ export default {
                     });
                     v = showArr.join();
                   }
+                  console.log(v);
                   if (comp.compType === 2) {
                     if (comp.dropDownType === 1) {
                       if (v !== '') {
@@ -2014,7 +2047,12 @@ export default {
       };
       const data = await selectList(params);
       if (data.length !== 0 && data[0][comp.dataSource.columnName]) {
-        tab.form[`${comp.compId}_`] = data[0][comp.dataSource.columnName];
+        // tab.form[`${comp.compId}_`] = data[0][comp.dataSource.columnName];
+        this.$set(
+          tab.form,
+          `${comp.compId}_`,
+          data[0][comp.dataSource.columnName],
+        );
       } else {
         tab.form[`${comp.compId}_`] = '';
       }

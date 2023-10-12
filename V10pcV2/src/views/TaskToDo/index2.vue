@@ -15,8 +15,10 @@
   >
     <template v-slot:LeaveItToMe>
       <div class="approvalPanel">
-        <left ref="left"/>
+        <left ref="left" @switching_process_types="click"/>
         <ApproveList
+            @flow_End_of_operation="closeChange"
+            ref="ApproveList"
             @closeApproval="close"
             v-on="$listeners"
             v-bind="$attrs"/>
@@ -61,6 +63,13 @@ export default {
   },
 
   methods: {
+    closeChange() {
+      this.$refs.left.init();
+      this.$emit('changeMessage');
+    },
+    click(key) {
+      this.$refs.ApproveList.setComAndChange(key);
+    },
     close() {
       this.$refs.left.init();
       this.$emit('changeMessage');

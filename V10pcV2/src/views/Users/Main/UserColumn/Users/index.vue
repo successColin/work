@@ -26,20 +26,20 @@ export default {
   props: {
     row: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     prop: {
       type: String,
-      default: 'name'
+      default: 'name',
     },
     isShowBgColor: {
       type: Boolean,
-      default: true
+      default: true,
     },
-    userid: {
+    userId: {
       type: String,
-      default: 'id'
-    }
+      default: 'id',
+    },
   },
   data() {
     return {};
@@ -50,7 +50,9 @@ export default {
   computed: {
     renderAvtor() {
       return (obj) => {
-        let avtor = obj[this.prop] ? cnchar.spell(obj[this.prop], 'first', 'up') : '';
+        let avtor = obj[this.prop]
+          ? cnchar.spell(obj[this.prop], 'first', 'up')
+          : '';
         const len = avtor.length;
         avtor = avtor.substr(len - 2, 2);
         return avtor;
@@ -59,20 +61,20 @@ export default {
     getColor() {
       return () => {
         const colors = ['#5A80ED', '#FAB71C', '#FC8256', '#EE5E5E', '#34C7BE'];
-        const index = this.row[this.userid] || 0;
+        const index = this.row[this.userId] || 0;
         const color = `background:${colors[index % 5]}`;
         return color;
       };
-    }
+    },
   },
 
   mounted() {},
 
-  methods: {}
+  methods: {},
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .roleWrap__nameWrap {
   line-height: 24px;
   float: left;

@@ -9,6 +9,7 @@
       { 'p-t-5': !isConfig && getBtnsArr.children.length === 0 },
       { isUser: isConfig && isUser },
       { notTop: getLabelPositon !== 'top' },
+      { isZy: configData.layoutStyle === 2 },
     ]"
     @click="changeCurActiveObj(1, $event)"
     :title="isConfig ? configData.name : ''"

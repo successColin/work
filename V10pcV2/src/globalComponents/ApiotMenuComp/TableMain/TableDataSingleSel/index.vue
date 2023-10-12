@@ -214,6 +214,7 @@ export default {
     'onlyFlag',
     'sysMenuDesignId',
     'resolveFormula',
+    'getSelDataColumn',
   ],
 
   methods: {
@@ -267,6 +268,7 @@ export default {
       // console.log(this.panelObj);
       if (this.panelObj && this.panelObj.panelName) {
         this.curIndex = index;
+        this.getSelColumnArr();
         this.$emit(
           'showPanelDialog',
           index,
@@ -275,6 +277,13 @@ export default {
           this.configData,
         );
       }
+    },
+    getSelColumnArr() {
+      const columnStr = this.getSelDataColumn(this.configData.compId);
+      const columnArr = columnStr.split(',');
+      columnArr.push(this.configData.dataSource.columnName);
+      sessionStorage.tempColumnStr = [...new Set(columnArr)].join(',');
+      // sessionStorage.tempColumnStr = columnStr;
     },
     jumpMenu(rowData) {
       this.$bus.$emit(

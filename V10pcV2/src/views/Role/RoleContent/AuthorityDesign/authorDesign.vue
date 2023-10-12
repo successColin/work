@@ -1,68 +1,68 @@
 <!-- 页面 -->
 <template>
   <div>
-    <apiot-tabs
-        v-on="$listeners"
-        v-bind="$attrs"
-        :tabsArr="tabsArr"
-    >
+    <apiot-tabs v-on="$listeners" v-bind="$attrs" :tabsArr="tabsArr">
       <template v-slot:commonPcDesign>
-        <design-list :designObj="designObj"
-                     :activeTabsKey="activeTabsKey"
-                     :functionType="functionType"
-                     com="PCDesign"></design-list>
+        <design-list
+          :designObj="designObj"
+          :activeTabsKey="activeTabsKey"
+          :functionType="functionType"
+          com="PCDesign"
+        ></design-list>
       </template>
       <template v-slot:commonMobileDesign>
-        <design-list :designObj="designObj"
-                     :activeTabsKey="activeTabsKey"
-                     :functionType="functionType"
-                     com="mobileDesign"></design-list>
+        <design-list
+          :designObj="designObj"
+          :activeTabsKey="activeTabsKey"
+          :functionType="functionType"
+          com="mobileDesign"
+        ></design-list>
       </template>
     </apiot-tabs>
     <apiot-dialog
-        :visible.sync="orgcustom.dialogVisible"
-        :title="$t('user.relation_org')"
-        :destroy-on-close="true"
-        :modal-append-to-body="false"
-        v-on:sure-click="relationFunction"
-        v-on:cancle-click="handleCancel"
+      :visible.sync="orgcustom.dialogVisible"
+      :title="$t('user.relation_org')"
+      :destroy-on-close="true"
+      :modal-append-to-body="false"
+      v-on:sure-click="relationFunction"
+      v-on:cancle-click="handleCancel"
     >
       <Organization
-          ref="org"
-          v-if="orgcustom.dialogVisible"
-          :functionType="functionType"
-          :relationId="designObj.id"
-          :menuId="menuId"
-          :isInherit="getIsInherit"
-          :useInRoleAndUser="!orgcustom.value.isBatch"
-          :isBatchCustom="orgcustom.value.isBatch"
+        ref="org"
+        v-if="orgcustom.dialogVisible"
+        :functionType="functionType"
+        :relationId="designObj.id"
+        :menuId="menuId"
+        :isInherit="getIsInherit"
+        :useInRoleAndUser="!orgcustom.value.isBatch"
+        :isBatchCustom="orgcustom.value.isBatch"
       ></Organization>
       <template v-slot:btn v-if="orgcustom.value.isBatch">
         <apiot-button
-            @click="menuVisible=true"
-            style="position: absolute;left: 20px"
-            type="primary"
-        ><span class="icon-mokuai iconfont"></span>生效模块
+          @click="menuVisible = true"
+          style="position: absolute; left: 20px"
+          type="primary"
+          ><span class="icon-mokuai iconfont"></span>生效模块
         </apiot-button>
       </template>
     </apiot-dialog>
     <apiot-dialog
-        :visible.sync="menuVisible"
-        title="生效模块"
-        :destroy-on-close="true"
-        :modal-append-to-body="false"
-        v-on:sure-click="handleMenuOk"
-        v-on:cancle-click="handleMenuCancel"
+      :visible.sync="menuVisible"
+      title="生效模块"
+      :destroy-on-close="true"
+      :modal-append-to-body="false"
+      v-on:sure-click="handleMenuOk"
+      v-on:cancle-click="handleMenuCancel"
     >
       <MenuList
-          :activeType="activeTabsKey"
-          ref="MenuList"
-          :showCheckbox="true"
-          :isInitCheck="false"
-          :isNeedSearch="true"
-          v-if="menuVisible"
-          :disabledId="defaultCheck.disabledId"
-          :defaultCheck="defaultCheck.defaultCheckedKeys"
+        :activeType="activeTabsKey"
+        ref="MenuList"
+        :showCheckbox="true"
+        :isInitCheck="false"
+        :isNeedSearch="true"
+        v-if="menuVisible"
+        :disabledId="defaultCheck.disabledId"
+        :defaultCheck="defaultCheck.defaultCheckedKeys"
       />
     </apiot-dialog>
   </div>
@@ -74,23 +74,23 @@ import { doEditRoleDataAuth } from '@/api/role';
 import DesignList from '../DesignList/designList';
 
 const Organization = () =>
-    import('@/views/Role/RoleContent/DesignDetial/Organization/organization');
-const MenuList = () => import('@/views/Role/RoleContent/DesignDetial/MenuList/index');
+  import('@/views/Role/RoleContent/DesignDetial/Organization/organization');
+const MenuList = () =>
+  import('@/views/Role/RoleContent/DesignDetial/MenuList/index');
 export default {
   props: {
     designObj: {
       type: Object,
-      default: () => {
-      }
+      default: () => {},
     },
     activeTabsKey: {
       type: String,
-      default: 'PCDesign'
+      default: 'PCDesign',
     },
     functionType: {
       type: String,
       default: 'user',
-    }
+    },
   },
   beforeUpdate() {
     this.tabsArr = [
@@ -122,8 +122,8 @@ export default {
       ],
       orgcustom: {
         value: {
-          isBatch: false
-        }
+          isBatch: false,
+        },
       }, // 组织弹框信息
       menuVisible: false,
       otherMenuIds: [], // 生效模块
@@ -133,14 +133,15 @@ export default {
   components: {
     DesignList,
     Organization,
-    MenuList
+    MenuList,
   },
 
   computed: {
     getIsInherit() {
       if (this.orgcustom.value.isBatch) return 0;
-      if (this.orgcustom.value.functionObj.inherit ||
-          this.orgcustom.value.functionObj.isInheritCheck
+      if (
+        this.orgcustom.value.functionObj.inherit ||
+        this.orgcustom.value.functionObj.isInheritCheck
       ) {
         return this.orgcustom.value.functionObj.inherit;
       }
@@ -151,21 +152,23 @@ export default {
       const id = this.orgcustom.value?.functionObj?.id;
       return {
         disabledId: id,
-        defaultCheckedKeys: [id, ...this.otherMenuIds]
+        defaultCheckedKeys: [id, ...this.otherMenuIds],
       };
     },
     menuId() {
       if (JSON.stringify(this.orgcustom) === '{}') return 0;
       if (!this.orgcustom.value || !this.orgcustom.value.functionObj) return '';
       return this.orgcustom.value.functionObj.menuId;
-    }
+    },
   },
 
   mounted() {
-    this.$bus.$off(`${this.functionType}_orgcustom`).$on(`${this.functionType}_orgcustom`, (message) => {
-      console.log(message, 'message');
-      this.orgcustom = message;
-    });
+    this.$bus
+      .$off(`${this.functionType}_orgcustom`)
+      .$on(`${this.functionType}_orgcustom`, (message) => {
+        console.log(message, 'message');
+        this.orgcustom = message;
+      });
   },
 
   methods: {
@@ -192,7 +195,7 @@ export default {
       if (!selectKeys.length) {
         this.$message({
           type: 'warning',
-          message: this.$t('user.pleaseChooseAndSave')
+          message: this.$t('user.pleaseChooseAndSave'),
         });
         return;
       }
@@ -201,34 +204,36 @@ export default {
       selectKeys.forEach((item) => {
         list.push({
           menuId: functionObj.menuId,
-          userid: id,
+          userId: id,
           typeDict: value,
-          orgId: item.id
+          orgId: item.id,
         });
         orgList.push(item.name);
       });
       const type =
-          this.activeTabsKey === 'PCDesign'
-              ? this.$t('role.desktopPermission')
-              : this.$t('role.Mobileterminalpermission');
+        this.activeTabsKey === 'PCDesign'
+          ? this.$t('role.desktopPermission')
+          : this.$t('role.Mobileterminalpermission');
       const msg1 = `${this.$t('user.addFunctionAuth', {
         name: this.designObj.name,
         type,
         functionMenuName: functionObj.menuName,
-        orgList: orgList.join(',')
+        orgList: orgList.join(','),
       })}`;
       // console.log(authList, selectModuleIndex, com, selectKey);
       const params = {
-        userid: id,
+        userId: id,
         list,
-        logData: msg1
+        logData: msg1,
       };
       params.batchCustomFlag = isBatch;
       if (isBatch) {
         delete params.list;
         const arr = selectKeys.map((item) => item.id);
         params.orgIds = arr;
-        const menuIds = this.otherMenuIds.length ? this.otherMenuIds : [functionObj.id];
+        const menuIds = this.otherMenuIds.length
+          ? this.otherMenuIds
+          : [functionObj.id];
         params.menuIds = menuIds;
         params.functionDict = this.activeTabsKey === 'PCDesign' ? 1 : 2;
       }
@@ -249,7 +254,7 @@ export default {
       if (!selectKeys.length) {
         this.$message({
           type: 'warning',
-          message: this.$t('role.placeChooseOrgMessage')
+          message: this.$t('role.placeChooseOrgMessage'),
         });
         return;
       }
@@ -260,28 +265,30 @@ export default {
           menuId: functionObj.menuId,
           roleId: id,
           typeDict: value,
-          orgId: item.id
+          orgId: item.id,
         });
         orgList.push(item.name);
       });
       const type =
-          this.activeTabsKey === 'PCDesign'
-              ? this.$t('role.desktopPermission')
-              : this.$t('role.Mobileterminalpermission');
+        this.activeTabsKey === 'PCDesign'
+          ? this.$t('role.desktopPermission')
+          : this.$t('role.Mobileterminalpermission');
       const msg = `为${this.designObj.roleName}${type}中的${
-          functionObj.menuName
+        functionObj.menuName
       }菜单添加${orgList.join(',')}等数据权限`;
       const params = {
         roleId: id,
         list,
-        logoData: msg
+        logoData: msg,
       };
       params.batchCustomFlag = isBatch;
       if (isBatch) {
         delete params.list;
         const arr = selectKeys.map((item) => item.id);
         params.orgIds = arr;
-        const menuIds = this.otherMenuIds.length ? this.otherMenuIds : [functionObj.id];
+        const menuIds = this.otherMenuIds.length
+          ? this.otherMenuIds
+          : [functionObj.id];
         params.menuIds = menuIds;
         params.functionDict = this.activeTabsKey === 'PCDesign' ? 1 : 2;
       }
@@ -297,15 +304,14 @@ export default {
       // 关闭
       this.orgcustom = {
         dialogVisible: false,
-        value: {}
+        value: {},
       };
     },
   },
   beforeDestroy() {
     this.$bus.$off(`${this.functionType}_orgcustom`);
-  }
+  },
 };
 </script>
 
-<style lang='scss' scoped>
-</style>
+<style lang="scss" scoped></style>

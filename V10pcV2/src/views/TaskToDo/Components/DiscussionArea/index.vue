@@ -1,21 +1,16 @@
-/**
-* @name: index
-* @author: DELL
-* @date: 2021/9/24 10:36
-* @description：index
-* @update: 2021/9/24 10:36
-*/
+/** * @name: index * @author: DELL * @date: 2021/9/24 10:36 *
+@description：index * @update: 2021/9/24 10:36 */
 <!-- 页面 -->
 <template>
   <div class="areaWrap">
     <div class="areaBox">
       <div class="areaItem" v-for="item in list" :key="item.id">
         <div class="itemTitle">
-          <Users :row="item" userid="userid" prop="userName"></Users>
+          <Users :row="item" userId="userId" prop="userName"></Users>
           <span class="m-l-4 Comment">发表评论</span>
           <span
             class="del"
-            v-if="$store.state.userCenter.userInfo === item.userid"
+            v-if="$store.state.userCenter.userInfo === item.userId"
             >删除</span
           >
         </div>
@@ -54,7 +49,7 @@
     <div class="currentUser">
       <Users
         :row="$store.state.userCenter.userInfo"
-        userid="id"
+        userId="id"
         prop="username"
       ></Users>
     </div>
@@ -88,29 +83,34 @@ export default {
       list: [
         {
           userName: '测试',
-          userid: 1,
+          userId: 1,
           id: 1,
           message: '订单明细那里少了一条，就昨天才生成的，记得加上去哦！',
           time: '2020-12-30 16:45',
-          fileArr: []
+          fileArr: [],
         },
         {
           userName: '测试1',
-          userid: 12,
+          userId: 12,
           id: 2,
           message: '订单明细那里少了一条，就昨天才生成的，记得加上去哦！',
           time: '2020-12-30 16:45',
           fileArr: [
-            { url: 'https://wx2.sinaimg.cn/mw690/003aTFYJly1guol98bdn9j60u01hcmyd02.jpg' },
-            { url: 'https://wx4.sinaimg.cn/mw690/003aTFYJly1guol99aajdj60u01hctae02.jpg' },
-            { url: 'https://pic2.zhimg.com/v2-df3f5161119e69bb81c911b24353150a_xs.jpg' },
             {
-              url:
-                'https://pic3.zhimg.com/80/v2-1025b7a19a6a08f9bcd0e14c31557042_720w.jpg?source=1940ef5c'
-            }
-          ]
-        }
-      ]
+              url: 'https://wx2.sinaimg.cn/mw690/003aTFYJly1guol98bdn9j60u01hcmyd02.jpg',
+            },
+            {
+              url: 'https://wx4.sinaimg.cn/mw690/003aTFYJly1guol99aajdj60u01hctae02.jpg',
+            },
+            {
+              url: 'https://pic2.zhimg.com/v2-df3f5161119e69bb81c911b24353150a_xs.jpg',
+            },
+            {
+              url: 'https://pic3.zhimg.com/80/v2-1025b7a19a6a08f9bcd0e14c31557042_720w.jpg?source=1940ef5c',
+            },
+          ],
+        },
+      ],
     };
   },
 
@@ -132,19 +132,19 @@ export default {
       getBlob(
         {
           url,
-          token: ''
+          token: '',
         },
         (res) => {
           saveAs(res, url);
-        }
+        },
       );
-    }
+    },
   },
-  name: 'index'
+  name: 'index',
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .areaWrap {
   width: 100%;
   height: 100%;

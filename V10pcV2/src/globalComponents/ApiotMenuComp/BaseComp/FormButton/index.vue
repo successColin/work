@@ -1417,18 +1417,21 @@ export default {
           params.flowTask = true;
         }
         this.curSaveRes = await singleSave(params);
-        this.curSaveRes.batchInfo.forEach((info) => {
-          if (info.saveInfo && info.saveInfo.listInfo) {
-            const obj = info.saveInfo.listInfo[0].find((item) => {
-              if (item.columnName === 'id' && item.columnValue !== 'null') {
-                return true;
-              }
-              return false;
-            });
-            //  console.log(obj);
-            sessionStorage.ganttCurId = obj.columnValue;
-          }
-        });
+        // 甘特图相关
+        if (this.curSaveRes.batchInfo) {
+          this.curSaveRes.batchInfo.forEach((info) => {
+            if (info.saveInfo && info.saveInfo.listInfo) {
+              const obj = info.saveInfo.listInfo[0].find((item) => {
+                if (item.columnName === 'id' && item.columnValue !== 'null') {
+                  return true;
+                }
+                return false;
+              });
+              //  console.log(obj);
+              sessionStorage.ganttCurId = obj.columnValue;
+            }
+          });
+        }
       }
 
       if (this.isTabBtn) {
@@ -1446,18 +1449,21 @@ export default {
           this.bulkAddParams(params);
         }
         this.curSaveRes = await batchSave(params);
-        this.curSaveRes.batchInfo.forEach((info) => {
-          if (info.saveInfo && info.saveInfo.listInfo) {
-            const obj = info.saveInfo.listInfo[0].find((item) => {
-              if (item.columnName === 'id' && item.columnValue !== 'null') {
-                return true;
-              }
-              return false;
-            });
-            //  console.log(obj);
-            sessionStorage.ganttCurId = obj.columnValue;
-          }
-        });
+        // 甘特图相关
+        if (this.curSaveRes.batchInfo) {
+          this.curSaveRes.batchInfo.forEach((info) => {
+            if (info.saveInfo && info.saveInfo.listInfo) {
+              const obj = info.saveInfo.listInfo[0].find((item) => {
+                if (item.columnName === 'id' && item.columnValue !== 'null') {
+                  return true;
+                }
+                return false;
+              });
+              //  console.log(obj);
+              sessionStorage.ganttCurId = obj.columnValue;
+            }
+          });
+        }
       }
       if (this.isTable) {
         // //  console.log(this.tableInfo, this.featureArr);
@@ -1479,7 +1485,7 @@ export default {
       const params = {
         ids: '',
         tableName: this.tableInfo.tableInfo.tableName,
-        userid: this.$store.state.userCenter.userInfo.id,
+        userId: this.$store.state.userCenter.userInfo.id,
         compMap: JSON.stringify(this.getAllForm()),
         menuId: this.$route.params.id || this.$route.query.menuId,
         batchInfo: [],
@@ -1562,7 +1568,7 @@ export default {
       const params = {
         ids: '',
         tableName: area.tableInfo.tableName,
-        userid: this.$store.state.userCenter.userInfo.id,
+        userId: this.$store.state.userCenter.userInfo.id,
         compMap: JSON.stringify(this.getAllForm()),
         menuId: this.$route.params.id || this.$route.query.menuId,
         batchInfo: [],
@@ -2202,7 +2208,7 @@ export default {
 
       //  console.log(mainTable);
 
-      const { relateTableArr, mergeColumnsArr } = this.tableInfo; // 关联关系
+      const { relateTableArr, mergeColumnsArr = [] } = this.tableInfo; // 关联关系
       //  console.log(relateTableArr);
       let num = 1;
       // const alias = [
@@ -2335,7 +2341,6 @@ export default {
       const mergeObj = {};
       const tableTitleArr = [];
       let curIndex = 0; // 当前第几列
-      console.log(mergeColumnsArr, this.configData);
       mergeColumnsArr.forEach((cArr) => {
         cArr.columnsArr.forEach((compId) => {
           mergeObj[compId] = cArr;
@@ -2495,7 +2500,7 @@ export default {
           id: this.templateId,
           isHeader,
           menuId: this.$route.params.id || this.$route.query.menuId,
-          userid: this.$store.state.userCenter.userInfo.id,
+          userId: this.$store.state.userCenter.userInfo.id,
           mainTable,
           whereOptions,
           compMap: getAllForm,

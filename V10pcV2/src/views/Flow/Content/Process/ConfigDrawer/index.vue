@@ -407,6 +407,7 @@ export default {
         // 提交审批节点的数据
         const obj = this.$refs[type];
         const {
+          eventConfig = {},
           checkList = [],
           sourceType = {},
           afterProcess,
@@ -463,6 +464,7 @@ export default {
           msgConf
         };
         const newObj = {
+          eventConfig,
           config,
           ...this.activeData.properties
         };
@@ -508,6 +510,7 @@ export default {
         // 提交填写节点的数据
         const obj = this.$refs[type];
         const {
+          eventConfig = {},
           sourceType = {},
           checkFormConfigJSONOrigin,
           submitText,
@@ -543,6 +546,7 @@ export default {
         };
         const newObj = {
           config,
+          eventConfig,
           ...this.activeData.properties
         };
         const domStr = nodeToString(document.querySelector('.userBox .selected-result'));

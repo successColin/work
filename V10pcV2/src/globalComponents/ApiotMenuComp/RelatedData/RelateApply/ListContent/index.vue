@@ -152,7 +152,7 @@ export default {
       try {
         const shareUserList = await getShareList({
           id: row.id || row.sysKlTree.id,
-          userid: this.$store.state.userCenter.userInfo.id,
+          userId: this.$store.state.userCenter.userInfo.id,
           keywords: '',
         });
         this.$emit('showShareUserList', {

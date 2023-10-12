@@ -1,53 +1,49 @@
-/**
-* @name: index
-* @author: DELL
-* @date: 2021/10/21 10:33
-* @description：index
-* @update: 2021/10/21 10:33
-*/
+/** * @name: index * @author: DELL * @date: 2021/10/21 10:33 *
+@description：index * @update: 2021/10/21 10:33 */
 <!-- 页面 -->
 <template>
   <div class="timelineWrap" v-loading="loading">
     <el-timeline>
       <el-timeline-item
-          v-for="(item, i) in list"
-          :key="i"
-          :type="i === list.length - 1 ? 'primary ' : ''"
+        v-for="(item, i) in list"
+        :key="i"
+        :type="i === list.length - 1 ? 'primary ' : ''"
       >
         <!-- 流程开始节点 -->
         <div class="nodeBox">
           <span
-              @click="doExpand(item)"
-              class="siteName approve"
-              :class="{unexpand: !item.expand}">
+            @click="doExpand(item)"
+            class="siteName approve"
+            :class="{ unexpand: !item.expand }"
+          >
             {{ item.siteName }}
             <i class="iconfont icon-shujiantouzhankai"></i>
           </span>
           <el-card shadow="never" v-if="item.taskType === 1 && !item.expand">
             <div class="userWrap">
               <div
-                  class="user"
-                  v-for="user in item.handUsers"
-                  :key="user.handuserid"
-                  :style="`${
-                item.taskType !== 1
-                  ? `background: ${getStatus(user).bgColor}`
-                  : null
-              }`"
+                class="user"
+                v-for="user in item.handUsers"
+                :key="user.handUserId"
+                :style="`${
+                  item.taskType !== 1
+                    ? `background: ${getStatus(user).bgColor}`
+                    : null
+                }`"
               >
-                <Users :row="user" userid="handuserid" prop="handUserName"/>
+                <Users :row="user" userId="handUserId" prop="handUserName" />
                 <el-tooltip
-                    class="item"
-                    effect="dark"
-                    :content="getStatus(user).name"
-                    placement="top-start"
+                  class="item"
+                  effect="dark"
+                  :content="getStatus(user).name"
+                  placement="top-start"
                 >
-                <span
+                  <span
                     v-if="item.taskType !== 1"
                     class="iconfont"
                     :class="{ [getStatus(user).icon]: true }"
                     :style="`color:${getStatus(user).color};margin-left: 5px;`"
-                ></span>
+                  ></span>
                 </el-tooltip>
               </div>
             </div>
@@ -56,36 +52,33 @@
           </el-card>
         </div>
         <!-- 流程其他节点展示 -->
-        <div
-            class="approveUserList"
-            v-if="isOtherNode(item) && !item.expand"
-        >
+        <div class="approveUserList" v-if="isOtherNode(item) && !item.expand">
           <el-card
-              shadow="never"
-              v-for="user in item.handUsers"
-              :key="user.handuserid"
+            shadow="never"
+            v-for="user in item.handUsers"
+            :key="user.handUserId"
           >
             <div class="userWrap">
               <div
-                  class="user"
-                  :style="
+                class="user"
+                :style="
                   item.taskType !== 1
                     ? `background: ${getStatus(user).bgColor}`
                     : null
                 "
               >
-                <Users :row="user" userid="handuserid" prop="handUserName"/>
+                <Users :row="user" userId="handUserId" prop="handUserName" />
                 <el-tooltip
-                    class="item"
-                    effect="dark"
-                    :content="getStatus(user).name"
-                    placement="top-start"
+                  class="item"
+                  effect="dark"
+                  :content="getStatus(user).name"
+                  placement="top-start"
                 >
                   <span
-                      v-if="item.taskType !== 1"
-                      class="iconfont"
-                      :class="{ [getStatus(user).icon]: true }"
-                      :style="`color:${getStatus(user).color};margin-left: 5px;`"
+                    v-if="item.taskType !== 1"
+                    class="iconfont"
+                    :class="{ [getStatus(user).icon]: true }"
+                    :style="`color:${getStatus(user).color};margin-left: 5px;`"
                   ></span>
                 </el-tooltip>
                 <!--                <span-->
@@ -106,22 +99,22 @@
             <div class="sort" v-if="getCountersign(user, 3).length">
               <span>并对</span>
               <Users
-                  v-for="per in getCountersign(user, 3)"
-                  :row="per"
-                  :key="per.handuserid"
-                  userid="handuserid"
-                  prop="handUserName"
+                v-for="per in getCountersign(user, 3)"
+                :row="per"
+                :key="per.handUserId"
+                userId="handUserId"
+                prop="handUserName"
               />
               <span> 加签</span>
             </div>
             <div class="sort" v-if="getCountersign(user, 2).length">
               <span>并对</span>
               <Users
-                  v-for="per in getCountersign(user, 2)"
-                  :row="per"
-                  :key="per.handuserid"
-                  userid="handuserid"
-                  prop="handUserName"
+                v-for="per in getCountersign(user, 2)"
+                :row="per"
+                :key="per.handUserId"
+                userId="handUserId"
+                prop="handUserName"
               />
               <span>转审</span>
             </div>
@@ -132,7 +125,9 @@
         </div>
         <!-- 流程结束节点 -->
         <el-card shadow="never" v-if="item.taskType === 999 && !item.expand">
-          <p class="end" v-if="item.handTime">流程于 {{ item.handTime }} 结束</p>
+          <p class="end" v-if="item.handTime">
+            流程于 {{ item.handTime }} 结束
+          </p>
         </el-card>
       </el-timeline-item>
     </el-timeline>
@@ -148,18 +143,17 @@ export default {
   props: {
     approvalInfo: {
       type: Object,
-      default: () => {
-      }
+      default: () => {},
     },
     com: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   data() {
     return {
       list: [],
-      loading: false
+      loading: false,
     };
   },
 
@@ -183,11 +177,15 @@ export default {
       return function (params = []) {
         const arr = [];
         params.forEach((item) => {
-          const { handuserid } = item;
-          const i = arr.findIndex((a) => a.handuserid === handuserid);
+          const { handUserId } = item;
+          const i = arr.findIndex((a) => a.handUserId === handUserId);
           if (i === -1) {
             arr.push(item);
-            if (item.children && Array.isArray(item.children) && item.children.length) {
+            if (
+              item.children &&
+              Array.isArray(item.children) &&
+              item.children.length
+            ) {
               item.children.forEach((user) => {
                 arr.push(user);
               });
@@ -200,7 +198,9 @@ export default {
     getExplain() {
       return function (params) {
         if (params.multiApprovalType) {
-          const obj = approvalType.find((item) => item.value === params.multiApprovalType);
+          const obj = approvalType.find(
+            (item) => item.value === params.multiApprovalType,
+          );
           if (obj) return obj.name;
           return '';
         }
@@ -209,16 +209,13 @@ export default {
     },
     getStatus() {
       return function (params) {
-        const {
-          executCommand,
-          taskStatus
-        } = params;
+        const { executCommand, taskStatus } = params;
         if (executCommand === 'REFERRAL') {
           return {
             name: '转审',
             color: '#41B9C5',
             icon: 'icon-daichuli',
-            bgColor: '#DCF5F8'
+            bgColor: '#DCF5F8',
           };
         }
         if (taskStatus === 1) {
@@ -226,7 +223,7 @@ export default {
             name: '待处理',
             color: '#4689F5',
             icon: 'icon-daichuli',
-            bgColor: '#D7E7FD'
+            bgColor: '#D7E7FD',
           };
         }
         if (taskStatus === 2) {
@@ -234,7 +231,7 @@ export default {
             name: '跳过',
             color: '#F5B034',
             icon: 'icon-shenpitiaoguo',
-            bgColor: '#F9EBCC'
+            bgColor: '#F9EBCC',
           };
         }
         if (executCommand === 'REJECT') {
@@ -242,7 +239,7 @@ export default {
             name: '驳回',
             color: '#EE5E5E',
             icon: 'icon-shenpibohui',
-            bgColor: '#FADEDF'
+            bgColor: '#FADEDF',
           };
         }
         if (executCommand === 'AGREE') {
@@ -250,7 +247,7 @@ export default {
             name: '同意',
             color: '#10B98A',
             icon: 'icon-shenpitongguo',
-            bgColor: '#D6F7EE'
+            bgColor: '#D6F7EE',
           };
         }
         if (executCommand === 'SUBMIT') {
@@ -258,7 +255,7 @@ export default {
             name: '提交',
             color: '#4A8CF2',
             icon: 'icon-shenpitongguo',
-            bgColor: '#E5F0FE'
+            bgColor: '#E5F0FE',
           };
         }
         if (executCommand === 'REVOKE') {
@@ -266,25 +263,26 @@ export default {
             name: '撤回',
             color: '#708DB7',
             icon: 'icon-fanhui-chehui-08',
-            bgColor: '#E5F0FE'
+            bgColor: '#E5F0FE',
           };
         }
         return {
           name: '待处理',
           color: '#4689F5',
           icon: 'icon-daichuli',
-          bgColor: '#D7E7FD'
+          bgColor: '#D7E7FD',
         };
       };
-    }
+    },
   },
 
   mounted() {
     this.fetchFlowList();
-    this.$bus.$off(`${this.com}_reset_flow`)
-        .$on(`${this.com}_reset_flow`, () => {
-          this.fetchFlowList();
-        });
+    this.$bus
+      .$off(`${this.com}_reset_flow`)
+      .$on(`${this.com}_reset_flow`, () => {
+        this.fetchFlowList();
+      });
   },
 
   methods: {
@@ -303,13 +301,13 @@ export default {
       } catch (e) {
         this.loading = false;
       }
-    }
+    },
   },
-  name: 'index'
+  name: 'index',
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .timelineWrap {
   width: 100%;
   height: 100%;
@@ -333,31 +331,30 @@ export default {
     user-select: none;
 
     &.approve:hover {
-
       border-radius: 4px;
-      background: #EDEFF3;
+      background: #edeff3;
       //height: 28px;
       //padding: 0 8px;
       //margin-bottom: 10px;
       //background: #EDEFF3;
       //border-radius: 4px;
       //line-height: 28px;
-      .icon-shujiantouzhankai{
+      .icon-shujiantouzhankai {
         display: inline-block;
         transform: rotate(-180deg);
         transition: all 0.2s linear;
       }
     }
-    &.approve:hover.unexpand .icon-shujiantouzhankai{
+    &.approve:hover.unexpand .icon-shujiantouzhankai {
       display: inline-block;
       transform: rotate(0deg);
       transition: all 0.2s linear;
     }
-    &.approve:hover .icon-shujiantouzhankai{
+    &.approve:hover .icon-shujiantouzhankai {
       display: inline-block;
       transform: rotate(-180deg);
     }
-    .icon-shujiantouzhankai{
+    .icon-shujiantouzhankai {
       display: none;
       transform: rotate(-180deg);
     }
@@ -383,7 +380,8 @@ export default {
       background-color: #4689f5;
       box-shadow: 0 0 4px 4px #c4dafc;
     }
-    .el-timeline-item__tail, .el-timeline-item__node--normal{
+    .el-timeline-item__tail,
+    .el-timeline-item__node--normal {
       top: 7px;
     }
 
@@ -484,7 +482,7 @@ export default {
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #808080;
-    line-height: 20px
+    line-height: 20px;
   }
 }
 </style>

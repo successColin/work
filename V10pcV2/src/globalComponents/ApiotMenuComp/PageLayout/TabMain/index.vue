@@ -531,7 +531,7 @@ export default {
       overflow-y: auto;
       &.isOnlyOneChild {
         ::v-deep {
-          .menuMain,
+          .menuMain:not(.isZy),
           .GanttMain,
           .contentWrap {
             border: 0 none !important;

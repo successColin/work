@@ -132,7 +132,7 @@
                 <div class="userTitle">发起人</div>
                 <Users
                     :row="item"
-                    :userid="String(item.createuserid)"
+                    :userId="String(item.createUserId)"
                     prop="triggerUserName"
                 ></Users>
               </div>
@@ -502,7 +502,7 @@ export default {
       this.loading = true;
       const api = this.operationType === 1 ? batchApproval : batchReject;
       const params = {
-        ccuserids: this.ccList.map((item) => item.id)
+        ccUserIds: this.ccList.map((item) => item.id)
             .join(','),
         memo: this.info.memo || '',
         taskIds: this.approvalArr.join(',')

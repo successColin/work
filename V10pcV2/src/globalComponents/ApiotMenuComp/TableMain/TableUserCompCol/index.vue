@@ -41,7 +41,7 @@
         v-bind="$attrs"
       ></SelectBox>
       <div class="column__notEditable">
-        <UserColAvatar :userids="scope.row[configData.compId]"></UserColAvatar>
+        <UserColAvatar :userIds="scope.row[configData.compId]"></UserColAvatar>
       </div>
     </div>
   </el-table-column>

@@ -8,18 +8,18 @@
 -->
 <!-- treeTable -->
 <template>
-  <div class="wrap" :class="{hasPage: type === 'whole'}">
+  <div class="wrap" :class="{ hasPage: type === 'whole' }">
     <ul class="org__select__content__list">
       <li
-          v-for="item in userListData"
-          :key="'user_' + item.id"
-          @click="rowClick(item)"
+        v-for="item in userListData"
+        :key="'user_' + item.id"
+        @click="rowClick(item)"
       >
         <span class="block">
           <el-checkbox
-              v-model="item.checked"
-              @click.native.stop
-              @change="(val) => checkChange(val, item)"
+            v-model="item.checked"
+            @click.native.stop
+            @change="(val) => checkChange(val, item)"
           >
           </el-checkbox>
         </span>
@@ -28,13 +28,13 @@
         </span>
         <span class="block">
           <i
-              class="iconfont m-r-6 collect"
-              :class="
+            class="iconfont m-r-6 collect"
+            :class="
               item.isCollect
                 ? 'icon-shoucangxuanzhong'
                 : 'icon-shoucangweixuanzhong'
             "
-              @click.stop="collectUser(item)"
+            @click.stop="collectUser(item)"
           ></i>
         </span>
       </li>
@@ -45,7 +45,7 @@
         @click.native.stop
         @change="checkAllChange"
       >
-      全选
+        全选
       </el-checkbox>
     </div>
   </div>
@@ -57,7 +57,7 @@ import userAvatar from '@/views/orgManage/components/userAvatar/index';
 
 export default {
   components: {
-    userAvatar
+    userAvatar,
   },
   name: 'userlist',
   data() {
@@ -70,33 +70,34 @@ export default {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     listData: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     collectUserList: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     type: {
       type: String,
       default() {
         return '';
-      }
-    }
+      },
+    },
   },
-  mounted() {
-  },
+  mounted() {},
   computed: {
     userListData() {
       const rows = this.listData.map((item) => {
-        const index = this.collectUserList.findIndex((obj) => obj.id === item.id);
+        const index = this.collectUserList.findIndex(
+          (obj) => obj.id === item.id,
+        );
         if (index >= 0) {
           item.isCollect = true;
         } else {
@@ -109,7 +110,7 @@ export default {
     checkAll() {
       const len = this.listData.filter((item) => !item.checked).length;
       return this.listData.length && !len;
-    }
+    },
   },
   inject: ['getCollectUserList'],
   methods: {
@@ -129,31 +130,34 @@ export default {
     collectUser(obj) {
       let api = addCollectionUser;
       let params = {
-        collectionuserid: obj.id
+        collectionUserId: obj.id,
       };
       let str = '';
       if (obj.isCollect) {
         api = deleteCollectionUser;
         params = {
-          userid: obj.id
+          userId: obj.id,
         };
         str += this.$t('org.cancelCollection');
       } else {
         str += this.$t('org.collection');
       }
-      str += `${this.$t('org.user')}:(${this.$t('org.user')}${this.$t('common.name', {
-        name: ''
-      })}:${obj.username})`;
+      str += `${this.$t('org.user')}:(${this.$t('org.user')}${this.$t(
+        'common.name',
+        {
+          name: '',
+        },
+      )}:${obj.username})`;
       params.logData = str;
       api(params).then(() => {
         this.getCollectUserList();
       });
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .imageName {
   width: 28px;
   height: 28px;
@@ -166,7 +170,7 @@ export default {
 
 .titleClass {
   width: calc(100% - 46px - 52px) !important;
-  ::v-deep{
+  ::v-deep {
     .username {
       width: calc(100% - 28px);
     }

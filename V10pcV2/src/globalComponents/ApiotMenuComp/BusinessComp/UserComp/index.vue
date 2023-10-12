@@ -90,7 +90,7 @@
       <div
         class="leader-wrap"
         v-show="leaderList.length > 0 && leaderKeywords"
-        :style="`width:${popoverWidth}px`"
+        :style="getLeaderWrapStyle"
       >
         <p>
           {{ $t('common.search') }}"
@@ -114,7 +114,7 @@
       v-if="userDialogVisible"
       :visible.sync="userDialogVisible"
       :leaders="formData.leaders"
-      :title="$t('org.addManage')"
+      :title="configData.name"
       @updateUser="updateUser"
       append-to-body
       v-bind="$attrs"
@@ -163,6 +163,10 @@ export default {
       showSearch: false,
       popoverWidth: 300,
       curUserArr: [], // 当前取缓存用户
+      pos: {
+        x: 0,
+        y: 0,
+      },
     };
   },
   mixins: [compMixin],
@@ -173,6 +177,13 @@ export default {
   },
 
   computed: {
+    getLeaderWrapStyle() {
+      const style = `width:${this.popoverWidth}px;`;
+      // if (this.pos.x && this.pos.y) {
+      //   style += `left:${this.pos.x - 36}px;top:${this.pos.y + 34}px`;
+      // }
+      return style;
+    },
     isSingle() {
       if (+this.configData.dropDownType === 1) {
         if (this.formData.leaders.length >= 1) {
@@ -229,12 +240,21 @@ export default {
         if (this.$refs.manageItem) {
           this.popoverWidth = this.$refs.manageItem.offsetWidth;
         }
+        // if (this.$refs.leader) {
+        //   this.initSearchPos();
+        // }
       });
       this.initData();
     }
   },
 
   methods: {
+    initSearchPos() {
+      const pos = this.$refs.leader.getBoundingClientRect();
+      console.log(pos);
+      this.pos.x = pos.left;
+      this.pos.y = pos.top;
+    },
     // 数据初始化
     async initData() {
       if (this.cardData) {
@@ -550,7 +570,6 @@ export default {
     justify-content: center;
     color: #4689f5;
     flex-shrink: 0;
-    margin-bottom: 6px;
     cursor: pointer;
     transition: all 0.5s;
     &.disabled {
@@ -601,9 +620,10 @@ export default {
   position: absolute;
   background: #ffffff;
   box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.14);
+  margin-top: -246px;
   border-radius: 8px;
   padding: 10px 0;
-  z-index: 3;
+  z-index: 100;
   p {
     height: 36px;
     line-height: 36px;
@@ -616,9 +636,12 @@ export default {
   }
   .leader-list {
     width: 100%;
-    max-height: 360px;
+    // max-height: 360px;
+    height: 150px;
     overflow-y: auto;
     li {
+      display: flex;
+      align-items: center;
       height: 36px;
       line-height: 36px;
       font-size: 13px;

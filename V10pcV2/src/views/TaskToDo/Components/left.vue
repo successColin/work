@@ -48,6 +48,7 @@
 <script>
 import { getMyTodoList } from '@/api/flow';
 
+const eventName = 'flow_End_of_operation';
 export default {
   data() {
     return {
@@ -112,11 +113,13 @@ export default {
   },
 
   mounted() {
-    console.log('mounted');
     setTimeout(() => {
-      this.$bus.$emit('switching_process_types', 'LeaveItToMe');
+      this.$emit('switching_process_types', 'LeaveItToMe');
     }, 50);
     this.init();
+    this.$bus.$on(eventName, () => {
+          this.init();
+        });
   },
 
   methods: {
@@ -133,8 +136,11 @@ export default {
              key
            }) {
       this.activeKey = name;
-      this.$bus.$emit('switching_process_types', key);
+      this.$emit('switching_process_types', key);
     }
+  },
+  beforeDestroy() {
+    this.$bus.$off();
   },
   name: 'left',
 };

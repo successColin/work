@@ -13,7 +13,7 @@
         <div class="paramsName">{{ item.parameterName }}</div>
       </div>
       <div class="paramsWrap">
-        <el-select v-model="item.valueType" @change="item.content = ''">
+        <el-select v-model="item.valueType" @change="item.valueInfo = ''">
           <el-option label="固定值" :value="1"></el-option>
           <el-option label="公式" :value="2"></el-option>
         </el-select>

@@ -287,7 +287,7 @@ export default {
       try {
         const api = type === 'pass' ? resetPassword : updateUserState;
         // console.log(api);
-        await api({ userid: this.formData.id });
+        await api({ userId: this.formData.id });
         this.$message({
           type: 'success',
           message: '操作成功！',

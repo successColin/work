@@ -135,10 +135,11 @@ export default {
       try {
         const { nodeId, type } = this.activeData;
         const data = await getNodeInfo({ nodeId });
-        const { attributes = '{}', id } = data;
+        const { attributes = '{}', id, eventConfig = {} } = data;
         const obj = JSON.parse(attributes);
         const newAttributes = {
-          ...obj
+          ...obj,
+          eventConfig
         };
         if (type === 'condition') {
           newAttributes.tableName =
@@ -264,7 +265,7 @@ export default {
       this.onClosePanel();
     },
     async handleUpdateNodeInfo(value, content) {
-      const { config } = value;
+      const { config, eventConfig } = value;
       const { id, ...rest } = this.nodeDataSource;
       const params = {
         // workflowNode: {
@@ -278,6 +279,9 @@ export default {
         //   nodeId: this.activeData.nodeId
         // }
       };
+      if (eventConfig) {
+        params.eventConfig = eventConfig;
+      }
       try {
         await updateNodeInfo(params);
         await this.forceUpdate();

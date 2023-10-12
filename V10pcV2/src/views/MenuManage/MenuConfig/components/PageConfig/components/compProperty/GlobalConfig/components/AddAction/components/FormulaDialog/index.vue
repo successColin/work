@@ -370,6 +370,14 @@ export default {
               des: '<span class="red">GET_TABLE_IS_NULL</span>函数判断组件所属表格是否没有选中数据<br/>参数：无<br/>示例：<span class="red">GET_TABLE_IS_NULL</span>(),该组件所属表格有选中值返回false，不然，返回true',
             },
             {
+              name: 'GET_TABLE_IS_NO_DATA',
+              isFormula: true,
+              type: 1,
+              onlyIsWeb: true,
+              isVariables: false,
+              des: '<span class="red">GET_TABLE_IS_NO_DATA</span>函数判断组件所属表格有无数据<br/>参数：无<br/>示例：<span class="red">GET_TABLE_IS_NO_DATA</span>(),该组件所属表格有选中值返回false，不然，返回true',
+            },
+            {
               name: 'GET_TIME_GAP',
               isFormula: true,
               type: 1,
@@ -694,6 +702,12 @@ export default {
         return '';
       });
       parser.setFunction('GET_TABLE_IS_NULL', (params) => {
+        if (![1].includes(params.length)) {
+          return new Error('获取列表所有值，需要1个参数');
+        }
+        return '';
+      });
+      parser.setFunction('GET_TABLE_IS_NO_DATA', (params) => {
         if (![1].includes(params.length)) {
           return new Error('获取列表所有值，需要1个参数');
         }

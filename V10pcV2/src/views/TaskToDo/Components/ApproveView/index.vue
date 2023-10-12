@@ -1,10 +1,5 @@
-/**
-* @name: index
-* @author: DELL
-* @date: 2021/9/24 9:00
-* @description：index
-* @update: 2021/9/24 9:00
-*/
+/** * @name: index * @author: DELL * @date: 2021/9/24 9:00 * @description：index
+* @update: 2021/9/24 9:00 */
 <!-- 页面 -->
 <template>
   <div class="approverWrap" v-loading="isLoading">
@@ -22,29 +17,29 @@
       <!--        <i class="iconfont icon-chakan m-r-4"></i> 查看流程图谱-->
       <!--      </apiot-button>-->
       <apiot-button
-          type="success"
-          class="warning"
-          v-if="nodeConfig.allowReferral && isShowBtn"
-          :disabled="isNeedNoneEvent"
-          @click="showUserModal(3)"
+        type="success"
+        class="warning"
+        v-if="nodeConfig.allowReferral && isShowBtn"
+        :disabled="isNeedNoneEvent"
+        @click="showUserModal(3)"
       >
         <i class="iconfont icon-zhuanshen m-r-4"></i> 转审
       </apiot-button>
       <apiot-button
-          type="success"
-          class="info"
-          @click="showUserModal(4)"
-          :disabled="isNeedNoneEvent"
-          v-if="nodeConfig.allowAddCheck && isShowBtn"
+        type="success"
+        class="info"
+        @click="showUserModal(4)"
+        :disabled="isNeedNoneEvent"
+        v-if="nodeConfig.allowAddCheck && isShowBtn"
       >
         <i class="iconfont icon-jiaqian m-r-4"></i> 加签
       </apiot-button>
       <apiot-button
-          type="success"
-          @click="showModal(1)"
-          class="success"
-          v-if="isShowBtn"
-          :disabled="isNeedNoneEvent"
+        type="success"
+        @click="showModal(1)"
+        class="success"
+        v-if="isShowBtn"
+        :disabled="isNeedNoneEvent"
       >
         <i class="iconfont icon-tongguo m-r-4"></i>
         {{
@@ -52,11 +47,11 @@
         }}
       </apiot-button>
       <apiot-button
-          type="danger"
-          @click="showModal(2)"
-          class="danger"
-          v-if="isShowBtn"
-          :disabled="isNeedNoneEvent"
+        type="danger"
+        @click="showModal(2)"
+        class="danger"
+        v-if="isShowBtn"
+        :disabled="isNeedNoneEvent"
       >
         <i class="iconfont icon-bohui m-r-4"></i>
         {{
@@ -64,39 +59,40 @@
         }}
       </apiot-button>
       <apiot-button
-          type="primary"
-          @click="doRevoke"
-          v-if="isShowRevokeBtn"
-          :disabled="isNeedNoneEvent">
+        type="primary"
+        @click="doRevoke"
+        v-if="isShowRevokeBtn"
+        :disabled="isNeedNoneEvent"
+      >
         撤回
       </apiot-button>
       <apiot-button
-          v-if="isShowPasBtn"
-          type="primary"
-          @click="showModal(5)"
-          :disabled="isNeedNoneEvent"
+        v-if="isShowPasBtn"
+        type="primary"
+        @click="showModal(5)"
+        :disabled="isNeedNoneEvent"
       >
         {{ nodeConfig.submitText && nodeConfig.submitText }}
       </apiot-button>
       <apiot-button
-          type="primary"
-          @click="doReset"
-          :loading="loadingConfig"
-          v-if="isShowRejectBtn"
-          :disabled="isNeedNoneEvent"
+        type="primary"
+        @click="doReset"
+        :loading="loadingConfig"
+        v-if="isShowRejectBtn"
+        :disabled="isNeedNoneEvent"
       >
         提交流程
       </apiot-button>
     </div>
 
     <div class="approverContent">
-      <div class="approverInfo" :class="{noEvent: isNeedNoneEvent}">
+      <div class="approverInfo" :class="{ noEvent: isNeedNoneEvent }">
         <ApiotMenu
-            :showType="showType"
-            :panelObj="getPanelObj"
-            :nodeConfig="nodeConfig"
-            :menuId="approvalInfo.menuId"
-            ref="menu"
+          :showType="showType"
+          :panelObj="getPanelObj"
+          :nodeConfig="nodeConfig"
+          :menuId="approvalInfo.menuId"
+          ref="menu"
         />
       </div>
       <div class="approverInterflow">
@@ -125,80 +121,77 @@
       </div>
     </div>
     <apiot-dialog
-        :title="getDialogName"
-        :loading="loading"
-        :visible.sync="visible"
-        :isBigDialog="isShowPassMenu"
-        @close="closeDialog"
-        @sure-click="handleOk"
-        class="approverDialog"
-        @cancle-click="handleCancel"
+      :title="getDialogName"
+      :loading="loading"
+      :visible.sync="visible"
+      :isBigDialog="isShowPassMenu"
+      @close="closeDialog"
+      @sure-click="handleOk"
+      class="approverDialog"
+      @cancle-click="handleCancel"
     >
       <div class="form-content" v-if="visible">
         <el-form
-            ref="valiForm"
-            @submit.native.prevent
-            :rules="rules"
-            :model="info"
+          ref="valiForm"
+          @submit.native.prevent
+          :rules="rules"
+          :model="info"
         >
           <el-row class="form_el_row_wrap" style="margin: 0 !important">
             <el-col :span="24">
               <el-form-item :label="getLabel" prop="memo">
                 <apiot-input
-                    v-forbid
-                    v-model="info.memo"
-                    type="textarea"
-                    :placeholder="getPlaceholder"
+                  v-forbid
+                  v-model="info.memo"
+                  type="textarea"
+                  :placeholder="getPlaceholder"
                 ></apiot-input>
               </el-form-item>
             </el-col>
             <el-col :span="24" v-if="[1, 2].includes(operationType)">
               <el-form-item label="抄送人" prop="ccList">
                 <div>
-                  <CCUsers
-                      :value="ccList"
-                      @change="handleSelectCC"
-                  />
+                  <CCUsers :value="ccList" @change="handleSelectCC" />
                 </div>
               </el-form-item>
             </el-col>
             <el-col
-                :span="12"
-                v-if="operationType === 2 && nodeConfig.allowRejectTo"
+              :span="12"
+              v-if="operationType === 2 && nodeConfig.allowRejectTo"
             >
               <el-form-item
-                  label="退回并重新进行审批"
-                  prop="rejectTargetNodeId"
+                label="退回并重新进行审批"
+                prop="rejectTargetNodeId"
               >
                 <apiot-select v-model="info.rejectTargetNodeId">
                   <el-option
-                      v-for="item in options"
-                      :value="item.id"
-                      :key="item.id"
-                      :label="item.nodeTitle"
+                    v-for="item in options"
+                    :value="item.id"
+                    :key="item.id"
+                    :label="item.nodeTitle"
                   ></el-option>
                 </apiot-select>
               </el-form-item>
             </el-col>
           </el-row>
         </el-form>
-        <div class="passMenu" v-if="isShowPassMenu">
+        <div class="passMenu" v-if="isShowPassMenu && [1, 2].includes(operationType)">
           <ApiotMenu
-              :showType="{...showType, operationType: 'agree'}"
-              :panelObj="getPanelObj"
-              :nodeConfig="nodeConfig"
-              :menuId="approvalInfo.menuId"
-              ref="menu"
+            :showType="{...showType, operationType: 'agree' }"
+            :panelObj="getPanelObj"
+            :nodeConfig="nodeConfig"
+            :menuId="approvalInfo.menuId"
+            ref="menu"
           />
         </div>
       </div>
     </apiot-dialog>
     <apiot-user-dialog
-        :title="`${operationType === 3 ? '转审' : '加签'}`"
-        class="Referral approveUser"
-        :visible.sync="usersVisible"
-        :isMult="operationType === 4"
-        @handleSure="handleSelectUser"
+      :title="`${operationType === 3 ? '转审' : '加签'}`"
+      class="Referral approveUser"
+      :visible.sync="usersVisible"
+      :isMult="operationType === 4"
+      @handleSure="handleSelectUser"
     ></apiot-user-dialog>
     <!--    <apiot-dialog-->
     <!--        title="加签方式"-->
@@ -219,13 +212,16 @@
     <!--      </div>-->
     <!--    </apiot-dialog>-->
     <apiot-dialog
-        title="流程图谱"
-        class="aChat"
-        :isBigDialog="true"
-        :isShowFooter="false"
-        :visible.sync="dialogFlowVisible"
+      title="流程图谱"
+      class="aChat"
+      :isBigDialog="true"
+      :isShowFooter="false"
+      :visible.sync="dialogFlowVisible"
     >
-      <FlowChart :instanceId="approvalInfo.instanceId" :approvalInfo="approvalInfo"/>
+      <FlowChart
+        :instanceId="approvalInfo.instanceId"
+        :approvalInfo="approvalInfo"
+      />
     </apiot-dialog>
   </div>
 </template>
@@ -241,7 +237,7 @@ import {
   getRejectNodesArr,
   reject,
   revokeFlow,
-  submitInfo
+  submitInfo,
 } from '@/api/flow';
 import ApiotMenu from '@/views/ApiotMenu/index';
 // import DiscussionArea from '../DiscussionArea/index';
@@ -256,25 +252,24 @@ export default {
     approvalInfo: {
       // 当前任务信息
       type: Object,
-      default: () => {
-      }
+      default: () => {},
     },
     nodeConfig: {
       // 流程节点配置
       type: Object,
       default() {
         return {};
-      }
+      },
     },
     com: {
       // 区别是哪个列表
       type: String,
-      default: ''
+      default: '',
     },
     isMessage: {
       type: String,
-      default: null
-    }
+      default: null,
+    },
   },
   data() {
     return {
@@ -292,7 +287,7 @@ export default {
       userArr: [],
       ccList: [], // 抄送人
       opeType: '', // 加签类型
-      loadingConfig: false
+      loadingConfig: false,
     };
   },
 
@@ -301,19 +296,22 @@ export default {
     ApiotMenu,
     Flow,
     CCUsers,
-    FlowChart
+    FlowChart,
   },
 
   computed: {
-    isShowPassMenu() { // 是否显示通过面板
+    isShowPassMenu() {
+      // 是否显示通过面板
       const { checkAgreeFormConfig } = this.nodeConfig;
       if (!checkAgreeFormConfig) return false;
-      if (Array.isArray(checkAgreeFormConfig) && !checkAgreeFormConfig.length) return false;
+      if (Array.isArray(checkAgreeFormConfig) && !checkAgreeFormConfig.length) {
+        return false;
+      }
       if (
           Array.isArray(checkAgreeFormConfig) && checkAgreeFormConfig.length
           &&
           checkAgreeFormConfig.some((item) => !!item.isRelationPass)
-          && [1, 2].includes(this.operationType)
+          && this.operationType === 1
       ) {
         return true;
       }
@@ -344,21 +342,17 @@ export default {
       return {
         id: this.approvalInfo.pcPanelId,
         panelFixData: {},
-        panelVarObj: {}
+        panelVarObj: {},
       };
     },
     showType() {
-      const {
-        dataId,
-        menuId,
-        taskType,
-        instanceStatus
-      } = this.approvalInfo;
+      const { dataId, menuId, taskType, instanceStatus } = this.approvalInfo;
       const params = {
         type: 'flow',
         dataId,
         menuId,
-        isDisabled: this.checkIsCC
+        aaa: 1111,
+        isDisabled: this.checkIsCC,
       };
       if (this.com === 'LeaveItToMe' && [3, 5].includes(taskType)) {
         // 如果是待我处理同时是审批节点和填写节点显示按钮
@@ -369,7 +363,10 @@ export default {
       }
       // 我发起的而且是已经撤回的
       // todo 逻辑调整
-      if (this.com === 'IInitiatedIt' && ['REJECTED', 'REVOKED'].includes(instanceStatus)) {
+      if (
+        this.com === 'IInitiatedIt' &&
+        ['REJECTED', 'REVOKED'].includes(instanceStatus)
+      ) {
         params.isShowBtn = true;
       }
       return params;
@@ -381,7 +378,12 @@ export default {
       // 我发起的 -- 已撤回
       if (['Completed', 'CC'].includes(this.com)) return true;
       const { instanceStatus } = this.approvalInfo;
-      if (this.com === 'IInitiatedIt' && ['COMPLETED', 'REVOKED'].includes(instanceStatus)) return true;
+      if (
+        this.com === 'IInitiatedIt' &&
+        ['COMPLETED', 'REVOKED'].includes(instanceStatus)
+      ) {
+        return true;
+      }
       return false;
     },
     isShowBtn() {
@@ -389,13 +391,9 @@ export default {
         // 如果是抄送人列表，直接返回false
         return false;
       }
-      const {
-        executorUserId,
-        taskType,
-        taskStatus
-      } = this.approvalInfo;
-      const { id: userid } = this.$store.state.userCenter.userInfo;
-      return executorUserId === userid && taskType === 3 && taskStatus === 1;
+      const { executorUserId, taskType, taskStatus } = this.approvalInfo;
+      const { id: userId } = this.$store.state.userCenter.userInfo;
+      return executorUserId === userId && taskType === 3 && taskStatus === 1;
     },
     isShowRejectBtn() {
       // 是否显示再次提交按钮
@@ -403,12 +401,12 @@ export default {
       //   // 如果是抄送人列表，直接返回false
       //   return false;
       // }
-      const {
-        instanceStatus,
-        executorUserId
-      } = this.approvalInfo;
-      const { id: userid } = this.$store.state.userCenter.userInfo;
-      return executorUserId === userid && ['REJECTED', 'REVOKED', 'DRAFT'].includes(instanceStatus);
+      const { instanceStatus, executorUserId } = this.approvalInfo;
+      const { id: userId } = this.$store.state.userCenter.userInfo;
+      return (
+        executorUserId === userId &&
+        ['REJECTED', 'REVOKED', 'DRAFT'].includes(instanceStatus)
+      );
     },
     isShowRevokeBtn() {
       // 撤回按钮
@@ -416,12 +414,9 @@ export default {
         // 如果是抄送人列表，直接返回false
         return false;
       }
-      const {
-        instanceStatus,
-        triggerUserId
-      } = this.approvalInfo;
-      const { id: userid } = this.$store.state.userCenter.userInfo;
-      return triggerUserId === userid && instanceStatus === 'IN_PROGRESS';
+      const { instanceStatus, triggerUserId } = this.approvalInfo;
+      const { id: userId } = this.$store.state.userCenter.userInfo;
+      return triggerUserId === userId && instanceStatus === 'IN_PROGRESS';
     },
     isShowPasBtn() {
       if (this.checkIsCC) {
@@ -430,14 +425,10 @@ export default {
       }
       const { checkFormConfig = [] } = this.nodeConfig;
       const currentObj = checkFormConfig.find((item) => !!item.isRelation);
-      const {
-        executorUserId,
-        taskType,
-        taskStatus
-      } = this.approvalInfo;
-      const { id: userid } = this.$store.state.userCenter.userInfo;
+      const { executorUserId, taskType, taskStatus } = this.approvalInfo;
+      const { id: userId } = this.$store.state.userCenter.userInfo;
       if (taskType !== 5) return false;
-      if (executorUserId === userid && taskType === 5 && taskStatus === 1) {
+      if (executorUserId === userId && taskType === 5 && taskStatus === 1) {
         if (currentObj) {
           return false;
         }
@@ -452,14 +443,15 @@ export default {
       }
       const { checkFormConfig = [] } = this.nodeConfig;
       const currentObj = checkFormConfig.find((item) => !!item.isRelation);
-      const {
-        executorUserId,
-        taskType,
-        taskStatus
-      } = this.approvalInfo;
-      const { id: userid } = this.$store.state.userCenter.userInfo;
+      const { executorUserId, taskType, taskStatus } = this.approvalInfo;
+      const { id: userId } = this.$store.state.userCenter.userInfo;
       if (taskType !== 5) return false;
-      return executorUserId === userid && taskType === 5 && taskStatus === 1 && currentObj;
+      return (
+        executorUserId === userId &&
+        taskType === 5 &&
+        taskStatus === 1 &&
+        currentObj
+      );
     },
     getDialogName() {
       if (this.operationType === 1 || this.operationType === 5) {
@@ -484,29 +476,29 @@ export default {
     rules() {
       const { buttonAttributes } = this.nodeConfig;
       if (
-          this.operationType === 2 &&
-          buttonAttributes &&
-          buttonAttributes.reasonForRejectionRequired
+        this.operationType === 2 &&
+        buttonAttributes &&
+        buttonAttributes.reasonForRejectionRequired
       ) {
         return {
           memo: [
             {
               required: true,
               message: '请输入驳回信息',
-              trigger: 'blur'
-            }
+              trigger: 'blur',
+            },
           ],
           rejectTargetNodeId: [
             {
               required: true,
               message: '请选择驳回节点',
-              trigger: 'blur'
-            }
-          ]
+              trigger: 'blur',
+            },
+          ],
         };
       }
       return {};
-    }
+    },
   },
   watch: {
     operationType: {
@@ -514,8 +506,8 @@ export default {
         if (v === 2 && this.nodeConfig.allowRejectTo) {
           this.fetchRejectNodes();
         }
-      }
-    }
+      },
+    },
   },
   created() {
     // const { taskType, nodeId } = this.approvalInfo;
@@ -526,20 +518,18 @@ export default {
     // }
   },
   mounted() {
-    this.$bus.$off('do_flow_submit')
-        .$on('do_flow_submit', () => {
-          if (this.isShowPasBtnCopy) {
-            Message.closeAll();
-            this.showModal(5);
-          }
-        });
+    this.$bus.$off('do_flow_submit').$on('do_flow_submit', () => {
+      if (this.isShowPasBtnCopy) {
+        Message.closeAll();
+        this.showModal(5);
+      }
+    });
     // 触发通过/驳回按钮
-    this.$bus.$off('do_flow_pass')
-        .$on('do_flow_pass', (type) => {
-          Message.closeAll();
-          this.visible = true;
-          this.operationType = type;
-        });
+    this.$bus.$off('do_flow_pass').$on('do_flow_pass', (type) => {
+      Message.closeAll();
+      this.visible = true;
+      this.operationType = type;
+    });
     this.ccList = this.nodeConfig.ccList || [];
   },
 
@@ -564,15 +554,11 @@ export default {
       this.usersVisible = false;
     },
     async fetchRejectNodes() {
-      const {
-        nodeId,
-        workflowVersionId,
-        instanceId
-      } = this.approvalInfo;
+      const { nodeId, workflowVersionId, instanceId } = this.approvalInfo;
       const data = await getRejectNodesArr({
         nodeId,
         instanceId,
-        workflowVersionId
+        workflowVersionId,
       });
       const { rejectNodeConf = {} } = this.nodeConfig;
       const { defaultNodeId, allowNodeIds = [] } = rejectNodeConf;
@@ -587,16 +573,15 @@ export default {
       this.dialogVisible = false;
     },
     async handleOk() {
-      // if (this.operationType === 2) {
-      //   this.$refs.valiForm.validate((valid) => {
-      //     if (valid) {
-      //       this.doSubmit();
-      //     } else {
-      //       return false;
-      //     }
-      //   });
-      // } else
-      if ([1, 2].includes(this.operationType)) {
+      if (this.operationType === 2) {
+        this.$refs.valiForm.validate(async (valid) => {
+          if (valid) {
+            await this.doSubmit();
+          } else {
+            return false;
+          }
+        });
+      } else if (this.operationType === 1) {
         if (this.isShowPassMenu) {
           await this.$bus.$emit('do_check_form_pass');
           setTimeout(async () => {
@@ -614,6 +599,7 @@ export default {
     },
     closeDialog() {
       this.ccList = this.nodeConfig.ccList || [];
+      this.operationType = '';
     },
     handleCancel() {
       this.dialogVisible = false;
@@ -631,30 +617,26 @@ export default {
       this.$confirm('是否撤回该流程任务？', '确认信息', {
         distinguishCancelAndClose: true,
         confirmButtonText: '撤回',
-        cancelButtonText: '放弃撤回'
+        cancelButtonText: '放弃撤回',
       })
-          .then(async () => {
-            // 流程撤回
-            const {
-              instanceId,
-              nodeId,
-              taskId
-            } = this.approvalInfo;
-            await revokeFlow({
-              instanceId,
-              memo: '',
-              nodeId,
-              taskId
-            });
-            this.$message.success('操作成功!');
-            this.$bus.$emit(`${this.com}_End_of_operation`);
-            this.$bus.$emit('flow_End_of_operation');
-            if (this.isMessage) {
-              this.$emit('hideMessage', false);
-            }
-          })
-          .catch(() => {
+        .then(async () => {
+          // 流程撤回
+          const { instanceId, nodeId, taskId } = this.approvalInfo;
+          await revokeFlow({
+            instanceId,
+            memo: '',
+            nodeId,
+            taskId,
           });
+          this.$message.success('操作成功!');
+          this.$bus.$emit(`${this.com}_End_of_operation`);
+          this.$bus.$emit('flow_End_of_operation');
+          this.$emit('closeModel');
+          if (this.isMessage) {
+            this.$emit('hideMessage', false);
+          }
+        })
+        .catch(() => {});
     },
     async doReset() {
       const { instanceId } = this.approvalInfo;
@@ -663,6 +645,7 @@ export default {
       this.$message.success('操作成功!');
       this.$bus.$emit(`${this.com}_End_of_operation`);
       this.$bus.$emit('flow_End_of_operation');
+      this.$emit('closeModel');
       this.loadingConfig = false;
       if (this.isMessage) {
         this.$emit('hideMessage', false);
@@ -674,9 +657,13 @@ export default {
     showModal(type) {
       const { checkFormConfig = [] } = this.nodeConfig;
       // 绑定通过
-      const isRelationPass = checkFormConfig.some((item) => item.isRelationPass);
+      const isRelationPass = checkFormConfig.some(
+        (item) => item.isRelationPass,
+      );
       // 绑定驳回
-      const isRelationReject = checkFormConfig.some((item) => item.isRelationReject);
+      const isRelationReject = checkFormConfig.some(
+        (item) => item.isRelationReject,
+      );
       if (type === 1 && isRelationPass) {
         this.$bus.$emit('do_check_form_info');
       } else if (type === 2 && isRelationReject) {
@@ -697,12 +684,15 @@ export default {
       this.userArr = [];
       this.opeType = '';
       const { name } = this.$route;
-      if (name === 'approvalPage') { // 如果是泸州老窖审批页面
+      if (name === 'approvalPage') {
+        // 如果是泸州老窖审批页面
         this.isNeedNoneEvent = true;
       } else if (name !== 'approvalPage') {
         if (this.operationType !== 4) {
+          console.log(111);
           this.$bus.$emit(`${this.com}_End_of_operation`);
           this.$bus.$emit('flow_End_of_operation');
+          this.$emit('closeModel');
           if (this.isMessage) {
             this.$emit('hideMessage', false);
           }
@@ -746,66 +736,59 @@ export default {
       return agree;
     },
     getQueryParams() {
-      const {
-        nodeId,
-        instanceId,
-        taskId
-      } = this.approvalInfo;
+      const { nodeId, instanceId, taskId } = this.approvalInfo;
       const compMap = (this.$refs.menu && this.$refs.menu.getCompMap) || {};
       const params = {
         nodeId,
         instanceId,
         taskId,
-        compMap: JSON.stringify(compMap)
+        compMap: JSON.stringify(compMap),
       };
       if (this.operationType === 1 || this.operationType === 5) {
         const ccObj =
-            this.operationType === 1
-                ? {
-                  ccuserids: this.ccList.map((item) => item.id)
-                      .join(',')
-                }
-                : {};
+          this.operationType === 1
+            ? {
+                ccUserIds: this.ccList.map((item) => item.id).join(','),
+              }
+            : {};
         return {
           ...params,
           ...ccObj,
-          memo: this.info.memo
+          memo: this.info.memo,
         };
       }
       if (this.operationType === 2) {
         return {
           ...params,
-          ccuserids: this.ccList.map((item) => item.id)
-              .join(','),
+          ccUserIds: this.ccList.map((item) => item.id).join(','),
           rejectTargetNodeId: this.info.rejectTargetNodeId,
-          memo: this.info.memo
+          memo: this.info.memo,
         };
       }
       if (this.operationType === 3) {
         return {
           ...params,
           memo: this.info.memo,
-          referraluserid: this.userArr[0].id
+          referralUserId: this.userArr[0].id,
         };
       }
       if (this.operationType === 4) {
         return {
           taskId,
-          endorsementuserids: this.userArr.map((item) => item.id)
-              .join(',')
+          endorsementUserIds: this.userArr.map((item) => item.id).join(','),
         };
       }
       return {};
-    }
+    },
   },
   beforeDestroy() {
     this.$bus.$off();
   },
-  name: 'index'
+  name: 'index',
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .approverWrap {
   width: 100%;
   height: 100%;
@@ -890,7 +873,7 @@ export default {
     width: 100%;
     height: calc(100%);
     display: flex;
-    background: #FFFFFF;
+    background: #ffffff;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.16);
 
     .approverInfo {
@@ -966,8 +949,8 @@ export default {
         align-items: center;
         justify-content: space-between;
         padding: 0 10px 0 12px;
-        background: #FFFFFF;
-        box-shadow: -1px 0px 0px 0px #E9E9E9, inset 0px -1px 0px 0px #E9E9E9;
+        background: #ffffff;
+        box-shadow: -1px 0px 0px 0px #e9e9e9, inset 0px -1px 0px 0px #e9e9e9;
         box-sizing: border-box;
 
         .header_name {
@@ -980,7 +963,7 @@ export default {
         .lookChart {
           width: 100px;
           height: 28px;
-          background: #F1F7FF;
+          background: #f1f7ff;
           font-size: 14px;
           font-family: PingFangSC-Regular, PingFang SC;
           font-weight: 400;
@@ -992,12 +975,12 @@ export default {
 
           .iconfont {
             vertical-align: bottom;
-            color: #4689F5;
+            color: #4689f5;
           }
 
           &:hover {
             background: #e5f0ff;
-            color: #4689F5;
+            color: #4689f5;
           }
         }
       }

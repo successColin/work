@@ -1,67 +1,72 @@
-/**
-* @name: operationExpert
-* @author: DELL
-* @date: 2023/9/1 10:43
-* @description：operationExpert
-* @update: 2023/9/1 10:43
-*/
+/** * @name: operationExpert * @author: DELL * @date: 2023/9/1 10:43 *
+@description：operationExpert * @update: 2023/9/1 10:43 */
 <!-- 页面 -->
 <template>
   <apiot-dialog
-      :title="getDialogName"
-      :visible.sync="visible"
-      :loading="loading"
-      @sure-click="handleOk"
-      :isBigDialog="true"
-      class="approverDialog"
+    :title="getDialogName"
+    :visible.sync="visible"
+    :loading="loading"
+    @sure-click="handleOk"
+    :isBigDialog="true"
+    class="approverDialog"
   >
     <div class="form-content" v-if="visible">
       <el-form
-          ref="valiForm"
-          @submit.native.prevent
-          :rules="rules"
-          :model="info"
+        ref="valiForm"
+        @submit.native.prevent
+        :rules="rules"
+        :model="info"
       >
-        <el-row :gutter="30" class="form_el_row_wrap" style="margin: 0 !important">
+        <el-row
+          :gutter="30"
+          class="form_el_row_wrap"
+          style="margin: 0 !important"
+        >
           <el-col :span="12" v-if="info.id">
             <el-form-item :label="$t('expert.glassesKeycode')" prop="keycode">
               <apiot-input
-                  disabled
-                  v-model="info.keycode"
-                  placeholder="请输入编码"
+                disabled
+                v-model="info.keycode"
+                placeholder="请输入编码"
               ></apiot-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('expert.glassesName')" prop="name">
               <apiot-input
-                  v-model="info.name"
-                  placeholder="请输入名称"
+                v-model="info.name"
+                placeholder="请输入名称"
               ></apiot-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label="$t('expert.spectacleModel')" prop="modelnumber">
+            <el-form-item
+              :label="$t('expert.spectacleModel')"
+              prop="modelnumber"
+            >
               <apiot-input
-                  v-model="info.modelnumber"
-                  placeholder="请输入眼镜型号"
+                v-model="info.modelnumber"
+                placeholder="请输入眼镜型号"
               ></apiot-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label="$t('expert.serialNumber')" prop="serialnumber">
+            <el-form-item
+              :label="$t('expert.serialNumber')"
+              prop="serialnumber"
+            >
               <apiot-input
-                  v-model="info.serialnumber"
-                  placeholder="请输入生产序列号"
+                v-model="info.serialnumber"
+                placeholder="请输入生产序列号"
               ></apiot-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item :label="$t('role.memo')" prop="arguments">
               <apiot-wangeditor
-                  ref="wangeditor"
-                  :value="info.arguments"
-                  class="wangeditor"
+                ref="wangeditor"
+                :value="info.arguments"
+                class="wangeditor"
               >
               </apiot-wangeditor>
             </el-form-item>
@@ -81,17 +86,17 @@ export default {
       type: Object,
       default() {
         return {
-          userid: null,
-          username: ''
+          userId: null,
+          username: '',
         };
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       loading: false,
       info: {},
-      visible: false
+      visible: false,
     };
   },
 
@@ -129,35 +134,34 @@ export default {
             required: true,
             message: '请输入眼镜名称',
             trigger: 'blur',
-          }
+          },
         ],
         modelnumber: [
           {
             required: true,
             message: '请输入眼镜型号',
             trigger: 'blur',
-          }
+          },
         ],
         serialnumber: [
           {
             required: true,
             message: '请输入生产序列号',
             trigger: 'blur',
-          }
-        ]
+          },
+        ],
       };
-    }
+    },
   },
 
-  mounted() {
-  },
+  mounted() {},
   watch: {
     targetObj: {
       immediate: true,
       handler(v) {
         this.info = JSON.parse(JSON.stringify(v));
-      }
-    }
+      },
+    },
   },
   methods: {
     setVisible() {
@@ -165,14 +169,11 @@ export default {
     },
     handleSelectCC(v) {
       const obj = v[0] || {};
-      const {
-        id,
-        username
-      } = obj;
+      const { id, username } = obj;
       this.info = {
         ...this.info,
-        userid: id,
-        username
+        userId: id,
+        username,
       };
       this.$refs.valiForm.validate();
     },
@@ -191,7 +192,7 @@ export default {
       try {
         await api({
           ...this.info,
-          arguments: this.$refs.wangeditor.getHtmlObj().html // 备注
+          arguments: this.$refs.wangeditor.getHtmlObj().html, // 备注
         });
         this.loading = false;
         this.$message.success('操作成功!');
@@ -206,7 +207,7 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .form-content {
   padding: 13px 0;
   overflow: auto;
@@ -224,6 +225,10 @@ export default {
 
     .el-form-item__content {
       margin-top: 6px;
+    }
+    .el-col{
+      padding-left: 0 !important;
+      padding-right: 0 !important;
     }
   }
 

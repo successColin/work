@@ -30,7 +30,7 @@
           colorId="id"
         ></user-headname>
       </span>
-      <span class="block" :class="{active: item.isCollect}">
+      <span class="block" :class="{ active: item.isCollect }">
         <i
           class="iconfont m-r-6 collect"
           :class="
@@ -53,7 +53,7 @@ export default {
   name: 'userlist',
   data() {
     return {
-      selection: []
+      selection: [],
     };
   },
   props: {
@@ -61,26 +61,28 @@ export default {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     listData: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     collectUserList: {
       type: Array,
       default() {
         return [];
-      }
-    }
+      },
+    },
   },
   mounted() {},
   computed: {
     userListData() {
       const rows = this.listData.map((item) => {
-        const index = this.collectUserList.findIndex((obj) => obj.id === item.id);
+        const index = this.collectUserList.findIndex(
+          (obj) => obj.id === item.id,
+        );
         if (index >= 0) {
           item.isCollect = true;
         } else {
@@ -89,7 +91,7 @@ export default {
         return item;
       });
       return rows;
-    }
+    },
   },
   inject: ['getCollectUserList'],
   methods: {
@@ -105,31 +107,34 @@ export default {
     collectUser(obj) {
       let api = addCollectionUser;
       let params = {
-        collectionuserid: obj.id
+        collectionUserId: obj.id,
       };
       let str = '';
       if (obj.isCollect) {
         api = deleteCollectionUser;
         params = {
-          userid: obj.id
+          userId: obj.id,
         };
         str += this.$t('org.cancelCollection');
       } else {
         str += this.$t('org.collection');
       }
-      str += `${this.$t('org.user')}:(${this.$t('org.user')}${this.$t('common.name', {
-        name: ''
-      })}:${obj.username})`;
+      str += `${this.$t('org.user')}:(${this.$t('org.user')}${this.$t(
+        'common.name',
+        {
+          name: '',
+        },
+      )}:${obj.username})`;
       params.logData = str;
       api(params).then(() => {
         this.getCollectUserList();
       });
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .imageName {
   width: 28px;
   height: 28px;
@@ -141,14 +146,14 @@ export default {
 }
 .titleClass {
   width: calc(100% - 46px - 52px) !important;
-  ::v-deep{
+  ::v-deep {
     .username {
       width: calc(100% - 28px);
     }
     .user.big {
       height: 28px;
     }
-    .user__name{
+    .user__name {
       flex: 1;
       overflow: hidden;
     }

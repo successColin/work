@@ -317,6 +317,12 @@ export default {
         }
         return '';
       });
+      parser.setFunction('GET_TABLE_IS_NO_DATA', (params) => {
+        if (![1].includes(params.length)) {
+          return new Error('获取列表所有值，需要1个参数');
+        }
+        return '';
+      });
       parser.setFunction('GET_TIME_GAP', (params) => {
         if (![1, 2, 3].includes(params.length)) {
           return new Error('获取列表值，需要1个,2个或3个参数');

@@ -80,7 +80,7 @@
           ></i>
           <i
             v-if="configData.enableDict && configData.dropDownStyle === 4"
-            class="circle m-r-2"
+            class="circle m-r-4"
             :style="`background:${getDictInfo(item, 'color')}`"
           ></i>
           <span :style="getStyle" :aaa="item">{{

@@ -73,13 +73,13 @@
           ></span>
           {{ $t('knowledge.Add_folder') }}
         </apiot-button>
-        <apiot-button
+        <!-- <apiot-button
           v-if="showReplaceBtn && !this.keyWord"
           @click="replaceNewClick"
         >
           <span class="iconfont icon-shangchuan btnWrap__btnCommon"></span>
           {{ $t('knowledge.uploadNew') }}
-        </apiot-button>
+        </apiot-button> -->
         <apiot-button
           v-if="showDisassociate && !this.keyWord"
           @click="unbindKl"
@@ -94,7 +94,7 @@
         <el-dropdown
           trigger="click"
           @command="selectBtn"
-          v-if="(showDel || showRename) && !this.keyWord"
+          v-if="(showDel || showRename || showReplaceBtn) && !this.keyWord"
         >
           <apiot-button>
             <span class="iconfont icon-qita btnWrap__btnCommon"></span>
@@ -108,6 +108,13 @@
             <el-dropdown-item :command="{ type: 'del' }" v-show="showDel">
               <span class="iconfont icon-shanchu delete"></span>
               {{ $t('knowledge.delete') }}
+            </el-dropdown-item>
+            <el-dropdown-item
+              v-if="showReplaceBtn"
+              :command="{ type: 'replace' }"
+            >
+              <span class="iconfont icon-shangchuan delete"></span>
+              {{ $t('knowledge.uploadNew') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -1444,7 +1451,7 @@ export default {
         this.previewObj = item;
         this.musicVisible = true;
       }
-      visitFiles({ classId: this.showType, userid: this.userInfo.id, id });
+      visitFiles({ classId: this.showType, userId: this.userInfo.id, id });
     },
     async listFiles(params, changeType) {
       console.log(this.relateDataComp.value);
@@ -1693,6 +1700,10 @@ export default {
           // this.isSelectdEdit = false;
         }
       }
+      if (type === 'replace') {
+        console.log(1231);
+        this.replaceNewClick();
+      }
     },
     async handleCollect() {
       // 收藏
@@ -1704,7 +1715,7 @@ export default {
       });
       const params = {
         classId: this.showType,
-        userid: this.userInfo.id,
+        userId: this.userInfo.id,
         ids: idArr.join(','),
       };
       try {

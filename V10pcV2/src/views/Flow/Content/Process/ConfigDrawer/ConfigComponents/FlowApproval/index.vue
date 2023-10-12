@@ -13,14 +13,20 @@
         <div class="form-item-label">添加审批人</div>
         <div class="form-item-content">
           <SelectUsers
-            :nodeList="nodeList"
-            v-bind="$attrs"
-            nodeType="approverObj"
-            :params="params"
-            :flowData="flowData"
-            :approverObj="sourceType"
-            @select-flow-approval="appendUsers"
+              :nodeList="nodeList"
+              v-bind="$attrs"
+              nodeType="approverObj"
+              :params="params"
+              :flowData="flowData"
+              :approverObj="sourceType"
+              @select-flow-approval="appendUsers"
           ></SelectUsers>
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="form-item-label">抄送人设置</div>
+        <div class="form-item-content">
+          <CCUsers :value="ccList" @select-flow-approval="selectCC"/>
         </div>
       </div>
       <div class="form-item">
@@ -28,18 +34,21 @@
         <div class="form-item-content">
           <el-checkbox-group v-model="checkList">
             <el-checkbox key="allowReferral" label="allowReferral"
-              >允许审批人转审</el-checkbox
+            >允许审批人转审
+            </el-checkbox
             >
-            <br />
+            <br/>
             <el-checkbox key="allowAddCheck" label="allowAddCheck"
-              >允许审批人加签</el-checkbox
+            >允许审批人加签
+            </el-checkbox
             >
-            <br />
+            <br/>
             <el-checkbox key="allowRejectTo" label="allowRejectTo"
-              >否决后，允许退回</el-checkbox
+            >驳回后，允许退回指定节点
+            </el-checkbox
             >
-            <br />
-            <br />
+            <br/>
+            <br/>
           </el-checkbox-group>
           <div class="select-field" v-if="checkList.includes('allowRejectTo')">
             <div class="form-item-label">设置允许驳回节点</div>
@@ -77,135 +86,155 @@
             <div class="form-item-label">处理完成后</div>
             <div>
               <apiot-select
-                v-model="afterProcess"
-                filterable
-                placeholder="请选择节点"
+                  v-model="afterProcess"
+                  filterable
+                  placeholder="请选择节点"
               >
                 <el-option
-                  label="直接返回审批节点"
-                  value="returnHere"
+                    label="直接返回审批节点"
+                    value="returnHere"
                 ></el-option>
                 <el-option label="重新执行流程" value="returnRun"></el-option>
               </apiot-select>
             </div>
-            <div class="memo">允许退回的节点<span>无可退回节点</span></div>
+<!--            <div class="memo">允许退回的节点<span>无可退回节点</span></div>-->
           </div>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">多人审批方式</div>
-        <div class="form-item-content">
-          <apiot-select v-model="multiPersonApproval">
-            <el-option
-              v-for="item in options"
-              :value="item.value"
-              :key="item.value"
-              :label="item.name"
-            ></el-option>
-          </apiot-select>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">审批有效天数(天)</div>
-        <div class="form-item-content">
-          <el-input-number
-            style="width: 100%; text-align: left"
-            v-model="effectiveApprovalDays"
-            :controls="false"
-          >
-          </el-input-number>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">抄送人设置</div>
-        <div class="form-item-content">
-          <CCUsers :value="ccList" @select-flow-approval="selectCC" />
         </div>
       </div>
 
-      <div class="form-item">
-        <div class="form-item-label">审批详情界面</div>
-        <div class="form-item-content">
-          <div>
-            <div style="margin-bottom: 10px;">
-              <apiot-button class="list-btn" @click="pageSet('pc', 'panel')">
-                <i class="icon-shezhi iconfont"></i>
-                PC端审批界面配置
-              </apiot-button>
-            </div>
-            <div>
-              <apiot-button class="list-btn" @click="pageSet('app', 'panel')">
-                <i class="icon-shezhi iconfont"></i>
-                APP端审批界面配置
-              </apiot-button>
+      <el-collapse>
+        <el-collapse-item title="高级设置" name="1">
+          <div class="form-item">
+            <div class="form-item-label">多人审批方式</div>
+            <div class="form-item-content">
+              <apiot-select v-model="multiPersonApproval">
+                <el-option
+                    v-for="item in options"
+                    :value="item.value"
+                    :key="item.value"
+                    :label="item.name"
+                ></el-option>
+              </apiot-select>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="form-item">
-        <div class="form-item-label">审批通过驳回界面</div>
-        <div class="form-item-content">
-          <div>
-            <div style="margin-bottom: 10px;">
-              <apiot-button class="list-btn" @click="pageSet('pc', 'agree')">
-                <i class="icon-shezhi iconfont"></i>
-                PC端审批通过界面配置
-              </apiot-button>
-            </div>
-            <div>
-              <apiot-button class="list-btn" @click="pageSet('app', 'agree')">
-                <i class="icon-shezhi iconfont"></i>
-                APP端审批通过界面配置
-              </apiot-button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!--      <div class="form-item">-->
-      <!--        <div class="form-item-label">通过按钮属性</div>-->
-      <!--        <div class="form-item-content">-->
-      <!--          <apiot-input v-model="buttonAttributes.passText"></apiot-input>-->
-      <!--        </div>-->
-      <!--      </div>-->
-      <!--      <div class="form-item">-->
-      <!--        <div class="form-item-label">驳回按钮属性</div>-->
-      <!--        <div class="form-item-content">-->
-      <!--          <apiot-input v-model="buttonAttributes.rejectText"></apiot-input>-->
-      <!--        </div>-->
-      <!--      </div>-->
-      <div class="form-item">
-        <div class="form-item-content">
-          <div class="item-content-box">
-            <div class="box-left">驳回理由是否必填</div>
-            <div class="box-right">
-              <el-switch
-                v-model="buttonAttributes.reasonForRejectionRequired"
-                active-color="#4689F5"
-                inactive-color="#E0E0E0"
+          <div class="form-item">
+            <div class="form-item-label">审批有效天数(天)</div>
+            <div class="form-item-content">
+              <el-input-number
+                  style="width: 100%; text-align: left"
+                  v-model="effectiveApprovalDays"
+                  :controls="false"
               >
-              </el-switch>
+              </el-input-number>
             </div>
           </div>
-        </div>
-      </div>
-      <MessageTemplate
-          @change="changeMessageTemplate"
-          :value="{ id: msgConf.templateId }"
-      />
+
+          <div class="form-item">
+            <div class="form-item-label">审批详情界面</div>
+            <div class="form-item-content">
+              <div>
+                <div style="margin-bottom: 10px;">
+                  <apiot-button class="list-btn" @click="pageSet('pc', 'panel')">
+                    <i class="icon-shezhi iconfont"></i>
+                    PC端界面配置
+                  </apiot-button>
+                </div>
+                <div>
+                  <apiot-button class="list-btn" @click="pageSet('app', 'panel')">
+                    <i class="icon-shezhi iconfont"></i>
+                    APP端界面配置
+                  </apiot-button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-item">
+            <div class="form-item-label">审批通过界面</div>
+            <div class="form-item-content">
+              <div>
+                <div style="margin-bottom: 10px;">
+                  <apiot-button class="list-btn" @click="pageSet('pc', 'agree')">
+                    <i class="icon-shezhi iconfont"></i>
+                    PC端通过界面配置
+                  </apiot-button>
+                </div>
+                <div>
+                  <apiot-button class="list-btn" @click="pageSet('app', 'agree')">
+                    <i class="icon-shezhi iconfont"></i>
+                    APP端通过界面配置
+                  </apiot-button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--      <div class="form-item">-->
+          <!--        <div class="form-item-label">通过按钮属性</div>-->
+          <!--        <div class="form-item-content">-->
+          <!--          <apiot-input v-model="buttonAttributes.passText"></apiot-input>-->
+          <!--        </div>-->
+          <!--      </div>-->
+          <!--      <div class="form-item">-->
+          <!--        <div class="form-item-label">驳回按钮属性</div>-->
+          <!--        <div class="form-item-content">-->
+          <!--          <apiot-input v-model="buttonAttributes.rejectText"></apiot-input>-->
+          <!--        </div>-->
+          <!--      </div>-->
+          <div class="form-item">
+            <div class="form-item-label">审批事件设置</div>
+            <div class="form-item-content">
+              <div>
+                <div style="margin-bottom: 10px;">
+                  <apiot-button class="list-btn" @click="eventVisible=true">
+                    <i class="icon-shezhi iconfont"></i>
+                    设置事件
+                  </apiot-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-item">
+            <div class="form-item-content">
+              <div class="item-content-box">
+                <div class="box-left">驳回理由是否必填</div>
+                <div class="box-right">
+                  <el-switch
+                      v-model="buttonAttributes.reasonForRejectionRequired"
+                      active-color="#4689F5"
+                      inactive-color="#E0E0E0"
+                  >
+                  </el-switch>
+                </div>
+              </div>
+            </div>
+          </div>
+          <MessageTemplate
+              @change="changeMessageTemplate"
+              :value="{ id: msgConf.templateId }"
+          />
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <ApprovalPanelConfig
-      :configVisible.sync="configVisible"
-      ref="approvalPanelConfig"
-      :title="title"
-      :checkType="checkType"
-      :isNeedPassAndRejectBtn="isNeedPassAndRejectBtn"
-      :appCheckFormConfigJSON="appCheckFormConfigJSON"
-      :checkFormConfigJSON="checkFormConfigJSON"
-      :appCheckAgreeFormConfig="appCheckAgreeFormConfig"
-      :checkAgreeFormConfig="checkAgreeFormConfig"
-      @handleOk="handleOk"
-      @handleCancel="handleCancel"
+        :configVisible.sync="configVisible"
+        ref="approvalPanelConfig"
+        :title="title"
+        :checkType="checkType"
+        :isNeedPassAndRejectBtn="isNeedPassAndRejectBtn"
+        :appCheckFormConfigJSON="appCheckFormConfigJSON"
+        :checkFormConfigJSON="checkFormConfigJSON"
+        :appCheckAgreeFormConfig="appCheckAgreeFormConfig"
+        :checkAgreeFormConfig="checkAgreeFormConfig"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
     />
+    <EventConfigCom
+        @submitChange="changeConfig"
+        :visible.sync="eventVisible"
+        :value="eventConfig"
+        :rejectNodeList="getRejectNode"
+        :tabArr="tabArr"
+        :currentVersion="currentVersion"/>
   </div>
 </template>
 
@@ -215,6 +244,7 @@ import { approvalType } from '@/config/index';
 import ApprovalPanelConfig from '../ApprovalPanelConfig/index';
 import MessageTemplate from '../MessageTemplateSetting';
 import CCUsers from './CCUsers';
+import EventConfigCom from './EventConfig/index';
 import SelectUsers from './SelectUsers';
 // import FilterableInput from '../FilterableInput';
 
@@ -238,11 +268,48 @@ export default {
     nodeInfo: {
       // 节点流程配置信息
       type: Object,
-      default: () => {}
+      default: () => {
+      }
     }
   },
   data() {
     return {
+      tabArr: [
+        {
+          key: '1',
+          eventType: 'AGREE',
+          com: 'CommonConfig',
+          name: '同意'
+        }, {
+          key: '2',
+          eventType: 'REVOKE',
+          com: 'CommonConfig',
+          name: '撤回'
+        }, {
+          key: '3',
+          eventType: 'REJECT',
+          com: 'RejectConfig',
+          name: '驳回'
+        }, {
+          key: '4',
+          eventType: 'REFERRAL',
+          com: 'CommonConfig',
+          name: '转审'
+        }, {
+          key: '5',
+          eventType: 'ENDORSEMENT',
+          com: 'CommonConfig',
+          name: '加签'
+        },
+        // {
+        //   key: '6',
+        //   eventType: 'SUBMIT',
+        //   com: 'CommonConfig',
+        //   name: '提交'
+        // }
+      ],
+      eventConfig: {},
+      eventVisible: false, // 事件设置弹框
       nodeList: [],
       title: '',
       isNeedPassAndRejectBtn: true,
@@ -282,7 +349,7 @@ export default {
         allowNodeIds: []
       },
       multiPersonApproval: 'ONE_PASS_OR_REJECT',
-      afterProcess: '',
+      afterProcess: 'returnRun',
       checkList: [], //
       sourceType: {
         // 审批人集合
@@ -299,15 +366,23 @@ export default {
   },
 
   components: {
+    EventConfigCom,
     SelectUsers,
     CCUsers,
     ApprovalPanelConfig,
     MessageTemplate
   },
 
-  computed: {},
+  computed: {
+    getRejectNode() {
+      const { allowNodeIds = [] } = this.rejectNodeConf;
+      if (!allowNodeIds.length) return this.nodeList;
+      return this.nodeList.filter((item) => allowNodeIds.includes(item.id));
+    }
+  },
 
-  mounted() {},
+  mounted() {
+  },
   watch: {
     nodeInfo: {
       immediate: true,
@@ -331,14 +406,45 @@ export default {
   },
 
   methods: {
+    changeConfig(c) {
+      this.eventConfig = c;
+    },
     changeMessageTemplate(res = {}) {
       this.msgConf = {
         templateId: res.id || ''
       };
     },
+    setEventConfig() {
+      const obj = this.nodeInfo.eventConfig || {};
+      const arr = Object.keys(obj);
+      for (let i = 0; i < arr.length; i += 1) {
+        const item = arr[i];
+        const target = obj[item];
+        if (['SUBMIT', 'AGREE', 'REVOKE', 'REFERRAL', 'ENDORSEMENT'].includes(item)) {
+          target.nodeEvents.forEach((node) => {
+            const { nodeAttributes } = node;
+            node.attribute = JSON.parse(nodeAttributes);
+          });
+        }
+        if (item === 'REJECT' && JSON.stringify(target) !== '{}') {
+          const { rejectEvents } = target;
+          const jArr = Object.keys(rejectEvents);
+          for (let j = 0; j < jArr.length; j += 1) {
+            const currentKey = jArr[j];
+            const current = rejectEvents[currentKey] || [];
+            current.forEach((currentNode) => {
+              const { nodeAttributes: cAttribute } = currentNode;
+              currentNode.attribute = JSON.parse(cAttribute);
+            });
+          }
+        }
+      }
+      this.eventConfig = obj;
+    },
     async init() {
       if (this.nodeInfo && JSON.stringify(this.nodeInfo) !== '{}') {
         this.sourceType = this.nodeInfo.checkUsers;
+        this.setEventConfig(this.nodeInfo.eventConfig);
         if (this.nodeInfo.allowAddCheck) {
           this.checkList.push('allowAddCheck');
         }
@@ -375,20 +481,20 @@ export default {
         this.afterProcess = rejectConfig;
         // eslint-disable-next-line max-len
         this.checkFormConfigJSONOrigin = checkFormConfig
-          ? JSON.parse(JSON.stringify(checkFormConfig))
-          : [];
+            ? JSON.parse(JSON.stringify(checkFormConfig))
+            : [];
         // eslint-disable-next-line max-len
         this.checkFormConfigJSON = checkFormConfig
-          ? JSON.parse(JSON.stringify(checkFormConfig))
-          : [];
+            ? JSON.parse(JSON.stringify(checkFormConfig))
+            : [];
         // eslint-disable-next-line max-len
         this.appCheckFormConfigJSONOrigin = appCheckFormConfig
-          ? JSON.parse(JSON.stringify(appCheckFormConfig))
-          : [];
+            ? JSON.parse(JSON.stringify(appCheckFormConfig))
+            : [];
         // eslint-disable-next-line max-len
         this.appCheckFormConfigJSON = appCheckFormConfig
-          ? JSON.parse(JSON.stringify(appCheckFormConfig))
-          : [];
+            ? JSON.parse(JSON.stringify(appCheckFormConfig))
+            : [];
         this.appCheckAgreeFormConfig = JSON.parse(JSON.stringify(appCheckAgreeFormConfig));
         this.appCheckAgreeFormConfigOrigin = appCheckAgreeFormConfig;
         this.checkAgreeFormConfig = JSON.parse(JSON.stringify(checkAgreeFormConfig));
@@ -409,7 +515,7 @@ export default {
           rejectText: '驳回', // 驳回按钮属性
           reasonForRejectionRequired: true //  驳回理由是否必填
         };
-        this.afterProcess = '';
+        this.afterProcess = 'returnRun';
         this.checkFormConfigJSONOrigin = [];
         this.checkFormConfigJSON = [];
         this.appCheckFormConfigJSONOrigin = [];
@@ -475,7 +581,12 @@ export default {
       };
       this.title = config[`${key}${key2}`];
       const {
-        globalAttributes: { pcPanelId, appPanelId, appPanelName, pcPanelName }
+        globalAttributes: {
+          pcPanelId,
+          appPanelId,
+          appPanelName,
+          pcPanelName
+        }
       } = this.currentVersion;
       if (key === 'app' && !appPanelId) {
         this.$message.warning('请在全局属性中配置app面板!');
@@ -500,7 +611,10 @@ export default {
     selectCC(list) {
       this.ccList = list;
     },
-    appendUsers({ value, key }) {
+    appendUsers({
+                  value,
+                  key
+                }) {
       this.sourceType[key] = value;
     }
   },
@@ -640,6 +754,7 @@ export default {
               color: #333333;
             }
           }
+
           .el-input-number .el-input__inner {
             text-align: left;
           }
@@ -647,7 +762,23 @@ export default {
       }
     }
   }
+
   ::v-deep {
+    .el-collapse {
+      border-top: none;
+    }
+
+    .el-collapse-item__wrap {
+      border-bottom: none;
+    }
+    .el-collapse-item__header {
+      font-size: 14px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 600;
+      color: #333333;
+      border-bottom: none;
+    }
+
     .el-dialog__header {
       text-align: left;
     }

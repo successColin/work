@@ -149,12 +149,12 @@ export default {
   props: {
     drawer: {
       type: Boolean,
-      default: false
+      default: false,
     },
     curDrawerType: {
       type: Number,
-      default: 1
-    }
+      default: 1,
+    },
   },
   data() {
     return {
@@ -165,31 +165,31 @@ export default {
         leaders: [],
         validTime: '',
         expirationType: 1,
-        renewalDays: 30
+        renewalDays: 30,
       },
       leaderKeywords: '', // 人员搜索关键字
       userDialogVisible: false, // 人员选择弹窗显隐
       isOnComposition: false,
       showLeadRequired: false,
       isChecked: false,
-      leaderList: []
+      leaderList: [],
     };
   },
 
   components: {
     userDialog,
-    userAvatar
+    userAvatar,
   },
 
   computed: {
     drawerTitle() {
       return this.$t('passwordValid.set', {
-        name: this.$t('passwordValid.userPasswordValid')
+        name: this.$t('passwordValid.userPasswordValid'),
       });
     },
     rules() {
       return {};
-    }
+    },
   },
 
   mounted() {},
@@ -203,10 +203,10 @@ export default {
       if (this.curDrawerType === 1) {
         if (obj.length) {
           obj.forEach((item) => {
-            this.formData.leaderId += `${item.userid},`;
+            this.formData.leaderId += `${item.userId},`;
             this.formData.leaders.push({
-              id: item.userid,
-              username: item.username
+              id: item.userId,
+              username: item.username,
             });
           });
         }
@@ -214,10 +214,10 @@ export default {
         this.formData.renewalDays = 30;
       } else {
         console.log(obj);
-        this.formData.leaderId += `${obj.userid},`;
+        this.formData.leaderId += `${obj.userId},`;
         this.formData.leaders.push({
-          id: obj.userid,
-          username: obj.username
+          id: obj.userId,
+          username: obj.username,
         });
         this.formData.expirationType = obj.validType;
         this.formData.renewalDays = obj.renewDay;
@@ -249,10 +249,11 @@ export default {
     },
     // 删除管理人员
     deleteLeader(item) {
-      const newData = this.formData.leaders.filter((obj) => obj.id !== item.id) || [];
+      const newData =
+        this.formData.leaders.filter((obj) => obj.id !== item.id) || [];
       this.formData = {
         ...this.formData,
-        leaders: newData
+        leaders: newData,
       };
       let ids = '';
       this.formData.leaders.forEach((obj) => {
@@ -283,9 +284,9 @@ export default {
         orders: [
           {
             asc: true,
-            column: ''
-          }
-        ]
+            column: '',
+          },
+        ],
       };
       if (this.isChecked) return;
       getUserPage(params).then((res) => {
@@ -299,13 +300,16 @@ export default {
     // 选中管理人员
     selectLeader(item) {
       const data = this.formData.leaders || [];
-      const arr = data.length > 0 ? data.filter((obj) => String(obj.id) === String(item.id)) : [];
+      const arr =
+        data.length > 0
+          ? data.filter((obj) => String(obj.id) === String(item.id))
+          : [];
       if (arr.length === 0) {
         data.push(item);
       }
       this.formData = {
         ...this.formData,
-        leaders: data
+        leaders: data,
       };
       const ids = this.formData.leaderId ? this.formData.leaderId : '';
       this.formData.leaderId = `${ids}${item.id},`;
@@ -341,9 +345,9 @@ export default {
       try {
         const params = {
           renewDay: this.formData.renewalDays,
-          userids: this.formData.leaderId,
+          userIds: this.formData.leaderId,
           validTime: this.formData.validTime,
-          validType: this.formData.expirationType
+          validType: this.formData.expirationType,
         };
         const data = await modifySysUserValid(params);
         this.showLoading = false;
@@ -351,7 +355,7 @@ export default {
         this.$emit('refreshPage');
         this.$message({
           type: 'success',
-          message: '保存成功'
+          message: '保存成功',
         });
         console.log(data);
       } catch (error) {
@@ -364,9 +368,9 @@ export default {
         leaders: [],
         validTime: '',
         expirationType: 1,
-        renewalDays: 30
+        renewalDays: 30,
       };
-    }
+    },
   },
 
   watch: {
@@ -375,16 +379,16 @@ export default {
         if (this.curDrawerType === 1) {
           this.formData.validTime = formatDate(
             new Date(new Date().getTime() + 3600 * 1000 * 24 * 30),
-            'yyyy-MM-dd hh:mm:ss'
+            'yyyy-MM-dd hh:mm:ss',
           );
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .manage-item {
   width: 100%;
   line-height: 32px;

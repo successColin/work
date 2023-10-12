@@ -300,7 +300,6 @@
 <script>
 import axios from 'axios';
 // import mugenScroll from 'vue-mugen-scroll';
-import { Decrypt, getBlob, saveAs } from '_u/utils';
 import ajax from '@/api/axiosConfig';
 import {
   addFolder,
@@ -326,18 +325,19 @@ import {
   visitFiles,
 } from '@/api/knowledge';
 import query from '@/api/query';
-import audioFiile from '@/assets/img/audioFile.svg';
 import doc from '@/assets/img/DOC.svg';
-import elseFile from '@/assets/img/else.svg';
-import filesSvg from '@/assets/img/files.svg';
-import imageFile from '@/assets/img/imageFile.svg';
 import pdf from '@/assets/img/PDF.svg';
 import ppt from '@/assets/img/PPT.svg';
 import txt from '@/assets/img/TXT.svg';
-import vedio from '@/assets/img/vedio.svg';
 import xls from '@/assets/img/XLS.svg';
+import audioFiile from '@/assets/img/audioFile.svg';
+import elseFile from '@/assets/img/else.svg';
+import filesSvg from '@/assets/img/files.svg';
+import imageFile from '@/assets/img/imageFile.svg';
+import vedio from '@/assets/img/vedio.svg';
 import zipFile from '@/assets/img/zipFile.svg';
 import { allowFileType } from '@/config/index';
+import { Decrypt, getBlob, saveAs } from '_u/utils';
 import FilePath from './FilePath';
 
 const BlockContent = () => import('./BlockContent/index');
@@ -905,7 +905,7 @@ export default {
         const params = {
           classId: this.showType,
           keywords: this.keyWord,
-          userid: this.userInfo.id,
+          userId: this.userInfo.id,
         };
         this.initKonwledge(params, 'change');
         return;
@@ -915,7 +915,7 @@ export default {
         const params = {
           classId: this.showType,
           keywords: this.keyWord,
-          userid: this.userInfo.id,
+          userId: this.userInfo.id,
         };
         this.list = {};
         this.initKonwledge(params, isNeedChange);
@@ -1181,7 +1181,7 @@ export default {
       if (this.groupType === 9) {
         params = {
           ...params,
-          userid: this.userInfo.id,
+          userId: this.userInfo.id,
         };
       } else {
         params = {
@@ -1272,7 +1272,7 @@ export default {
           params = {
             classId: this.showType,
             keywords: this.keyWord,
-            userid: this.userInfo.id,
+            userId: this.userInfo.id,
           };
         }
       } else {
@@ -1374,7 +1374,7 @@ export default {
         this.previewObj = item;
         this.musicVisible = true;
       }
-      visitFiles({ classId: this.showType, userid: this.userInfo.id, id });
+      visitFiles({ classId: this.showType, userId: this.userInfo.id, id });
     },
     async initKonwledge(params, isNeedChange) {
       console.log(this.groupType, '类型');
@@ -1413,7 +1413,7 @@ export default {
             data = {
               classId: this.showType,
               keywords: this.keyWord,
-              userid: this.userInfo.id,
+              userId: this.userInfo.id,
               ...params,
             };
           } else {
@@ -1429,7 +1429,7 @@ export default {
           data = {
             classId: this.showType,
             keywords: this.keyWord,
-            userid: this.userInfo.id,
+            userId: this.userInfo.id,
           };
         } else if (this.groupType === 7 || this.groupType === 8) {
           const pid = this.pathArr[this.pathArr.length - 1].id;
@@ -1437,7 +1437,7 @@ export default {
             data = {
               classId: this.showType,
               keywords: this.keyWord,
-              userid: this.userInfo.id,
+              userId: this.userInfo.id,
             };
           } else {
             data = {
@@ -1648,7 +1648,7 @@ export default {
       });
       const params = {
         classId: this.showType,
-        userid: this.userInfo.id,
+        userId: this.userInfo.id,
         ids: idArr.join(','),
       };
       try {
@@ -1684,21 +1684,21 @@ export default {
         return;
       }
       const idArr = this.selectKeys.map((item) => item.sysKlTree.id);
-      const useridsArr = userList.map((item) => item.id);
+      const userIdsArr = userList.map((item) => item.id);
       let params = {};
       const isTrue = JSON.stringify(this.checkeduser) !== '{}';
       const data = {
         classId: this.showType,
         ownid: this.userInfo.id,
         shareType: 1,
-        userids: useridsArr.join(','),
+        userIds: userIdsArr.join(','),
       };
       if (isTrue) {
         // 设置分享人
         params = {
           id: this.checkeduser.row.id || this.checkeduser.row.sysKlTree.id,
-          userid: this.userInfo.id,
-          beSharedIds: useridsArr.join(','),
+          userId: this.userInfo.id,
+          beSharedIds: userIdsArr.join(','),
         };
       } else if (
         JSON.stringify(this.previewObj) === '{}' &&
@@ -1848,13 +1848,13 @@ export default {
         const idArr = this.selectKeys.map((item) => item.sysKlTree.id);
         await unCollect({
           classId: this.showType,
-          userid: this.userInfo.id,
+          userId: this.userInfo.id,
           ids: idArr.join(','),
         });
         await this.initKonwledge({
           classId: this.showType,
           keywords: this.keyWord,
-          userid: this.userInfo.id,
+          userId: this.userInfo.id,
         });
         this.selectKeys = [];
       } catch (err) {

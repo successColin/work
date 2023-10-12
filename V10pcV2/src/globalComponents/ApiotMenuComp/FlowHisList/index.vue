@@ -29,14 +29,14 @@
               <div
                 class="user"
                 v-for="user in item.handUsers"
-                :key="user.handuserid"
+                :key="user.handUserId"
                 :style="`${
                   item.taskType !== 1
                     ? `background: ${getStatus(user).bgColor}`
                     : null
                 }`"
               >
-                <Users :row="user" userid="handuserid" prop="handUserName" />
+                <Users :row="user" userId="handUserId" prop="handUserName" />
                 <el-tooltip
                   class="item"
                   effect="dark"
@@ -62,7 +62,7 @@
           <el-card
             shadow="never"
             v-for="user in item.handUsers"
-            :key="user.handuserid"
+            :key="user.handUserId"
           >
             <div class="userWrap">
               <div
@@ -73,7 +73,7 @@
                     : null
                 "
               >
-                <Users :row="user" userid="handuserid" prop="handUserName" />
+                <Users :row="user" userId="handUserId" prop="handUserName" />
                 <el-tooltip
                   class="item"
                   effect="dark"
@@ -107,8 +107,8 @@
               <Users
                 v-for="per in getCountersign(user, 3)"
                 :row="per"
-                :key="per.handuserid"
-                userid="handuserid"
+                :key="per.handUserId"
+                userId="handUserId"
                 prop="handUserName"
               />
               <span> 加签</span>
@@ -118,8 +118,8 @@
               <Users
                 v-for="per in getCountersign(user, 2)"
                 :row="per"
-                :key="per.handuserid"
-                userid="handuserid"
+                :key="per.handUserId"
+                userId="handUserId"
                 prop="handUserName"
               />
               <span>转审</span>
@@ -222,8 +222,8 @@ export default {
       return function (params = []) {
         const arr = [];
         params.forEach((item) => {
-          const { handuserid } = item;
-          const i = arr.findIndex((a) => a.handuserid === handuserid);
+          const { handUserId } = item;
+          const i = arr.findIndex((a) => a.handUserId === handUserId);
           if (i === -1) {
             arr.push(item);
             if (

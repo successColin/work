@@ -459,7 +459,7 @@ export default {
         // const api = type === 'pass' ? resetPassword : updateUserState;
         const api = resetPassword;
         // console.log(api);
-        await api({ userid: this.formData.id });
+        await api({ userId: this.formData.id });
         this.$message({
           type: 'success',
           message: '操作成功！',
@@ -644,7 +644,7 @@ export default {
       selectKeys.forEach((item) => {
         list.push({
           menuId: functionObj.menuId,
-          userid: id,
+          userId: id,
           typeDict: value,
           orgId: item.id,
         });
@@ -662,7 +662,7 @@ export default {
       })}`;
       // console.log(authList, selectModuleIndex, com, selectKey);
       const params = {
-        userid: id,
+        userId: id,
         list,
         logData: msg1,
       };

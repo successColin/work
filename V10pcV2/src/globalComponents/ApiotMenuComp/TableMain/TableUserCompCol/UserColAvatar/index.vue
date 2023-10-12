@@ -17,7 +17,7 @@ const userAvatar = () => import('_v/orgManage/components/userAvatar/index');
 export default {
   name: '',
   props: {
-    userids: {
+    userIds: {
       type: String,
       default: '',
     },
@@ -54,7 +54,7 @@ export default {
     },
   },
   watch: {
-    userids: {
+    userIds: {
       handler(v) {
         if (v) {
           this.initData(v);
@@ -74,5 +74,12 @@ export default {
 .cardUser__person--tag {
   display: inline-block;
   height: 24px;
+  ::v-deep {
+    .avatar {
+      background: #f1f3f6;
+      border-radius: 12px;
+      padding-right: 6px;
+    }
+  }
 }
 </style>

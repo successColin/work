@@ -148,7 +148,7 @@
               <div class="userTitle">发起人</div>
               <Users
                   :row="item"
-                  :userid="String(item.createuserid)"
+                  :userId="String(item.createUserId)"
                   prop="triggerUserName"
               ></Users>
             </div>
@@ -195,6 +195,7 @@
       </div>
     </apiot-dialog>
     <Approve
+        @closeModel="closeModel"
         class="ApproveBox"
         :showTabs.sync="visible"
         :com="com"
@@ -435,25 +436,13 @@ export default {
   },
 
   mounted() {
-    this.$bus.$on('switching_process_types', (message) => {
-      this.com = message;
-      this.current = 1;
-      this.highFilter = [];
-      this.init(this.selectValue);
-    });
-    this.$nextTick(() => {
-      const eventName = 'flow_End_of_operation';
-      this.$bus.$off(eventName)
-          .$on(eventName, () => {
-            this.visible = false;
-            this.init(this.selectValue);
-          });
-    });
+    // const eventName = 'flow_End_of_operation';
+    // this.$bus.$on(eventName, () => {
+    //       console.log('flow_End_of_operation');
+    //     });
   },
   beforeDestroy() {
-    this.$bus.$off('switching_process_types');
-    const eventName = 'flow_End_of_operation';
-    this.$bus.$off(eventName);
+    // this.$bus.$off();
   },
   created() {
     this.changeCascader = debounce(this.dchangeCascader, 200);
@@ -467,6 +456,17 @@ export default {
   },
 
   methods: {
+    closeModel() {
+      this.visible = false;
+      this.init(this.selectValue);
+      this.$emit('flow_End_of_operation');
+    },
+    setComAndChange(com) {
+      this.com = com;
+      this.current = 1;
+      this.highFilter = [];
+      this.init(this.selectValue);
+    },
     dchangeCascader() {
       this.highFilter = [];
       this.current = 1;
@@ -507,7 +507,7 @@ export default {
       this.loading = true;
       const api = this.operationType === 1 ? batchApproval : batchReject;
       const params = {
-        ccuserids: this.ccList.map((item) => item.id)
+        ccUserIds: this.ccList.map((item) => item.id)
             .join(','),
         memo: this.info.memo || '',
         taskIds: this.approvalArr.join(',')

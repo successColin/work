@@ -93,7 +93,7 @@
               <user-avatar
                 keyName="userName"
                 :label="$t('knowledge.name')"
-                userid="userid"
+                userId="userId"
               ></user-avatar>
               <el-table-column
                 prop="selectAllow"
@@ -173,19 +173,20 @@ import { getUserList, upadteKnowledge } from '@/api/knowledge';
 
 const userAvatar = () => import('@/views/Users/Main/UserColumn/index');
 const RoleTree = () => import('@/views/Users/Left/RoleList/roleTree');
-const PositionTree = () => import('@/views/Users/Left/PositionTree/positionTree');
+const PositionTree = () =>
+  import('@/views/Users/Left/PositionTree/positionTree');
 const OrgTree = () => import('@/views/Users/Left/OrgTree/orgTree');
 export default {
   inheritAttrs: false,
   props: {
     showTabs: {
       type: Boolean,
-      default: false
+      default: false,
     },
     selectedKeys: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -199,7 +200,7 @@ export default {
       isSearch: false, // 标识是否是角色查询
       input: '',
       tableData: [],
-      selectTreeNode: {} // 左侧选中的数据
+      selectTreeNode: {}, // 左侧选中的数据
     };
   },
 
@@ -207,7 +208,7 @@ export default {
     OrgTree,
     RoleTree,
     PositionTree,
-    userAvatar
+    userAvatar,
   },
 
   computed: {
@@ -215,14 +216,16 @@ export default {
       return function (obj) {
         return !!obj.deleteAllow && !!obj.editAllow && !!obj.selectAllow;
       };
-    }
+    },
   },
 
   mounted() {
-    this.$bus.$off('selectTreeNode_knowledge').$on('selectTreeNode_knowledge', (message) => {
-      // console.log(message, 'selectTreeNode');
-      this.selectTreeNode = message;
-    });
+    this.$bus
+      .$off('selectTreeNode_knowledge')
+      .$on('selectTreeNode_knowledge', (message) => {
+        // console.log(message, 'selectTreeNode');
+        this.selectTreeNode = message;
+      });
   },
   watch: {
     selectTreeNode: {
@@ -234,8 +237,8 @@ export default {
           this.shouldResetAll = true;
           this.fetchUsers(newValue, 'do');
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     getParams() {
@@ -245,26 +248,28 @@ export default {
         size: this.size,
         fileId: this.selectedKeys[0].sysKlTree.id,
         keywords: this.keyWord,
-        groupById: this.selectTreeNode.id
+        groupById: this.selectTreeNode.id,
       };
       let params = {};
       if (this.activeName === 'org') {
         params = {
           ...commonParams,
-          groupByType: 1
+          groupByType: 1,
         };
       }
       if (this.activeName === 'role') {
-        if (Object.prototype.hasOwnProperty.call(this.selectTreeNode, 'roleName')) {
+        if (
+          Object.prototype.hasOwnProperty.call(this.selectTreeNode, 'roleName')
+        ) {
           params = {
             ...commonParams,
-            groupByType: 2
+            groupByType: 2,
           };
         } else {
           params = {
             ...commonParams,
             groupByType: 2,
-            roleGroupId: this.selectTreeNode.id
+            roleGroupId: this.selectTreeNode.id,
           };
           delete params.groupById;
         }
@@ -272,7 +277,7 @@ export default {
       if (this.activeName === 'pos') {
         params = {
           ...commonParams,
-          groupByType: 3
+          groupByType: 3,
         };
       }
       return params;
@@ -302,9 +307,9 @@ export default {
       // console.log(e, row);
       const params = {
         fileId: this.selectedKeys[0].sysKlTree.id,
-        userids: row.userid,
+        userIds: row.userId,
         powers: type === 4 ? '1,2,3' : type,
-        type: e ? 1 : 2
+        type: e ? 1 : 2,
       };
       this.doAuthUpdadte(params);
     },
@@ -324,29 +329,31 @@ export default {
         h('el-checkbox', {
           style: 'margin-right:5px;',
           on: {
-            change: ($event) => this.select($event, column, type)
+            change: ($event) => this.select($event, column, type),
             // 选中事件 $event, column，这里$event=true,column是input的dom当在select里打印的时候
-          }
+          },
         }),
-        h('span', column.label)
+        h('span', column.label),
       ]);
     },
     select(e, column, type) {
       if (!this.tableData.length) return;
       const { property } = column;
-      let useridsArr = [];
+      let userIdsArr = [];
       if (type !== 4) {
-        const updateArr = this.tableData.filter((item) => !item[property] === e);
-        useridsArr = updateArr.map((item) => item.userid);
+        const updateArr = this.tableData.filter(
+          (item) => !item[property] === e,
+        );
+        userIdsArr = updateArr.map((item) => item.userId);
       } else {
-        useridsArr = this.tableData.map((item) => item.userid);
+        userIdsArr = this.tableData.map((item) => item.userId);
       }
-      if (!useridsArr.length) return;
+      if (!userIdsArr.length) return;
       const params = {
         fileId: this.selectedKeys[0].sysKlTree.id,
-        userids: useridsArr.join(','),
+        userIds: userIdsArr.join(','),
         powers: type === 4 ? '1,2,3' : type,
-        type: e ? 1 : 2
+        type: e ? 1 : 2,
       };
       this.doAuthUpdadte(params);
     },
@@ -375,12 +382,12 @@ export default {
     getFileList() {
       this.current = 1;
       this.fetchUsers();
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .tabs {
   position: fixed;
   top: -200px;

@@ -145,6 +145,9 @@ export default {
   display: flex;
   align-items: center;
   ::v-deep {
+    .el-dialog__body{
+      height: calc(100% - 54px - 54px) !important;
+    }
     .el-input-group__append {
       padding: 0;
       width: 30px;

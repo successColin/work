@@ -1,10 +1,5 @@
-/**
-* @name: longTime
-* @author: DELL
-* @date: 2023/8/31 9:53
-* @description：longTime
-* @update: 2023/8/31 9:53
-*/
+/** * @name: longTime * @author: DELL * @date: 2023/8/31 9:53 *
+@description：longTime * @update: 2023/8/31 9:53 */
 <!-- 页面 -->
 <template>
   <apiot-dialog
@@ -16,7 +11,7 @@
     v-on="$listeners"
     v-bind="$attrs"
   >
-    <ExpertManage ref="ExpertManage" :isComponet="true" :key="key"/>
+    <ExpertManage ref="ExpertManage" :isComponet="true" :key="key" />
   </apiot-dialog>
 </template>
 
@@ -27,12 +22,12 @@ import ExpertManage from '@/views/ExpertManage/index.vue';
 export default {
   data() {
     return {
-      key: 0
+      key: 0,
     };
   },
 
   components: {
-    ExpertManage
+    ExpertManage,
   },
 
   computed: {
@@ -41,42 +36,40 @@ export default {
     },
   },
 
-  mounted() {
-  },
+  mounted() {},
 
   methods: {
     handleOk() {
       const { selectKeys } = this.$refs.ExpertManage;
       const arr = selectKeys.reduce((init, pre) => {
-        if (this.userList.some((item) => item.id === pre.userid)) return init;
+        if (this.userList.some((item) => item.id === pre.userId)) return init;
         return init.concat([pre]);
       }, []);
       if (!arr.length) {
         this.$message.error('请选择专家进行邀请');
         return;
       }
-      const ids = arr.map((item) => `${item.userid}`);
+      const ids = arr.map((item) => `${item.userId}`);
       this.$emit('update:visible', false);
       bus.$emit('groupInvite', ids);
       this.key += 1;
     },
     handleCancel() {
       this.key += 1;
-    }
+    },
   },
-  beforeDestroy() {
-  },
+  beforeDestroy() {},
   name: 'expertList',
 };
 </script>
 
-<style lang='scss' scoped>
-.expertWrap{
-  ::v-deep{
-    .el-dialog__body{
+<style lang="scss" scoped>
+.expertWrap {
+  ::v-deep {
+    .el-dialog__body {
       padding: 0 20px;
     }
-    .expert{
+    .expert {
       width: 100%;
       height: 100%;
     }

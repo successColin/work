@@ -187,6 +187,8 @@
               @onTaskDblClick="onTaskDblClick"
               @onScaleClick="onScaleClick"
               @onAfterTaskDrag="onAfterTaskDrag"
+              @onAfterLinkAdd="onAfterLinkAdd"
+              @onAfterLinkDelete="onAfterLinkDelete"
             ></ApiotGantt>
           </div>
           <!-- 骨架屏 -->
@@ -234,7 +236,12 @@
 </template>
 
 <script>
-import { ganttPage, ganttList, updateGanttTime } from '@/api/menuConfig';
+import {
+  ganttPage,
+  ganttList,
+  updateGanttTime,
+  updateGanttTreeInfo,
+} from '@/api/menuConfig';
 import { downloadSingle } from '@/api/knowledge';
 import { createUnique, formatDate } from '@/utils/utils';
 import initAreaMixin from '../initAreaMixin';
@@ -270,6 +277,7 @@ export default {
       fileDeleteIds: [],
       isMenuMain: true,
       tableData: { data: [] },
+      allTableData: { data: [] },
       current: 1,
       backCurrent: 1,
       total: 0,
@@ -505,6 +513,59 @@ export default {
   },
 
   methods: {
+    // 获取搜索后的数据
+    getTableData() {
+      let resObj = this.allTableData;
+      if (this.configData.isTreeGantt) {
+        if (this.configData.searchInfo) {
+          const { searchInfo } = this.configData;
+          if (searchInfo.searchValue) {
+            const v = searchInfo.searchValue;
+            const compIdArr = [];
+            searchInfo.columnsInfo.forEach((comp) => {
+              compIdArr.push(comp.compId);
+            });
+            const resArr = [];
+            this.allTableData.data.forEach((item) => {
+              item.isUsed = false;
+              const index = compIdArr.findIndex((compId) => {
+                if (item[compId].indexOf(v) !== -1) {
+                  return true;
+                }
+                return false;
+              });
+              if (index !== -1) {
+                item.isUsed = true;
+                resArr.push(item);
+              }
+            });
+            const fatherArr = [];
+            resArr.forEach((item) => {
+              let parentId = item.parent;
+              /* eslint-disable */
+              while (parentId) {
+                const obj = this.$refs.gantt.getTask(parentId);
+                if (obj && !obj.isUsed) {
+                  obj.isUsed = true;
+                  fatherArr.push(obj);
+                  parentId = obj.parent;
+                } else {
+                  parentId = 0;
+                }
+              }
+              /* eslint-enable */
+            });
+            resObj = {
+              data: [...resArr, ...fatherArr],
+            };
+          }
+        }
+      }
+      this.tableData = resObj;
+      this.$nextTick(() => {
+        this.$refs.gantt.reload();
+      });
+    },
     // 处理跳转面板的条件获取面板
     resolvePanleTerm() {
       if (!this.configData.textPanelId) {
@@ -596,7 +657,7 @@ export default {
       return null;
     },
     selectTask(task, flag) {
-      console.log(task, flag);
+      // console.log(task, flag);
       if (!flag) {
         return;
       }
@@ -676,20 +737,88 @@ export default {
     async onAfterTaskDrag(task) {
       // console.log(task);
       const id = task.tempId ? task.tempId : task.id;
+      if (!this.configData.isTreeGantt) {
+        const obj = {
+          startTime: this.configData.taskColumn.startTime.columnName,
+          endTime: this.configData.taskColumn.endTime.columnName,
+        };
+        const params = {
+          startDate: formatDate(task.start_date, 'yyyy-MM-dd hh:mm:ss'),
+          endDate: formatDate(task.end_date, 'yyyy-MM-dd hh:mm:ss'),
+          whereTerms: `id=${id}`,
+          tableName: this.configData.tableInfo.tableName,
+          ganttParams: JSON.stringify(obj),
+        };
+        await updateGanttTime(params);
+        // console.log(data);
+        this.getSidebarList();
+      } else {
+        const obj = {
+          startTime: this.configData.taskColumn.startTime.columnName,
+          endTime: this.configData.taskColumn.endTime.columnName,
+          progress: this.configData.taskColumn.progress.columnName,
+          links: this.configData.taskColumn.links.columnName,
+        };
+        const params = {
+          startDate: formatDate(task.start_date, 'yyyy-MM-dd hh:mm:ss'),
+          endDate: formatDate(task.end_date, 'yyyy-MM-dd hh:mm:ss'),
+          progress: task.progress,
+          links: task.links,
+          whereTerms: `id=${id}`,
+          tableName: this.configData.tableInfo.tableName,
+          ganttParams: JSON.stringify(obj),
+        };
+        await updateGanttTreeInfo(params);
+      }
+    },
+    async onAfterLinkAdd(task, item) {
+      const id = task.tempId ? task.tempId : task.id;
       const obj = {
         startTime: this.configData.taskColumn.startTime.columnName,
         endTime: this.configData.taskColumn.endTime.columnName,
+        progress: this.configData.taskColumn.progress.columnName,
+        links: this.configData.taskColumn.links.columnName,
       };
+      const links = task.links ? task.links.split(',') : [];
+      links.push(`${item.target}_${item.type}`);
+      task.links = links.join(',');
       const params = {
         startDate: formatDate(task.start_date, 'yyyy-MM-dd hh:mm:ss'),
         endDate: formatDate(task.end_date, 'yyyy-MM-dd hh:mm:ss'),
+        progress: task.progress,
+        links: task.links,
         whereTerms: `id=${id}`,
         tableName: this.configData.tableInfo.tableName,
         ganttParams: JSON.stringify(obj),
       };
-      await updateGanttTime(params);
-      // console.log(data);
-      this.getSidebarList();
+      await updateGanttTreeInfo(params);
+    },
+    // onAfterLinkDelete
+    async onAfterLinkDelete(task, item) {
+      const id = task.tempId ? task.tempId : task.id;
+      const obj = {
+        startTime: this.configData.taskColumn.startTime.columnName,
+        endTime: this.configData.taskColumn.endTime.columnName,
+        progress: this.configData.taskColumn.progress.columnName,
+        links: this.configData.taskColumn.links.columnName,
+      };
+      const links = task.links ? task.links.split(',') : [];
+      const curLink = `${item.target}_${item.type}`;
+      const index = links.indexOf(curLink);
+      if (index !== -1) {
+        links.splice(index, 1);
+      }
+      task.links = links.join(',');
+      const params = {
+        startDate: formatDate(task.start_date, 'yyyy-MM-dd hh:mm:ss'),
+        endDate: formatDate(task.end_date, 'yyyy-MM-dd hh:mm:ss'),
+        progress: task.progress,
+        links: task.links,
+        whereTerms: `id=${id}`,
+        tableName: this.configData.tableInfo.tableName,
+        ganttParams: JSON.stringify(obj),
+      };
+      await updateGanttTreeInfo(params);
     },
     // changeStateValue
     changeStateValue(v) {
@@ -969,7 +1098,7 @@ export default {
         return item.canShow;
       });
       console.log(columns);
-      if (columns.length) {
+      if (columns.length && this.configData.isTreeGantt) {
         columns[0].tree = true;
       }
       this.$refs.gantt.initColumn(columns);
@@ -1008,8 +1137,9 @@ export default {
           this.current = 1;
           this.configData.headerSearch = null;
           this.getSidebarList();
+        } else {
+          this.getTableData();
         }
-        console.log(this.configData.searchInfo);
         return;
       }
       if (areaArr === 'treeUpdate') {
@@ -1225,6 +1355,7 @@ export default {
       this.loading = true;
       const filterMap = JSON.stringify(this.getFilterParams());
       const data = [];
+      const links = [];
       this.tableData.data = [];
       const { isTreeGantt } = this.configData;
       // console.log(this.configData.searchInfo);
@@ -1354,14 +1485,38 @@ export default {
         }
         const res = await ganttList(params);
         console.log(res);
+        const idsArr = [];
+
+        // 收集id
+        res.forEach((item) => {
+          idsArr.push(item.id);
+          const link = item[this.configData.taskColumn.links.columnName];
+          if (link) {
+            const tempArr = link.split(',');
+            tempArr.forEach((l) => {
+              const arr = l.split('_');
+              links.push({
+                source: item.id,
+                target: arr[0],
+                type: arr[1],
+              });
+            });
+          }
+        });
         res.forEach((item) => {
           item.start_date =
             item[this.configData.taskColumn.startTime.columnName];
           item.end_date = item[this.configData.taskColumn.endTime.columnName];
           item.progress =
-            item[this.configData.taskColumn.progress.columnName] || '';
-          item.parent =
-            item[this.configData.taskColumn.parentId.columnName] || '';
+            item[this.configData.taskColumn.progress.columnName] || 0;
+          const curParent =
+            item[this.configData.taskColumn.parentId.columnName] || 0;
+          if (idsArr.includes(curParent)) {
+            item.parent = curParent;
+          } else {
+            item.parent = 0;
+          }
+
           item.text = item[this.dropColumnData[0].compId];
           data.push(item);
         });
@@ -1369,6 +1524,9 @@ export default {
       // console.log(data);
 
       this.tableData.data = data;
+      // console.log(links);
+      this.$set(this.tableData, 'links', links);
+      this.allTableData = this.tableData;
       this.$refs.gantt.reload();
       this.loading = false;
       // 代表当前是数据选择框打开的弹窗

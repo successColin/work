@@ -102,7 +102,7 @@ export default {
         memo: this.memo.join(','),
         cellRange: tableTitleArr.length ? JSON.stringify(tableTitleArr) : '',
         menuId: this.$route.params.id || this.$route.query.menuId,
-        userid: this.$store.state.userCenter.userInfo.id,
+        userId: this.$store.state.userCenter.userInfo.id,
         whereOptions,
         compMap: getAllForm,
         dataPermissions: this.dataPermissions,

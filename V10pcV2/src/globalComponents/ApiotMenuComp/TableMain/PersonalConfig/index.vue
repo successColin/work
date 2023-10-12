@@ -117,7 +117,7 @@ export default {
       sessionStorage.isColumnChange = true;
       const params = {
         compId: this.configData.compId,
-        userid: this.$store.state.userCenter.userInfo.id,
+        userId: this.$store.state.userCenter.userInfo.id,
         sysMenuDesignId: this.sysMenuDesignId(),
         designOverallLayout: JSON.stringify(this.tempColumnData),
       };
