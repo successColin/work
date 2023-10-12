@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>邮箱</title>
+    <desc>Created with Sketch.</desc>
+    <g id="邮箱" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-26">
+            <rect id="矩形备份-19" x="0" y="0" width="30" height="30"></rect>
+            <path d="M5.00028905,5 L24.9997109,5 C26.3640305,5 27.482657,6.10963944 27.5,7.46946284 L15.0043358,14.4540103 L2.51156203,7.47829286 C2.52312406,6.11258278 3.63307897,5 5.00028905,5 Z M2.51156203,10.1508462 L2.5,22.5011038 C2.5,23.8756439 3.62440745,25 5.00028905,25 L24.9997109,25 C26.3755926,25 27.5,23.8756439 27.5,22.5011038 L27.5,10.1449595 L15.2991675,16.8027962 C15.1112845,16.9058131 14.885825,16.9058131 14.7008325,16.8027962 L2.51156203,10.1508462 Z" id="形状" fill="#EE5E5E"></path>
+        </g>
+    </g>
+</svg>

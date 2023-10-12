@@ -1,0 +1,645 @@
+<!--
+ * @Author: cmk
+ * @Date: 2021-04-14 17:45:32
+ * @LastEditors: ytx
+ * @LastEditTime: 2021-04-23 17:17:46
+ * @Des: 表格封装
+-->
+<template>
+  <virtual-scroll
+    ref="virtualScroll"
+    :class="[{ noCurData: curData.length === 0 }]"
+    :data="curData"
+    :item-size="37"
+    :dynamic="false"
+    :key-prop="rowKey"
+    @change="onChange"
+    @selection-change="handleSelectionChange"
+  >
+    <el-table
+      ref="multipleTable"
+      :data="curVirtualData"
+      :class="[{ hasBigButton: hasBigButton }]"
+      :height="tableHeight"
+      v-on="$listeners"
+      v-bind="$attrs"
+      :border="border"
+      :row-key="rowKey"
+      @sort-change="sortChange"
+      @cell-mouse-enter="cellMouseEnter"
+      @cell-mouse-leave="cellMouseLeave"
+      @row-click="rowClick"
+      @header-dragend="headerDragend"
+    >
+      <el-table-column
+        v-if="showSort"
+        width="40"
+        fixed="left"
+        :resizable="false"
+      >
+        <template slot-scope="scope">
+          <span class="centerFont">{{ scope.row.index + 1 }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-else-if="showRadio"
+        width="40"
+        fixed="left"
+        :resizable="false"
+        align="center"
+        className="notTablePadding"
+      >
+        <template slot-scope="scope">
+          <div class="serial__box" @click="handleChangeRadioObj(scope.row)">
+            <span
+              class="centerFont"
+              v-if="
+                scope.row.showIndex &&
+                scope.row[selectName] !== getCurrentRadioObjId
+              "
+              >{{ scope.row.index + 1 }}</span
+            >
+            <el-radio
+              v-else
+              class="serial__radio"
+              :value="currentRadioObj ? currentRadioObj[selectName] : ''"
+              :label="scope.row[selectName]"
+            ></el-radio>
+          </div>
+          <div class="mask-box" v-if="lineSelect"></div>
+        </template>
+      </el-table-column>
+      <VirtualColumn
+        width="45"
+        type="selection"
+        ref="selectionColumn"
+        :reserve-selection="reserveSelection"
+        :selectable="selectable"
+        v-else-if="showSelection"
+        fixed="left"
+        className="notTablePadding"
+        @select-all="selectAll"
+      >
+        <template slot-scope="scope">
+          <span
+            class="centerFont"
+            v-if="scope.row.showIndex && !scope.row.$v_checked"
+            >{{ scope.row.index + 1 }}</span
+          >
+          <el-checkbox
+            v-else
+            :value="scope.row.$v_checked"
+            :disabled="scope.row.isDisable"
+            @change="!lineSelect && changeSelectd(scope.row)"
+          ></el-checkbox>
+          <div class="mask-box" v-if="lineSelect"></div>
+        </template>
+      </VirtualColumn>
+      <slot name="custom"></slot>
+      <slot></slot>
+      <template v-slot:empty>
+        <div class="apiotNoData1" placeholder="暂无数据"></div>
+      </template>
+    </el-table>
+  </virtual-scroll>
+</template>
+
+<script>
+/* eslint-disable */
+import { debounce } from '@/utils/utils';
+import VirtualScroll from 'el-table-virtual-scroll';
+import Sortable from 'sortablejs';
+import VirtualColumn from './VirtualColumn';
+
+export default {
+  inheritAttrs: false,
+  props: {
+    height: {
+      type: Number,
+      default: 0
+    },
+    // 是否需要动画
+    isAnimate: {
+      type: Boolean,
+      default: true
+    },
+    // 表格数据
+    tableData: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    // 是否显示多选框
+    showSelection: {
+      type: Boolean,
+      default: true
+    },
+    // 是否显示排序
+    showSort: {
+      type: Boolean,
+      default: false
+    },
+    // 内容是否有大按钮,有大按钮的内容行高需40，默认36
+    hasBigButton: {
+      type: Boolean,
+      default: false
+    },
+    // 是否需要行拖拽
+    isNeedRowDrop: {
+      type: Boolean,
+      default: false
+    },
+    // 是否需要列拖拽
+    isNeedColumnDrop: {
+      type: Boolean,
+      default: true
+    },
+    // 列拖拽列表数据
+    dropColumnData: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    // 行列拖拽 精准定位table
+    dropClass: {
+      type: String,
+      default: '#app'
+    },
+    // 是否可以行拖拽
+    border: {
+      type: Boolean,
+      default: true
+    },
+    // 排序是否需要后端支持
+    isNeedAsync: {
+      type: Boolean,
+      default: false
+    },
+    rowKey: {
+      type: [String, Function],
+      default: ''
+    },
+    // 动画强制刷新所有
+    shouldResetAll: {
+      type: Boolean,
+      default: false
+    },
+    showRadio: {
+      type: Boolean,
+      default: false
+    },
+    currentRadioObj: {
+      type: Object,
+      default: () => {}
+    },
+    selectName: {
+      type: String,
+      default: 'id'
+    },
+    lineSelect: {
+      type: Boolean,
+      default: false
+    },
+    // 是否保留更新前的多选数据
+    reserveSelection: {
+      type: Boolean,
+      default: false
+    },
+    // 过滤
+    selectable: {
+      type: Function,
+      default: () => true
+    }
+  },
+  data() {
+    return {
+      tableHeight: 300,
+      curData: [],
+      tempCurData: [],
+      columnSortable: null, // 列拖拽sortable
+      rowSortable: null, // 行拖拽sortable
+      bounceHeigthFunc: null,
+      timeObj: {},
+      curVirtualData: [],
+      multiArr: [],
+      jump: false
+    };
+  },
+
+  components: {
+    VirtualScroll,
+    VirtualColumn
+  },
+
+  computed: {
+    getCurrentRadioObjId() {
+      if (this.currentRadioObj) {
+        return this.currentRadioObj[this.selectName];
+      }
+      return '';
+    }
+  },
+
+  mounted() {
+    this.changeHeight();
+    this.bounceHeigthFunc = debounce(this.changeHeight);
+    window.addEventListener('resize', this.bounceHeigthFunc);
+    this.$nextTick(() => {
+      setTimeout(() => {
+        if (this.isNeedRowDrop) {
+          this.rowDrop();
+        }
+        if (this.isNeedColumnDrop) {
+          this.columnDrop();
+        }
+      }, 800);
+    });
+  },
+  activated() {
+    this.changeHeight();
+    window.removeEventListener('resize', this.bounceHeigthFunc);
+    window.addEventListener('resize', this.bounceHeigthFunc);
+  },
+  beforeUpdate() {
+    this.$nextTick(() => {
+      if (this.$refs.multipleTable) {
+        this.$refs.multipleTable.doLayout();
+      }
+    });
+  },
+  methods: {
+    onChange(renderData) {
+      // console.log('onChange');
+      this.curVirtualData = renderData;
+    },
+    // 单选框点击事件
+    handleChangeRadioObj(v) {
+      // console.log(v);
+      this.$emit('update:currentRadioObj', v);
+      this.$emit('handleChangeRadioObj', v);
+    },
+    // 改变高度
+    changeHeight() {
+      setTimeout(() => {
+        if (this.$refs.virtualScroll) {
+          const parent = this.$refs.virtualScroll.$el.parentNode;
+          this.tableHeight = parent.offsetHeight;
+          this.$refs.virtualScroll.update();
+        }
+      }, 0);
+    },
+    //  鼠标移入
+    cellMouseEnter(row) {
+      // 做延迟
+      this.timeObj[row.rowKey] = setTimeout(() => {
+        if (this.showSelection || this.showRadio) {
+          row.showIndex = false;
+        }
+      }, 100);
+
+      this.$emit('cellMouseEnter', row, this.timeObj[row.rowKey]);
+    },
+    // 鼠标移出
+    cellMouseLeave(row) {
+      if (this.showSelection || this.showRadio) {
+        // 清除延迟
+        if (this.timeObj[row.rowKey]) {
+          clearTimeout(this.timeObj[row.rowKey]);
+          delete this.timeObj[row.rowKey];
+        }
+        row.showIndex = true;
+      }
+    },
+    // 全选操作
+    selectAll(selection) {
+      console.log(selection);
+      if (!selection) {
+        this.multiArr = [];
+        this.$emit('select-all', []);
+        this.$emit('selectionChange', this.multiArr);
+        this.$emit('selection-change', this.multiArr);
+      }
+    },
+    // 行点击
+    rowClick(row) {
+      if (!this.lineSelect) {
+        return false;
+      }
+      if (this.showRadio) {
+        this.handleChangeRadioObj(row);
+      } else if (this.showSelection) {
+        // this.$refs.virtualScroll.toggleRowSelection(row);
+        this.changeSelectd(row);
+        this.$emit('change-selectd', row, row.$v_checked);
+      }
+    },
+    // 默认全选
+    defaultSelection() {
+      this.$nextTick(() => {
+        this.curData.forEach((item) => {
+          item.isChecked = true;
+          this.$refs.virtualScroll.toggleRowSelection(item, true);
+        });
+      });
+    },
+    handleSelectionChange(val) {
+      // console.log(this.multiArr, val, this.jump);
+      if (this.reserveSelection) {
+        if (!this.jump) {
+          val.forEach((v) => {
+            const index = this.multiArr.findIndex((item) => item[this.rowKey] === v[this.rowKey]);
+            if (index === -1) {
+              this.multiArr.push(v);
+            }
+          });
+          this.$emit('selectionChange', this.multiArr);
+          this.$emit('selection-change', this.multiArr);
+        }
+      } else {
+        this.$emit('selectionChange', val);
+        this.$emit('selection-change', val);
+      }
+      if (val.length === this.curData.length) {
+        this.$emit('select-all', val);
+      }
+    },
+    // checked更改
+    changeSelectd(row) {
+      // console.log(row.$v_checked);
+      if (row.$v_checked) {
+        const index = this.multiArr.findIndex((item) => item[this.rowKey] === row[this.rowKey]);
+        if (index !== -1) {
+          this.multiArr.splice(index, 1);
+        }
+      }
+      this.$refs.virtualScroll.toggleRowSelection(row);
+      this.$emit('change-selectd', row, !row.$v_checked);
+    },
+    toggleMulti() {
+      if (this.multiArr.length) {
+        this.$nextTick(() => {
+          this.jump = true;
+          this.tableData.forEach((row) => {
+            const index = this.multiArr.findIndex((item) => item[this.rowKey] === row[this.rowKey]);
+            if (index !== -1) {
+              this.$refs.virtualScroll.toggleRowSelection(row, true);
+            }
+          });
+          this.jump = false;
+        });
+      }
+    },
+    // 切换每一行选中顺序
+    toggleRowSelection(row, flag) {
+      // console.log(row);
+      this.$refs.virtualScroll.toggleRowSelection(row, flag);
+      this.$set(row, 'isChecked', flag);
+    },
+    // 清空排序
+    clearSort() {
+      this.$refs.multipleTable.clearSort();
+    },
+    // 清空选中
+    clearSelection() {
+      this.$nextTick(() => {
+        if (this.$refs.virtualScroll) {
+          this.multiArr = [];
+          this.$refs.virtualScroll.clearSelection();
+          this.curData.forEach((item) => {
+            item.isChecked = false;
+          });
+        }
+      });
+    },
+    // 行拖拽
+    rowDrop() {
+      const tbody = document.querySelector(`${this.dropClass} .el-table__body-wrapper tbody`);
+      const _this = this;
+      this.rowSortable = Sortable.create(tbody, {
+        animation: 300,
+        onEnd({ newIndex, oldIndex }) {
+          const currRow = _this.curData.splice(oldIndex, 1)[0];
+          _this.curData.splice(newIndex, 0, currRow);
+          _this.$emit('row-drop-end', { newIndex, oldIndex });
+        },
+        onStart({ oldIndex }) {
+          _this.$emit('row-drop-start', { oldIndex });
+        }
+      });
+    },
+    // 列拖拽
+    columnDrop() {
+      const wrapperTr = document.querySelector(`${this.dropClass} .el-table__header-wrapper tr`);
+      this.columnSortable = Sortable.create(wrapperTr, {
+        animation: 300,
+        delay: 0,
+        onMove: (evt) => {
+          this.$emit('column-drop-move', evt);
+        },
+        onEnd: ({ oldIndex, newIndex }) => {
+          // 有多选，前面默认多一条数据
+          if (this.showSort || this.showRadio || this.showSelection) {
+            oldIndex -= 1;
+            newIndex -= 1;
+          }
+          const oldItem = this.dropColumnData.splice(oldIndex, 1);
+          this.dropColumnData.splice(newIndex, 0, ...oldItem);
+          sessionStorage.isColumnChange = true;
+          this.$emit('column-drop-end', { oldIndex, newIndex });
+        }
+      });
+    },
+    // 表头宽度改变
+    headerDragend(newWidth, oldWidth, column, event) {
+      if (this.columnSortable) {
+        this.columnSortable.destroy();
+      }
+      if (this.isNeedColumnDrop) {
+        this.columnDrop();
+      }
+      this.$emit('header-dragend', newWidth, oldWidth, column, event);
+    },
+
+    // 滚动到指定行
+    scrollToCur(index) {
+      this.$refs.virtualScroll.scrollTo(index);
+    },
+    sortChange(obj) {
+      if (obj.prop === undefined) {
+        return 0;
+      }
+      if (this.isNeedAsync) {
+        this.$emit('sortChangeColumn', obj);
+      } else {
+        this.curData.sort((data1, data2) => {
+          let res = 0;
+          let v1 = data1[obj.prop];
+          let v2 = data2[obj.prop];
+          console.log(v1, v2);
+          if (typeof v1 === 'number' && !isNaN(v1) && typeof v2 === 'number' && !isNaN(v2)) {
+            res = v1 - v2;
+          } else {
+            const str1 = `${v1 ? v1 : ''}`;
+            const str2 = `${v2 ? v2 : ''}`;
+            for (let i = 0; ; i += 1) {
+              if (!str1[i] || !str2[i]) {
+                res = str1.length - str2.length;
+                break;
+              }
+              const char1 = str1[i];
+              const char1Type = this.getChartType(char1);
+              const char2 = str2[i];
+              const char2Type = this.getChartType(char2);
+              // 类型相同的逐个比较字符
+              if (char1Type[0] === char2Type[0]) {
+                if (char1 !== char2) {
+                  if (char1Type[0] === 'zh') {
+                    res = char1.localeCompare(char2);
+                  } else if (char1Type[0] === 'en') {
+                    res = char1.charCodeAt(0) - char2.charCodeAt(0);
+                  } else {
+                    res = char1 - char2;
+                  }
+                  break;
+                }
+              } else {
+                // 类型不同的，直接用返回的数字相减
+                res = char1Type[1] - char2Type[1];
+                break;
+              }
+            }
+          }
+          if (obj.order === 'ascending') {
+            return res;
+          }
+          return -res;
+        });
+      }
+    },
+    getChartType(char) {
+      // 数字可按照排序的要求进行自定义，我这边产品的要求是
+      // 数字（0->9）->大写字母（A->Z）->小写字母（a->z）->中文拼音（a->z）
+      if (/^[\u4e00-\u9fa5]$/.test(char)) {
+        return ['zh', 300];
+      }
+      if (/^[a-zA-Z]$/.test(char)) {
+        return ['en', 200];
+      }
+      if (/^[0-9]$/.test(char)) {
+        return ['number', 100];
+      }
+      return ['others', 999];
+    },
+    initTable(v) {
+      this.curData = JSON.parse(JSON.stringify(v));
+      this.curData.forEach((item, index) => {
+        this.$set(item, 'index', index);
+        if (item.isChecked === undefined && item.showIndex === undefined) {
+          this.$set(item, 'isChecked', false);
+          this.$set(item, 'showIndex', true);
+        }
+      });
+
+      this.$nextTick(() => {
+        const cellArr = document.querySelectorAll('.cell');
+        cellArr.forEach((cell) => {
+          cell.title = cell.innerText;
+        });
+        this.$emit('tableInited', this.curData);
+      });
+    }
+  },
+
+  watch: {
+    tableData: {
+      handler(v) {
+        this.initTable(v);
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  deactivated() {
+    window.removeEventListener('resize', this.bounceHeigthFunc);
+  },
+  beforeDestroy() {
+    this.curData = [];
+    window.removeEventListener('resize', this.bounceHeigthFunc);
+    if (this.rowSortable) {
+      this.rowSortable.destroy();
+    }
+    if (this.columnSortable) {
+      this.columnSortable.destroy();
+    }
+  }
+};
+</script>
+<style lang="scss" scoped>
+.serial__box {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+.centerFont {
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+}
+.serial__radio {
+  ::v-deep {
+    .el-radio__label {
+      display: none;
+    }
+  }
+}
+.hasBigButton {
+  ::v-deep {
+    th {
+      padding: 0;
+    }
+    .cell {
+      line-height: 40px;
+    }
+  }
+}
+.mask-box {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0);
+}
+::v-deep {
+  .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    position: relative;
+    border: 1px solid #e9e9e9;
+    background-color: #ffffff;
+    &::before {
+      content: '';
+      position: absolute;
+      left: -1px;
+      top: -1px;
+      width: 14px;
+      height: 14px;
+      background: #4689f5;
+    }
+  }
+  .el-table__empty-text {
+    height: 100%;
+    max-height: 300px;
+  }
+}
+.noCurData {
+  ::v-deep {
+    .el-table__body-wrapper {
+      & > div:first-child {
+        display: none;
+      }
+    }
+  }
+}
+</style>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="14px" viewBox="0 0 18 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>图片</title>
+    <desc>Created with Sketch.</desc>
+    <g id="dataA模块" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="设计大屏-图形导航" transform="translate(-70.000000, -582.000000)">
+            <g id="编组-2备份-3" transform="translate(60.000000, 353.000000)">
+                <g id="编组备份-5" transform="translate(0.000000, 220.000000)">
+                    <g id="输入框/常态备份-3">
+                        <g id="图片" transform="translate(10.000000, 9.000000)">
+                            <rect id="矩形备份" stroke="#4689F5" fill-opacity="0.502731643" fill="#4689F5" x="0.5" y="0.5" width="17" height="13"></rect>
+                            <polyline id="路径-3" stroke="#4689F5" points="3.29011616 10.5 5.4204305 7 8.18657284 8.92016901 10.9111503 5 14 10.5"></polyline>
+                            <circle id="椭圆形" fill="#4689F5" cx="14" cy="4" r="1"></circle>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

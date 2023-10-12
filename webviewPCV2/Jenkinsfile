@@ -1,0 +1,110 @@
+pipeline {
+    agent any
+
+    options {
+        // 表示保留3次构建历史
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+        // 不允许同时执行流水线
+        disableConcurrentBuilds()
+        // 执行超过10分钟将中止
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('通知开始') { 
+            steps{
+                dingtalk (
+                    robot: 'jizhi-dingtalk',
+                    type: 'ACTION_CARD',
+                    title: '自动构建开始通知',
+                    atAll: 'false',
+                    text: [
+                            '### EAM10前端',
+                            '分支：$BRANCH_NAME  ',
+                            '构建：$BUILD_DISPLAY_NAME'
+                          ],
+                    btns: [
+                            [
+                                title: '构建日志',
+                                actionUrl: '$BUILD_URL/console'
+                            ],
+                            [
+                                title: '变更内容',
+                                actionUrl: '$BUILD_URL/changes'
+                            ]
+                          ]
+                )
+            }
+        }
+        stage("更新依赖打包") {
+            agent {
+                    docker { 
+                        image 'node:14.16.0-alpine3.13' 
+                        args "-v ${env.WORKSPACE}@2:/usr/src/app"
+                    }
+                }
+            steps {
+                sh "npm config set registry https://registry.npm.taobao.org "
+                sh "npm install -g npm "
+                sh "npm install --legacy-peer-deps"
+                sh "npm run build "
+            }
+        }
+        
+        stage('制品归档') {
+            steps {
+                sh label: "压缩dist", script: "tar cvf dist.tar ${env.WORKSPACE}@2/dist/**"
+                archiveArtifacts artifacts: 'dist.tar', followSymlinks: false
+            }
+        }
+
+        stage("部署到47.118.76.70环境") {
+            steps {
+                sh "ssh v10_dev -tt rm -rf /data/wwwroot/default/v10/static "
+                sh "scp -r ${env.WORKSPACE}@2/dist/** v10_dev:/data/wwwroot/default/v10/ "
+            }
+            post {
+                success {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','已成功部署到47.118.76.70环境！！！'],
+                    )
+                }
+                failure {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','47.118.76.70环境部署失败！！！'],
+                    )
+                }
+            }
+        }
+        
+        stage("部署到v10ERP演示环境") {
+            steps {
+                sh "scp -r ${env.WORKSPACE}@2/dist/** UAT:/var/lib/docker/volumes/eam10_business_web-home/_data/dist/"
+            }
+            post {
+                success {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','已成功部署到v10ERP演示环境！！！'],
+                    )
+                }
+                failure {
+                    dingtalk (
+                        robot: 'jizhi-dingtalk',
+                        type: 'TEXT',
+                        atAll: false,
+                        text: ['EAM10前端','分支：dev','v10ERP演示环境！！！'],
+                    )
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,71 @@
+.apiotWangeditor {
+  color: #333;
+  font-size: 13px;
+  ::v-deep {
+    // h1,h2,h3,h4,h5,h6,span
+    // html,body,div,applet,object,iframe,p,
+    // blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,
+    // img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,
+    // center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,
+    // tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,
+    // figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,
+    // time,mark,audio,video{
+    //   font-size: 13px;
+    //   color: #333;
+    // }
+    blockquote {
+      background-color: #f5f2f0;
+      border-left: 8px solid #B4D5FF;
+      display: block;
+      margin: 10px 0;
+      padding-left: 10px;
+    }
+    code {
+      background-color: #f5f2f0;
+      border-radius: 3px;
+      font-family: monospace;
+      padding: 3px;
+    }
+    pre>code {
+      word-wrap: normal;
+      font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+      hyphens: none;
+      line-height: 1.5;
+      margin: 0.5em 0;
+      overflow: auto;
+      padding: 1em;
+      tab-size: 4;
+      text-align: left;
+      text-shadow: 0 1px #fff;
+      white-space: pre;
+      word-break: normal;
+      word-spacing: normal;
+
+      background-color: #f5f2f0;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px 4px;
+      display: block;
+      font-size: 14px;
+      padding: 10px;
+      text-indent: 0;
+    }
+    blockquote, pre>code {
+      padding-left: 10px !important;
+    }
+    ol li, blockquote, pre>code {
+      padding: 5px 0;
+    }
+    table th {
+      background-color: #f5f2f0;
+      font-weight: 700;
+      text-align: center !important;
+    }
+    table th, table td {
+      border: 1px solid #ccc;
+      line-height: 1.5;
+      min-width: 50px;
+      padding: 3px 5px;
+      text-align: left;
+    }
+  }
+}

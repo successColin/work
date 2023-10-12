@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63.1 (92452) - https://sketch.com -->
+    <title>下拉框</title>
+    <desc>Created with Sketch.</desc>
+    <g id="下拉框" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-33">
+            <rect id="矩形备份-26" x="0" y="0" width="30" height="30"></rect>
+            <rect id="形状结合" fill="#EE5E5E" x="3" y="3" width="24" height="24" rx="2"></rect>
+            <path d="M20.9517545,13.6780984 L15.8424378,19.2159384 C15.4679344,19.6218517 14.8352816,19.6473145 14.4293683,19.2728111 C14.4135377,19.2582056 14.3981832,19.2430924 14.3833287,19.2274952 L9.1091954,13.6896552 C8.72830937,13.2897248 8.74374782,12.6567481 9.14367816,12.2758621 C9.32961979,12.0987748 9.5765568,12 9.83333333,12 L20.2167833,12 C20.7690681,12 21.2167833,12.4477153 21.2167833,13 C21.2167833,13.2513047 21.1221638,13.4933967 20.9517545,13.6780984 Z" id="路径" fill="#FFFFFF"></path>
+        </g>
+    </g>
+</svg>

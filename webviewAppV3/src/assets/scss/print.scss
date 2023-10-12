@@ -1,0 +1,99 @@
+.nodata {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container {
+  height: calc(100vh - 148px);
+  overflow-y: auto;
+  background: #f6f6f8;
+  &__box {
+    margin: 20px 30px 0 30px;
+    background: #ffffff;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  table {
+    width: 100%;
+    td {
+      border: 1px solid #333333;
+      line-break: anywhere;
+      span {
+        display: inline-block;
+        margin: 16px 0 16px 20px;
+        font-size: 34px; // 26px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        color: #333333;
+        line-height: 35px;
+        font-weight: 900; // 500
+      }
+    }
+    .memo {
+      height: 60px;
+      background: #333333;
+
+      span {
+        font-size: 34px;
+        color: #ffffff;
+        text-align: center;
+        display: block;
+      }
+    }
+  }
+  &__logo {
+    height: 66px;
+  }
+  &__logo1 {
+    width: 240px;
+    height: 240px;
+  }
+  &__label {
+    display: block !important;
+    margin-left: 0 !important;
+    text-align: center;
+    min-width: 120px;
+  }
+  &__button {
+    height: 88px;
+    background: #4689f5;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
+    border-radius: 44px;
+    margin: 30px 20px;
+    width: calc(100% - 40px);
+    &--icon {
+      font-size: 30px;
+      margin-right: 10px;
+    }
+    ::v-deep(.van-button__text) {
+      display: flex;
+      align-items: center;
+    }
+  }
+  &__qrcodeClass {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &__form--input {
+    margin: 20px 0;
+  }
+}
+.dialog__footer {
+  display: flex;
+  .footer__btn {
+    flex: 1;
+    height: 88px;
+  }
+  .footer__primary {
+    background: #4689f5;
+  }
+}
+::v-deep(.van-cell) {
+  padding: 18px;
+}
+::v-deep(.van-field__body) {
+  background: #f0f0f0;
+  padding: 18px;
+  border-radius: 12px;
+}

@@ -1,0 +1,165 @@
+{
+  "name": "front",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "@babel/preset-env": "^7.13.12",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-unit-mocha": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/eslint-config-airbnb": "^5.0.2",
+    "@vue/test-utils": "^1.0.3",
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.1.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^6.7.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "lint-staged": "^9.5.0",
+    "sass": "~1.32.6",
+    "sass-loader": "^8.0.2",
+    "script-ext-html-webpack-plugin": "^2.1.5",
+    "vue-template-compiler": "^2.6.11",
+    "webpack-bundle-analyzer": "^4.4.2",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "buildTzsh": "vue-cli-service build ",
+    "test:unit": "vue-cli-service test:unit",
+    "lint": "vue-cli-service lint",
+    "analyzer": "cross-env use_analyzer=true npm run build"
+  },
+  "dependencies": {
+    "@wangeditor/core": "^1.0.1",
+    "@wangeditor/editor": "^5.0.1",
+    "@wangeditor/editor-for-vue": "^1.0.0",
+    "axios": "^0.21.1",
+    "better-scroll": "^2.3.1",
+    "clipboard": "^2.0.10",
+    "cnchar": "^3.0.1",
+    "cnchar-poly": "^3.0.1",
+    "codemirror": "^5.62.2",
+    "core-js": "^3.6.5",
+    "cron-validator": "^1.2.1",
+    "crypto-js": "^4.0.0",
+    "dom7": "^4.0.4",
+    "echarts": "5.1.2",
+    "echarts-liquidfill": "^3.1.0",
+    "el-table-virtual-scroll": "^1.0.11",
+    "element-ui": "^2.15.7",
+    "fabric": "^5.3.0",
+    "flv.js": "^1.6.2",
+    "gdt-jsapi": "^1.9.35",
+    "history-keep-alive": "^0.1.10",
+    "hot-formula-parser": "^4.0.0",
+    "i18next": "^20.3.1",
+    "jshint": "^2.13.4",
+    "jsonlint": "^1.6.3",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "monent": "*",
+    "pdfjs-dist": "2.5.207",
+    "print-js": "^1.6.0",
+    "qs": "^6.10.1",
+    "script-loader": "^0.7.2",
+    "snabbdom": "^3.4.0",
+    "sockjs-client": "^1.5.1",
+    "sortablejs": "^1.13.0",
+    "stompjs": "^2.3.3",
+    "video-js": "^0.7.0",
+    "video.js": "^7.12.3",
+    "videojs-flash": "^2.2.1",
+    "videojs-flvjs-es6": "^1.0.1",
+    "vue": "^2.6.11",
+    "vue-codemirror": "^4.0.6",
+    "vue-element-resize-detector": "^1.0.6",
+    "vue-i18n": "^8.24.2",
+    "vue-img-cutter": "^2.2.3",
+    "vue-pdf-signature": "^4.2.7",
+    "vue-qr": "^4.0.9",
+    "vue-router": "^3.2.0",
+    "vue-video-player": "^5.0.2",
+    "vue-virtual-scroll-list": "^2.3.4",
+    "vue-waterfall2": "^1.10.1",
+    "vuedraggable": "^2.24.3",
+    "vuex": "^3.4.0",
+    "vuex-persistedstate": "^4.0.0-beta.3",
+    "wangeditor": "^4.7.1",
+    "webpack-theme-color-replacer": "^1.3.18",
+    "websocket": "^1.0.34"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/airbnb"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {
+      "function-paren-newline": "off",
+      "indent": [
+        "off",
+        2
+      ],
+      "func-names": 0,
+      "no-param-reassign": "off",
+      "no-console": 0,
+      "operator-linebreak": "off",
+      "implicit-arrow-linebreak": "off",
+      "no-underscore-dangle": "off",
+      "consistent-return": "off",
+      "class-methods-use-this": "off",
+      "import/extensions": "off",
+      "import/no-dynamic-require": "off",
+      "global-require": "off",
+      "import/no-unresolved": "off",
+      "comma-dangle": "off",
+      "space-before-function-paren": "off",
+      "object-curly-newline": "off",
+      "no-bitwise": "off",
+      "no-mixed-operators": [
+        0
+      ],
+      "import/no-webpack-loader-syntax": "off",
+      "linebreak-style": "off",
+      "no-nested-ternary": 0
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "mocha": true
+        }
+      }
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "front@0.1.0"
+}
