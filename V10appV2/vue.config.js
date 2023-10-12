@@ -19,11 +19,11 @@ module.exports = {
         // target: 'http://192.168.0.23:8080', // jh
         // target: 'http://47.99.87.62:84/',
         // target: 'http://47.99.87.62:93/', // erp
-        // target: 'http://116.62.194.222:85',
+        target: 'http://116.62.194.222:85',
         // target: 'http://122.226.86.24:88',
         // target:'http://47.99.87.62:84',
         // target: 'https://v10.mingcloud.top',
-				target: 'https://eam.etransfar.com',
+        // target: 'https://eam.etransfar.com',
         changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
         pathRewrite: {
           '^/api': '/api',
@@ -48,10 +48,7 @@ module.exports = {
 
     if (process.env.use_analyzer) {
       // 分析
-      config
-        .plugin('webpack-bundle-analyzer')
-        .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
-        .end();
+      config.plugin('webpack-bundle-analyzer').use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin).end();
     }
 
     config.when(process.env.NODE_ENV !== 'development', (curConfig) => {
